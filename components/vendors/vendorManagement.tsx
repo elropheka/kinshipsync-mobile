@@ -1,0 +1,112 @@
+import React from 'react'; // Removed useState as activeTab is no longer needed here
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  ActivityIndicator,
+  // StyleSheet, // Styles are imported, not created here
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { styles } from '../../styles/components/vendors/vendorManagement.styles';
+import { Colors } from '../../constants/Colors';
+import { Vendor } from '../../types/vendorTypes';
+import { useAppAuth } from '../../hooks/useAppAuth';
+import { useUserVendors } from '../../hooks/useVendors'; // Only useUserVendors is needed
+import { router } from 'expo-router'; // For navigation
+
+// This component now directly displays the "Your Vendors" list
+const VendorManagementScreen = () => {
+  const { user } = useAppAuth();
+
+  const {
+    userVendors,
+    isLoading: isLoadingUserVendors,
+    error: errorUserVendors,
+    // refetchUserVendors, // Can be used for a pull-to-refresh or manual refresh button
+  } = useUserVendors(user?.uid);
+
+  const handleNavigateToDetails = (vendorId: string) => {
+    router.push(`/(vendors)/details/${vendorId}`);
+  };
+
+  const renderVendorCard = (vendor: Vendor) => {
+    const categoryName = vendor.categories && vendor.categories.length > 0 
+      ? vendor.categories[0].name 
+      : 'Uncategorized';
+    
+    const iconName: keyof typeof Ionicons.glyphMap = vendor.logoUrl ? 'image-outline' : 'storefront-outline';
+
+    return (
+      <TouchableOpacity 
+        key={vendor.id} 
+        style={styles.vendorCard}
+        onPress={() => handleNavigateToDetails(vendor.id)}
+      >
+        <View style={styles.vendorHeader}>
+          <View style={styles.vendorIconContainer}>
+            {vendor.logoUrl ? (
+              <Ionicons name="image-outline" size={30} color="#555" style={styles.vendorIcon} />
+            ) : (
+              <Ionicons name={iconName} size={30} color="#555" style={styles.vendorIcon} />
+            )}
+          </View>
+          <View style={styles.vendorInfo}>
+            <Text style={styles.vendorName}>{vendor.name}</Text>
+            <Text style={styles.vendorCategory}>{categoryName}</Text>
+            {vendor.averageRating !== undefined && vendor.averageRating > 0 && (
+              <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={16} color={Colors.light.tint} />
+                <Text style={styles.ratingText}>{vendor.averageRating.toFixed(1)}</Text>
+              </View>
+            )}
+          </View>
+          <TouchableOpacity style={styles.chevronButton} onPress={() => handleNavigateToDetails(vendor.id)}>
+            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  if (isLoadingUserVendors) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+      </SafeAreaView>
+    );
+  }
+
+  if (errorUserVendors) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.errorText}>Error loading your vendors: {errorUserVendors.message}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!userVendors || userVendors.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.emptyContainer}> {/* Added a container for empty text styling */}
+          <Text style={styles.emptyText}>You haven't added any vendors yet.</Text>
+          {/* Optionally, add a button to browse all vendors */}
+          <TouchableOpacity onPress={() => router.push('/(vendors)/all')} style={styles.browseButton}>
+            <Text style={styles.browseButtonText}>Browse All Vendors</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.vendorList}>
+        {userVendors.map(vendor => renderVendorCard(vendor))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default VendorManagementScreen;

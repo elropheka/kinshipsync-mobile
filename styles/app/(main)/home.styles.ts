@@ -1,0 +1,342 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from 'constants/Colors';
+import Fonts, { FontSizes } from 'constants/fonts'; // Assuming FontSizes is exported from fonts.ts
+import {
+  Spacing,
+  BorderRadius,
+  IconSizes,
+  ResponsiveFontSizes,
+  Layout,
+  moderateScale,
+} from 'constants/dimensions';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.backgroundLight,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.m,
+    backgroundColor: Colors.light.backgroundLight,
+    borderTopColor: Colors.light.icon,
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Retain percentage for now, or define a specific Spacing value
+  },
+  kinshipText: {
+    fontSize: ResponsiveFontSizes.header2,
+    fontWeight: Fonts.weights.medium,
+    fontFamily: Fonts.headerBold,
+    color: Colors.light.tint,
+  },
+  headerIcons: {
+    flexDirection: 'row',
+  },
+  headerIcon: {
+    marginLeft: Spacing.s,
+    height: IconSizes.xl,
+    width: IconSizes.xl,
+    paddingLeft: Spacing.xxs,
+    // Added for vertical alignment if needed, can be adjusted
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    // flex: 1, // No longer flex 1 as it's not in the header row
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.neutralBg, // Or Colors.light.background for a slight difference
+    borderWidth: 1,
+    borderColor: Colors.light.icon, // Or Colors.light.border for a softer look
+    borderRadius: BorderRadius.l,
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Match dashboardContent/header horizontal margin
+    paddingHorizontal: Spacing.s,
+    marginTop: Spacing.m, // Add margin to separate from header
+    marginBottom: Spacing.s, // Add some space before the dashboard title
+    height: Layout.SCREEN_HEIGHT * 0.055, // Slightly taller if desired, or use Layout.inputHeight
+  },
+  searchIcon: {
+    marginRight: Spacing.s,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.s,
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: Colors.light.text,
+  },
+  dashboardContent: {
+    flex: 1,
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Retain percentage
+  },
+  dashboardTitle: {
+    fontSize: ResponsiveFontSizes.header3,
+    fontWeight: Fonts.weights.medium,
+    marginBottom: Spacing.m,
+    fontFamily: Fonts.headerSemiBold,
+    // marginTop: Spacing.m, // Removed to reduce space below header
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // This seems redundant if dashboardContent has it
+    color: Colors.light.textDarkContrast,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.s,
+  },
+  recentActivityHeader: {
+    marginTop: Spacing.s,
+  },
+  section: {
+    backgroundColor: Colors.light.background,
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    borderRadius: BorderRadius.m,
+    marginBottom: Spacing.m,
+  },
+  sectionTitle: {
+    fontSize: ResponsiveFontSizes.title,
+    fontWeight: Fonts.weights.medium,
+    color: Colors.light.textDarkContrast,
+  },
+  seeAllText: {
+    color: Colors.light.accent,
+    fontSize: ResponsiveFontSizes.body,
+  },
+  eventItem: {
+    flexDirection: 'row',
+    backgroundColor: Colors.light.backgroundLight,
+    borderRadius: BorderRadius.m,
+    padding: Spacing.m,
+    marginBottom: Spacing.s,
+    shadowColor: Colors.light.text,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2,
+  },
+  eventDate: {
+    marginRight: Spacing.m,
+    alignItems: 'center',
+    width: moderateScale(60),
+    height: moderateScale(60),
+    borderRadius: BorderRadius.s,
+    justifyContent: 'center',
+  },
+  eventMonth: {
+    fontSize: ResponsiveFontSizes.caption,
+    fontWeight: 'bold',
+  },
+  eventDay: {
+    fontSize: ResponsiveFontSizes.header2,
+    fontWeight: 'bold',
+  },
+  eventDetails: {
+    flex: 1,
+  },
+  eventTitle: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    fontWeight: Fonts.weights.medium,
+    marginBottom: Spacing.xs,
+    color: Colors.light.textDarkContrast,
+  },
+  eventTimeLocation: {
+    flexDirection: 'column',
+  },
+  eventTime: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.icon,
+    marginLeft: Spacing.xs,
+  },
+  eventLocation: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.icon,
+    marginLeft: Spacing.xs,
+  },
+  // New Recent Activity Styles
+  activityItemCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.m,
+    borderRadius: BorderRadius.m,
+    marginBottom: Spacing.s,
+    shadowColor: Colors.light.text, // Softer shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  activityIconCircle: {
+    width: moderateScale(44), // Slightly larger icon container
+    height: moderateScale(44),
+    borderRadius: moderateScale(22), // Circular
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.m,
+  },
+  activityTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  activityDescriptionText: {
+    fontSize: ResponsiveFontSizes.body,
+    fontFamily: Fonts.bodyRegular, // Using defined font family
+    color: Colors.light.text, // Main text color for better readability
+    marginBottom: Spacing.xxs,
+  },
+  activityTimeText: {
+    fontSize: ResponsiveFontSizes.caption,
+    fontFamily: Fonts.captionRegular, // Using defined font family
+    color: Colors.light.textSecondary, // Softer color for time
+  },
+  // End New Recent Activity Styles
+  proFeatureContent: {
+    alignItems: 'center',
+    paddingVertical: Spacing.l,
+    backgroundColor: Colors.light.backgroundSecondary,
+    borderRadius: BorderRadius.m,
+    marginTop: Spacing.s,
+  },
+  proFeatureText: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: Colors.light.textDarkContrast,
+    textAlign: 'center',
+    marginTop: Spacing.s,
+    marginBottom: Spacing.s,
+    paddingHorizontal: Spacing.s,
+  },
+  mockChart: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.text,
+    padding: Spacing.m,
+    backgroundColor: Colors.light.backgroundLight,
+    borderWidth: 1,
+    borderColor: Colors.light.icon,
+    borderRadius: BorderRadius.s,
+    textAlign: 'center',
+    width: '80%',
+  },
+  upgradePrompt: {
+    alignItems: 'center',
+    paddingVertical: Spacing.l,
+    backgroundColor: Colors.light.backgroundLight,
+    borderRadius: BorderRadius.m,
+    marginTop: Spacing.s,
+    borderWidth: 1,
+    borderColor: Colors.light.icon,
+  },
+  upgradeText: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: Colors.light.textDarkContrast,
+    textAlign: 'center',
+    marginTop: Spacing.s,
+    marginBottom: Spacing.m,
+    paddingHorizontal: Spacing.s,
+  },
+  upgradeButton: {
+    backgroundColor: Colors.light.accent,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
+    borderRadius: BorderRadius.l,
+  },
+  upgradeButtonText: {
+    color: Colors.light.neutralBg,
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: 'bold',
+  },
+  adPlaceholderBanner: {
+    height: moderateScale(50),
+    backgroundColor: Colors.light.backgroundLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: Colors.light.icon,
+  },
+  adPlaceholderText: {
+    color: Colors.light.icon,
+    fontSize: ResponsiveFontSizes.caption,
+  },
+  noItemsText: {
+    textAlign: 'center',
+    color: Colors.light.icon,
+    marginTop: Spacing.m,
+    fontSize: ResponsiveFontSizes.body,
+  },
+  errorText: { // Added
+    textAlign: 'center',
+    color: Colors.light.error,
+    marginTop: Spacing.m,
+    fontSize: ResponsiveFontSizes.body,
+    paddingHorizontal: Spacing.l,
+  },
+  // New styles for RecentActivities component
+  activityActions: {
+    marginTop: 8,
+    flexDirection: 'column',
+  },
+  actionButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionButton: {
+    backgroundColor: Colors.light.primary,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  acceptButton: {
+    backgroundColor: Colors.light.success,
+    flex: 1,
+    marginRight: 4,
+  },
+  declineButton: {
+    backgroundColor: Colors.light.error,
+    flex: 1,
+    marginLeft: 4,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  highPriorityActivityCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.light.error,
+  },
+  priorityIndicator: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: Colors.light.error,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timeFilterContainer: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  timeFilterButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    marginRight: 8,
+    backgroundColor: Colors.light.backgroundLight,
+  },
+  timeFilterButtonActive: {
+    backgroundColor: Colors.light.primary,
+  },
+  timeFilterText: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+  },
+  timeFilterTextActive: {
+    color: 'white',
+    fontWeight: '500',
+  },
+});

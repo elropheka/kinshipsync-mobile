@@ -1,0 +1,120 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from 'constants/Colors';
+import {
+  Layout,
+  Spacing,
+  BorderRadius,
+  ResponsiveFontSizes,
+  moderateScale,
+} from 'constants/dimensions';
+
+export const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    bottom: Spacing.l,
+    left: Spacing.xl,
+    right: Spacing.l,
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Changed from space-around
+    alignItems: 'center',
+    backgroundColor: Colors.light.backgroundPrimary,
+    height: Layout.SCREEN_HEIGHT * 0.08, // Retain percentage or use a fixed moderateScale value
+    width: Layout.SCREEN_WIDTH * 0.85,   // Retain percentage
+    borderRadius: moderateScale(35),
+    shadowColor: Colors.light.text,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5, // This could be a new constant in BorderRadius or moderateScale(5)
+    elevation: 5,
+    paddingHorizontal: Spacing.xs,
+    zIndex: 10,
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    borderRadius: BorderRadius.l,
+    paddingVertical: Spacing.xs,
+  },
+  activeTabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '90%',
+    backgroundColor: Colors.light.backgroundLight,
+    borderRadius: moderateScale(30),
+    marginVertical: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    shadowColor: Colors.light.text,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3, // Could be moderateScale(3)
+    elevation: 3,
+  },
+  tabLabel: {
+    fontSize: ResponsiveFontSizes.small,
+    marginTop: Spacing.xxs,
+    // Color is set dynamically by getLabelColor
+  },
+  addButton: {
+    width: Layout.SCREEN_WIDTH * 0.15, // Retain percentage
+    height: Layout.SCREEN_WIDTH * 0.15, // Retain percentage
+    borderRadius: (Layout.SCREEN_WIDTH * 0.15) / 2, // Keep calculation for perfect circle
+    backgroundColor: Colors.light.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: Colors.light.text,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2, // Could be moderateScale(2)
+    marginHorizontal: Spacing.xs,
+    zIndex: 20,
+  },
+  menuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 15,
+  },
+  addMenuContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.dark.tint,
+    borderTopLeftRadius: BorderRadius.l,
+    borderTopRightRadius: BorderRadius.l,
+    paddingVertical: Spacing.m,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.l,
+    elevation: 10,
+    shadowColor: Colors.light.text,
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6, // Could be moderateScale(6)
+    zIndex: 20,
+  },
+  addMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.m,
+    paddingHorizontal: Spacing.m,
+  },
+  addMenuItemIcon: {
+    marginRight: Spacing.m,
+  },
+  addMenuItemText: {
+    fontSize: ResponsiveFontSizes.title,
+    color: Colors.light.textDarkContrast,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: Colors.light.icon,
+    marginHorizontal: Spacing.m,
+  },
+});

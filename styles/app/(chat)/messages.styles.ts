@@ -1,0 +1,176 @@
+import { StyleSheet, Platform } from 'react-native';
+import { Colors } from 'constants/Colors';
+import Fonts from 'constants/fonts';
+import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
+  centered: { // For loading/error/empty states
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.l,
+  },
+  errorText: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.error,
+    textAlign: 'center',
+    marginBottom: Spacing.m,
+  },
+  retryButton: {
+    marginTop: Spacing.m,
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
+    borderRadius: BorderRadius.s,
+  },
+  retryButtonText: {
+    color: Colors.light.primaryContrastText,
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.divider,
+    backgroundColor: Colors.light.backgroundPaper,
+  },
+  headerTitle: {
+    fontSize: ResponsiveFontSizes.header2,
+    fontWeight: Fonts.weights.bold,
+    color: Colors.light.text,
+  },
+  newMessageButton: {
+    padding: Spacing.s,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.backgroundPaper,
+    marginHorizontal: Spacing.m,
+    marginVertical: Spacing.m,
+    paddingHorizontal: Spacing.m,
+    borderRadius: BorderRadius.xl,
+    height: moderateScale(44),
+  },
+  searchIcon: {
+    marginRight: Spacing.s,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.s,
+    color: Colors.light.text,
+    fontSize: ResponsiveFontSizes.body,
+  },
+  messageList: { // Style for the FlatList itself
+    flex: 1,
+  },
+  messageItem: { // Style for each conversation item
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.m,
+    backgroundColor: Colors.light.backgroundPaper,
+  },
+  avatar: {
+    width: moderateScale(50),
+    height: moderateScale(50),
+    borderRadius: BorderRadius.round,
+    marginRight: Spacing.m,
+    backgroundColor: Colors.light.divider, // Placeholder bg
+  },
+  avatarPlaceholder: {
+    width: moderateScale(50),
+    height: moderateScale(50),
+    borderRadius: BorderRadius.round,
+    backgroundColor: Colors.light.buttonPrimary, // Placeholder bg
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.m,
+  },
+  messageContent: {
+    flex: 1,
+  },
+  messageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.xxs,
+  },
+  senderName: {
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.semiBold,
+    color: Colors.light.text,
+  },
+  messageTime: {
+    fontSize: ResponsiveFontSizes.caption,
+    color: Colors.light.textSecondary,
+  },
+  lastMessage: {
+    fontSize: ResponsiveFontSizes.caption,
+    color: Colors.light.textSecondary,
+  },
+  unreadBadge: {
+    backgroundColor: Colors.light.buttonPrimary,
+    borderRadius: BorderRadius.round,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xxs,
+    minWidth: moderateScale(22),
+    height: moderateScale(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: Spacing.s,
+  },
+  unreadText: {
+    color: Colors.light.primaryContrastText,
+    fontSize: ResponsiveFontSizes.small,
+    fontWeight: Fonts.weights.bold,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: Colors.light.divider,
+    marginLeft: Spacing.m + moderateScale(50) + Spacing.m, // Indent past avatar and margin
+  },
+  emptyListText: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.xl,
+  },
+  emptyListButton: {
+    marginTop: Spacing.m,
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
+    borderRadius: BorderRadius.s,
+    alignSelf: 'center',
+  },
+  emptyListButtonText: {
+    color: Colors.light.primaryContrastText,
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+  },
+  fab: {
+    position: 'absolute',
+    right: Spacing.l,
+    bottom: Spacing.l,
+    backgroundColor: Colors.light.primary,
+    width: moderateScale(56),
+    height: moderateScale(56),
+    borderRadius: moderateScale(28),
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8, // Android shadow
+    shadowColor: Colors.light.text, // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+});

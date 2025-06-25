@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "433750501084",
+    "project_id": "kinshipsync-f2896",
+    "storage_bucket": "kinshipsync-f2896.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433750501084:android:f06a69eed1511cde00b619",
+        "android_client_info": {
+          "package_name": "com.kinship.kinshipsync"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "433750501084-iv4qcneuhlia3sffk2fde5o641kphmqk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kinship.kinshipsync",
+            "certificate_hash": "61aebab6d4b2c40f938390152588d09373f96700"
+          }
+        },
+        {
+          "client_id": "433750501084-trq5r04hpjv03s5u56ce3fqpsa64nuqu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb-D_g5Nr75VCgyyrMrJ-LIxv-ve4S5B0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "433750501084-trq5r04hpjv03s5u56ce3fqpsa64nuqu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kinship.kinshipsync"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

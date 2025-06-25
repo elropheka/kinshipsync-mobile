@@ -1,0 +1,103 @@
+import { Tabs } from 'expo-router';
+import React, { useState, useRef, useCallback, createContext, useContext } from 'react';
+import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import BottomNavigation from 'components/common/Navigation/bottomNavigation';
+// import { useAuth } from 'context/AuthContext';
+import { SubscriptionProvider } from '@/context/SubscriptionContext';
+import { Colors } from '@/constants/Colors';
+import BackButton from '@/components/common/Navigation/BackButton'; // Import BackButton
+
+// Create a context for scroll handling
+// It's fine to keep this here if MainTabsLayout is in the same file,
+// or move to a dedicated context file if used more broadly.
+export const ScrollContext = createContext<{
+  handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  isNavVisible: boolean;
+}>({
+  handleScroll: (_event: NativeSyntheticEvent<NativeScrollEvent>) => {},
+  isNavVisible: true,
+});
+
+// Hook to use the scroll context
+export const useScrollHandler = () => useContext(ScrollContext);
+
+// Inner component to handle auth, scroll logic, and Tabs setup
+function MainTabsLayout() {
+  // const { isAuthenticated } = useAuth();
+  const [isNavVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollThreshold = 10; // Minimum scroll distance to trigger nav visibility change
+
+  // if (!isAuthenticated) {
+  //   return null; // Or redirect, consistent with other layouts
+  // }
+
+  // Handle scroll events to show/hide navigation
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    
+    if (currentScrollY > lastScrollY.current + scrollThreshold) {
+      setNavVisible(false); // Scrolling down
+    } else if (currentScrollY < lastScrollY.current - scrollThreshold) {
+      setNavVisible(true); // Scrolling up
+    }
+    
+    lastScrollY.current = currentScrollY;
+  }, []);
+
+  return (
+    <ScrollContext.Provider value={{ handleScroll, isNavVisible }}>
+      <SubscriptionProvider>
+        <Tabs
+          screenOptions={{
+            headerShown: false,
+            headerLeft: () => <BackButton />, // Use BackButton component
+            tabBarStyle: {
+              display: Platform.OS === 'web' ? 'none' : 'flex',
+            },
+             headerStyle: {
+                      backgroundColor: Colors.light.backgroundPrimary
+                },
+          }}
+          tabBar={props => {
+            if (!props.state || !props.state.routes) {
+              return null;
+            }
+            const routeName = props.state.routes[props.state.index]?.name ?? 'home';
+            const routesToHideTabBar = ['settings', 'subscriptionPlans', 'teams', 'notifications', 'profile', 'guests', '(events)/guests'];
+            const hideTabBar = routesToHideTabBar.includes(routeName);
+            return hideTabBar ? null : <BottomNavigation {...props} isVisible={isNavVisible} />;
+          }}
+        >
+          <Tabs.Screen
+            name="home"
+            options={{ title: "Home", headerShown: false }}
+          />
+          <Tabs.Screen
+            name="notifications"
+            options={{ title: "Notifications", headerShown: true }}
+          />
+          <Tabs.Screen
+            name="profile"
+            options={{ title: "Profile", headerShown: true }}
+          />
+          <Tabs.Screen
+            name="settings"
+            options={{ title: "Settings", headerShown: true }}
+          />
+          <Tabs.Screen
+            name="subscriptionPlans"
+            options={{ title: "Subscription Plans", headerShown: true }}
+          />
+          <Tabs.Screen
+            name="teams"
+            options={{ title: "Teams", headerShown: true }}
+          />
+        </Tabs>
+      </SubscriptionProvider>
+    </ScrollContext.Provider>
+  );
+}
+
+// Default export is now simpler
+export default MainTabsLayout;

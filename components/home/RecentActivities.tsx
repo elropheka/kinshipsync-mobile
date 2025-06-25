@@ -1,0 +1,404 @@
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { MaterialIcons as Icon, Ionicons as IconSecondary, FontAwesome5 } from '@expo/vector-icons';
+import { Notification as NotificationType } from '../../types/userTypes'; // Use actual Notification type
+import { styles } from '../../styles/app/(main)/home.styles';
+import { Colors } from 'constants/Colors'; 
+
+// Helper to format date/time (simplified)
+const formatNotificationTime = (isoString: string): string => {
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffSeconds = Math.round((now.getTime() - date.getTime()) / 1000);
+
+  if (diffSeconds < 60) return `${diffSeconds}s ago`;
+  const diffMinutes = Math.round(diffSeconds / 60);
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  // Could add more logic for days, weeks, or just show date
+  return date.toLocaleDateString(); 
+};
+
+const getActivityIconDetails = (type: NotificationType['type']) => {
+  let icon: JSX.Element;
+  let bgColor: string;
+
+  // Determine which notification types are high priority
+  const highPriorityTypes = [
+    'event_invite',
+    'task_assigned',
+    'schedule_conflict',
+    'budget_milestone',
+    'vendor_confirmation'
+  ];
+  
+  const isHighPriority = highPriorityTypes.includes(type);
+
+  // Map notification types to icons and colors
+  switch (type) {
+    case 'event_invite':
+      icon = <IconSecondary name='mail-unread-outline' size={22} color={Colors.light.primary} />;
+      bgColor = Colors.light.primaryLight;
+      break;
+    case 'event_update':
+      icon = <IconSecondary name='refresh-circle-outline' size={24} color={Colors.light.info} />;
+      bgColor = Colors.light.infoLight;
+      break;
+    case 'rsvp_update':
+      icon = <Icon name='how-to-reg' size={22} color={Colors.light.success} />;
+      bgColor = Colors.light.successLight;
+      break;
+    case 'new_message':
+      icon = <IconSecondary name='chatbubble-ellipses-outline' size={22} color={Colors.light.secondary} />;
+      bgColor = Colors.light.secondaryLight;
+      break;
+    case 'task_assigned':
+      icon = <IconSecondary name='clipboard-outline' size={22} color={Colors.light.warning} />;
+      bgColor = Colors.light.warningLight;
+      break;
+    case 'system_alert':
+      icon = <Icon name='error-outline' size={22} color={Colors.light.error} />;
+      bgColor = Colors.light.errorLight;
+      break;
+    case 'friend_request':
+      icon = <IconSecondary name='person-add-outline' size={22} color={Colors.light.tertiary} />;
+      bgColor = Colors.light.tertiaryLight;
+      break;
+    
+    // New cases for team activities
+    case 'team_member_added':
+      icon = <IconSecondary name='people-outline' size={22} color={Colors.light.primary} />;
+      bgColor = Colors.light.primaryLight;
+      break;
+    case 'family_tree_update':
+      icon = <Icon name='account-tree' size={22} color={Colors.light.tertiary} />;
+      bgColor = Colors.light.tertiaryLight;
+      break;
+    case 'team_task_update':
+      icon = <IconSecondary name='checkmark-done-outline' size={22} color={Colors.light.success} />;
+      bgColor = Colors.light.successLight;
+      break;
+    
+    // New cases for vendor activities
+    case 'vendor_booking':
+    case 'vendor_confirmation':
+    case 'vendor_quote':
+      icon = <Icon name='store' size={22} color={Colors.light.info} />;
+      bgColor = Colors.light.infoLight;
+      break;
+    case 'vendor_review':
+      icon = <Icon name='rate-review' size={22} color={Colors.light.warning} />;
+      bgColor = Colors.light.warningLight;
+      break;
+    
+    // New cases for budget activities
+    case 'budget_item_added':
+    case 'payment_made':
+    case 'budget_milestone':
+      icon = <IconSecondary name='cash-outline' size={22} color={Colors.light.success} />;
+      bgColor = Colors.light.successLight;
+      break;
+    
+    // New cases for guest management
+    case 'rsvp_received':
+    case 'guest_milestone':
+    case 'dietary_preference':
+      icon = <IconSecondary name='people-circle-outline' size={22} color={Colors.light.primary} />;
+      bgColor = Colors.light.primaryLight;
+      break;
+    
+    // New cases for schedule activities
+    case 'schedule_added':
+    case 'schedule_conflict':
+    case 'schedule_reminder':
+      icon = <IconSecondary name='calendar-outline' size={22} color={Colors.light.warning} />;
+      bgColor = Colors.light.warningLight;
+      break;
+    
+    // New cases for idea board activities
+    case 'idea_submitted':
+    case 'idea_popular':
+    case 'idea_comment':
+      icon = <IconSecondary name='bulb-outline' size={22} color={Colors.light.tertiary} />;
+      bgColor = Colors.light.tertiaryLight;
+      break;
+    
+    // New cases for website activities
+    case 'website_published':
+    case 'website_updated':
+    case 'website_stats':
+      icon = <IconSecondary name='globe-outline' size={22} color={Colors.light.info} />;
+      bgColor = Colors.light.infoLight;
+      break;
+    
+    // New cases for milestone celebrations
+    case 'event_countdown':
+    case 'planning_progress':
+      icon = <IconSecondary name='trophy-outline' size={22} color={Colors.light.warning} />;
+      bgColor = Colors.light.warningLight;
+      break;
+    
+    // New cases for personalized recommendations
+    case 'vendor_suggestion':
+    case 'theme_recommendation':
+    case 'task_reminder':
+      icon = <IconSecondary name='sparkles-outline' size={22} color={Colors.light.tertiary} />;
+      bgColor = Colors.light.tertiaryLight;
+      break;
+    
+    // Default case
+    case 'generic':
+    default:
+      icon = <IconSecondary name='notifications-outline' size={22} color={Colors.light.textSecondary} />;
+      bgColor = Colors.light.backgroundLight;
+      break;
+  }
+
+  return { 
+    icon, 
+    bgColor,
+    isHighPriority
+  };
+};
+
+interface RecentActivityItemProps {
+  notification: NotificationType;
+  onPress: () => void;
+}
+
+const RecentActivityItem: React.FC<RecentActivityItemProps> = ({ notification, onPress }) => {
+  const { icon, bgColor, isHighPriority } = getActivityIconDetails(notification.type);
+  const displayMessage = notification.message || notification.title; // Prefer message, fallback to title
+
+  // Determine if we should show action buttons based on notification type
+  const showActionButtons = ['task_assigned', 'rsvp_update', 'event_invite', 'vendor_quote'].includes(notification.type);
+
+  return (
+    <TouchableOpacity 
+      style={[
+        styles.activityItemCard, 
+        { backgroundColor: Colors.light.backgroundPaper },
+        isHighPriority && styles.highPriorityActivityCard
+      ]} 
+      onPress={onPress}
+    >
+      <View style={[styles.activityIconCircle, { backgroundColor: bgColor }]}>
+        {icon}
+      </View>
+      {isHighPriority && (
+        <View style={styles.priorityIndicator}>
+          <Icon name="priority-high" size={14} color="white" />
+        </View>
+      )}
+      <View style={styles.activityTextContainer}>
+        <Text style={styles.activityDescriptionText} numberOfLines={2} ellipsizeMode="tail">{displayMessage}</Text>
+        <Text style={styles.activityTimeText}>{formatNotificationTime(notification.createdAt)}</Text>
+        
+        {showActionButtons && (
+          <View style={styles.activityActions}>
+            {notification.type === 'task_assigned' && (
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={(e) => {
+                  e.stopPropagation(); // Prevent triggering the parent onPress
+                  // Handle marking task as complete
+                }}
+              >
+                <Text style={styles.actionButtonText}>Mark Complete</Text>
+              </TouchableOpacity>
+            )}
+            
+            {notification.type === 'rsvp_update' && (
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  // Handle viewing RSVPs
+                }}
+              >
+                <Text style={styles.actionButtonText}>View RSVPs</Text>
+              </TouchableOpacity>
+            )}
+            
+            {notification.type === 'event_invite' && (
+              <View style={styles.actionButtonRow}>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.acceptButton]}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    // Handle accepting invite
+                  }}
+                >
+                  <Text style={styles.actionButtonText}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.actionButton, styles.declineButton]}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    // Handle declining invite
+                  }}
+                >
+                  <Text style={styles.actionButtonText}>Decline</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            
+            {notification.type === 'vendor_quote' && (
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  // Handle viewing quote
+                }}
+              >
+                <Text style={styles.actionButtonText}>View Quote</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+// Add this function to group similar notifications
+const groupSimilarNotifications = (notifications: NotificationType[]) => {
+  const groups: { [key: string]: NotificationType[] } = {};
+  
+  notifications.forEach(notification => {
+    // Create a grouping key based on type and reference
+    let groupKey = notification.type;
+    if (notification.referenceId) {
+      groupKey += `-${notification.referenceId}`;
+    }
+    
+    // Initialize group if it doesn't exist
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+    
+    // Add notification to group
+    groups[groupKey].push(notification);
+  });
+  
+  // Convert groups to array and sort by most recent
+  return Object.values(groups)
+    .sort((a, b) => {
+      return new Date(b[0].createdAt).getTime() - new Date(a[0].createdAt).getTime();
+    });
+};
+
+// Add a function to filter notifications by time
+const filterNotificationsByTime = (notifications: NotificationType[], filter: 'all' | 'today' | 'week' | 'month') => {
+  if (filter === 'all') return notifications;
+  
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const monthAgo = new Date(today);
+  monthAgo.setMonth(monthAgo.getMonth() - 1);
+  
+  return notifications.filter(notification => {
+    const notificationDate = new Date(notification.createdAt);
+    
+    if (filter === 'today') {
+      return notificationDate >= today;
+    } else if (filter === 'week') {
+      return notificationDate >= weekAgo;
+    } else if (filter === 'month') {
+      return notificationDate >= monthAgo;
+    }
+    
+    return true;
+  });
+};
+
+interface RecentActivitiesProps {
+  notifications: NotificationType[]; // Changed prop name and type
+  onActivityPress: (notificationId: string) => void; // Parameter is notificationId
+}
+
+const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onActivityPress }) => {
+  const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const filteredNotifications = filterNotificationsByTime(notifications, timeFilter);
+  const groupedNotifications = groupSimilarNotifications(filteredNotifications);
+  
+  return (
+    <>
+      <View style={[styles.sectionHeader, styles.recentActivityHeader]}>
+        <Text style={styles.sectionTitle}>Recent Activity</Text>
+      </View>
+      
+      <View style={styles.timeFilterContainer}>
+        <TouchableOpacity
+          style={[styles.timeFilterButton, timeFilter === 'all' && styles.timeFilterButtonActive]}
+          onPress={() => setTimeFilter('all')}
+        >
+          <Text style={[styles.timeFilterText, timeFilter === 'all' && styles.timeFilterTextActive]}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.timeFilterButton, timeFilter === 'today' && styles.timeFilterButtonActive]}
+          onPress={() => setTimeFilter('today')}
+        >
+          <Text style={[styles.timeFilterText, timeFilter === 'today' && styles.timeFilterTextActive]}>Today</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.timeFilterButton, timeFilter === 'week' && styles.timeFilterButtonActive]}
+          onPress={() => setTimeFilter('week')}
+        >
+          <Text style={[styles.timeFilterText, timeFilter === 'week' && styles.timeFilterTextActive]}>This Week</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.timeFilterButton, timeFilter === 'month' && styles.timeFilterButtonActive]}
+          onPress={() => setTimeFilter('month')}
+        >
+          <Text style={[styles.timeFilterText, timeFilter === 'month' && styles.timeFilterTextActive]}>This Month</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.section}>
+        {groupedNotifications.length > 0 ? (
+          groupedNotifications.map(group => {
+            const primaryNotification = group[0]; // Use the most recent one as primary
+            
+            // If there's only one notification in the group, render it normally
+            if (group.length === 1) {
+              return (
+                <RecentActivityItem
+                  key={primaryNotification.id}
+                  notification={primaryNotification}
+                  onPress={() => onActivityPress(primaryNotification.id)}
+                />
+              );
+            }
+            
+            // Otherwise, create a grouped item
+            return (
+              <TouchableOpacity 
+                key={primaryNotification.id}
+                style={[styles.activityItemCard, { backgroundColor: Colors.light.backgroundPaper }]} 
+                onPress={() => onActivityPress(primaryNotification.id)}
+              >
+                <View style={[styles.activityIconCircle, { backgroundColor: getActivityIconDetails(primaryNotification.type).bgColor }]}>
+                  {getActivityIconDetails(primaryNotification.type).icon}
+                </View>
+                <View style={styles.activityTextContainer}>
+                  <Text style={styles.activityDescriptionText} numberOfLines={2} ellipsizeMode="tail">
+                    {group.length} {primaryNotification.type.replace('_', ' ')} activities
+                  </Text>
+                  <Text style={styles.activityTimeText}>{formatNotificationTime(primaryNotification.createdAt)}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        ) : (
+          <Text style={styles.noItemsText}>No recent activities.</Text>
+        )}
+      </View>
+    </>
+  );
+};
+
+export default RecentActivities;
