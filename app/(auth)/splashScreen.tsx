@@ -7,7 +7,7 @@ const SplashScreen: React.FC = () => {
     <View style={styles.outerContainer}>
       <View style={styles.logoViewContainer}>
         <Image
-          source={require('@/assets/images/splash-con.png')}
+          source={require('@/assets/images/splash-icon.png')}
           style={styles.logo}
         />
       </View>
