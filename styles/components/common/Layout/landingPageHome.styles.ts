@@ -67,9 +67,17 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     lineHeight: ResponsiveFontSizes.header3 * 1.4,
     marginHorizontal: Spacing.l,
-    marginBottom: Spacing.l,
+    marginBottom: Spacing.s,
     textAlign: 'center',
     color: Colors.light.text,
+  },
+  description: {
+    fontSize: ResponsiveFontSizes.body,
+    lineHeight: ResponsiveFontSizes.body * 1.4,
+    marginHorizontal: Spacing.l,
+    marginBottom: Spacing.l,
+    textAlign: 'center',
+    color: Colors.light.textSecondary,
   },
   mainContentContainer: {
     flexDirection: 'row',
@@ -79,6 +87,33 @@ export const styles = StyleSheet.create({
   featuresContainer: {
     flex: 1,
     marginRight: Spacing.m,
+  },
+  featuresTitle: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    fontWeight: Fonts.weights.bold,
+    marginBottom: Spacing.m,
+    color: Colors.light.text,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.s,
+    paddingVertical: Spacing.xs,
+  },
+  featureText: {
+    fontSize: ResponsiveFontSizes.body,
+    marginLeft: Spacing.s,
+    color: Colors.light.text,
+  },
+  collaborationText: {
+    fontSize: ResponsiveFontSizes.body,
+    lineHeight: ResponsiveFontSizes.body * 1.4,
+    marginTop: Spacing.m,
+    padding: Spacing.m,
+    backgroundColor: Colors.light.backgroundLight,
+    borderRadius: BorderRadius.m,
+    color: Colors.light.text,
+    fontWeight: Fonts.weights.medium,
   },
   phonePreviewContainer: {
     flex: 1,

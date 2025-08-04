@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'; // Removed Dimensions
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Example icon library
-import { styles } from '../../../styles/components/common/Layout/landingPageHome.styles'; // Adjusted path
+import { styles } from '@/styles/components/common/Layout/landingPageHome.styles'; // Adjusted path
+import { Colors } from '@/constants/Colors';
 
 interface LandingPageHomeProps {
   onLoginPress: () => void;
@@ -19,38 +20,58 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
         <View style={styles.logoContainer}>
           {/* Logo can be added here */}
         </View>
-        <Text style={styles.appName}>KINSHIP</Text>
+        <Text style={styles.appName}>KINSHIP SYNC</Text>
       </View>
 
       {/* Tagline */}
       <Text style={styles.tagline}>
-        Your ultimate event{'\n'}
-        planner + everything in between
+        Your ultimate event planner and beyond!
+      </Text>
+
+      {/* Description */}
+      <Text style={styles.description}>
+        Bring everyone together—easily organize your reunion with family and friends in one central spot.
       </Text>
 
       {/* Main content - side by side layout */}
       <View style={styles.mainContentContainer}>
-        {/* Feature buttons */}
+        {/* Features list */}
         <View style={styles.featuresContainer}>
-          <View style={[styles.featureButton, styles.eventsButton]}>
-            <Text style={styles.featureButtonText}>Events</Text>
+          <Text style={styles.featuresTitle}>Features:</Text>
+          
+          <View style={styles.featureItem}>
+            <Icon name="event" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Event Creation</Text>
           </View>
           
-          <View style={[styles.featureButton, styles.vendorsButton]}>
-            <Text style={styles.featureButtonText}>VENDORS</Text>
+          <View style={styles.featureItem}>
+            <Icon name="web" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Customization invite and Website</Text>
           </View>
           
-          <View style={[styles.featureButton, styles.websiteButton]}>
-            <Text style={styles.featureButtonText}>WEDDING WEBSITE</Text>
+          <View style={styles.featureItem}>
+            <Icon name="people" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Guest List Management</Text>
           </View>
           
-          <View style={[styles.featureButton, styles.miscButton]}>
-            <Text style={styles.featureButtonText}>MISC</Text>
+          <View style={styles.featureItem}>
+            <Icon name="account-balance-wallet" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Budget Management</Text>
           </View>
           
-          <View style={styles.andMoreContainer}>
-            <Text style={styles.andMoreText}>AND MORE!</Text>
+          <View style={styles.featureItem}>
+            <Icon name="assignment" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Task & Timeline Management</Text>
           </View>
+          
+          <View style={styles.featureItem}>
+            <Icon name="store" size={20} color={Colors.light.buttonPrimary} />
+            <Text style={styles.featureText}>Vendor & Supplier Management</Text>
+          </View>
+          
+          <Text style={styles.collaborationText}>
+            Collaborate with family and friends to streamline your reunion—all in one place.
+          </Text>
         </View>
 
         {/* Phone mockup with app preview */}
