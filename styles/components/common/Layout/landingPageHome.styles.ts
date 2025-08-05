@@ -82,11 +82,11 @@ export const styles = StyleSheet.create({
   mainContentContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingLeft: Spacing.l,
+    paddingHorizontal: Spacing.l,
   },
   featuresContainer: {
-    flex: 1,
-    marginRight: Spacing.m,
+    flex: 2,
+    marginRight: Spacing.l,
   },
   featuresTitle: {
     fontSize: ResponsiveFontSizes.subtitle,
@@ -117,10 +117,10 @@ export const styles = StyleSheet.create({
   },
   phonePreviewContainer: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'flex-start',
     height: Layout.SCREEN_HEIGHT * 0.5,
-    width: Layout.SCREEN_WIDTH * 0.6, // Adjusted from 2, assuming it was a typo for 0.6-0.8 range
+    width: Layout.SCREEN_WIDTH * 0.3,
     marginTop: Spacing.l,
     borderColor: Colors.light.text,
     borderWidth: moderateScale(5),
@@ -129,15 +129,16 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   phonePreview: {
-    width: '100%',
+    width: Layout.SCREEN_WIDTH * 0.6, // Full phone width
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
-    padding: Spacing.s,
+    padding: Spacing.xs,
     shadowColor: Colors.light.text,
-    shadowOffset: { width: 0, height: 2 }, // Adjusted shadow
-    shadowOpacity: 0.1, // Adjusted shadow
-    shadowRadius: moderateScale(3), // Adjusted shadow
-    elevation: 3, // Adjusted elevation
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: moderateScale(3),
+    elevation: 3,
+    marginLeft: -Layout.SCREEN_WIDTH * 0.3, // Shift left to show only right half
   },
   phoneHeader: {
     flexDirection: 'row',
@@ -157,7 +158,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.m,
   },
   coupleNames: {
-    fontSize: ResponsiveFontSizes.subtitle,
+    fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
     color: Colors.light.buttonPrimary,
@@ -195,7 +196,7 @@ export const styles = StyleSheet.create({
   },
   featureTitle: {
     fontWeight: Fonts.weights.bold,
-    fontSize: ResponsiveFontSizes.body,
+    fontSize: ResponsiveFontSizes.small,
     color: Colors.light.text,
   },
   featureIcon: {
@@ -203,8 +204,8 @@ export const styles = StyleSheet.create({
     color: Colors.light.buttonPrimary,
   },
   featureDescription: {
-    fontSize: ResponsiveFontSizes.small,
-    lineHeight: ResponsiveFontSizes.small * 1.4,
+    fontSize: ResponsiveFontSizes.caption,
+    lineHeight: ResponsiveFontSizes.caption * 1.4,
     marginBottom: Spacing.xs,
     color: Colors.light.textSecondary,
   },
