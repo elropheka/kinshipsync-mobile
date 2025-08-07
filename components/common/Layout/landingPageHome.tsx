@@ -83,11 +83,9 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   const renderFeatureSlide = (features: Feature[]) => (
     <View style={styles.featureSlide}>
       <Text style={styles.featuresTitle}>Features</Text>
-      <FlatList
-        data={features}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.featureItem}>
+      <View style={styles.featuresGrid}>
+        {features.map((item) => (
+          <View key={item.id} style={styles.featureItem}>
             <View style={styles.featureIconContainer}>
               <Icon name={item.icon} size={24} color={Colors.light.buttonPrimary} />
             </View>
@@ -96,10 +94,8 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
               <Text style={styles.featureDescription}>{item.description}</Text>
             </View>
           </View>
-        )}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={false}
-      />
+        ))}
+      </View>
     </View>
   );
 
@@ -126,7 +122,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
       {/* Features Slider */}
       <View style={styles.sliderContainer}>
         <Slider
-          height={300}
+          height={400}
           autoPlay={true}
           autoPlayInterval={4000}
           showDots={true}
