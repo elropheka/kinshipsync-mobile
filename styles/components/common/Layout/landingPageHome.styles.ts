@@ -286,6 +286,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: Spacing.l,
     marginBottom: Spacing.l,
+
   },
   featureSlide: {
     flex: 1,

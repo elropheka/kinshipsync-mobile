@@ -35,17 +35,23 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
         icon: 'web',
         title: 'Custom Websites',
         description: 'Beautiful, customizable event websites'
+      },
+      {
+        id: '3',
+        icon: 'schedule',
+        title: 'Smart Scheduling',
+        description: 'Intelligent scheduling and timeline management'
       }
     ],
     [
       {
-        id: '3',
+        id: '4',
         icon: 'people',
         title: 'Guest Management',
         description: 'Organize your guest list and RSVPs'
       },
       {
-        id: '4',
+        id: '5',
         icon: 'account-balance-wallet',
         title: 'Budget Tracking',
         description: 'Keep track of all your event expenses'
@@ -53,16 +59,22 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
     ],
     [
       {
-        id: '5',
+        id: '6',
         icon: 'assignment',
         title: 'Task Management',
         description: 'Assign and track tasks with timelines'
       },
       {
-        id: '6',
+        id: '7',
         icon: 'store',
         title: 'Vendor Management',
         description: 'Find and manage vendors and suppliers'
+      },
+      {
+        id: '8',
+        icon: 'chat',
+        title: 'Team Communication',
+        description: 'Stay connected with your event team'
       }
     ]
   ];
