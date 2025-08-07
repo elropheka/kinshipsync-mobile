@@ -96,13 +96,17 @@ export const styles = StyleSheet.create({
   },
   featureItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.s,
-    paddingVertical: Spacing.xs,
+    alignItems: 'flex-start',
+    marginBottom: Spacing.m,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.s,
+    backgroundColor: Colors.light.backgroundLight,
+    borderRadius: BorderRadius.m,
   },
   featureText: {
-    fontSize: ResponsiveFontSizes.body,
-    marginLeft: Spacing.s,
+    fontSize: ResponsiveFontSizes.subtitle,
+    fontWeight: Fonts.weights.bold,
+    marginBottom: Spacing.xs,
     color: Colors.light.text,
   },
   collaborationText: {
@@ -276,5 +280,32 @@ export const styles = StyleSheet.create({
     color: Colors.light.text,
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.body,
+  },
+  // New styles for slider-based features
+  sliderContainer: {
+    flex: 1,
+    marginHorizontal: Spacing.l,
+    marginBottom: Spacing.l,
+  },
+  featureSlide: {
+    flex: 1,
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.l,
+  },
+  featureIconContainer: {
+    width: moderateScale(40),
+    height: moderateScale(40),
+    borderRadius: BorderRadius.m,
+    backgroundColor: Colors.light.backgroundLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.m,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  collaborationContainer: {
+    paddingHorizontal: Spacing.l,
+    marginBottom: Spacing.xl,
   },
 });

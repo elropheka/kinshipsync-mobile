@@ -1,15 +1,9 @@
-const primaryColor = '#0a7ea4';
-const primaryColorDark = '#FFFFFF';
-
-const accentColorLight = '#FF8C69';
-const accentColorDark = '#FFAB91';
-
-const successColor = '#4CAF50';
-const errorColor = '#F44336';
-const warningColor = '#FFC107';
-const infoColor = '#2196F3';
 const teal = '#008080';
-const darkTeal = '#0ea175'
+const lightTeal = '#4DB6AC';
+const baseNude = '#F5EBDD';
+const lightNude = '#FBF6EF';
+const brown = '#A47551';
+const darkBrown = '#7B4E2D';
 
 export const Colors = {
   light: {
@@ -18,45 +12,45 @@ export const Colors = {
     textLight: '#FFFFFF',
     textDarkContrast: '#076678',
 
-    background: '#FFFFFF',
-    backgroundPrimary: '#9AFFE1',
-    backgroundSecondary: '#C7FFEE',
-    backgroundLight: '#E4FFF7',
-    backgroundPaper: '#F5F5F5',
-    neutralBg: '#FFFDD0',
-    buttonPrimary: '#0ea175',
+    background: baseNude,
+    backgroundPrimary: '#FFF8F0',
+    backgroundSecondary: lightNude,
+    backgroundLight: '#FFFFFF',
+    backgroundPaper: '#FFFFFF',
+    neutralBg: '#FFF5EC',
+    buttonPrimary: teal,
 
     primary: teal,
     primaryContrastText: '#FFFFFF',
-    accent: accentColorLight,
+    accent: brown,
     accentContrastText: '#FFFFFF',
     accentHighlight: '#E6C300',
 
     tint: teal,
     icon: '#687076',
-    tabIconDefault: '#687076',
+    tabIconDefault: '#A47551',
     tabIconSelected: teal,
     border: '#D1D5DB',
     divider: '#E5E7EB',
 
-    success: successColor,
+    success: '#4CAF50',
     successContrastText: '#FFFFFF',
-    error: errorColor,
+    error: '#F44336',
     danger: '#D32F2F',
     errorContrastText: '#FFFFFF',
-    warning: warningColor,
+    warning: '#FFC107',
     warningContrastText: '#11181C',
-    info: infoColor,
+    info: '#2196F3',
     infoContrastText: '#FFFFFF',
 
-    primaryLight: '#E0F7FA',
+    primaryLight: lightTeal,
     successLight: '#E8F5E9',
     warningLight: '#FFF8E1',
     infoLight: '#E3F2FD',
     errorLight: '#FFEBEE',
     dangerLight: '#FFCDD2',
-    secondary: '#6A1B9A',
-    secondaryLight: '#E1BEE7',
+    secondary: brown,
+    secondaryLight: '#D8BFA6',
     tertiary: '#FF6F00',
     tertiaryLight: '#FFE0B2',
     grey: '#B0BEC5',
@@ -68,22 +62,23 @@ export const Colors = {
     textDarkContrast: '#E0F2F7',
 
     background: '#121212',
-    backgroundPrimary: '#0A5F7A',
-    backgroundSecondary: '#0E7C9F',
-    backgroundLight: '#1A343E',
+    backgroundPrimary: '#1E1E1E',
+    backgroundSecondary: '#2E2E2E',
+    backgroundLight: '#1A1A1A',
     backgroundPaper: '#1E1E1E',
-    neutralBg: '#3A3A3A',
-    buttonPrimary: '#0ea175',
-    primary: primaryColorDark,
-    primaryContrastText: '#121212',
-    accent: accentColorDark,
-    accentContrastText: '#121212',
+    neutralBg: '#2B2B2B',
+    buttonPrimary: darkBrown,
+
+    primary: '#0EA175',
+    primaryContrastText: '#FFFFFF',
+    accent: '#A47551',
+    accentContrastText: '#FFFFFF',
     accentHighlight: '#FFD700',
 
-    tint: primaryColorDark,
+    tint: '#0EA175',
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
-    tabIconSelected: primaryColorDark,
+    tabIconSelected: '#0EA175',
     border: '#424242',
     divider: '#2E2E2E',
 

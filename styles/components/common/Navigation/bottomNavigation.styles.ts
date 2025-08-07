@@ -86,7 +86,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.dark.tint,
+    backgroundColor: Colors.light.backgroundPrimary,
     borderTopLeftRadius: BorderRadius.l,
     borderTopRightRadius: BorderRadius.l,
     paddingVertical: Spacing.m,
