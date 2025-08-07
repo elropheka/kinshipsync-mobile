@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { Colors } from '@/constants/Colors';
 import Slider from '@/components/common/slider';
+import { Layout, Spacing } from '@/constants/dimensions';
 
 interface LandingPageHomeProps {
   onLoginPress: () => void;
@@ -131,6 +132,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
           showDots={true}
           showArrows={true}
           loop={true}
+          width={Layout.SCREEN_WIDTH - Spacing.xxl}
         >
           {featuresData.map((slideFeatures, index) => 
             renderFeatureSlide(slideFeatures)

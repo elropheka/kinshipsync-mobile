@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
-import { Spacing } from '@/constants/dimensions';
+import { Layout, Spacing } from '@/constants/dimensions';
 
 interface SliderProps {
   children: React.ReactNode[];
@@ -190,9 +190,8 @@ const Slider: React.FC<SliderProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    width: Dimensions.get('window').width - Spacing.l,
+    paddingRight: Spacing.l,
     marginHorizontal: Spacing.s,
-    backgroundColor: Colors.light.error,
   },
   scrollView: {
     flex: 1,
