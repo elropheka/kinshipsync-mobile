@@ -164,7 +164,7 @@ export const getInAppNotifications = async (userId: string): Promise<InAppNotifi
         ...data,
         // Ensure createdAt is a number (milliseconds since epoch)
         createdAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
-        updatedAt: (data.updatedAt as Timestamp)?.toMillis(),
+        updatedAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
       } as InAppNotification;
     });
     return notifications;
