@@ -32,5 +32,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:433750501084:ios:b7ea1e6a05c220e800b619</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+     <string>We need access to your photo library to let you upload photos.</string>
 </dict>
 </plist>
