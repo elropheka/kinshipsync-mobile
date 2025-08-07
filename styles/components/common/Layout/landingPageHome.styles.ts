@@ -97,10 +97,10 @@ export const styles = StyleSheet.create({
   featureItem: {
     flexDirection: 'column',
     alignItems: 'center',
-    width: '48%',
+    width: '45%',
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.s,
-    backgroundColor: Colors.light.backgroundLight,
+    
     borderRadius: BorderRadius.m,
     marginBottom: Spacing.s,
   },
@@ -295,12 +295,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.l,
+    justifyContent: 'center',
   },
   featuresGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: Spacing.m,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    gap: Spacing.l,
   },
   featureListContainer: {
     flexGrow: 1,

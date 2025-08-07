@@ -82,7 +82,6 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
 
   const renderFeatureSlide = (features: Feature[]) => (
     <View style={styles.featureSlide}>
-      <Text style={styles.featuresTitle}>Features</Text>
       <View style={styles.featuresGrid}>
         {features.map((item) => (
           <View key={item.id} style={styles.featureItem}>
