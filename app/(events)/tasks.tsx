@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router'; // Added Stack import here
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(events)/tasks.styles';
+import { Colors } from '@/constants/Colors';
 
 // Define interfaces
 interface TaskCategory {
@@ -57,7 +58,7 @@ const TasksTimelinePage: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
       {/* Header */}
       <Stack.Screen options={{ title: "Tasks" }} /> {/* Ensure title is set if not already by layout */}
       {/* Header View removed - this diff just corrects the import location */}

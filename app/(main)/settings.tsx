@@ -140,7 +140,7 @@ const SettingsScreen: React.FC = () => {
   if (isLoadingSettings && !currentSettings) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary}/>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading Settings...</Text>
       </SafeAreaView>
@@ -150,7 +150,7 @@ const SettingsScreen: React.FC = () => {
   if (settingsError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary}/>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
         <Text style={styles.errorText}>Error loading settings: {settingsError.message}</Text>
       </SafeAreaView>
     );
@@ -168,7 +168,7 @@ const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Settings" }} />
-     <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary}/>
+     <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
 
       <ScrollView>
         <View style={styles.sectionContainer}>

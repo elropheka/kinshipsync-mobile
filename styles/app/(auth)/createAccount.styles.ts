@@ -92,11 +92,11 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   inputIcon: {
     paddingRight: Spacing.m,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   termsContainer: {
     flexDirection: 'row',

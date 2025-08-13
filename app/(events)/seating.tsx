@@ -156,7 +156,7 @@ const SeatingChartScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
       {/* Header */}
       <Stack.Screen options={{ title: `Seating - ${event.name}` }} />
       <View style={styles.headerControls}>

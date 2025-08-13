@@ -6,7 +6,7 @@ import { Colors } from '../../constants/Colors';
 const EventsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
     
       
       

@@ -26,6 +26,7 @@ import { styles } from '../../styles/app/(chat)/chatArea.styles'; // Ensure this
 import { useChatMessages } from '../../hooks/useChat';
 import { Spacing } from '../../constants/dimensions'; // Added Spacing
 import { ChatMessage, ParticipantInfo } from '../../types/chatTypes';
+import { GuestStatus } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from '../../constants/Colors'; // Corrected path
 import { emojiCategories } from '../../constants/emojis'; // Added for emoji picker
@@ -76,7 +77,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
 
     setIsProcessingRsvp(true);
     try {
-      const guestStatusUpdate: 'Attending' | 'Declined' = action === 'accepted' ? 'Attending' : 'Declined';
+      const guestStatusUpdate: GuestStatus = action === 'accepted' ? 'Attending' : 'declined';
       await updateGuestRsvp(isAuthenticated, message.eventId, message.guestId, { status: guestStatusUpdate });
       await updateMessageRsvpStatus(isAuthenticated, message.conversationId, message.id, action);
       // No need to call setRsvpProcessed(true) here as the message listener will update the message.rsvpStatus prop,
@@ -374,7 +375,7 @@ const ChatAreaScreen: React.FC = () => {
   if (isLoadingMessages && messages.length === 0) { // Corrected to isLoadingMessages
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -384,7 +385,7 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         {/* Retry mechanism can be added later if a manual refresh function is implemented in the hook */}
       </SafeAreaView>
@@ -393,7 +394,7 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
       <Stack.Screen 
         options={{
           title: screenTitle,

@@ -7,6 +7,7 @@ import { styles } from '../../styles/app/(events)/events.styles';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
 import { useAllEvents } from '../../hooks/useEvents';
 import { Event } from '../../types/eventTypes';
+import { Colors } from '@/constants/Colors';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -96,7 +97,7 @@ const EventListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
       <Stack.Screen 
         options={{ 
           title: "Events",

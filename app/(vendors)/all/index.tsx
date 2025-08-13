@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  StatusBar,
   ActivityIndicator,
   // StyleSheet, // Styles are imported
 } from 'react-native';

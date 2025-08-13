@@ -20,7 +20,7 @@ function EventsStack() {
   return (
     <>
       <StatusBar 
-        backgroundColor={Platform.OS === 'android' ? Colors.light.backgroundPrimary : undefined} 
+        backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
         style={Platform.OS === 'ios' ? 'dark' : 'auto'}
         translucent={Platform.OS === 'android' ? false : undefined} // On Android, false makes it a solid color bar
       />
@@ -32,7 +32,7 @@ function EventsStack() {
           fontFamily: 'Poppins', // Ensure this font is loaded
         },
         headerStyle: {
-          backgroundColor: Colors.light.backgroundPrimary,
+          backgroundColor: Colors.dark.accent,
         },
         headerBackVisible: false, // We are using a custom back button
         presentation: 'card',

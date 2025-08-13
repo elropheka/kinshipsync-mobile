@@ -2,8 +2,6 @@ import React, { useCallback } from 'react'; // Added useCallback
 import {
   View,
   Text,
-  StatusBar,
-  // ScrollView, // Not needed if using FlatList for the whole screen
   TouchableOpacity,
   ActivityIndicator,
   FlatList,

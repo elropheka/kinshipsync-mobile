@@ -205,7 +205,7 @@ export type WebsitePayload = {
   welcomeMessage?: string;
   sections?: EventWebsiteSection[];
   websiteThemeId?: string;
-  published: boolean;
+  published?: boolean;
 };
 
 export interface CreateEventPayload {

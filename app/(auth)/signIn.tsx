@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { IconSizes } from '../../constants/dimensions';
 import { styles } from '../../styles/app/(auth)/signIn.styles';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
 interface FormData {
@@ -94,7 +95,7 @@ const SignInScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

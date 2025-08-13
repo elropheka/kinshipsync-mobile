@@ -219,7 +219,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddRootMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
         <Stack.Screen options={{ title: 'Add Root Family Member' }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Root Family Member</Text>
@@ -240,7 +240,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddChildMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
         <Stack.Screen options={{ title: `Add Child ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Child</Text>
@@ -262,7 +262,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddSpouseMode) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
         <Stack.Screen options={{ title: `Add Spouse ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Spouse</Text>
@@ -284,7 +284,7 @@ const AddFamilyMemberScreen = () => {
   // Fallback UI
   return ( /* ... same as before ... */ 
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
       <Stack.Screen options={{ title: 'Add to Team Roster' }} />
       <View style={styles.container}>
         <Text style={styles.title}>Add Existing User to Team Roster</Text>

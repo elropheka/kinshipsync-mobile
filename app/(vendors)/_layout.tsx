@@ -13,7 +13,7 @@ function VendorsStack() {
   return (
     <>
     <StatusBar 
-            backgroundColor={Platform.OS === 'android' ? Colors.light.backgroundPrimary : undefined} 
+            backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
             style={Platform.OS === 'ios' ? 'dark' : 'auto'}
             translucent={Platform.OS === 'android' ? false : undefined} // On Android, false makes it a solid color bar
           />
@@ -25,7 +25,7 @@ function VendorsStack() {
           fontFamily: 'Poppins', // Ensure this font is loaded
         },
          headerStyle: {
-                  backgroundColor: '#9AFFE1', // Updated to match StatusBar
+                  backgroundColor: Colors.dark.accent, // Updated to match StatusBar
                 },
         headerBackVisible: false, // We are using a custom back button
         presentation: 'card',

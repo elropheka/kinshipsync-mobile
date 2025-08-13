@@ -356,7 +356,7 @@ const EventIdeasScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
       <Stack.Screen options={{ title: `Ideas: ${eventDetails?.name || 'Event'}` }} /> {/* Update title dynamically if needed */}
       {/* Custom header View removed - this diff just corrects the import location */}
 

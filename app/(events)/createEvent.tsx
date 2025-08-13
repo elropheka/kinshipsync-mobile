@@ -12,7 +12,7 @@ import {
   CreateEventPayload, 
   Event as EventType, // Used for visibility state type
   Theme, // Theme type might be needed for explicit typing, though often inferred from useTheme
-  UpdateEventWebsitePayload 
+  UpdateEventWebsiteDetailsPayload 
 } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes'; // Moved UserProfile import higher
 import { useAppAuth } from '../../hooks/useAppAuth'; 
@@ -52,7 +52,7 @@ const CreateEventScreen = () => {
   const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(undefined); // Initialize as undefined
 
   // Step 3: Website
-  const [eventWebsiteData, setEventWebsiteData] = useState<Partial<UpdateEventWebsitePayload>>({});
+  const [eventWebsiteData, setEventWebsiteData] = useState<Partial<UpdateEventWebsiteDetailsPayload>>({});
 
 
   const [showPicker, setShowPicker] = useState<'date' | 'time' | 'none'>('none');
@@ -151,7 +151,7 @@ const CreateEventScreen = () => {
           // Ensure eventService is imported if not already, or use a method from a hook if available
           const eventServiceRef = await import('../../services/eventService'); // Dynamic import if not top-level
           if (Object.keys(eventWebsiteData).length > 0 && newEvent.id) { // Check newEvent.id
-            await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsitePayload);
+            await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsiteDetailsPayload);
           }
           Alert.alert('Success', 'Event created successfully!');
         router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });

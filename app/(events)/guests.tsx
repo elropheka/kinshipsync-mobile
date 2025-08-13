@@ -107,7 +107,7 @@ const EventSelectionForGuestsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundPrimary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
       <Stack.Screen 
         options={{ 
           title: 'Select Event for Guest List', // Changed title
