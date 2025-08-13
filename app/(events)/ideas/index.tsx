@@ -28,8 +28,7 @@ import {
   listenToIdeas, 
   addIdeaToEvent, 
   voteForIdea,
-  listenToIdeaComments,
-  addIdeaComment,
+
   getEventById,
 } from '../../../services/eventService';
 import { Colors } from '../../../constants/Colors';
@@ -91,7 +90,7 @@ const EventIdeasScreen = () => {
 
       // Fetch author details for ideas
       if (isAuthenticated) {
-        const authorIds = [...new Set(sortedIdeas.map(idea => idea.submittedBy))];
+        const authorIds = [...new Set(sortedIdeas.map(idea => idea.createdBy))];
         const newCache = { ...userDetailsCache };
         let cacheUpdated = false;
         for (const authorId of authorIds) {
@@ -111,73 +110,7 @@ const EventIdeasScreen = () => {
     return () => unsubscribe();
   }, [eventId, isAuthenticated]); // userDetailsCache removed from deps to avoid loop, it's updated internally
 
-  // Fetch Comments when an idea's comment section is expanded
-  useEffect(() => {
-    if (!eventId || !isAuthenticated) return;
 
-    Object.keys(expandedComments).forEach(ideaId => {
-      if (expandedComments[ideaId] && !commentsByIdeaId[ideaId] && !isLoadingComments[ideaId]) {
-        setIsLoadingComments(prev => ({ ...prev, [ideaId]: true }));
-        const unsubscribeComments = listenToIdeaComments(
-          isAuthenticated,
-          eventId,
-          ideaId,
-          async (fetchedComments) => {
-            const sortedComments = fetchedComments.sort((a,b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-            setCommentsByIdeaId(prev => ({
-              ...prev,
-              [ideaId]: sortedComments,
-            }));
-            setIsLoadingComments(prev => ({ ...prev, [ideaId]: false }));
-
-            // Fetch author details for comments
-            if (isAuthenticated) {
-              const commentAuthorIds = [...new Set(sortedComments.map(comment => comment.userId))];
-              const newCache = { ...userDetailsCache };
-              let cacheUpdated = false;
-              for (const authorId of commentAuthorIds) {
-                if (!newCache[authorId]) {
-                  try {
-                    const profile = await getUserProfile(isAuthenticated, authorId);
-                    if (profile) {
-                      newCache[authorId] = { displayName: profile.displayName || 'Unknown', avatarUrl: profile.avatarUrl };
-                      cacheUpdated = true;
-                    }
-                  } catch (e) { console.error(`Failed to fetch profile for comment author ${authorId}`, e); }
-                }
-              }
-              if (cacheUpdated) setUserDetailsCache(newCache);
-            }
-          },
-          (err) => {
-            console.error(`Error fetching comments for idea ${ideaId}:`, err);
-            setIsLoadingComments(prev => ({ ...prev, [ideaId]: false }));
-          }
-        );
-        // Store the unsubscribe function
-        setCommentUnsubscribers(prev => ({ ...prev, [ideaId]: unsubscribeComments }));
-      } else if (!expandedComments[ideaId] && commentUnsubscribers[ideaId]) {
-        // If section is collapsed and an unsubscriber exists, call it and remove from state
-        commentUnsubscribers[ideaId]();
-        setCommentUnsubscribers(prev => {
-          const newUnsubscribers = { ...prev };
-          delete newUnsubscribers[ideaId];
-          return newUnsubscribers;
-        });
-        // Optionally clear comments for this ideaId from commentsByIdeaId to allow refetch on re-expand
-        // setCommentsByIdeaId(prev => {
-        //   const newComments = { ...prev };
-        //   delete newComments[ideaId];
-        //   return newComments;
-        // });
-      }
-    });
-    
-    // Cleanup all comment listeners on component unmount
-    return () => {
-      Object.values(commentUnsubscribers).forEach(unsub => unsub());
-    };
-  }, [expandedComments, eventId, isAuthenticated, commentsByIdeaId, isLoadingComments, commentUnsubscribers]); // Added commentUnsubscribers
 
   const getAuthorDisplayName = (userId: string): string => {
     return userDetailsCache[userId]?.displayName || userId.substring(0, 6) + "...";
@@ -188,7 +121,11 @@ const EventIdeasScreen = () => {
       Alert.alert('Error', 'Cannot post idea. Ensure you are logged in, an event is selected, and the idea text is not empty.');
       return;
     }
-    const payload: CreateIdeaPayload = { title: newIdeaText.trim() }; // Assuming description is optional
+    const payload: CreateIdeaPayload = { 
+      title: newIdeaText.trim(),
+      description: newIdeaText.trim(),
+      category: 'General'
+    };
     try {
       await addIdeaToEvent(isAuthenticated, eventId, payload, currentUser.uid);
       setNewIdeaText('');
@@ -226,71 +163,11 @@ const EventIdeasScreen = () => {
     setReplyingTo(null); 
   };
   
-  const handlePostCommentOrReply = async () => {
-    if (!replyingTo || !commentInput[replyingTo.id]?.trim() || !eventId || !currentUser?.uid || !isAuthenticated) {
-        Alert.alert('Error', 'Cannot post comment. Missing information or not logged in.');
-        return;
-    }
 
-    const text = commentInput[replyingTo.id].trim();
-    const payload: CreateIdeaCommentPayload = {
-      text,
-      parentId: replyingTo.type === 'comment' ? replyingTo.id : undefined,
-    };
 
-    try {
-      await addIdeaComment(isAuthenticated, eventId, replyingTo.ideaId, currentUser.uid, payload);
-      setCommentInput(prev => ({ ...prev, [replyingTo.id]: '' }));
-      // Optionally clear replyingTo or keep context
-    } catch (e: any) {
-      Alert.alert('Error', `Failed to post comment: ${e.message}`);
-    }
-  };
-
-  // For now, we'll display userId or a placeholder. // This TODO is being addressed
-
-  const renderComment = (comment: IdeaCommentType, ideaId: string, isReply = false) => {
-    const currentCommentsForIdea = commentsByIdeaId[ideaId] || [];
-    const replies = currentCommentsForIdea.filter(c => c.parentId === comment.id);
-    const currentReplyText = commentInput[comment.id] || '';
-    const authorName = getAuthorDisplayName(comment.userId);
-
-    return (
-      <View key={comment.id} style={[styles.commentContainer, isReply && styles.replyContainer]}>
-        <Text style={styles.commentAuthor}>
-          {authorName}
-          <Text style={styles.commentTimestamp}> ({formatTime(comment.createdAt)})</Text>
-        </Text>
-        <Text style={styles.commentText}>{comment.text}</Text>
-        {!isReply && (
-          <TouchableOpacity onPress={() => { setReplyingTo({ type: 'comment', id: comment.id, ideaId }); setExpandedComments(prev => ({...prev, [ideaId]: true})); }} style={styles.replyButton}>
-            <Text style={styles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
-        )}
-        {replyingTo?.type === 'comment' && replyingTo.id === comment.id && (
-          <View style={styles.commentInputContainer}>
-            <TextInput
-              style={styles.commentInput}
-              placeholder={`Replying to ${authorName}...`}
-              value={currentReplyText}
-              onChangeText={text => setCommentInput(prev => ({ ...prev, [comment.id]: text }))}
-              multiline
-            />
-            <TouchableOpacity style={styles.postCommentButtonSmall} onPress={handlePostCommentOrReply}>
-              <Text style={styles.postCommentButtonText}>Post</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        {replies.map(reply => renderComment(reply, ideaId, true))}
-      </View>
-    );
-  };
 
   const renderIdeaItem = ({ item }: { item: IdeaType }) => {
-    const ideaComments = (commentsByIdeaId[item.id] || []).filter(c => !c.parentId);
-    const isCommentsExpanded = !!expandedComments[item.id];
-    const currentTopLevelCommentText = commentInput[item.id] || '';
-    const ideaAuthorName = getAuthorDisplayName(item.submittedBy);
+    const ideaAuthorName = getAuthorDisplayName(item.createdBy);
 
     return (
       <View style={styles.ideaItemContainer}>
@@ -308,40 +185,10 @@ const EventIdeasScreen = () => {
             <Icon name="thumb-down-off-alt" size={20} color={Colors.light.error} />
             <Text style={styles.voteCount}>{item.downvotes}</Text> 
           </TouchableOpacity> */}
-          <TouchableOpacity style={styles.commentToggleButton} onPress={() => toggleComments(item.id)}>
-            <Icon name="comment" size={20} color="#555" />
-            <Text style={styles.commentToggleText}>
-              {isCommentsExpanded ? 'Hide' : 'View'} Comments ({isLoadingComments[item.id] ? '...' : ideaComments.length})
-            </Text>
-          </TouchableOpacity>
+
         </View>
 
-        {isCommentsExpanded && (
-          <View style={styles.commentsSection}>
-            {isLoadingComments[item.id] && <ActivityIndicator size="small" color={Colors.light.primary} />}
-            {!isLoadingComments[item.id] && (
-              <>
-                <View style={styles.commentInputContainer}>
-                  <TextInput
-                    style={styles.commentInput}
-                    placeholder="Add a comment..."
-                    value={currentTopLevelCommentText}
-                    onChangeText={text => { setCommentInput(prev => ({ ...prev, [item.id]: text })); setReplyingTo({type: 'idea', id: item.id, ideaId: item.id });}}
-                    multiline
-                  />
-                  <TouchableOpacity style={styles.postCommentButtonSmall} onPress={handlePostCommentOrReply}>
-                    <Text style={styles.postCommentButtonText}>Post</Text>
-                  </TouchableOpacity>
-                </View>
-                {ideaComments.length > 0 ? (
-                  ideaComments.map(comment => renderComment(comment, item.id, false))
-                ) : (
-                  <Text style={styles.noCommentsText}>No comments yet.</Text>
-                )}
-              </>
-            )}
-          </View>
-        )}
+
       </View>
     );
   };

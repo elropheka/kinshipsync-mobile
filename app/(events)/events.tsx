@@ -27,9 +27,9 @@ const EventListScreen = () => {
   };
 
   const eventsToDisplay = useMemo(() => {
-    let processedEvents: (Event & { status: 'Upcoming' | 'Past' })[] = (events || []).map(event => ({
+    let processedEvents: (Event & { eventStatus: 'Upcoming' | 'Past' })[] = (events || []).map(event => ({
       ...event,
-      status: getEventStatus(event.date),
+      eventStatus: getEventStatus(event.date),
     }));
 
     if (searchQuery) {
@@ -43,36 +43,36 @@ const EventListScreen = () => {
     }
 
     if (selectedFilter === 'Upcoming') {
-      processedEvents = processedEvents.filter(event => event.status === 'Upcoming');
+      processedEvents = processedEvents.filter(event => event.eventStatus === 'Upcoming');
     } else if (selectedFilter === 'Past') {
-      processedEvents = processedEvents.filter(event => event.status === 'Past');
+      processedEvents = processedEvents.filter(event => event.eventStatus === 'Past');
     }
     return processedEvents;
   }, [searchQuery, events, selectedFilter]);
 
-  const keyExtractor = useCallback((item: Event & { status: 'Upcoming' | 'Past' }) => item.id, []);
+  const keyExtractor = useCallback((item: Event & { eventStatus: 'Upcoming' | 'Past' }) => item.id, []);
 
-  const renderEventItem = useCallback(({ item }: { item: Event & { status: 'Upcoming' | 'Past' } }) => (
+  const renderEventItem = useCallback(({ item }: { item: Event & { eventStatus: 'Upcoming' | 'Past' } }) => (
     <View style={styles.eventItem}>
       <View>
         <Text style={styles.eventName}>{item.name}</Text>
         <Text style={styles.eventDate}>{new Date(item.date).toLocaleDateString()}</Text>
         {item.location && <Text style={styles.eventLocationText}>{item.location}</Text>}
         <Text style={styles.eventOrganizerText}>
-          Organizer: {item.organizerFirstName || item.organizerLastName ? `${item.organizerFirstName || ''} ${item.organizerLastName || ''}`.trim() : 'N/A'}
+          Organizer: {item.organizerId || 'N/A'}
         </Text>
         <Text style={styles.eventGuestCount}>{item.totalAttendees ?? 0} Attendees</Text>
       </View>
       <View style={styles.statusContainer}>
         <View style={[
           styles.statusDot,
-          { backgroundColor: item.status === 'Upcoming' ? '#6ee0bd' : '#ff6b6b' }
+          { backgroundColor: item.eventStatus === 'Upcoming' ? '#6ee0bd' : '#ff6b6b' }
         ]} />
         <Text style={[
           styles.statusText,
-          { color: item.status === 'Upcoming' ? '#000' : '#ff6b6b' }
+          { color: item.eventStatus === 'Upcoming' ? '#000' : '#ff6b6b' }
         ]}>
-          {item.status}
+          {item.eventStatus}
         </Text>
       </View>
     </View>

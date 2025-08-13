@@ -15,11 +15,11 @@ const TableForm: React.FC<TableFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [nameOrNumber, setNameOrNumber] = useState(initialTable?.nameOrNumber || '');
+  const [name, setName] = useState(initialTable?.name || '');
   const [capacity, setCapacity] = useState<string>(initialTable?.capacity?.toString() || '8'); // Default capacity
 
   const handleSubmit = () => {
-    if (!nameOrNumber.trim()) {
+    if (!name.trim()) {
       Alert.alert('Validation Error', 'Table name or number cannot be empty.');
       return;
     }
@@ -30,8 +30,10 @@ const TableForm: React.FC<TableFormProps> = ({
     }
 
     onSubmit({
-      nameOrNumber: nameOrNumber.trim(),
+      name: name.trim(),
       capacity: capacityNum,
+      assignedGuests: [],
+      position: { x: 0, y: 0 },
     });
   };
 
@@ -51,13 +53,13 @@ const TableForm: React.FC<TableFormProps> = ({
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.fieldContainer}>
           <Text style={styles.label}>Table Name/Number <Text style={styles.requiredStar}>*</Text></Text>
-          <TextInput
-            style={styles.input}
-            value={nameOrNumber}
-            onChangeText={setNameOrNumber}
-            placeholder="e.g., Table 1, Main Table"
-            placeholderTextColor={Colors.light.textSecondary}
-          />
+                      <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="e.g., Table 1, Main Table"
+              placeholderTextColor={Colors.light.textSecondary}
+            />
         </View>
 
         <View style={styles.fieldContainer}>

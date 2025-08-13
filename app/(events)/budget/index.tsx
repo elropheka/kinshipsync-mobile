@@ -222,7 +222,7 @@ const EventBudgetScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.budgetItem}>
             <View style={styles.budgetItemInfo}>
-              <Text style={styles.budgetItemName}>{item.name}</Text>
+              <Text style={styles.budgetItemName}>{item.itemName}</Text>
               {item.category && <Text style={styles.budgetItemCategory}>Category: {item.category}</Text>}
               <Text style={styles.budgetItemCosts}>
                 Est: ${item.estimatedCost.toFixed(2)} / Actual: ${ (item.actualCost || 0).toFixed(2)}

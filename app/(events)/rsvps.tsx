@@ -11,7 +11,7 @@ import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPP
 import { Colors } from '../../constants/Colors';
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
 
-const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'Attending', 'Declined', 'Maybe'] as const;
+const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
 
 const RsvpListScreen = () => {
@@ -96,14 +96,14 @@ const RsvpListScreen = () => {
       const { status: formStatus, preferences } = formDataFromModal;
       let serviceStatus: GuestType['status'];
 
-      if (formStatus === 'Attending') serviceStatus = 'Attending';
-      else if (formStatus === 'Not Attending') serviceStatus = 'Declined';
-      else serviceStatus = 'Maybe';
+      if (formStatus === 'Attending') serviceStatus = 'accepted';
+      else if (formStatus === 'Not Attending') serviceStatus = 'declined';
+      else serviceStatus = 'pending';
 
       const payload: Partial<UpdateGuestPayload & UpdateRSVPPayload> = {
         status: serviceStatus,
         notes: preferences?.otherNotes,
-        plusOnes: (preferences?.plusOne && serviceStatus === 'Attending') ? (preferences.plusOneName ? 1 : 1) : 0,
+        plusOnes: (preferences?.plusOne && serviceStatus === 'accepted') ? (preferences.plusOneName ? 1 : 1) : 0,
       };
       
       await updateGuestRsvp(isAuthenticated, eventId, editingGuest.id, payload);
@@ -141,7 +141,7 @@ const RsvpListScreen = () => {
         {guest.plusOnes !== undefined && guest.plusOnes > 0 && (
             <Text style={styles.preferenceText}>+ {guest.plusOnes} guest(s)</Text>
         )}
-        {(guest.status === 'Invited' || guest.status === 'Maybe') && (
+        {(guest.status === 'Invited' || guest.status === 'pending') && (
           <TouchableOpacity 
             style={styles.reminderButton}
             disabled={remindingGuestId === guest.id}
@@ -166,10 +166,10 @@ const RsvpListScreen = () => {
           styles.statusDot, 
           { 
             backgroundColor: 
-              guest.status === 'Attending' ? Colors.light.success :
-              guest.status === 'Declined' ? Colors.light.error :
+              guest.status === 'accepted' ? Colors.light.success :
+              guest.status === 'declined' ? Colors.light.error :
               guest.status === 'Invited' ? Colors.light.info :
-              guest.status === 'Maybe' ? Colors.light.warning :
+              guest.status === 'pending' ? Colors.light.warning :
               Colors.light.textSecondary 
           }
         ]} />
@@ -177,10 +177,10 @@ const RsvpListScreen = () => {
           styles.statusText,
           { 
             color: 
-              guest.status === 'Attending' ? Colors.light.success :
-              guest.status === 'Declined' ? Colors.light.error :
+              guest.status === 'accepted' ? Colors.light.success :
+              guest.status === 'declined' ? Colors.light.error :
               guest.status === 'Invited' ? Colors.light.info :
-              guest.status === 'Maybe' ? Colors.light.warning :
+              guest.status === 'pending' ? Colors.light.warning :
               Colors.light.textSecondary
           }
         ]}>
@@ -266,8 +266,8 @@ const RsvpListScreen = () => {
             guestName: editingGuest.name,
             eventName: eventDetails?.name || `Event ID: ${eventId}`,
             status: 
-              editingGuest.status === 'Attending' ? 'Attending' :
-              editingGuest.status === 'Declined' ? 'Not Attending' :
+              editingGuest.status === 'accepted' ? 'Attending' :
+              editingGuest.status === 'declined' ? 'Not Attending' :
               'Pending',
             preferences: {
               otherNotes: editingGuest.notes,

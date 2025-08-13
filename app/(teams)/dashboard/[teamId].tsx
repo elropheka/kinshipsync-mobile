@@ -448,7 +448,16 @@ const TeamDashboardScreen = () => {
         onRequestClose={handleCloseTaskForm}
       >
         <TaskForm
-          initialTask={editingTask}
+          initialTask={editingTask ? {
+            id: editingTask.id,
+            title: editingTask.title,
+            description: editingTask.description,
+            dueDate: editingTask.dueDate,
+            priority: editingTask.status === 'completed' ? 'high' : editingTask.status === 'in-progress' ? 'medium' : 'low',
+            status: editingTask.status === 'completed' ? 'completed' : editingTask.status === 'in-progress' ? 'in_progress' : 'pending',
+            assignedToUserIds: editingTask.assignedToUserIds || [],
+            completed: editingTask.status === 'completed',
+          } : undefined}
           assignableUsers={teamMembers}
           onSubmit={handleTaskSubmit}
           onCancel={handleCloseTaskForm}

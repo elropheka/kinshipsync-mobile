@@ -18,7 +18,7 @@ import EventDetailIdeas from '../../../components/events/details/EventDetailIdea
 import EventDetailTeams from '../../../components/events/details/EventDetailTeams';
 import EventDetailTheme from '../../../components/events/details/EventDetailTheme';
 import EventDetailWebsite from '../../../components/events/details/EventDetailWebsite';
-import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, UpdateEventWebsitePayload } from '../../../types/eventTypes';
+import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, WebsitePayload } from '../../../types/eventTypes';
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -157,7 +157,7 @@ export default function EventDetailsScreen() {
     await setEventTheme(themeId);
   };
 
-  const handleUpdateEventWebsite = async (websiteData: UpdateEventWebsitePayload) => {
+  const handleUpdateEventWebsite = async (websiteData: WebsitePayload) => {
     await updateEventWebsite(websiteData);
   };
 

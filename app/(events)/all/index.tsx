@@ -47,7 +47,7 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
                  event.name.toLowerCase().includes("corporate") ? "Corporate" :
                  event.name.toLowerCase().includes("charity") ? "Charity" :
                  event.name.toLowerCase().includes("birthday") ? "Birthday" : "General",
-      guestCount: (event as any).guests || event.teamIds?.length || 0,
+      guestCount: (event as any).guests || 0,
       progress: new Date(event.date) < new Date() ? 100 : Math.floor(Math.random() * 70) + 30,
     }));
   }, [fetchedEvents]);

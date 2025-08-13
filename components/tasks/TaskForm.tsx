@@ -30,8 +30,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
     initialTask?.dueDate ? new Date(initialTask.dueDate) : undefined
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>(
-    initialTask?.priority || 'Medium'
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(
+    initialTask?.priority || 'medium'
   );
   // Map initialTask.completed (boolean) to form's status (string)
   const [status, setStatus] = useState<FormStatus>(
@@ -54,6 +54,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       priority,
       completed: status === 'completed', // Map status string to boolean
       assignedToUserIds,
+      status: status === 'completed' ? 'completed' : status === 'in-progress' ? 'in_progress' : 'pending' as 'completed' | 'in_progress' | 'pending',
     };
 
     if (initialTask?.id) {
@@ -85,7 +86,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     }
   };
 
-  const priorities: ('Low' | 'Medium' | 'High')[] = ['Low', 'Medium', 'High'];
+  const priorities: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
   const statuses: FormStatus[] = ['todo', 'in-progress', 'completed'];
 
   // Define a type for form items for better type safety in renderFormItem

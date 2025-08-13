@@ -64,7 +64,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
   const renderBudgetItem = ({ item }: { item: BudgetItem }) => (
     <TouchableOpacity style={styles.taskItem} onPress={() => handleOpenBudgetForm(item)}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.taskTitle}>{item.name} {item.category ? `(${item.category})` : ''}</Text>
+        <Text style={styles.taskTitle}>{item.itemName} {item.category ? `(${item.category})` : ''}</Text>
         <Text style={styles.taskDescription}>
           Est: ${item.estimatedCost.toFixed(2)}
           {item.actualCost !== undefined && item.actualCost !== null && ` / Actual: $${item.actualCost.toFixed(2)}`}

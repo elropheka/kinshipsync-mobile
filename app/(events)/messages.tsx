@@ -46,12 +46,12 @@ const EventMessagesScreen = () => {
         let newDetailsFetched = false;
 
         for (const message of eventMessages) {
-          const senderId = message.senderId;
+          const senderId = message.sender;
 
           if (senderId === currentUser.uid) continue; // Skip self
           if (currentCache[senderId]) continue;    // Skip already cached
 
-          const guestSender = guests.find(g => g.userId === senderId);
+          const guestSender = guests.find(g => g.id === senderId);
           if (guestSender && guestSender.name) {
             currentCache[senderId] = { name: guestSender.name };
             newDetailsFetched = true;
@@ -90,7 +90,7 @@ const EventMessagesScreen = () => {
     if (currentUser && senderId === currentUser.uid) return "You";
     
     // Check guests list first (using userId)
-    const guestSender = guests.find(g => g.userId === senderId);
+    const guestSender = guests.find(g => g.id === senderId);
     if (guestSender && guestSender.name) return guestSender.name;
 
     // Check cache
@@ -105,7 +105,7 @@ const EventMessagesScreen = () => {
     if (!newMessage.trim() || !currentUser?.uid || !eventId) return;
     setIsSending(true);
     try {
-      await sendEventMessage({ content: newMessage.trim(), isAnnouncement: false }, currentUser.uid);
+      await sendEventMessage({ content: newMessage.trim(), type: 'update' }, currentUser.uid);
       setNewMessage('');
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -116,17 +116,17 @@ const EventMessagesScreen = () => {
   };
 
   const renderMessageItem = ({ item }: { item: EventMessage }) => {
-    const isMyMessage = item.senderId === currentUser?.uid;
+    const isMyMessage = item.sender === currentUser?.uid;
     return (
       <View style={[
         styles.messageBubble, 
         isMyMessage ? styles.myMessageBubble : styles.otherMessageBubble,
-        item.isAnnouncement && styles.announcementBubble
+
       ]}>
-        {!isMyMessage && <Text style={styles.senderNameText}>{getSenderName(item.senderId)}</Text>}
+        {!isMyMessage && <Text style={styles.senderNameText}>{getSenderName(item.sender)}</Text>}
         <Text style={styles.messageText}>{item.content}</Text>
         <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-        {item.isAnnouncement && <Text style={styles.announcementText}>📢 Announcement</Text>}
+
       </View>
     );
   };

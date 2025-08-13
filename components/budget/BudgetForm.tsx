@@ -139,13 +139,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
     const budgetItemData: CreateBudgetItemPayload | UpdateBudgetItemPayload = {
       itemName: itemName.trim(),
-      category: category.trim() || null, // Convert empty string to null
+      category: category.trim() || undefined, // Convert empty string to undefined
       estimatedCost: estimatedCostNum,
       actualCost: actualCostNum, // actualCost is number | undefined, which is fine
       paid,
-      notes: notes.trim() || null, // Convert empty string to null
+      notes: notes.trim() || undefined, // Convert empty string to undefined
       linkedVendorId: vendorEntryMode === 'select' ? selectedVendorId : undefined, // undefined is fine, field will be omitted
-      manualVendorName: vendorEntryMode === 'manual' ? (manualVendorNameInput.trim() || null) : undefined, // empty string to null, else undefined
+      manualVendorName: vendorEntryMode === 'manual' ? (manualVendorNameInput.trim() || undefined) : undefined, // empty string to undefined, else undefined
       linkedVendorItemId: vendorEntryMode === 'select' && itemEntryMode === 'select' ? selectedVendorItemId : undefined, // undefined is fine
     };
 

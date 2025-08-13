@@ -12,7 +12,7 @@ interface InviteGuestModalProps {
   currentEventName?: string;
 }
 
-const GUEST_STATUS_OPTIONS_FOR_INVITE: GuestStatus[] = ['Invited', 'Attending', 'Maybe', 'Declined'];
+const GUEST_STATUS_OPTIONS_FOR_INVITE: GuestStatus[] = ['Invited', 'accepted', 'pending', 'declined'];
 
 
 const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, onSubmit, currentEventName }) => {
@@ -39,6 +39,8 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
     setIsSubmitting(true);
     const guestData: CreateGuestPayload = {
       name: name.trim(),
+      firstName: name.trim().split(' ')[0] || '',
+      lastName: name.trim().split(' ').slice(1).join(' ') || '',
       email: email.trim() || undefined, // Send undefined if empty, not an empty string
       phone: phone.trim() || undefined,
       notes: notes.trim() || '',

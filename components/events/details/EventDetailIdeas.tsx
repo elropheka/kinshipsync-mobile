@@ -85,7 +85,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
           <Text style={styles.ideaTitle}>{item.title}</Text>
           {item.description && <Text style={styles.ideaDescription} numberOfLines={2}>{item.description}</Text>}
         </TouchableOpacity>
-        <Text style={styles.ideaSubmittedBy}>Submitted by: {item.submitterName || item.submittedBy}</Text> 
+        <Text style={styles.ideaSubmittedBy}>Submitted by: {item.submitterName || item.createdBy}</Text> 
       </View>
       <View style={styles.voteContainer}>
         <TouchableOpacity onPress={() => handleVote(item.id, 1)}>

@@ -75,7 +75,7 @@ const SeatingChartScreen = () => {
       const newTable: SeatingTable = {
         id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`, // Temporary local ID
         ...tableData,
-        assignedGuestIds: Array(tableData.capacity).fill(null), // Initialize with empty seats
+        assignedGuests: Array(tableData.capacity).fill(null), // Initialize with empty seats
       };
       setTables(prevTables => [...prevTables, newTable]);
     }
@@ -112,15 +112,15 @@ const SeatingChartScreen = () => {
 
     setTables(prevTables => prevTables.map(table => {
       if (table.id === assigningToTableId) {
-        const newAssignedGuestIds = [...table.assignedGuestIds];
+        const newAssignedGuests = [...table.assignedGuests];
         // Ensure no duplicate assignment across all tables for this guest
-        const isGuestAlreadySeated = prevTables.some(t => t.assignedGuestIds.includes(guestId));
+        const isGuestAlreadySeated = prevTables.some(t => t.assignedGuests.includes(guestId));
         if (isGuestAlreadySeated) {
             Alert.alert("Already Seated", "This guest is already assigned to another seat.");
             return table; // Return original table if guest is already seated
         }
-        newAssignedGuestIds[assigningToChairIndex] = guestId;
-        return { ...table, assignedGuestIds: newAssignedGuestIds };
+        newAssignedGuests[assigningToChairIndex] = guestId;
+        return { ...table, assignedGuests: newAssignedGuests };
       }
       return table;
     }));
@@ -133,9 +133,9 @@ const SeatingChartScreen = () => {
   const handleUnassignGuest = (tableId: string, chairIndex: number) => {
      setTables(prevTables => prevTables.map(table => {
         if (table.id === tableId) {
-            const newAssignedGuestIds = [...table.assignedGuestIds];
-            newAssignedGuestIds[chairIndex] = ''; // or null, depending on how you mark empty
-            return {...table, assignedGuestIds: newAssignedGuestIds};
+            const newAssignedGuests = [...table.assignedGuests];
+            newAssignedGuests[chairIndex] = ''; // or null, depending on how you mark empty
+            return {...table, assignedGuests: newAssignedGuests};
         }
         return table;
      }));
@@ -176,7 +176,7 @@ const SeatingChartScreen = () => {
         {tables.map((table) => (
           <View key={table.id} style={styles.tableContainer}>
             <View style={styles.tableHeader}>
-                <Text style={styles.tableName}>{table.nameOrNumber} (Capacity: {table.capacity})</Text>
+                <Text style={styles.tableName}>{table.name} (Capacity: {table.capacity})</Text>
                 <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity onPress={() => handleEditTable(table)} style={{marginRight: 10}}>
                         <Ionicons name="pencil-outline" size={20} color={Colors.light.tint} />
@@ -188,7 +188,7 @@ const SeatingChartScreen = () => {
             </View>
             <View style={styles.chairsContainer}>
               {[...Array(table.capacity)].map((_, chairIndex) => {
-                const guestId = table.assignedGuestIds[chairIndex];
+                const guestId = table.assignedGuests[chairIndex];
                 // Ensure guests array is available and not undefined before calling find
                 const guest = guestId && guests ? guests.find(g => g.id === guestId) : null;
                 return (
@@ -230,7 +230,7 @@ const SeatingChartScreen = () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Assign Guest to Chair</Text>
             <FlatList
-              data={guests.filter(g => !tables.some(t => t.assignedGuestIds.includes(g.id)))} // Only show unassigned guests
+              data={guests.filter(g => !tables.some(t => t.assignedGuests.includes(g.id)))} // Only show unassigned guests
               keyExtractor={(item) => item.id}
               renderItem={({ item: guest }) => (
                 <TouchableOpacity 

@@ -9,10 +9,10 @@ import {
   BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload,
   Idea, CreateIdeaPayload, UpdateIdeaPayload,
   Theme, 
-  EventWebsiteDetails, UpdateEventWebsiteDetailsPayload,
+
   EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, UpdateTeamMemberPayload,
   EventMessage, CreateEventMessagePayload,
-  SeatingChart, UpdateSeatingChartPayload, // Added SeatingChart types
+  SeatingChart, UpdateSeatingChartPayload, WebsitePayload, // Added SeatingChart types
 } from '../types/eventTypes';
 
 // Hook for managing a list of all events
@@ -130,7 +130,7 @@ export const useEventDetail = (eventId?: string) => {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [currentTheme, setCurrentTheme] = useState<Theme | null>(null);
   const [availableThemes, setAvailableThemes] = useState<Theme[]>([]);
-  const [eventWebsite, setEventWebsite] = useState<EventWebsiteDetails | null>(null);
+  const [eventWebsite, setEventWebsite] = useState<WebsitePayload | null>(null);
   const [eventTeams, setEventTeams] = useState<EventTeam[]>([]);
   const [eventMessages, setEventMessages] = useState<EventMessage[]>([]);
   const [seatingChart, setSeatingChart] = useState<SeatingChart | null>(null); // Added state for seating chart
@@ -557,7 +557,7 @@ export const useEventDetail = (eventId?: string) => {
     // Event Website Management
     eventWebsite,
     isLoadingWebsite,
-    updateEventWebsite: useCallback(async (payload: UpdateEventWebsiteDetailsPayload) => {
+    updateEventWebsite: useCallback(async (payload: WebsitePayload) => {
       if (!eventId) throw new Error("Event ID is required.");
       setIsLoadingWebsite(true);
       try {

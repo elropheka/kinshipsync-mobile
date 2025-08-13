@@ -84,7 +84,7 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
     const teamData = {
       name: name.trim(),
       // Map selectedMemberIds to TeamMember objects with a default role
-      members: selectedMemberIds.map(userId => ({ userId, role: 'Editor' as const })),
+      members: selectedMemberIds.map(userId => ({ userId, role: 'helper' as const })),
     };
 
     if (initialTeam?.id) {

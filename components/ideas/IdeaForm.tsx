@@ -19,6 +19,7 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
 }) => {
   const [title, setTitle] = useState(initialIdea?.title || '');
   const [description, setDescription] = useState(initialIdea?.description || '');
+  const [category, setCategory] = useState(initialIdea?.category || 'General');
   // Votes are typically handled by a separate action, not directly in the form for creation/update of title/desc
 
   const handleSubmit = () => {
@@ -30,6 +31,7 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
     const commonData = {
       title: title.trim(),
       description: description.trim(),
+      category: category.trim(),
     };
 
     if (initialIdea?.id) {
@@ -77,6 +79,17 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
             placeholder="Details about the idea (optional)"
             multiline
             numberOfLines={4}
+            placeholderTextColor={Colors.light.textSecondary}
+          />
+        </View>
+
+        <View style={styles.fieldContainer}>
+          <Text style={styles.label}>Category <Text style={styles.requiredStar}>*</Text></Text>
+          <TextInput
+            style={styles.input}
+            value={category}
+            onChangeText={setCategory}
+            placeholder="e.g., Entertainment, Food, Decoration"
             placeholderTextColor={Colors.light.textSecondary}
           />
         </View>

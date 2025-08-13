@@ -99,10 +99,8 @@ const SpecificEventGuestListScreen = () => {
         try {
           const invitedAppUser = await getUserProfileByEmail(guestData.email); // Use the new function
           if (invitedAppUser && invitedAppUser.userId !== user.uid) {
-            // Update the guest record with the found userId if not already set
-            if (invitedGuest.userId !== invitedAppUser.userId) {
-                 await updateGuestRsvp(isAuthenticated, eventId, invitedGuest.id, { userId: invitedAppUser.userId });
-            }
+            // TODO: Implement guest-user linking functionality
+            console.log('Guest would be linked to user:', invitedAppUser.userId);
 
             const conversation = await createDirectConversation(isAuthenticated, user.uid, {
               recipientId: invitedAppUser.userId,
@@ -172,10 +170,10 @@ const SpecificEventGuestListScreen = () => {
           styles.statusDot,
           { 
             backgroundColor: 
-              item.status === 'Attending' ? Colors.light.success :
-              item.status === 'Declined' ? Colors.light.error :
+              item.status === 'accepted' ? Colors.light.success :
+              item.status === 'declined' ? Colors.light.error :
               item.status === 'Invited' ? Colors.light.info :
-              item.status === 'Maybe' ? Colors.light.warning :
+              item.status === 'pending' ? Colors.light.warning :
               Colors.light.textSecondary
           }
         ]} />
@@ -183,10 +181,10 @@ const SpecificEventGuestListScreen = () => {
           styles.statusText,
           { 
             color: 
-              item.status === 'Attending' ? Colors.light.success :
-              item.status === 'Declined' ? Colors.light.error :
+              item.status === 'accepted' ? Colors.light.success :
+              item.status === 'declined' ? Colors.light.error :
               item.status === 'Invited' ? Colors.light.info :
-              item.status === 'Maybe' ? Colors.light.warning :
+              item.status === 'pending' ? Colors.light.warning :
               Colors.light.textSecondary
           }
         ]}>

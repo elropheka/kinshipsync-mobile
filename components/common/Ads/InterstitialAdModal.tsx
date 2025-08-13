@@ -15,7 +15,7 @@ const InterstitialAdModal: React.FC<InterstitialAdModalProps> = ({
   duration = 3000, // Default to 3 seconds
 }) => {
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (visible && duration) {
       timer = setTimeout(() => {
         onClose();

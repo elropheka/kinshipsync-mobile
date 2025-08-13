@@ -33,7 +33,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   const [managingTeamMembersFor, setManagingTeamMembersFor] = useState<EventTeam | null>(null);
   const [isTeamMemberPickerVisible, setIsTeamMemberPickerVisible] = useState(false);
   const [selectedUserForTeam, setSelectedUserForTeam] = useState<UserProfile | null>(null);
-  const [selectedRoleForTeamMember, setSelectedRoleForTeamMember] = useState<TeamMember['role']>('Viewer');
+  const [selectedRoleForTeamMember, setSelectedRoleForTeamMember] = useState<TeamMember['role']>('helper');
 
   const handleOpenEventTeamForm = (team?: EventTeam) => {
     if (team) {
@@ -84,7 +84,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   const handleOpenTeamMemberModal = (team: EventTeam) => {
     setManagingTeamMembersFor(team);
     setSelectedUserForTeam(null); 
-    setSelectedRoleForTeamMember('Viewer'); 
+    setSelectedRoleForTeamMember('helper'); 
     setIsTeamMemberPickerVisible(true);
   };
 
@@ -206,7 +206,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
           />
           <Text style={styles.modalSubtitle}>Select Role:</Text>
           <View style={styles.roleSelectorContainer}>
-            {(['Admin', 'Editor', 'Viewer'] as TeamMember['role'][]).map(role => (
+            {(['admin', 'coordinator', 'helper'] as TeamMember['role'][]).map(role => (
               <TouchableOpacity 
                 key={role} 
                 style={[styles.roleButton, selectedRoleForTeamMember === role && styles.roleButtonSelected]}
