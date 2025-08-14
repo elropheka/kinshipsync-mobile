@@ -187,7 +187,7 @@ const CreateNewTeamScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent}/>
       <Stack.Screen options={{ title: "Create New Team" }} />
       <FlatList
         data={formSections}

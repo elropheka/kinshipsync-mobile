@@ -58,7 +58,7 @@ const TasksTimelinePage: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
       {/* Header */}
       <Stack.Screen options={{ title: "Tasks" }} /> {/* Ensure title is set if not already by layout */}
       {/* Header View removed - this diff just corrects the import location */}

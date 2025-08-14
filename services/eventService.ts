@@ -861,52 +861,136 @@ export const listenToEventMessages = (isAuthenticated: boolean, eventId: string,
 };
 
 export const getAvailableThemes = async (isAuthenticated: boolean, userId: string | null): Promise<Theme[]> => {
-  if (!isAuthenticated) {
-    throw new Error("User not authenticated. Please sign in.");
-  }
-  
   try {
-    const themesColRef = collection(firestore, 'themes');
-    const q = query(themesColRef, orderBy('name'));
-    const querySnapshot = await getDocs(q);
+    console.log('getAvailableThemes called', { isAuthenticated, userId });
     
-    const themes: Theme[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      // Ensure the data structure matches the Theme interface
-      const theme: Theme = {
-        id: doc.id,
-        name: data.name || '',
-        colors: {
-          primary: data.colors?.primary || '#000000',
-          secondary: data.colors?.secondary || '#FFFFFF',
-          background: data.colors?.background || '#FFFFFF',
-          text: data.colors?.text || '#000000',
-          accent: data.colors?.accent,
-          cardBackground: data.colors?.cardBackground,
-          borderColor: data.colors?.borderColor,
-        },
-        fonts: {
-          heading: {
-            fontFamily: data.fonts?.heading?.fontFamily || 'Poppins-Regular',
-            fontWeight: data.fonts?.heading?.fontWeight || '400',
-            fontStyle: data.fonts?.heading?.fontStyle,
+    // For unauthenticated users, return predefined themes
+    if (!isAuthenticated) {
+      try {
+        // Import predefined themes dynamically to avoid circular dependencies
+        const { predefinedThemes } = await import('../constants/themes');
+        console.log('Returning predefined themes for unauthenticated user:', predefinedThemes.length);
+        return predefinedThemes;
+      } catch (importError) {
+        console.error('Error importing predefined themes:', importError);
+        // Return a basic fallback theme
+        return [{
+          id: 'fallback-theme',
+          name: 'Default Theme',
+          isPredefined: true,
+          colors: {
+            primary: '#000000',
+            secondary: '#FFFFFF',
+            background: '#FFFFFF',
+            text: '#000000',
           },
-          body: {
-            fontFamily: data.fonts?.body?.fontFamily || 'Poppins-Regular',
-            fontWeight: data.fonts?.body?.fontWeight || '400',
-            fontStyle: data.fonts?.body?.fontStyle,
+          fonts: {
+            heading: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+            body: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
           },
-        },
-        isPredefined: data.isPredefined || false,
-      };
-      themes.push(theme);
-    });
+        }];
+      }
+    }
     
-    return themes;
+    try {
+      console.log('Fetching themes from Firestore...');
+      const themesColRef = collection(firestore, 'themes');
+      const q = query(themesColRef, orderBy('name'));
+      const querySnapshot = await getDocs(q);
+      
+      const themes: Theme[] = [];
+      querySnapshot.forEach((doc) => {
+        try {
+          const data = doc.data();
+          // Ensure the data structure matches the Theme interface
+          const theme: Theme = {
+            id: doc.id,
+            name: data.name || '',
+            colors: {
+              primary: data.colors?.primary || '#000000',
+              secondary: data.colors?.secondary || '#FFFFFF',
+              background: data.colors?.background || '#FFFFFF',
+              text: data.colors?.text || '#000000',
+              accent: data.colors?.accent,
+              cardBackground: data.colors?.cardBackground,
+              borderColor: data.colors?.borderColor,
+            },
+            fonts: {
+              heading: {
+                fontFamily: data.fonts?.heading?.fontFamily || 'Poppins-Regular',
+                fontWeight: data.fonts?.heading?.fontWeight || '400',
+                fontStyle: data.fonts?.heading?.fontStyle,
+              },
+              body: {
+                fontFamily: data.fonts?.body?.fontFamily || 'Poppins-Regular',
+                fontWeight: data.fonts?.body?.fontWeight || '400',
+                fontStyle: data.fonts?.body?.fontStyle,
+              },
+            },
+            isPredefined: data.isPredefined || false,
+          };
+          themes.push(theme);
+        } catch (themeError) {
+          console.error('Error processing theme from Firestore:', themeError, doc.id);
+          // Skip invalid themes
+        }
+      });
+      
+      // Also include predefined themes for authenticated users
+      try {
+        const { predefinedThemes } = await import('../constants/themes');
+        const result = [...predefinedThemes, ...themes];
+        console.log('Returning combined themes:', result.length);
+        return result;
+      } catch (importError) {
+        console.error('Error importing predefined themes for authenticated user:', importError);
+        return themes; // Return just the Firestore themes
+      }
+    } catch (firestoreError) {
+      console.error("Error fetching themes from Firestore:", firestoreError);
+      // Fallback to predefined themes on error
+      try {
+        const { predefinedThemes } = await import('../constants/themes');
+        console.log('Fallback to predefined themes due to Firestore error');
+        return predefinedThemes;
+      } catch (importError) {
+        console.error('Error importing predefined themes as fallback:', importError);
+        // Return a basic fallback theme
+        return [{
+          id: 'fallback-theme',
+          name: 'Default Theme',
+          isPredefined: true,
+          colors: {
+            primary: '#000000',
+            secondary: '#FFFFFF',
+            background: '#FFFFFF',
+            text: '#000000',
+          },
+          fonts: {
+            heading: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+            body: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+          },
+        }];
+      }
+    }
   } catch (error) {
-    console.error("Error fetching available themes:", error);
-    throw error;
+    console.error("Unexpected error in getAvailableThemes:", error);
+    // Return a basic fallback theme
+    return [{
+      id: 'fallback-theme',
+      name: 'Default Theme',
+      isPredefined: true,
+      colors: {
+        primary: '#000000',
+        secondary: '#FFFFFF',
+        background: '#FFFFFF',
+        text: '#000000',
+      },
+      fonts: {
+        heading: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+        body: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+      },
+    }];
   }
 };
 

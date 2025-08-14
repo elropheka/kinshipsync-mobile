@@ -375,7 +375,7 @@ const ChatAreaScreen: React.FC = () => {
   if (isLoadingMessages && messages.length === 0) { // Corrected to isLoadingMessages
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -385,7 +385,7 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         {/* Retry mechanism can be added later if a manual refresh function is implemented in the hook */}
       </SafeAreaView>
@@ -394,7 +394,7 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
       <Stack.Screen 
         options={{
           title: screenTitle,

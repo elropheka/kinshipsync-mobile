@@ -20,7 +20,7 @@ function EventsStack() {
   return (
     <>
       <StatusBar 
-        backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
+        backgroundColor={Platform.OS === 'android' ? Colors.light.accent : undefined} 
         style={Platform.OS === 'ios' ? 'dark' : 'auto'}
         translucent={Platform.OS === 'android' ? false : undefined} // On Android, false makes it a solid color bar
       />

@@ -97,7 +97,7 @@ const EventListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent}/>
       <Stack.Screen 
         options={{ 
           title: "Events",
