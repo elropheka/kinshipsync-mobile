@@ -9,13 +9,14 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons'; // Added FontAwesome
+import { Ionicons } from '@expo/vector-icons'; // Removed FontAwesome since we're using custom GoogleIcon
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { IconSizes } from '../../constants/dimensions';
 import { styles } from '../../styles/app/(auth)/signIn.styles';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import GoogleIcon from '../../components/common/GoogleIcon';
 
 
 interface FormData {
@@ -189,7 +190,7 @@ const SignInScreen: React.FC = () => {
                 onPress={handleGoogleSignIn}
                 disabled={isGoogleLoading} // Disable button when loading
               >
-                <FontAwesome name="google" size={IconSizes.m} color="#DB4437" style={styles.socialIcon} />
+                <GoogleIcon size={IconSizes.m} style={styles.socialIcon} />
                 <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing In...' : 'Google'}</Text>
               </TouchableOpacity>
 

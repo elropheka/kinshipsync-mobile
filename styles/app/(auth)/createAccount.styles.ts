@@ -180,7 +180,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.light.border,
     borderRadius: BorderRadius.xl,
     backgroundColor: Colors.light.background,
-    flex: Platform.OS === 'ios' ? 0.48 : 1,
+    flex: Platform.OS === 'android' ? 1 : 0.48,
   },
   appleButton: {
     display: Platform.OS === 'ios' ? 'flex' : 'none', 

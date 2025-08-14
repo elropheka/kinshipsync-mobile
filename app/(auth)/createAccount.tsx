@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons'; // Removed FontAwesome since we're using custom GoogleIcon
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
@@ -18,6 +18,8 @@ import { styles } from '../../styles/app/(auth)/createAccount.styles';
 import Toast from 'react-native-toast-message'; // For showing simple alerts
 import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
 import { Colors } from 'constants/Colors'; // Import Colors
+import { IconSizes } from '../../constants/dimensions';
+import GoogleIcon from '../../components/common/GoogleIcon';
 
 interface FormData {
   fullName: string;
@@ -41,7 +43,8 @@ const CreateAccountScreen: React.FC = () => {
   });
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Added for password visibility
   const [isLoading, setIsLoading] = useState(false); // Add loading state
-  const { signUp } = useAuth(); // Get signUp from AuthContext
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
+  const { signUp, signInWithGoogle } = useAuth(); // Get signUp and signInWithGoogle from AuthContext
 
   const handleSignUp = async () => {
     // Basic Validation
@@ -107,9 +110,21 @@ const CreateAccountScreen: React.FC = () => {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    // Handle Google sign up
-    console.log('Sign up with Google');
+  const handleGoogleSignUp = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+      // Navigation is handled within signInWithGoogle on success
+    } catch (error) {
+      console.error('Google Sign-Up failed on screen:', error);
+      // Optionally, show an error message to the user
+      // As per feedback, navigate back on error for consistency
+      if (router.canGoBack()) {
+        router.back();
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleAppleSignUp = () => {
@@ -280,14 +295,15 @@ const CreateAccountScreen: React.FC = () => {
               <View style={styles.divider} />
             </View>
 
-            {/* Social Sign Up Buttons */}
+                        {/* Social Sign Up Buttons */}
             <View style={styles.socialButtons}>
-              <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
-                <Image 
-                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }} 
-                  style={styles.socialIcon} 
-                />
-                <Text style={styles.socialButtonText}>Google</Text>
+              <TouchableOpacity 
+                style={[styles.googleButton, isGoogleLoading && styles.disabledButton]} 
+                onPress={handleGoogleSignUp}
+                disabled={isGoogleLoading}
+              >
+                <GoogleIcon size={IconSizes.m} style={styles.socialIcon} />
+                <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing Up...' : 'Google'}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.appleButton} onPress={handleAppleSignUp}>
