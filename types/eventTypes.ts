@@ -11,6 +11,7 @@ export interface Event {
   location?: string;
   organizerId: string;
   themeId?: string;
+  teamIds?: string[];
   createdAt: string;
   updatedAt: string;
   overallBudget?: number;
@@ -218,6 +219,7 @@ export interface CreateEventPayload {
   location?: string;
   overallBudget?: number;
   themeId?: string;
+  teamIds?: string[];
   visibility: Event['visibility'];
   allowedUserIds?: string[];
   website?: WebsitePayload;

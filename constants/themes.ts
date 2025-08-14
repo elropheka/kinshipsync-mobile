@@ -29,8 +29,8 @@ export const predefinedThemes: Theme[] = [
       borderColor: '#DCDCDC', // Gainsboro
     },
     fonts: {
-      heading: { fontFamily: Fonts.headerMedium, fontWeight: '500' }, // Poppins-Medium
-      body: { fontFamily: Fonts.bodyRegular, fontWeight: '400' },    // Poppins-Regular
+      heading: { fontFamily: Fonts.headerMedium, fontWeight: '500', fontStyle: 'normal' }, // Poppins-Medium
+      body: { fontFamily: Fonts.bodyRegular, fontWeight: '400', fontStyle: 'normal' },    // Poppins-Regular
     },
   },
   {
@@ -47,8 +47,8 @@ export const predefinedThemes: Theme[] = [
       borderColor: Colors.light.border, // '#D1D5DB'
     },
     fonts: {
-      heading: { fontFamily: Fonts.headerBold, fontWeight: '700' },   // Poppins-Bold
-      body: { fontFamily: Fonts.bodyRegular, fontWeight: '400' },  // Poppins-Regular
+      heading: { fontFamily: Fonts.headerBold, fontWeight: '700', fontStyle: 'normal' },   // Poppins-Bold
+      body: { fontFamily: Fonts.bodyRegular, fontWeight: '400', fontStyle: 'normal' },  // Poppins-Regular
     },
   },
   {
@@ -65,8 +65,8 @@ export const predefinedThemes: Theme[] = [
       borderColor: '#BDB76B', // Dark Khaki
     },
     fonts: {
-      heading: { fontFamily: Fonts.headerSemiBold, fontWeight: '600' }, // Poppins-SemiBold
-      body: { fontFamily: Fonts.bodyMedium, fontWeight: '500' },      // Poppins-Medium
+      heading: { fontFamily: Fonts.headerSemiBold, fontWeight: '600', fontStyle: 'normal' }, // Poppins-SemiBold
+      body: { fontFamily: Fonts.bodyMedium, fontWeight: '500', fontStyle: 'normal' },      // Poppins-Medium
     },
   },
   {
@@ -83,8 +83,8 @@ export const predefinedThemes: Theme[] = [
       borderColor: '#D3D3D3', // Light Gray
     },
     fonts: {
-      heading: { fontFamily: Fonts.headerMedium, fontWeight: '500' }, // Poppins-Medium
-      body: { fontFamily: Fonts.bodyLight, fontWeight: '300' },      // Poppins-Light
+      heading: { fontFamily: Fonts.headerMedium, fontWeight: '500', fontStyle: 'normal' }, // Poppins-Medium
+      body: { fontFamily: Fonts.bodyLight, fontWeight: '300', fontStyle: 'normal' },      // Poppins-Light
     },
   },
 ];

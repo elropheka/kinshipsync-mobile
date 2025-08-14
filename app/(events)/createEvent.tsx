@@ -63,10 +63,16 @@ const CreateEventScreen = () => {
       refreshAvailableThemes(); // This function is from useTheme and handles auth state internally
       // Set a default selected theme if none is chosen and themes are available
       if (!selectedThemeId && availableThemes.length > 0) {
-        setSelectedThemeId(availableThemes[0].id); 
+        // Validate theme structure before setting
+        const firstTheme = availableThemes[0];
+        if (firstTheme && firstTheme.id && firstTheme.name) {
+          setSelectedThemeId(firstTheme.id);
+          console.log('Setting default theme:', firstTheme);
+        }
       } else if (!selectedThemeId && currentGlobalTheme && availableThemes.find(t => t.id === currentGlobalTheme.id)) {
         // Default to currentGlobalTheme if it's in the available list and nothing else is selected
         setSelectedThemeId(currentGlobalTheme.id);
+        console.log('Setting current global theme:', currentGlobalTheme);
       }
     }
   // Ensure all dependencies that could trigger a re-run and affect logic are included.
@@ -123,11 +129,20 @@ const CreateEventScreen = () => {
       Alert.alert('Error', 'Event date is required.');
       return;
     }
-    if (!currentUser?.uid) {
-      Alert.alert('Error', 'User not authenticated. Cannot create event.');
-      return;
+    
+    // Validate theme selection if a theme is selected
+    if (selectedThemeId) {
+      const selectedTheme = availableThemes.find(t => t.id === selectedThemeId);
+      if (!selectedTheme) {
+        Alert.alert('Error', 'Selected theme is no longer available. Please select a different theme.');
+        return;
+      }
+      console.log('Validating selected theme:', selectedTheme);
     }
 
+    // Ensure allowedUserIds is always an array
+    const finalAllowedUserIds = visibility === 'private' ? (Array.isArray(allowedUserIds) ? allowedUserIds : []) : [];
+    
     const payload: CreateEventPayload = {
       name: name.trim(),
       date: selectedDate.toISOString(), // Store date as ISO string
@@ -135,31 +150,45 @@ const CreateEventScreen = () => {
       location: location.trim() || undefined,
       time: time.trim() || undefined,
       visibility: visibility,
-      allowedUserIds: visibility === 'private' ? allowedUserIds : [],
+      allowedUserIds: finalAllowedUserIds,
       themeId: selectedThemeId, // selectedThemeId is already string | undefined
       // overallBudget can be added here if collected in step 1
     };
+    
+    console.log('Creating event with payload:', payload);
+    console.log('Selected theme ID:', selectedThemeId);
+    console.log('Available themes:', availableThemes);
 
     // Show loading indicator for the final creation process
     // isCreatingEvent state from useAllEvents can be used here.
     // For now, let's assume addEvent handles its own loading state for the UI button.
 
     try {
+      console.log('Calling addEvent with payload:', payload);
       const newEvent = await addEvent(payload, currentUser.uid);
-        if (newEvent) {
-          // After event is created, update website if data exists
-          // Ensure eventService is imported if not already, or use a method from a hook if available
-          const eventServiceRef = await import('../../services/eventService'); // Dynamic import if not top-level
-          if (Object.keys(eventWebsiteData).length > 0 && newEvent.id) { // Check newEvent.id
-            await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsiteDetailsPayload);
-          }
-          Alert.alert('Success', 'Event created successfully!');
+      console.log('Event created successfully:', newEvent);
+      
+      if (newEvent) {
+        // After event is created, update website if data exists
+        // Ensure eventService is imported if not already, or use a method from a hook if available
+        const eventServiceRef = await import('../../services/eventService'); // Dynamic import if not top-level
+        if (Object.keys(eventWebsiteData).length > 0 && newEvent.id) { // Check newEvent.id
+          await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsiteDetailsPayload);
+        }
+        Alert.alert('Success', 'Event created successfully!');
         router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
       } else {
         Alert.alert('Error', 'Failed to create event. Please try again.');
       }
     } catch (error) {
       console.error("Failed to create event:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        payload: payload,
+        selectedThemeId,
+        availableThemes
+      });
       Alert.alert('Error', 'An unexpected error occurred during finalization.');
     }
   };

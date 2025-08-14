@@ -145,6 +145,10 @@ export const getEventsPaginated = async (
         }
       }
 
+      // Ensure array fields are properly typed
+      const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
+      const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
+      
       return {
         id: docSnap.id,
         name: data.name,
@@ -158,10 +162,10 @@ export const getEventsPaginated = async (
         organizerId: data.organizerId,
         themeId: data.themeId,
         visibility: data.visibility,
-        allowedUserIds: data.allowedUserIds,
+        allowedUserIds,
         status: data.status,
         website: data.website,
-        searchableKeywords: data.searchableKeywords,
+        searchableKeywords,
         overallBudget: data.overallBudget,
         totalAttendees,
         createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
@@ -186,9 +190,17 @@ export const getEventById = async (isAuthenticated: boolean, eventId: string): P
     const docSnap = await getDoc(eventDocRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
+      // Ensure array fields are properly typed
+      const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
+      const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
+      const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
+      
       return {
         id: docSnap.id,
         ...data,
+        allowedUserIds,
+        teamIds,
+        searchableKeywords,
         createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
         updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
       } as Event;
@@ -210,11 +222,14 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
   try {
     const eventsColRef = collection(firestore, 'events');
     const keywords = generateKeywords(payload.name, payload.description, payload.location);
+    // Ensure allowedUserIds is always an array
+    const allowedUserIds = Array.isArray(payload.allowedUserIds) ? payload.allowedUserIds : [];
+    
     const newEventData = {
       ...payload,
       organizerId,
       visibility: payload.visibility,
-      allowedUserIds: payload.allowedUserIds || [],
+      allowedUserIds,
       searchableKeywords: keywords,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -223,6 +238,11 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
     const createdDoc = await getDoc(docRef);
     if (!createdDoc.exists()) throw new Error("Failed to retrieve created event.");
     const data = createdDoc.data();
+    // Ensure array fields are properly typed
+    // const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
+    const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
+    const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
+    
     return {
       id: createdDoc.id,
       name: data.name,
@@ -232,10 +252,11 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
       location: data.location,
       organizerId: data.organizerId,
       themeId: data.themeId,
-      teamIds: data.teamIds,
+      teamIds,
       overallBudget: data.overallBudget,
       visibility: data.visibility,
-      allowedUserIds: data.allowedUserIds,
+      allowedUserIds,
+      searchableKeywords,
       createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
       updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
     } as Event;
@@ -270,9 +291,17 @@ export const updateEvent = async (isAuthenticated: boolean, eventId: string, pay
     const updatedDoc = await getDoc(eventDocRef);
     if (!updatedDoc.exists()) return null;
     const data = updatedDoc.data();
+    // Ensure array fields are properly typed
+    const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
+    const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
+    const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
+    
     return {
       id: updatedDoc.id,
       ...data,
+      allowedUserIds,
+      teamIds,
+      searchableKeywords,
       createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
       updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
     } as Event;
@@ -843,10 +872,35 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
     
     const themes: Theme[] = [];
     querySnapshot.forEach((doc) => {
-      themes.push({
+      const data = doc.data();
+      // Ensure the data structure matches the Theme interface
+      const theme: Theme = {
         id: doc.id,
-        ...doc.data()
-      } as Theme);
+        name: data.name || '',
+        colors: {
+          primary: data.colors?.primary || '#000000',
+          secondary: data.colors?.secondary || '#FFFFFF',
+          background: data.colors?.background || '#FFFFFF',
+          text: data.colors?.text || '#000000',
+          accent: data.colors?.accent,
+          cardBackground: data.colors?.cardBackground,
+          borderColor: data.colors?.borderColor,
+        },
+        fonts: {
+          heading: {
+            fontFamily: data.fonts?.heading?.fontFamily || 'Poppins-Regular',
+            fontWeight: data.fonts?.heading?.fontWeight || '400',
+            fontStyle: data.fonts?.heading?.fontStyle,
+          },
+          body: {
+            fontFamily: data.fonts?.body?.fontFamily || 'Poppins-Regular',
+            fontWeight: data.fonts?.body?.fontWeight || '400',
+            fontStyle: data.fonts?.body?.fontStyle,
+          },
+        },
+        isPredefined: data.isPredefined || false,
+      };
+      themes.push(theme);
     });
     
     return themes;
