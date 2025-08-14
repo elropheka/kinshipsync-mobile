@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     backgroundColor: Colors.light.backgroundPaper,
-    color: Colors.dark.text,
+    color: Colors.light.text,
   },
   button: {
     backgroundColor: Colors.light.buttonPrimary,

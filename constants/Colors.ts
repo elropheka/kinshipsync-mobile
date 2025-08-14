@@ -7,7 +7,7 @@ const darkBrown = '#7B4E2D';
 
 export const Colors = {
   light: {
-    text: '#11181C',
+    text: teal,
     textSecondary: '#687076',
     textLight: '#FFFFFF',
     textDarkContrast: '#076678',

@@ -86,17 +86,18 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     flexDirection: 'row',
     alignItems: 'center',
+    color: Colors.light.text,
   },
   input: {
     flex: 1,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.dark.text,
+    color: Colors.light.text,
   },
   inputIcon: {
     paddingRight: Spacing.m,
-    color: Colors.dark.icon,
+    color: Colors.light.icon,
   },
   termsContainer: {
     flexDirection: 'row',
