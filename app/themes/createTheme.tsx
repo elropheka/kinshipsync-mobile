@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native'; // Added ActivityIndicator and SafeAreaView
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native'; // Added ActivityIndicator and SafeAreaView
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
@@ -7,6 +7,7 @@ import Fonts from '../../constants/fonts';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext'; // Import useTheme
 import * as eventService from '../../services/eventService';
+import CustomAlert from '../../components/common/alert';
 
 // Helper to generate a unique ID (simplified)
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
@@ -24,6 +25,27 @@ const CreateThemeScreen = () => {
   const [cardBgColor, setCardBgColor] = useState(Colors.light.backgroundPaper);
   const [borderColor, setBorderColor] = useState(Colors.light.border);
 
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    type: 'error',
+    title: '',
+    message: '',
+  });
+
+  const showAlert = (type: 'success' | 'error', title: string, message: string) => {
+    setAlertConfig({ visible: true, type, title, message });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const [headingFont, setHeadingFont] = useState<FontSettings>({
     fontFamily: Fonts.headerMedium,
     fontWeight: '500',
@@ -35,11 +57,11 @@ const CreateThemeScreen = () => {
 
   const handleSaveTheme = async () => {
     if (!isAuthenticated || !user?.uid) {
-      Alert.alert('Error', 'You must be logged in to save a theme.');
+      showAlert('error', 'Error', 'You must be logged in to save a theme.');
       return;
     }
     if (!themeName.trim()) {
-      Alert.alert('Error', 'Theme name is required.');
+      showAlert('error', 'Error', 'Theme name is required.');
       return;
     }
 
@@ -68,7 +90,7 @@ const CreateThemeScreen = () => {
       // TODO: Implement theme saving functionality
       console.log('Theme would be saved:', newTheme);
       await refreshAvailableThemes(); // Refresh themes in context
-      Alert.alert('Theme Saved', `Theme "${newTheme.name}" has been saved successfully and added to your list.`);
+      showAlert('success', 'Theme Saved', `Theme "${newTheme.name}" has been saved successfully and added to your list.`);
       // No longer a TODO here
       if (router.canGoBack()) {
         router.back();
@@ -77,7 +99,7 @@ const CreateThemeScreen = () => {
       }
     } catch (error) {
       console.error('Failed to save theme:', error);
-      Alert.alert('Error', 'Failed to save theme. Please try again.');
+      showAlert('error', 'Error', 'Failed to save theme. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -148,6 +170,18 @@ const CreateThemeScreen = () => {
           )}
         </View>
       </ScrollView>
+      
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={hideAlert}
+        position="top"
+        showIcon={true}
+        closable={true}
+      />
     </SafeAreaView>
   );
 };

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors'; // Adjust path as needed
 import { styles as globalStyles } from '../../styles/app/(events)/guests.styles'; // Reuse some global styles if applicable, or create new ones
 import { CreateGuestPayload, GuestStatus } from '../../types/eventTypes'; // Adjust path
+import CustomAlert from '../common/alert';
 
 interface InviteGuestModalProps {
   visible: boolean;
@@ -25,14 +26,35 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'error';
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    type: 'error',
+    title: '',
+    message: '',
+  });
+
+  const showAlert = (title: string, message: string) => {
+    setAlertConfig({ visible: true, type: 'error', title, message });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const handleFormSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Validation Error', 'Guest name is required.');
+      showAlert('Validation Error', 'Guest name is required.');
       return;
     }
     // Basic email validation (optional, can be more robust)
     if (email.trim() && !email.includes('@')) {
-        Alert.alert('Validation Error', 'Please enter a valid email address.');
+        showAlert('Validation Error', 'Please enter a valid email address.');
         return;
     }
 
@@ -188,6 +210,18 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+      
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={hideAlert}
+        position="top"
+        showIcon={true}
+        closable={true}
+      />
     </Modal>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // Using Ionicons for consistency
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { styles } from '../../styles/app/(main)/subscriptionPlans.styles';
 import { useCurrentUser } from '../../hooks/useUser';
 import { SubscriptionPlan, UserSubscription } from '../../types/userTypes';
 import { Colors } from 'constants/Colors';
+import CustomAlert from '../../components/common/alert';
 
 const SubscriptionPlansScreen = () => {
   const router = useRouter();
@@ -22,61 +23,113 @@ const SubscriptionPlansScreen = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+    showCancelButton?: boolean;
+    onConfirm?: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    visible: false,
+    type: 'info',
+    title: '',
+    message: '',
+    showCancelButton: false,
+    onConfirm: undefined,
+    confirmText: 'OK',
+    cancelText: 'Cancel',
+  });
+
+  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
+    setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
+  };
+
+  const showConfirmAlert = (
+    type: 'success' | 'error' | 'info',
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel'
+  ) => {
+    setAlertConfig({ 
+      visible: true, 
+      type, 
+      title, 
+      message, 
+      showCancelButton: true, 
+      onConfirm, 
+      confirmText, 
+      cancelText 
+    });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const handleSelectPlan = async (planId: string) => {
     const selectedPlan = availablePlans.find(p => p.id === planId);
     if (!selectedPlan) return;
 
-    Alert.alert(
+    const handleConfirmPlanChange = async () => {
+      setIsProcessing(true);
+      try {
+        // The 'paymentMethodId' below is a placeholder. 
+        // Actual implementation would involve a payment gateway integration.
+        await changeSubscription({ newPlanId: planId, paymentMethodId: 'pm_mock_id' });
+        showAlert('success', 'Success!', `You have subscribed to the ${selectedPlan.name}.`);
+      } catch (e) {
+        console.error("Failed to change subscription:", e);
+        showAlert('error', 'Error', (e as Error).message || 'Could not change subscription.');
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    showConfirmAlert(
+      'info',
       'Confirm Plan Change', 
       `Are you sure you want to switch to the ${selectedPlan.name}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', onPress: async () => {
-            setIsProcessing(true);
-            try {
-              // The 'paymentMethodId' below is a placeholder. 
-              // Actual implementation would involve a payment gateway integration.
-              await changeSubscription({ newPlanId: planId, paymentMethodId: 'pm_mock_id' });
-              Alert.alert('Success!', `You have subscribed to the ${selectedPlan.name}.`);
-            } catch (e) {
-              console.error("Failed to change subscription:", e);
-              Alert.alert('Error', (e as Error).message || 'Could not change subscription.');
-            } finally {
-              setIsProcessing(false);
-            }
-          } 
-        }
-      ]
+      handleConfirmPlanChange,
+      'Confirm',
+      'Cancel'
     );
   };
 
   const handleCancelCurrentSubscription = async () => {
     if (!currentUserSubscription || currentUserSubscription.status !== 'active') {
-      Alert.alert("No Active Subscription", "You do not have an active subscription to cancel.");
+      showAlert("error", "No Active Subscription", "You do not have an active subscription to cancel.");
       return;
     }
-    Alert.alert(
+
+    const handleConfirmCancellation = async () => {
+      setIsProcessing(true);
+      try {
+        await cancelSubscription({ 
+          reason: 'User initiated cancellation from app',
+          cancelAtPeriodEnd: true // Defaulting to cancel at period end
+        });
+        showAlert('success', 'Subscription Cancelled', 'Your subscription has been set to cancel at the end of the current period.');
+      } catch (e) {
+        console.error("Failed to cancel subscription:", e);
+        showAlert('error', 'Error', (e as Error).message || 'Could not cancel subscription.');
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    showConfirmAlert(
+      'info',
       'Confirm Cancellation',
       'Are you sure you want to cancel your current subscription? This action may be irreversible depending on the terms.',
-      [
-        { text: 'Keep Subscription', style: 'cancel'},
-        { text: 'Cancel Subscription', style: 'destructive', onPress: async () => {
-            setIsProcessing(true);
-            try {
-              await cancelSubscription({ 
-                reason: 'User initiated cancellation from app',
-                cancelAtPeriodEnd: true // Defaulting to cancel at period end
-              });
-              Alert.alert('Subscription Cancelled', 'Your subscription has been set to cancel at the end of the current period.');
-            } catch (e) {
-              console.error("Failed to cancel subscription:", e);
-              Alert.alert('Error', (e as Error).message || 'Could not cancel subscription.');
-            } finally {
-              setIsProcessing(false);
-            }
-          }
-        }
-      ]
+      handleConfirmCancellation,
+      'Cancel Subscription',
+      'Keep Subscription'
     );
   };
   
@@ -162,6 +215,22 @@ const SubscriptionPlansScreen = () => {
             <Text style={styles.introText}>No subscription plans available at the moment.</Text>
         )}
       </ScrollView>
+      
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        showCancelButton={alertConfig.showCancelButton}
+        onClose={hideAlert}
+        onConfirm={alertConfig.onConfirm}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+        position="center"
+        showIcon={true}
+        closable={true}
+      />
     </SafeAreaView>
   );
 };

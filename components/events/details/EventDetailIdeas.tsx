@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Idea, CreateIdeaPayload, UpdateIdeaPayload } from '../../../types/eventTypes';
 import IdeaForm from '../../ideas/IdeaForm'; // Path to existing IdeaForm
 import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
 import { Colors } from '../../../constants/Colors';
+import CustomAlert from '../../common/alert';
 
 interface EventDetailIdeasProps {
   ideas: Idea[];
@@ -26,6 +27,55 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
   const [isIdeaFormVisible, setIsIdeaFormVisible] = useState(false);
   const [editingIdea, setEditingIdea] = useState<Partial<Idea> & { id?: string } | undefined>(undefined);
 
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+    showCancelButton?: boolean;
+    onConfirm?: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    visible: false,
+    type: 'info',
+    title: '',
+    message: '',
+    showCancelButton: false,
+    onConfirm: undefined,
+    confirmText: 'OK',
+    cancelText: 'Cancel',
+  });
+
+  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
+    setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
+  };
+
+  const showConfirmAlert = (
+    type: 'success' | 'error' | 'info',
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel'
+  ) => {
+    setAlertConfig({ 
+      visible: true, 
+      type, 
+      title, 
+      message, 
+      showCancelButton: true, 
+      onConfirm, 
+      confirmText, 
+      cancelText 
+    });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
   const handleOpenIdeaForm = (item?: Partial<Idea> & { id?: string }) => {
     setEditingIdea(item);
     setIsIdeaFormVisible(true);
@@ -38,35 +88,41 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
 
   const handleIdeaFormSubmit = async (ideaData: CreateIdeaPayload | UpdateIdeaPayload, ideaId?: string) => {
     if (!currentUserId && !ideaId) { // currentUserId is needed for new ideas
-        Alert.alert("Error", "User not authenticated.");
+        showAlert("error", "Error", "User not authenticated.");
         return;
     }
     try {
       if (ideaId) {
         await onUpdateIdea(ideaId, ideaData as UpdateIdeaPayload);
-        Alert.alert('Success', 'Idea updated.');
+        showAlert('success', 'Success', 'Idea updated.');
       } else if (currentUserId) { // Ensure currentUserId is present for adding new idea
         await onAddIdea(ideaData as CreateIdeaPayload, currentUserId);
-        Alert.alert('Success', 'Idea added.');
+        showAlert('success', 'Success', 'Idea added.');
       }
       handleCloseIdeaForm();
     } catch (e) {
       console.error("Failed to submit idea:", e);
-      Alert.alert('Error', 'Failed to save idea.');
+      showAlert('error', 'Error', 'Failed to save idea.');
     }
   };
 
   const handleDeletePress = (ideaId: string) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this idea?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => {
-        try { 
-          await onDeleteIdea(ideaId); 
-          Alert.alert('Success', 'Idea deleted.');
-        } 
-        catch (e) { Alert.alert("Error", "Failed to delete idea."); }
-      }}
-    ]);
+    const handleConfirmDelete = async () => {
+      try { 
+        await onDeleteIdea(ideaId); 
+        showAlert('success', 'Success', 'Idea deleted.');
+      } 
+      catch (e) { showAlert("error", "Error", "Failed to delete idea."); }
+    };
+
+    showConfirmAlert(
+      'info',
+      "Confirm Delete", 
+      "Are you sure you want to delete this idea?",
+      handleConfirmDelete,
+      'Delete',
+      'Cancel'
+    );
   };
 
   const handleVote = async (ideaId: string, increment: number) => {
@@ -74,7 +130,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
       await onVoteForIdea(ideaId, increment); 
     } catch (e) { 
       console.error("Error voting for idea:", e); 
-      Alert.alert("Error", "Failed to record vote."); 
+      showAlert("error", "Error", "Failed to record vote."); 
     }
   };
 
@@ -129,6 +185,22 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
           formTitle={editingIdea ? 'Edit Idea' : 'Add New Idea'} 
         />
       </Modal>
+      
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        showCancelButton={alertConfig.showCancelButton}
+        onClose={hideAlert}
+        onConfirm={alertConfig.onConfirm}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+        position="center"
+        showIcon={true}
+        closable={true}
+      />
     </View>
   );
 };

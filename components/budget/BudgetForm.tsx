@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, Switch, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../types/eventTypes';
@@ -7,6 +7,7 @@ import { Vendor } from '../../types/vendorTypes';
 import { VendorItem } from '../../types/vendorItemTypes';
 import { useVendorSearch, useVendorItemsSearch } from '../../hooks/useVendors'; // Import useVendorItemsSearch
 import { Colors } from '../../constants/Colors';
+import CustomAlert from '../common/alert';
 
 interface BudgetFormProps {
   initialBudgetItem?: Partial<BudgetItem> & { id?: string };
@@ -59,6 +60,27 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     performItemSearch, // To trigger search when selectedVendorId changes
   } = useVendorItemsSearch({ vendorId: selectedVendorId });
 
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'error' | 'warning';
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    type: 'error',
+    title: '',
+    message: '',
+  });
+
+  const showAlert = (type: 'error' | 'warning', title: string, message: string) => {
+    setAlertConfig({ visible: true, type, title, message });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
+
 
   useEffect(() => {
     if (initialBudgetItem) {
@@ -110,30 +132,30 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   const handleSubmit = () => {
     if (!itemName.trim()) {
-      Alert.alert('Validation Error', 'Item Name cannot be empty.');
+      showAlert('error', 'Validation Error', 'Item Name cannot be empty.');
       return;
     }
     if (vendorEntryMode === 'manual' && !manualVendorNameInput.trim()) {
-      Alert.alert('Validation Error', 'Manual Vendor Name cannot be empty if "Enter Vendor Manually" is selected.');
+      showAlert('error', 'Validation Error', 'Manual Vendor Name cannot be empty if "Enter Vendor Manually" is selected.');
       return;
     }
     if (vendorEntryMode === 'select' && !selectedVendorId) {
-      Alert.alert('Validation Error', 'Please select a vendor or switch to manual vendor entry.');
+      showAlert('error', 'Validation Error', 'Please select a vendor or switch to manual vendor entry.');
       return;
     }
     if (vendorEntryMode === 'select' && itemEntryMode === 'select' && !selectedVendorItemId) {
-      Alert.alert('Validation Error', 'Please select a vendor item or switch to manual item entry.');
+      showAlert('error', 'Validation Error', 'Please select a vendor item or switch to manual item entry.');
       return;
     }
 
     const estimatedCostNum = parseFloat(estimatedCost);
     if (isNaN(estimatedCostNum) || estimatedCostNum < 0) {
-      Alert.alert('Validation Error', 'Please enter a valid estimated cost.');
+      showAlert('error', 'Validation Error', 'Please enter a valid estimated cost.');
       return;
     }
     const actualCostNum = actualCost ? parseFloat(actualCost) : undefined;
     if (actualCost && (isNaN(actualCostNum!) || actualCostNum! < 0)) {
-      Alert.alert('Validation Error', 'Please enter a valid actual cost or leave it empty.');
+      showAlert('error', 'Validation Error', 'Please enter a valid actual cost or leave it empty.');
       return;
     }
 
@@ -372,8 +394,20 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         </View>
 
         {/* Removed explicit submit/cancel buttons from form body, using header buttons */}
-      </ScrollView>
-    </SafeAreaView>
+              </ScrollView>
+        
+        {/* Custom Alert */}
+        <CustomAlert
+          visible={alertConfig.visible}
+          type={alertConfig.type}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          onClose={hideAlert}
+          position="top"
+          showIcon={true}
+          closable={true}
+        />
+      </SafeAreaView>
   );
 };
 

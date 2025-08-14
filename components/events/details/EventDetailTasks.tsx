@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../../types/eventTypes';
 import { UserProfile } from '../../../types/userTypes';
 import TaskForm from '../../tasks/TaskForm'; // Path to existing TaskForm
 import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
 import { Colors } from '../../../constants/Colors';
+import CustomAlert from '../../common/alert';
 
 interface EventDetailTasksProps {
   tasks: Task[];
@@ -24,6 +25,55 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
 }) => {
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Partial<Task> & { id?: string } | undefined>(undefined);
+
+  // Custom alert state
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+    showCancelButton?: boolean;
+    onConfirm?: () => void;
+    confirmText?: string;
+    cancelText?: string;
+  }>({
+    visible: false,
+    type: 'info',
+    title: '',
+    message: '',
+    showCancelButton: false,
+    onConfirm: undefined,
+    confirmText: 'OK',
+    cancelText: 'Cancel',
+  });
+
+  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
+    setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
+  };
+
+  const showConfirmAlert = (
+    type: 'success' | 'error' | 'info',
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel'
+  ) => {
+    setAlertConfig({ 
+      visible: true, 
+      type, 
+      title, 
+      message, 
+      showCancelButton: true, 
+      onConfirm, 
+      confirmText, 
+      cancelText 
+    });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
 
   const handleOpenTaskForm = (task?: Partial<Task> & { id?: string }) => {
     setEditingTask(task);
