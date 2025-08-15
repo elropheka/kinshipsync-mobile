@@ -15,7 +15,8 @@
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
-      "supportsTablet": true,
+      "supportsTablet": false, 
+      "deviceFamilies": [1], 
       "bundleIdentifier": "com.kinship.kinshipsync",
       "infoPlist": {
         "CFBundleURLTypes": [
