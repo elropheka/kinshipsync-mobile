@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { UserProfile } from '@/types/userTypes';
 import { Colors } from '@/constants/Colors';
+import TextStyles from '@/constants/textStyles';
 
 interface MultiUserPickerProps {
   users: UserProfile[];
@@ -72,9 +73,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   pickerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.light.text,
+    ...TextStyles.CommonTextStyles.sectionHeader,
     marginBottom: 8,
   },
   listWrapper: {
@@ -100,13 +99,11 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   userNameText: {
-    fontSize: 15,
-    color: Colors.light.text,
+    ...TextStyles.BaseTextStyles.body,
     flex: 1, 
   },
   selectedCountText: {
-    fontSize: 13,
-    color: Colors.light.textSecondary,
+    ...TextStyles.CommonTextStyles.captionText,
     marginTop: 6,
     textAlign: 'right',
   },

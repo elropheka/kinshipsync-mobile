@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from "../context/AuthContext";
 import { SidebarProvider } from "../context/SidebarContext";
 import { ThemeProvider } from "../context/ThemeContext";
+
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';

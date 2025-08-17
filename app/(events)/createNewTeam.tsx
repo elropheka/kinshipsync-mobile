@@ -190,6 +190,7 @@ const CreateNewTeamScreen: React.FC = () => {
               title={isCreatingTeam ? "Creating..." : "Create Team"}
               onPress={handleCreateTeam}
               disabled={teamName.trim() === '' || isCreatingTeam || isLoadingUsers}
+              color={Colors.light.primary}
             />
           </View>
         );
