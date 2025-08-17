@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.m,
     paddingHorizontal: Spacing.m,
     marginBottom: Spacing.l,
-    backgroundColor: Colors.light.background,
+    backgroundColor: 'white',
   },
   pickerInputText: {
     fontSize: ResponsiveFontSizes.body,
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.m,
     width: '100%',
     height: Layout.inputHeight,
-    backgroundColor: Colors.light.background,
+    backgroundColor: 'white',
   },
   selectedIconPreview: {
     marginRight: Spacing.m,

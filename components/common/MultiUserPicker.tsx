@@ -33,12 +33,14 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
         style={[styles.itemContainer, { height: itemHeight }]}
         onPress={() => handleToggleUser(item.userId)}
       >
-        <Ionicons
-          name={isSelected ? 'checkbox-outline' : 'square-outline'}
-          size={24}
-          color={isSelected ? Colors.light.tint : Colors.light.icon}
-          style={styles.checkboxIcon}
-        />
+        <View style={styles.checkboxContainer}>
+          <Ionicons
+            name={isSelected ? 'checkbox-outline' : 'square-outline'}
+            size={24}
+            color={isSelected ? Colors.light.tint : Colors.light.icon}
+            style={styles.checkboxIcon}
+          />
+        </View>
         <Text style={styles.userNameText}>{item.displayName || item.email || item.userId}</Text>
       </TouchableOpacity>
     );
@@ -88,8 +90,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.divider,
   },
-  checkboxIcon: {
+  checkboxContainer: {
+    backgroundColor: 'white',
+    borderRadius: 4,
+    padding: 2,
     marginRight: 12,
+  },
+  checkboxIcon: {
+    marginRight: 0,
   },
   userNameText: {
     fontSize: 15,
