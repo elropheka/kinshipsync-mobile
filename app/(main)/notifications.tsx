@@ -8,32 +8,25 @@ import {
   FlatList, 
   Switch, 
   StyleSheet,
-  Alert, // Added Alert
+  Alert,
 } from 'react-native';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
-import { Stack, router } from 'expo-router'; // Added Stack import here, router was already there
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(main)/notifications.styles';
-// router import was duplicated, removed from here
-import { useCurrentUser } from '../../hooks/useUser'; // Import the hook
-import { Notification as UserNotification } from '../../types/userTypes'; // Import the type
-import { ActivityIndicator } from 'react-native'; // For loading state
-import { formatTimeToNow } from '../../utils/dateUtils'; // Import the date utility
-import NotificationListItem, { DisplayNotification } from '../../components/notifications/NotificationListItem'; // Import the new component and type
-import NotificationSearchBar from '../../components/notifications/NotificationSearchBar'; // Import the new search bar component
-import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips'; // Import the new filter chips component
-import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar'; // Import the new settings bar component
+import { useCurrentUser } from '../../hooks/useUser';
+import { Notification as UserNotification } from '../../types/userTypes';
+import { ActivityIndicator } from 'react-native';
+import { formatTimeToNow } from '../../utils/dateUtils';
+import NotificationListItem, { DisplayNotification } from '../../components/notifications/NotificationListItem';
+import NotificationSearchBar from '../../components/notifications/NotificationSearchBar';
+import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips';
+import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
 
-// Define interfaces for better type safety
-// Filter interface is now effectively FilterChipType, but keeping original name for consistency in this file
 interface Filter extends FilterChipType {}
 
-
-// DisplayNotification is now imported from NotificationListItem.tsx
-
 interface NotificationsPageProps {
-  // navigation prop might not be needed if using expo-router for all navigation
   navigation?: NavigationProp<ParamListBase>; 
 }
 
@@ -51,14 +44,12 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
   const [showOnlyUnread, setShowOnlyUnread] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Map UserNotification to DisplayNotification
   const notificationsData = useMemo((): DisplayNotification[] => {
     return rawNotifications.map((n: UserNotification): DisplayNotification => {
-      let sender = n.title || 'Notification'; // Use n.title as the primary sender/subject
-      let avatar: keyof typeof Ionicons.glyphMap = 'notifications-outline'; // Default avatar
-      let displayType: DisplayNotification['type'] = 'updates'; // Default display type
+      let sender = n.title || 'Notification';
+      let avatar: keyof typeof Ionicons.glyphMap = 'notifications-outline';
+      let displayType: DisplayNotification['type'] = 'updates';
 
-      // Mapping based on UserNotification.type
       switch (n.type) {
         case 'event_invite':
         case 'event_update':
@@ -71,7 +62,7 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
           avatar = 'chatbubble-ellipses-outline';
           break;
         case 'task_assigned':
-          displayType = 'updates'; // Could be 'tasks' if filter is added
+          displayType = 'updates';
           avatar = 'checkbox-outline';
           break;
         case 'system_alert':
@@ -79,26 +70,26 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
           avatar = 'alert-circle-outline';
           break;
         case 'friend_request':
-          displayType = 'updates'; // Or 'social' category
+          displayType = 'updates';
           avatar = 'person-add-outline';
           break;
         case 'generic':
         default:
-          displayType = 'updates'; // Fallback category
+          displayType = 'updates';
           avatar = 'information-circle-outline';
           break;
       }
 
       return {
         id: n.id,
-        sender: sender, // Mapped from n.title
+        sender: sender,
         message: n.message,
-        time: formatTimeToNow(n.createdAt), // Use the new utility function
+        time: formatTimeToNow(n.createdAt),
         avatar: avatar,
         type: displayType,
         isRead: n.isRead,
         originalType: n.type, 
-        relatedEntityId: n.referenceId, // Map referenceId
+        relatedEntityId: n.referenceId,
       };
     });
   }, [rawNotifications]);
@@ -123,9 +114,8 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
 
   const handleNotificationPress = async (item: DisplayNotification) => {
     if (!item.isRead) {
-      await markRead(item.id); // Call the hook's function
+      await markRead(item.id);
     }
-    // Navigation logic based on notification type
     if (item.relatedEntityId) {
       switch (item.originalType) {
         case 'event_invite':
@@ -134,40 +124,31 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
           router.push({ pathname: '/(events)/details/[id]', params: { id: item.relatedEntityId } });
           break;
         case 'new_message':
-          // Assuming relatedEntityId is conversationId for new_message
           router.push({ pathname: '/(chat)/chatArea', params: { conversationId: item.relatedEntityId } });
           break;
         case 'task_assigned':
-          // Navigation for tasks might be more complex, e.g., needing eventId and taskId
-          // For now, let's log or navigate to a general tasks page if available
-          // router.push({ pathname: '/(events)/tasks', params: { eventId: 'EVENT_ID_HERE', taskId: item.relatedEntityId } });
           Alert.alert("Task Notification", `Navigate to task: ${item.message}`);
           console.log("Navigate to task:", item.relatedEntityId);
           break;
         case 'friend_request':
-          // Navigate to a friends or social page if it exists
-          // router.push('/(main)/friends'); 
           Alert.alert("Friend Request", `${item.message}`);
           break;
         case 'system_alert':
         case 'generic':
         default:
           console.log("Notification pressed:", item);
-          // No specific navigation for these types, or could navigate to a general info screen
           Alert.alert(item.sender, item.message);
           break;
       }
     } else {
       console.log("Notification pressed, but no relatedEntityId for navigation:", item);
-      Alert.alert(item.sender, item.message); // Default behavior if no related ID
+      Alert.alert(item.sender, item.message);
     }
   };
 
   const handleMarkAllRead = async () => {
-    await markAllRead(); // Call the hook's function
+    await markAllRead();
   };
-
-  // renderNotificationItem is removed as it's replaced by NotificationListItem component
 
   const renderSeparator = () => <View style={styles.separator} />;
 
@@ -186,7 +167,6 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
         <Ionicons name="alert-circle-outline" size={48} color="red" />
         <Text style={styles.errorText}>Error loading notifications:</Text>
         <Text style={styles.errorTextDetail}>{error.message || 'An unexpected error occurred.'}</Text>
-        {/* Optionally, add a retry button here */}
       </SafeAreaView>
     );
   }
@@ -194,9 +174,7 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Notifications" }} />
-      {/* Custom header View removed as per previous step, this just corrects the import location */}
 
-      {/* Search Bar */}
       {isSearchVisible && (
         <NotificationSearchBar
           searchQuery={searchQuery}
@@ -204,22 +182,19 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
         />
       )}
 
-      {/* Filters */}
       <NotificationFilterChips
         filters={filters}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
       />
 
-      {/* Notification Settings */}
       <NotificationSettingsBar
         showOnlyUnread={showOnlyUnread}
         setShowOnlyUnread={setShowOnlyUnread}
       />
 
-      {/* Notification List */}
       <FlatList
-        data={filteredNotifications} // Use filtered data
+        data={filteredNotifications}
         renderItem={({ item }) => (
           <NotificationListItem
             item={item}
@@ -231,12 +206,10 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
         ItemSeparatorComponent={renderSeparator}
       />
 
-      {/* Mark All Read Button */}
       <TouchableOpacity 
         style={styles.markAllReadButton}
-        onPress={handleMarkAllRead} // Call the handler
+        onPress={handleMarkAllRead}
       >
-        {/* Replace Image with Ionicons */}
         <Ionicons 
           name="checkmark-done-outline" 
           size={24} 

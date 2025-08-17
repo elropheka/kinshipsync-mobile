@@ -5,29 +5,27 @@ import {
   TextInput,
   TouchableOpacity,
   Button,
-  ScrollView,
-  FlatList, // Added FlatList
-  ActivityIndicator, // Added for loading state
-  Alert, // Added for error/success messages
-  Modal, // Added for custom picker
-  TouchableWithoutFeedback, // To close modal
+  FlatList,
+  ActivityIndicator,
+  Modal,
+  TouchableWithoutFeedback,
   StatusBar
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // IMPORT Picker from new package
+import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons'; // For icons
-import { styles } from '../../styles/app/(events)/createNewTeam.styles'; // Use styles directly
-import { Colors } from '../../constants/Colors'; // Import Colors
+import { Ionicons } from '@expo/vector-icons';
+import { styles } from '@/styles/app/(events)/createNewTeam.styles';
+import { Colors } from '@/constants/Colors';
 import { Stack, useRouter } from 'expo-router';
-import { TeamType } from '../../types/teamTypes'; // Import TeamType
-import { UserProfile } from '../../types/userTypes';
-import { BackendUser } from '../../types/auth'; // Import BackendUser
-import MultiUserPicker from '../../components/common/MultiUserPicker'; // Import MultiUserPicker
-import { createTeam } from '../../services/teamService'; // Import createTeam service
-import { getAllUsersForPicker } from '../../services/userService'; // Import userService function
-import { AuthContext } from '../../context/AuthContext'; // To get current user ID
+import { TeamType } from '@/types/teamTypes';
+import { UserProfile } from '@/types/userTypes';
+import { BackendUser } from '@/types/auth';
+import MultiUserPicker from '@/components/common/MultiUserPicker';
+import CustomAlert from '@/components/common/alert';
+import { createTeam } from '@/services/teamService';
+import { getAllUsersForPicker } from '@/services/userService';
+import { AuthContext } from '@/context/AuthContext';
 
-// Available icons for team creation (subset of Ionicons.glyphMap keys)
 const availableIcons: (keyof typeof Ionicons.glyphMap)[] = [
   'people-outline', 'people-circle-outline', 'school-outline', 'book-outline', 
   'briefcase-outline', 'game-controller-outline', 'musical-notes-outline', 'color-palette-outline'
@@ -36,7 +34,6 @@ const availableIcons: (keyof typeof Ionicons.glyphMap)[] = [
 const CreateNewTeamScreen: React.FC = () => {
   const router = useRouter();
   const authContext = useContext(AuthContext);
-  // Ensure currentUser is correctly typed or handled if undefined
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
 
   const [teamName, setTeamName] = useState('');
@@ -50,8 +47,20 @@ const CreateNewTeamScreen: React.FC = () => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Custom alert states
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+  }>({
+    type: 'info',
+    title: '',
+    message: '',
+  });
 
-  // Define form sections for FlatList
   const formSections = [
     { id: 'teamNameInput', type: 'teamNameInput' },
     { id: 'teamTypePicker', type: 'teamTypePicker' },
@@ -59,6 +68,11 @@ const CreateNewTeamScreen: React.FC = () => {
     { id: 'memberPicker', type: 'memberPicker' },
     { id: 'submitButton', type: 'submitButton' },
   ];
+
+  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string, onConfirm?: () => void) => {
+    setAlertConfig({ type, title, message, onConfirm });
+    setAlertVisible(true);
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -68,9 +82,7 @@ const CreateNewTeamScreen: React.FC = () => {
       }
       setIsLoadingUsers(true);
       try {
-        // Assuming isAuthenticated is handled by checking currentUser
-        const users = await getAllUsersForPicker(!!currentUser, 50); // Fetch up to 50 users
-        // Ensure currentUser.uid is available before filtering
+        const users = await getAllUsersForPicker(!!currentUser, 50);
         setAllUsers(currentUser ? users.filter(u => u.userId !== currentUser.uid) : users);
         setError(null);
       } catch (err) {
@@ -85,11 +97,11 @@ const CreateNewTeamScreen: React.FC = () => {
 
   const handleCreateTeam = async () => {
     if (teamName.trim() === '') {
-      Alert.alert('Validation Error', 'Please enter a team name.');
+      showAlert('error', 'Validation Error', 'Please enter a team name.');
       return;
     }
-    if (!currentUser || !currentUser.uid) { // Check currentUser and currentUser.uid
-      Alert.alert('Error', 'You must be logged in to create a team.');
+    if (!currentUser || !currentUser.uid) {
+      showAlert('error', 'Error', 'You must be logged in to create a team.');
       return;
     }
 
@@ -99,22 +111,23 @@ const CreateNewTeamScreen: React.FC = () => {
     try {
       const payload = {
         name: teamName.trim(),
-        memberIds: [currentUser.uid, ...selectedMemberIds], // Creator is always a member
+        memberIds: [currentUser.uid, ...selectedMemberIds],
         type: teamType,
         iconName: iconName,
         createdBy: currentUser.uid,
       };
       const newTeam = await createTeam(payload);
-      Alert.alert('Success', `Team "${newTeam.name}" created successfully!`);
-      setTeamName('');
-      setSelectedMemberIds([]);
-      setTeamType(TeamType.OTHER);
-      setIconName(availableIcons[0]);
-      router.back(); // Go back to the previous screen
+      showAlert('success', 'Success', `Team "${newTeam.name}" created successfully!`, () => {
+        setTeamName('');
+        setSelectedMemberIds([]);
+        setTeamType(TeamType.OTHER);
+        setIconName(availableIcons[0]);
+        router.back();
+      });
     } catch (err) {
       console.error('Failed to create team:', err);
       setError('Failed to create team. Please try again.');
-      Alert.alert('Error', 'Failed to create team. Please try again.');
+      showAlert('error', 'Error', 'Failed to create team. Please try again.');
     } finally {
       setIsCreatingTeam(false);
     }
@@ -157,7 +170,7 @@ const CreateNewTeamScreen: React.FC = () => {
           <>
             <Text style={styles.sectionTitle}>Add Members</Text>
             {isLoadingUsers ? (
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color={Colors.light.primary} />
             ) : error && !allUsers.length ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : (
@@ -193,11 +206,10 @@ const CreateNewTeamScreen: React.FC = () => {
         data={formSections}
         renderItem={renderFormItem}
         keyExtractor={item => item.id}
-        style={styles.container} // Use existing container style
-        contentContainerStyle={styles.contentContainer} // Use existing content container style
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       />
-      {/* Modals remain outside the FlatList for proper overlay behavior */}
       <Modal
         transparent={true}
         visible={isTeamTypePickerVisible}
@@ -218,9 +230,10 @@ const CreateNewTeamScreen: React.FC = () => {
                   selectedValue={teamType}
                   onValueChange={(itemValue) => {
                     setTeamType(itemValue as TeamType);
-                    setIsTeamTypePickerVisible(false); // Close on selection
+                    setIsTeamTypePickerVisible(false);
                   }}
                   style={styles.picker}
+                  itemStyle={{ color: Colors.light.text }}
                 >
                   {Object.values(TeamType).map((type) => (
                     <Picker.Item key={type} label={type.charAt(0).toUpperCase() + type.slice(1)} value={type} />
@@ -252,9 +265,10 @@ const CreateNewTeamScreen: React.FC = () => {
                   selectedValue={iconName}
                   onValueChange={(itemValue) => {
                     setIconName(itemValue as keyof typeof Ionicons.glyphMap);
-                    setIsIconPickerVisible(false); // Close on selection
+                    setIsIconPickerVisible(false);
                   }}
                   style={styles.picker}
+                  itemStyle={{ color: Colors.light.text }}
                 >
                   {availableIcons.map((icon) => (
                     <Picker.Item key={icon} label={icon.replace('-outline', '').replace('-', ' ')} value={icon} />
@@ -265,10 +279,22 @@ const CreateNewTeamScreen: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      
+      <CustomAlert
+        visible={alertVisible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={() => setAlertVisible(false)}
+        onConfirm={alertConfig.onConfirm}
+        confirmText="OK"
+        showCancelButton={false}
+        autoHide={alertConfig.type === 'success'}
+        autoHideDuration={3000}
+        position="top"
+      />
     </SafeAreaView>
   );
 };
-
-// Removed inline styles as they are now in the imported styles file.
 
 export default CreateNewTeamScreen;

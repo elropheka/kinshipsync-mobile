@@ -10,7 +10,7 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentPlan, setCurrentPlan] = useState<Plan>('free'); // Default to free plan
+  const [currentPlan, setCurrentPlan] = useState<Plan>('free');
 
   return (
     <SubscriptionContext.Provider value={{ currentPlan, setCurrentPlan }}>

@@ -7,9 +7,8 @@ import { Colors } from 'constants/Colors';
 import { styles } from '../../styles/app/(main)/settings.styles';
 import { useCurrentUser } from '../../hooks/useUser';
 import { UserSettings, UpdateUserSettingsPayload } from '../../types/userTypes';
-import { useAuth } from '../../context/AuthContext'; // For signOut
+import { useAuth } from '../../context/AuthContext';
 
-// Reusable SettingOption component
 interface SettingOptionProps {
   title: string;
   value: boolean;
@@ -26,20 +25,18 @@ const SettingOption: React.FC<SettingOptionProps> = ({ title, value, onToggle, d
     <Switch 
       value={value} 
       onValueChange={onToggle}
-      trackColor={{ false: Colors.light.icon, true: Colors.light.tint }} // Using tint for active track
+      trackColor={{ false: Colors.light.icon, true: Colors.light.tint }}
       thumbColor={value ? Colors.light.backgroundLight : Colors.light.backgroundLight} 
     />
   </View>
 );
 
-// Theme Option Component (Example for a Picker-like UI, could be a modal)
 interface ThemeOptionProps {
   title: string;
   currentTheme: UserSettings['theme'];
   onSelectTheme: (theme: UserSettings['theme']) => void;
 }
 const ThemeOption: React.FC<ThemeOptionProps> = ({ title, currentTheme, onSelectTheme }) => {
-  // In a real app, this might open a modal with theme choices
   const themes: UserSettings['theme'][] = ['light', 'dark', 'system'];
   return (
     <View style={styles.optionContainer}>
@@ -77,11 +74,9 @@ const SettingsScreen: React.FC = () => {
 
   useEffect(() => {
     if (currentSettings) {
-      // Initialize editableSettings with fetched settings
-      // Keep only the parts that are directly updatable by UpdateUserSettingsPayload
       setEditableSettings({
         theme: currentSettings.theme,
-        language: currentSettings.language, // Assuming language is part of settings
+        language: currentSettings.language,
         emailNotifications: { ...currentSettings.emailNotifications },
         pushNotifications: { ...currentSettings.pushNotifications },
       });
@@ -90,7 +85,7 @@ const SettingsScreen: React.FC = () => {
 
   const handleSettingChange = (
     category: keyof UpdateUserSettingsPayload, 
-    key: string | undefined, // For nested objects like emailNotifications
+    key: string | undefined,
     value: any
   ) => {
     setEditableSettings(prev => {
@@ -110,7 +105,6 @@ const SettingsScreen: React.FC = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      // Ensure only valid fields for UpdateUserSettingsPayload are sent
       const payload: UpdateUserSettingsPayload = {
         theme: editableSettings.theme,
         language: editableSettings.language,
@@ -130,7 +124,6 @@ const SettingsScreen: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-      // router.replace might be better to clear auth stack
       router.replace('/(auth)/signIn'); 
     } catch (error) {
       Alert.alert("Logout Failed", "Could not log out. Please try again.");
@@ -156,7 +149,6 @@ const SettingsScreen: React.FC = () => {
     );
   }
   
-  // Fallback if currentSettings is null after loading (should ideally not happen if defaults are created)
   const displaySettings = editableSettings.theme ? editableSettings : currentSettings || {
     theme: 'system',
     language: 'en',
@@ -178,7 +170,6 @@ const SettingsScreen: React.FC = () => {
             currentTheme={displaySettings.theme!}
             onSelectTheme={(theme) => handleSettingChange('theme', undefined, theme)}
           />
-          {/* Language setting can be added here similarly */}
         </View>
 
         <View style={styles.sectionContainer}>

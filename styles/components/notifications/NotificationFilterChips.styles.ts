@@ -1,16 +1,16 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from 'constants/Colors'; // Adjusted path
-import Fonts from 'constants/fonts'; // Adjusted path
+import { Colors } from 'constants/Colors';
+import Fonts from 'constants/fonts';
 import {
   Spacing,
   BorderRadius,
   ResponsiveFontSizes,
   moderateScale,
-} from 'constants/dimensions'; // Adjusted path
+} from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   filterScrollContainer: {
-    maxHeight: moderateScale(50), // Matches original style
+    maxHeight: moderateScale(50),
   },
   filterContainer: {
     paddingHorizontal: Spacing.l,
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
     justifyContent: 'center',
-    height: moderateScale(36), // Matches original style
+    height: moderateScale(36),
   },
   activeFilterChip: {
     backgroundColor: Colors.light.buttonPrimary,

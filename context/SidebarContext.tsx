@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
 
-// Define Sidebar Context
 interface ISidebarContext {
   isSidebarVisible: boolean;
   toggleSidebar: () => void;
@@ -27,5 +26,4 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
-// Export SidebarContext for direct use if ever needed, though useSidebar is preferred.
 export { SidebarContext };

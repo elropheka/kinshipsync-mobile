@@ -4,20 +4,19 @@ import { Stack, useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(main)/profile.styles';
-import { useCurrentUser } from '../../hooks/useUser'; // Corrected to useCurrentUser
+import { useCurrentUser } from '../../hooks/useUser';
 import { UpdateUserProfilePayload, UserProfile } from '../../types/userTypes';
 import { Colors } from 'constants/Colors';
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
-import { uploadUserAvatar } from '../../services/storageService'; // Import uploadUserAvatar
-import { useAppAuth } from '../../hooks/useAppAuth'; // To get current user for upload path
+import * as ImagePicker from 'expo-image-picker';
+import { uploadUserAvatar } from '../../services/storageService';
+import { useAppAuth } from '../../hooks/useAppAuth';
 import CustomAlert from '../../components/common/alert';
 
 
-// Define a type for the editable fields in the form
 type EditableProfileFields = {
   displayName: string;
   phoneNumber: string;
-  city: string; // Simplified location to city
+  city: string;
   bio: string;
   avatarUrl: string;
 };
@@ -30,7 +29,7 @@ const ProfileScreen = () => {
     isLoading: isLoadingUser, 
     error: userError 
   } = useCurrentUser();
-  const { user: authUser } = useAppAuth(); // Get authenticated user for userId
+  const { user: authUser } = useAppAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editableProfile, setEditableProfile] = useState<EditableProfileFields>({
@@ -42,7 +41,6 @@ const ProfileScreen = () => {
   });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
     type: 'success' | 'error' | 'info';
@@ -66,16 +64,15 @@ const ProfileScreen = () => {
   useEffect(() => {
     if (currentUserProfile) {
       setEditableProfile(prev => ({
-        ...prev, // Keep existing editable changes
+        ...prev,
         displayName: currentUserProfile.displayName || '',
         phoneNumber: currentUserProfile.phoneNumber || '',
         city: currentUserProfile.address?.city || '',
         bio: currentUserProfile.bio || '',
-        // Only update avatarUrl from currentUserProfile if not editing
         avatarUrl: isEditing ? prev.avatarUrl : currentUserProfile.avatarUrl || '',
       }));
     }
-  }, [currentUserProfile, isEditing]); // Added isEditing dependency
+  }, [currentUserProfile, isEditing]);
 
   const handleInputChange = (field: keyof EditableProfileFields, value: string) => {
     setEditableProfile(prev => ({ ...prev, [field]: value }));
@@ -86,27 +83,25 @@ const ProfileScreen = () => {
     setIsSaving(true);
     const payload: UpdateUserProfilePayload = {
       displayName: editableProfile.displayName.trim(),
-      phoneNumber: editableProfile.phoneNumber.trim() || null, // Convert undefined to null
-      bio: editableProfile.bio.trim() || null, // Convert undefined to null
-      avatarUrl: editableProfile.avatarUrl.trim() || null, // Convert undefined to null
+      phoneNumber: editableProfile.phoneNumber.trim() || null,
+      bio: editableProfile.bio.trim() || null,
+      avatarUrl: editableProfile.avatarUrl.trim() || null,
       address: {
-        ...currentUserProfile.address, // Preserve other address fields if they exist
-        city: editableProfile.city.trim() || null, // Convert undefined to null
+        ...currentUserProfile.address,
+        city: editableProfile.city.trim() || null,
       }
     };
-    // Remove address if all its subfields are null or undefined (though we are converting to null)
     if (payload.address && Object.values(payload.address).every(val => val === null || val === undefined)) {
         delete payload.address;
     }
 
 
     try {
-      // Filter out any remaining undefined values just in case
       const cleanedPayload: UpdateUserProfilePayload = Object.fromEntries(
         Object.entries(payload).filter(([_, value]) => value !== undefined)
       ) as UpdateUserProfilePayload;
 
-      await updateProfile(cleanedPayload); // Correct function name
+      await updateProfile(cleanedPayload);
       setIsEditing(false);
       showAlert("success", "Success", "Profile updated successfully!");
     } catch (error) {
@@ -132,8 +127,8 @@ const ProfileScreen = () => {
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], // Square aspect ratio for avatars
-      quality: 0.7, // Compress image slightly
+      aspect: [1, 1],
+      quality: 0.7,
     });
 
     if (pickerResult.canceled === true) {
@@ -142,15 +137,12 @@ const ProfileScreen = () => {
 
     if (pickerResult.assets && pickerResult.assets.length > 0) {
       const imageUri = pickerResult.assets[0].uri;
-      setIsSaving(true); // Show loading indicator while uploading
+      setIsSaving(true);
       try {
-        // Use authUser.uid for the userId in storage path
         const uploadResult = await uploadUserAvatar(imageUri, authUser.uid, (progress) => {
           console.log(`Avatar Upload Progress: ${progress}%`); 
-          // Optionally, update UI with progress
         });
         handleInputChange('avatarUrl', uploadResult.avatarUrl);
-        // The avatarUrl is now in local state; it will be saved when the user clicks "SAVE CHANGES"
         showAlert("success", "Avatar Selected", "New avatar image is ready. Click 'Save Changes' to apply.");
       } catch (uploadError: any) {
         console.error("Avatar upload failed:", uploadError);
@@ -162,7 +154,7 @@ const ProfileScreen = () => {
   };
 
 
-  if (isLoadingUser && !currentUserProfile) { // Show loading only on initial load
+  if (isLoadingUser && !currentUserProfile) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
         <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
@@ -226,9 +218,9 @@ const ProfileScreen = () => {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Email</Text>
             <TextInput
-              style={[styles.input, !isEditing && styles.disabledInput]} // Style for disabled
-              value={currentUserProfile.email} // Email is from auth, not directly editable here
-              editable={false} // Email typically not editable directly in profile form
+              style={[styles.input, !isEditing && styles.disabledInput]}
+              value={currentUserProfile.email}
+              editable={false}
               selectTextOnFocus={false}
             />
           </View>
@@ -269,7 +261,7 @@ const ProfileScreen = () => {
             />
           </View>
           
-          {/* The TextInput for avatarUrl has been removed to enforce upload-only for avatars */}
+
 
           {isEditing ? (
             <TouchableOpacity 
@@ -287,7 +279,6 @@ const ProfileScreen = () => {
           {isEditing && (
             <TouchableOpacity style={[styles.secondaryButton, {marginTop: 10}]} onPress={() => {
               setIsEditing(false);
-              // Reset editableProfile to original currentUserProfile values
               if(currentUserProfile) {
                 setEditableProfile({
                   displayName: currentUserProfile.displayName || '',
@@ -304,7 +295,6 @@ const ProfileScreen = () => {
         </View>
       </ScrollView>
       
-      {/* Custom Alert */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

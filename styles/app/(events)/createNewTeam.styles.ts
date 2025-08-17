@@ -36,14 +36,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     color: Colors.light.text,
   },
-  headerSpacer: { // To balance the back button if title is truly centered
+  headerSpacer: {
     width: IconSizes.xl,
     height: IconSizes.xl,
   },
-  container: { // For ScrollView
+  container: {
     flex: 1,
   },
-  contentContainer: { // For ScrollView's contentContainerStyle
+  contentContainer: {
     padding: Spacing.l,
   },
   input: {
@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.l,
     fontSize: ResponsiveFontSizes.subtitle,
     color: Colors.light.text,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.light.backgroundLight,
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.title,
@@ -89,23 +89,8 @@ export const styles = StyleSheet.create({
     width: '100%',
     marginTop: Spacing.l,
   },
-  // Note: Specific button styles (like saveButton, cancelButton) would go here if they were in the original JSX
-  // For example:
-  // saveButton: {
-  //   backgroundColor: Colors.light.primary,
-  //   paddingVertical: Spacing.m,
-  //   paddingHorizontal: Spacing.xl,
-  //   borderRadius: BorderRadius.m,
-  //   alignItems: 'center',
-  //   flex: 1, // If they share space
-  //   marginHorizontal: Spacing.s,
-  // },
-  // saveButtonText: {
-  //   color: Colors.light.primaryContrastText,
-  //   fontSize: ResponsiveFontSizes.subtitle,
-  //   fontWeight: Fonts.weights.semiBold,
-  // },
-  pickerInputContainer: { // New style for the touchable area
+
+  pickerInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -125,39 +110,37 @@ export const styles = StyleSheet.create({
   pickerInputIcon: {
     marginLeft: Spacing.s,
   },
-  picker: { // Style for the Picker component itself, potentially within a Modal
+  picker: {
     width: '100%',
-    // height: Platform.OS === 'ios' ? 200 : undefined, // iOS needs explicit height for wheel picker
-    backgroundColor: Colors.light.backgroundPaper, // Or Colors.light.background for consistency
+    backgroundColor: Colors.light.backgroundPaper,
+    color: Colors.light.text,
   },
   iconPickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.l, // Consistent spacing
-    // Removed background color, let parent handle or make it transparent
-    paddingVertical: Spacing.s, // Added some vertical padding
+    marginBottom: Spacing.l,
+    paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.xs,
-    borderColor: Colors.light.border, // Added border for consistency
+    borderColor: Colors.light.border,
     borderWidth: 1,
     borderRadius: BorderRadius.m,
     width: '100%',
-    height: Layout.inputHeight, // Consistent height
+    height: Layout.inputHeight,
     backgroundColor: Colors.light.background,
   },
   selectedIconPreview: {
-    marginRight: Spacing.m, // Consistent spacing
+    marginRight: Spacing.m,
     padding: Spacing.xs,
-    // Removed background color
   },
   errorText: {
-    color: Colors.light.error, // Use theme color for error
+    color: Colors.light.error,
     textAlign: 'center',
     marginVertical: Spacing.m,
-    fontSize: ResponsiveFontSizes.body, // Consistent font size
+    fontSize: ResponsiveFontSizes.body,
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'flex-end', // Position picker at the bottom
+    justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {

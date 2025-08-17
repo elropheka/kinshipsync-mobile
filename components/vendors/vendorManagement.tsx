@@ -1,4 +1,4 @@
-import React from 'react'; // Removed useState as activeTab is no longer needed here
+import React from 'react';
 import {
   View,
   Text,
@@ -6,17 +6,14 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
-  // StyleSheet, // Styles are imported, not created here
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../../styles/components/vendors/vendorManagement.styles';
 import { Colors } from '../../constants/Colors';
 import { Vendor } from '../../types/vendorTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
-import { useUserVendors } from '../../hooks/useVendors'; // Only useUserVendors is needed
-import { router } from 'expo-router'; // For navigation
-
-// This component now directly displays the "Your Vendors" list
+import { useUserVendors } from '../../hooks/useVendors';
+import { router } from 'expo-router';
 const VendorManagementScreen = () => {
   const { user } = useAppAuth();
 
@@ -24,7 +21,6 @@ const VendorManagementScreen = () => {
     userVendors,
     isLoading: isLoadingUserVendors,
     error: errorUserVendors,
-    // refetchUserVendors, // Can be used for a pull-to-refresh or manual refresh button
   } = useUserVendors(user?.uid);
 
   const handleNavigateToDetails = (vendorId: string) => {
@@ -89,9 +85,8 @@ const VendorManagementScreen = () => {
   if (!userVendors || userVendors.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.emptyContainer}> {/* Added a container for empty text styling */}
+        <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>You haven't added any vendors yet.</Text>
-          {/* Optionally, add a button to browse all vendors */}
           <TouchableOpacity onPress={() => router.push('/(vendors)/all')} style={styles.browseButton}>
             <Text style={styles.browseButtonText}>Browse All Vendors</Text>
           </TouchableOpacity>

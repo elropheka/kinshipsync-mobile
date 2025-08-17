@@ -1,27 +1,25 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux'; // Added useDispatch
-import * as SecureStore from 'expo-secure-store'; // Added SecureStore
-import { useAppAuth } from '../hooks/useAppAuth'; // Redux-powered auth logic
-import { LoginCredentials, SignupCredentials, LoginResponse, SignupResponse, BackendUser } from '../types/auth'; // Added BackendUser
-import { User as FirebaseUserT } from 'firebase/auth'; // For Firebase User type
+import { useDispatch } from 'react-redux';
+import * as SecureStore from 'expo-secure-store';
+import { useAppAuth } from '../hooks/useAppAuth';
+import { LoginCredentials, SignupCredentials, LoginResponse, SignupResponse, BackendUser } from '../types/auth';
+import { User as FirebaseUserT } from 'firebase/auth';
 
-// Firebase specific imports
 import { 
   GoogleAuthProvider, 
   getIdToken, 
   signInWithCredential, 
   signInWithCustomToken, 
-  onAuthStateChanged, // Added onAuthStateChanged
-  createUserWithEmailAndPassword, // Added for client-side signup
-  signInWithEmailAndPassword // Added for client-side signin
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from 'firebase/auth';
-import { auth as firebaseAppAuth, firestore as clientFirestore } from '../services/firebaseConfig'; // Initialized Firebase auth & firestore
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'; // Firestore functions
+import { auth as firebaseAppAuth, firestore as clientFirestore } from '../services/firebaseConfig';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { GoogleSignin, statusCodes, User as GoogleUser } from '@react-native-google-signin/google-signin';
-import { uploadUserAvatar } from '../services/storageService'; // Import uploadUserAvatar
+import { uploadUserAvatar } from '../services/storageService';
 
-// Import actual actions from authSlice
 import {
   setAuthUserAndToken,
   clearAuthData,
@@ -30,15 +28,12 @@ import {
   setAuthIsInitialized,
 } from '../store/slices/authSlice';
 
-const TOKEN_KEY = 'authToken'; // Consistent key for SecureStore
+const TOKEN_KEY = 'authToken';
 
-// Helper function to map Firebase User and Firestore Profile to BackendUser
-// This is a basic example; adjust according to your BackendUser structure and Profile structure
 const mapFirebaseUserToBackendUser = (
   firebaseUser: FirebaseUserT, 
-  profileData?: any // Replace 'any' with your actual Firestore Profile type
+  profileData?: any
 ): BackendUser => {
-  // Fallback to Firebase user display name if profileData or its names are not available
   const displayNameFromProfile = profileData?.first_name && profileData?.last_name 
     ? `${profileData.first_name} ${profileData.last_name}` 
     : firebaseUser.displayName;
@@ -49,24 +44,15 @@ const mapFirebaseUserToBackendUser = (
     emailVerified: firebaseUser.emailVerified,
     displayName: displayNameFromProfile || undefined,
     photoURL: firebaseUser.photoURL || profileData?.photoURL || undefined,
-    // Populate other BackendUser fields from firebaseUser or profileData as needed
-    // Example for metadata if your BackendUser has it structured like Firebase User's metadata
     metadata: { 
       creationTime: firebaseUser.metadata.creationTime,
       lastSignInTime: firebaseUser.metadata.lastSignInTime,
     },
-    // Assuming profileData contains these, otherwise they'd be undefined or fetched separately
-    // first_name: profileData?.first_name,
-    // last_name: profileData?.last_name,
-    // phone: profileData?.phone,
-    // location: profileData?.location,
-    // role: profileData?.role,
   };
 };
 
-// Helper function to fetch with timeout
 function fetchWithTimeout<TData>(promise: Promise<TData>, timeoutMs: number = 10000): Promise<TData> {
-  let timeoutId: number; // Changed NodeJS.Timeout to number
+  let timeoutId: number;
   const timeoutPromise = new Promise<TData>((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error(`Operation timed out after ${timeoutMs} ms`));
@@ -79,22 +65,19 @@ function fetchWithTimeout<TData>(promise: Promise<TData>, timeoutMs: number = 10
 }
 
 interface AuthContextType {
-  // Values from Redux store via useAppAuth
   isAuthenticated: boolean;
   isLoading: boolean;
-  isInitialized: boolean; // From Redux, indicates if initial auth check is done
+  isInitialized: boolean;
   user: ReturnType<typeof useAppAuth>['user'];
   error: ReturnType<typeof useAppAuth>['error'];
 
-  // Actions - now mostly wrappers around useAppAuth dispatches
-  signIn: (credentials: LoginCredentials) => Promise<any>; // Return type from unwrap
-  signUp: (credentials: SignupCredentials) => Promise<any>; // Return type from unwrap
-  signOut: () => Promise<any>; // Return type from unwrap
-  signInWithGoogle: () => Promise<any>; // For initiating Google Sign-In
-  // Add signInWithApple, etc., as needed
+  signIn: (credentials: LoginCredentials) => Promise<any>;
+  signUp: (credentials: SignupCredentials) => Promise<any>;
+  signOut: () => Promise<any>;
+  signInWithGoogle: () => Promise<any>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined); // Export AuthContext
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const {
@@ -214,11 +197,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await signInWithEmailAndPassword(firebaseAppAuth, credentials.email, credentials.pass);
       // onAuthStateChanged will handle Redux state update and navigation
       router.replace('/(main)/home'); // Removed for declarative navigation
-      // No explicit return needed if onAuthStateChanged handles state
+
     } catch (err: any) {
       console.error('AuthContext: Sign in failed', err);
       dispatch(setAuthError(err.message || 'Sign in failed'));
-      router.replace('/(auth)/signIn'); // Removed for declarative navigation
+      router.replace('/(auth)/signIn');
       throw err;
     }
   }, [dispatch, router]);
@@ -261,9 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await setDoc(doc(clientFirestore, "profiles", newUserUid), profileData);
       
-      // onAuthStateChanged will handle Redux state update and navigation
-      router.replace('/(main)/home'); // Removed for declarative navigation
-      // No explicit return needed
+      router.replace('/(main)/home');
     } catch (err: any) {
       console.error('AuthContext: Sign up failed', err);
       dispatch(setAuthError(err.message || 'Sign up failed'));
@@ -275,8 +256,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch(setAuthIsLoading(true));
     try {
       await firebaseAppAuth.signOut();
-      // onAuthStateChanged will handle Redux state update
-      router.replace('/(auth)/signIn'); // Removed for declarative navigation
+      router.replace('/(auth)/signIn');
     } catch (err: any) {
       console.error('AuthContext: Sign out failed', err);
       dispatch(setAuthError(err.message || 'Sign out failed'));
@@ -302,7 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Google Sign-In result:', googleSignInResponse);
 
       if (!googleSignInResponse || !googleSignInResponse.data.idToken) {
-        router.replace('/(auth)/signIn'); // Removed for declarative navigation
+        router.replace('/(auth)/signIn');
         throw new Error('Google Sign-In failed to return an ID token.');
       }
       const googleCredential = GoogleAuthProvider.credential(googleSignInResponse.data.idToken);
@@ -310,7 +290,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const firebaseUser = userCredential.user;
 
       if (firebaseUser) {
-        // Check/Create profile in Firestore for social user
+
         const profileDocRef = doc(clientFirestore, "profiles", firebaseUser.uid);
         const profileSnap = await getDoc(profileDocRef);
         if (!profileSnap.exists()) {
@@ -319,21 +299,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: nameParts[0] || '',
             last_name: nameParts.slice(1).join(' ') || '',
             phone: firebaseUser.phoneNumber || '',
-            location: '', // Or attempt to get from social profile if available/needed
+            location: '',
             userId: firebaseUser.uid,
             role: 'organizer',
-            email: firebaseUser.email, // Store email in profile
-            avatarUrl: firebaseUser.photoURL, // Store photoURL as avatarUrl
+            email: firebaseUser.email,
+            avatarUrl: firebaseUser.photoURL,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           };
           await setDoc(profileDocRef, newProfileData);
         }
-        // onAuthStateChanged will handle Redux state update and navigation.
-        router.replace('/(main)/home'); // Removed for declarative navigation
-        // No backendResult to return as we are not calling a backend endpoint here anymore.
+        router.replace('/(main)/home');
       } else {
-        router.replace('/(auth)/signIn'); // Removed for declarative navigation
+        router.replace('/(auth)/signIn');
         throw new Error('No user returned from Firebase after Google Sign-In');
       }
     } catch (error: any) {
@@ -342,17 +320,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) console.error('Google Play services not available');
       else console.error('AuthContext: Google Sign-In failed', error);
       dispatch(setAuthError(error.message || 'Google Sign-In failed'));
-      router.replace('/(auth)/signIn'); // Removed for declarative navigation
+      router.replace('/(auth)/signIn');
       throw error;
     }
   }, [dispatch, router]);
   
-  // isLoading and error are now primarily managed by the authSlice via onAuthStateChanged or direct dispatches
-  // The `token` from useAppAuth() will be the Firebase ID token set by onAuthStateChanged
   const value = useMemo<AuthContextType>(() => ({
-    isAuthenticated: !!user && !!token && isAuthInitialized, // User and token should both exist
-    isLoading: isAuthLoading, // Reflects Redux state
-    isInitialized: isAuthInitialized, // Reflects Redux state
+    isAuthenticated: !!user && !!token && isAuthInitialized,
+    isLoading: isAuthLoading,
+    isInitialized: isAuthInitialized,
     user,
     error: authError,
     signIn: handleSignIn,

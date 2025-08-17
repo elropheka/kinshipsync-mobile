@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { UserProfile } from '../../types/userTypes'; // Assuming UserProfile is the correct type for user objects
-import { Colors } from '../../constants/Colors'; // Assuming Colors.ts exists for styling
+import { UserProfile } from '@/types/userTypes';
+import { Colors } from '@/constants/Colors';
 
 interface MultiUserPickerProps {
   users: UserProfile[];
   selectedUserIds: string[];
   onSelectionChange: (selectedIds: string[]) => void;
-  itemHeight?: number; // Optional prop for item height
-  listMaxHeight?: number; // Optional prop for list max height
+  itemHeight?: number;
+  listMaxHeight?: number;
 }
 
 const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
   users,
   selectedUserIds,
   onSelectionChange,
-  itemHeight = 50, // Default item height
-  listMaxHeight = 200, // Default max height for the scrollable list
+  itemHeight = 50,
+  listMaxHeight = 200,
 }) => {
   const handleToggleUser = (userId: string) => {
     const newSelectedIds = selectedUserIds.includes(userId)
@@ -53,7 +53,7 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
           renderItem={renderUserItem}
           keyExtractor={item => item.userId}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled // Important for lists inside ScrollViews
+          nestedScrollEnabled
         />
       </View>
       {selectedUserIds.length > 0 && (
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   userNameText: {
     fontSize: 15,
     color: Colors.light.text,
-    flex: 1, // Ensure text doesn't overflow icon if name is long
+    flex: 1, 
   },
   selectedCountText: {
     fontSize: 13,

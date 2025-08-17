@@ -35,34 +35,27 @@ interface FontDefinition {
 }
 
 const Fonts: FontDefinition = {
-  // Headers
   headerBold: 'Poppins-Bold',
   headerSemiBold: 'Poppins-SemiBold',
   headerMedium: 'Poppins-Medium',
   
-  // Titles
   titleBold: 'Poppins-Bold',
   titleSemiBold: 'Poppins-SemiBold',
   titleRegular: 'Poppins-Regular',
   
-  // Body text
   bodyRegular: 'Poppins-Regular',
   bodyMedium: 'Poppins-Medium',
   bodyLight: 'Poppins-Light',
   
-  // Captions and small text
   captionRegular: 'Poppins-Regular',
   captionMedium: 'Poppins-Medium',
   
-  // Button text
   buttonBold: 'Poppins-Bold',
   buttonMedium: 'Poppins-Medium',
   
-  // Special cases
   displayBold: 'Poppins-Bold',
   displayLight: 'Poppins-Light',
   
-  // Font weights
   weights: {
     light: '300',
     regular: '400',

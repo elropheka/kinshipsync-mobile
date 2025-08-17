@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, Alert, SafeAreaView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes'; // Use Task from eventTypes
+import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
-import { Colors } from '../../constants/Colors'; // Colors is already imported
+import { Colors } from '../../constants/Colors';
 import MultiUserPicker from '../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 type FormStatus = 'todo' | 'in-progress' | 'completed';
 
 interface TaskFormProps {
-  initialTask?: Partial<Task> & { id?: string }; // For editing existing task, ensure id is available
-  assignableUsers: UserProfile[]; // List of users to pick from for assignment
+  initialTask?: Partial<Task> & { id?: string };
+  assignableUsers: UserProfile[];
   onSubmit: (taskData: CreateTaskPayload | UpdateTaskPayload, taskId?: string) => void; 
   onCancel: () => void;
   formTitle?: string;
@@ -33,9 +33,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(
     initialTask?.priority || 'medium'
   );
-  // Map initialTask.completed (boolean) to form's status (string)
   const [status, setStatus] = useState<FormStatus>(
-    initialTask?.completed ? 'completed' : (initialTask as any)?.status || 'todo' // Handle old status if present
+    initialTask?.completed ? 'completed' : (initialTask as any)?.status || 'todo'
   );
   const [assignedToUserIds, setAssignedToUserIds] = useState<string[]>(
     initialTask?.assignedToUserIds || []
@@ -50,19 +49,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const commonData = {
       title: title.trim(),
       description: description.trim(),
-      dueDate: dueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
+      dueDate: dueDate?.toISOString().split('T')[0],
       priority,
-      completed: status === 'completed', // Map status string to boolean
+      completed: status === 'completed',
       assignedToUserIds,
       status: status === 'completed' ? 'completed' : status === 'in-progress' ? 'in_progress' : 'pending' as 'completed' | 'in_progress' | 'pending',
     };
 
     if (initialTask?.id) {
-      // Editing existing task
       const updatePayload: UpdateTaskPayload = commonData;
       onSubmit(updatePayload, initialTask.id);
     } else {
-      // Creating new task
       const createPayload: CreateTaskPayload = commonData;
       onSubmit(createPayload);
     }
@@ -71,25 +68,19 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate || dueDate;
     if (Platform.OS === 'android') {
-      setShowDatePicker(false); // Hide picker immediately on Android
+      setShowDatePicker(false);
     }
-    // On iOS, the picker might be part of a modal, so setShowDatePicker(false) might be handled by a "Done" button.
-    // For simplicity here, if it's not 'set', we might hide it. Or rely on a modal's close.
-    // If event.type is 'dismissed' on iOS, selectedDate will be undefined.
     if (event.type === 'set' && currentDate) {
       setDueDate(currentDate);
-      if (Platform.OS === 'ios') { // Only hide if set and on iOS, assuming no explicit Done button for this simple case
-        // setShowDatePicker(false); // Or manage via a modal with Done/Cancel
+      if (Platform.OS === 'ios') {
       }
     } else if (event.type === 'dismissed' && Platform.OS === 'ios') {
-      // Don't hide, let user explicitly cancel or done from modal if using one
     }
   };
 
   const priorities: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
   const statuses: FormStatus[] = ['todo', 'in-progress', 'completed'];
 
-  // Define a type for form items for better type safety in renderFormItem
   type FormItemType = 
     | { type: 'textInput'; label: string; value: string; onChangeText: (text: string) => void; placeholder: string; required?: boolean; id: string; multiline?: boolean; numberOfLines?: number }
     | { type: 'datePicker'; label: string; value?: Date; onPress: () => void; id: string }
@@ -210,8 +201,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={<View />} // Keep contentContainerStyle padding
-        ListFooterComponent={<View />} // Keep contentContainerStyle padding
+        ListHeaderComponent={<View />}
+        ListFooterComponent={<View />}
       />
     </SafeAreaView>
   );
@@ -220,7 +211,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundPaper, // Changed to backgroundPaper for modal feel
+    backgroundColor: Colors.light.backgroundPaper,
   },
   header: {
     flexDirection: 'row',
@@ -230,7 +221,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background, // Header distinct from form body
+    backgroundColor: Colors.light.background,
   },
   headerTitle: {
     fontSize: 18,
@@ -238,7 +229,7 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   headerButton: {
-    padding: 5, // For easier touch
+    padding: 5,
   },
   headerButtonText: {
     fontSize: 16,
@@ -251,7 +242,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
   },
-  // formTitle removed from styles as it's part of headerTitle now
   fieldContainer: {
     marginBottom: 20,
   },

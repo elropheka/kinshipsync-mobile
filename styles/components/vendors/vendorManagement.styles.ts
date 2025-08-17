@@ -39,37 +39,36 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: Spacing.l,
     backgroundColor: Colors.light.background,
-    marginBottom: Spacing.m, // Added margin for separation
+    marginBottom: Spacing.m,
   },
-  tabButton: { // Renamed from tab
+  tabButton: {
     paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.s, // Added horizontal padding
+    paddingHorizontal: Spacing.s,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center', // Center text
+    justifyContent: 'center',
     borderBottomWidth: 2,
-    borderColor: 'transparent', // Default transparent border
+    borderColor: 'transparent',
   },
-  activeTabButton: { // Renamed from tabActive
-    borderColor: Colors.light.tint, // Active state border
+  activeTabButton: {
+    borderColor: Colors.light.tint,
   },
-  tabButtonText: { // Renamed from tabText
-    fontSize: ResponsiveFontSizes.body, // Adjusted size
+  tabButtonText: {
+    fontSize: ResponsiveFontSizes.body,
     color: Colors.light.textSecondary,
   },
-  activeTabButtonText: { // Renamed from tabTextActive
-    fontSize: ResponsiveFontSizes.body, // Adjusted size
+  activeTabButtonText: {
+    fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.tint, // Use tint color for active text
+    color: Colors.light.tint,
   },
-  // Removed tabIndicator and activeIndicator as they are not used
   summaryContainer: {
     flexDirection: 'row',
     padding: Spacing.l,
     justifyContent: 'space-between',
   },
   summaryCard: {
-    width: '30%', // Keep percentage based layout
+    width: '30%',
     padding: Spacing.m,
     borderRadius: BorderRadius.m,
     alignItems: 'center',
@@ -122,7 +121,6 @@ export const styles = StyleSheet.create({
     marginRight: Spacing.m,
   },
   vendorIcon: {
-    // No specific styles needed here currently
   },
   vendorInfo: {
     flex: 1,
@@ -169,12 +167,12 @@ export const styles = StyleSheet.create({
     height: moderateScale(8),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.xs,
-    // backgroundColor will be dynamic
+
   },
   statusText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    // color will be dynamic
+
   },
   paymentInfo: {
     flexDirection: 'row',
@@ -190,7 +188,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     color: Colors.light.text,
   },
-  homeIndicator: { // This is usually an OS level component, styling might not be needed or could be for a custom one
+  homeIndicator: {
     width: moderateScale(100),
     height: moderateScale(5),
     backgroundColor: Colors.light.text,
@@ -213,21 +211,21 @@ export const styles = StyleSheet.create({
     margin: Spacing.l,
     fontSize: ResponsiveFontSizes.body,
   },
-  emptyContainer: { // Added
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.l,
   },
-  browseButton: { // Added
+  browseButton: {
     marginTop: Spacing.m,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     backgroundColor: Colors.light.tint,
     borderRadius: BorderRadius.m,
   },
-  browseButtonText: { // Added
-    color: Colors.light.background, // Assuming tint is dark enough for light text
+  browseButtonText: {
+    color: Colors.light.background,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
   },

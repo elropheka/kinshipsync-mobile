@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons'; // Using Ionicons for consistency
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(main)/subscriptionPlans.styles';
 import { useCurrentUser } from '../../hooks/useUser';
@@ -23,7 +23,6 @@ const SubscriptionPlansScreen = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
     type: 'success' | 'error' | 'info';
@@ -79,8 +78,6 @@ const SubscriptionPlansScreen = () => {
     const handleConfirmPlanChange = async () => {
       setIsProcessing(true);
       try {
-        // The 'paymentMethodId' below is a placeholder. 
-        // Actual implementation would involve a payment gateway integration.
         await changeSubscription({ newPlanId: planId, paymentMethodId: 'pm_mock_id' });
         showAlert('success', 'Success!', `You have subscribed to the ${selectedPlan.name}.`);
       } catch (e) {
@@ -112,7 +109,7 @@ const SubscriptionPlansScreen = () => {
       try {
         await cancelSubscription({ 
           reason: 'User initiated cancellation from app',
-          cancelAtPeriodEnd: true // Defaulting to cancel at period end
+          cancelAtPeriodEnd: true
         });
         showAlert('success', 'Subscription Cancelled', 'Your subscription has been set to cancel at the end of the current period.');
       } catch (e) {
@@ -153,7 +150,6 @@ const SubscriptionPlansScreen = () => {
   return (
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Subscription Plans" }} />
-      {/* Custom header View removed */}
       <ScrollView style={styles.container}>
         <Text style={styles.introText}>Choose the plan that best fits your event planning needs.</Text>
         
@@ -174,7 +170,7 @@ const SubscriptionPlansScreen = () => {
 
         {availablePlans.map((plan) => {
           const isCurrent = currentUserSubscription?.planId === plan.id && currentUserSubscription?.status === 'active';
-          const planColor = plan.metadata?.color || '#757575'; // Default grey
+          const planColor = plan.metadata?.color || '#757575';
           const planAccentColor = plan.metadata?.accentColor || '#f5f5f5';
 
           return (
@@ -183,7 +179,6 @@ const SubscriptionPlansScreen = () => {
                 <Text style={styles.planName}>{plan.name}</Text>
                 <Text style={styles.planPrice}>
                   {plan.currency.toUpperCase()} {plan.price / 100} / {plan.interval} 
-                  {/* Assuming price is in cents */}
                 </Text>
               </View>
               <View style={styles.featuresContainer}>
@@ -216,7 +211,6 @@ const SubscriptionPlansScreen = () => {
         )}
       </ScrollView>
       
-      {/* Custom Alert */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

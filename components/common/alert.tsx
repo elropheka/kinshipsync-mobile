@@ -62,12 +62,10 @@ const CustomAlert: React.FC<AlertProps> = ({
 
   useEffect(() => {
     if (visible) {
-      // Reset animations
       slideAnim.setValue(0);
       opacityAnim.setValue(0);
       scaleAnim.setValue(0.8);
 
-      // Start entrance animations
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 1,
@@ -87,7 +85,6 @@ const CustomAlert: React.FC<AlertProps> = ({
         }),
       ]).start();
 
-      // Auto-hide if enabled
       if (autoHide) {
         const timer = setTimeout(() => {
           handleClose();
@@ -95,7 +92,6 @@ const CustomAlert: React.FC<AlertProps> = ({
         return () => clearTimeout(timer);
       }
     } else {
-      // Exit animations
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 0,
@@ -381,7 +377,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.border,
   },
   confirmButton: {
-    // backgroundColor is set dynamically
   },
   buttonText: {
     fontSize: ResponsiveFontSizes.body,

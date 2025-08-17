@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react'; // Added useCallback
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   SafeAreaView,
   View,
@@ -17,16 +17,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import { styles, ITEM_WIDTH } from '../../styles/components/vendors/vendorScreen.styles';
 import { Colors } from '../../constants/Colors';
-import { DisplayVendorItem, useVendorItemsSearch } from '../../hooks/useVendors'; // Use new hook and type
+import { DisplayVendorItem, useVendorItemsSearch } from '../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../types/vendorItemTypes';
 import { router } from 'expo-router';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-// CARD_WIDTH is not directly used in this version of contentContainerStyle calculation, ITEM_WIDTH is key.
+
 
 const VendorScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const listRef = useRef<FlatList<DisplayVendorItem>>(null); // Changed type to DisplayVendorItem
+  const listRef = useRef<FlatList<DisplayVendorItem>>(null);
   const [isPaused, setIsPaused] = useState(false);
   const scrollX = useRef(new Animated.Value(0)).current;
 
@@ -34,12 +34,12 @@ const VendorScreen: React.FC = () => {
     displayItems, 
     isLoading, 
     error 
-  } = useVendorItemsSearch({ limit: 5, sortBy: 'newest' } as VendorItemSearchParams); // Fetch 5 newest items for carousel
+  } = useVendorItemsSearch({ limit: 5, sortBy: 'newest' } as VendorItemSearchParams);
 
   const onMomentumScrollEnd = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / ITEM_WIDTH);
     if (displayItems && displayItems.length > 0) {
-      setCurrentIndex(index % displayItems.length); // Ensure index is within bounds
+      setCurrentIndex(index % displayItems.length);
     }
   }, [displayItems]);
 
@@ -52,7 +52,6 @@ const VendorScreen: React.FC = () => {
           index: nextIndex,
           animated: true,
         });
-        // setCurrentIndex will be updated by onMomentumScrollEnd
       }, 3000);
     }
     return () => {
@@ -99,8 +98,8 @@ const VendorScreen: React.FC = () => {
           </View>
           <View style={styles.info}>
             <Text style={styles.category}>{item.category?.toUpperCase() || 'SERVICE'}</Text>
-            <Text style={styles.title} numberOfLines={1}>{item.name}</Text> {/* Item name */}
-            <Text style={styles.subheading} numberOfLines={1}>by {vendorName}</Text> {/* Vendor name */}
+            <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
+            <Text style={styles.subheading} numberOfLines={1}>by {vendorName}</Text>
             {vendorRating !== undefined && vendorRating > 0 && (
               <View style={styles.rating}>
                 <Icon name="star" size={14} color={Colors.light.tint} />
@@ -111,7 +110,7 @@ const VendorScreen: React.FC = () => {
         </TouchableOpacity>
       </Animated.View>
     );
-  }, [handleNavigateToDetails]); // Added handleNavigateToDetails to dependencies
+  }, [handleNavigateToDetails]);
 
   if (isLoading && (!displayItems || displayItems.length === 0)) {
     return (

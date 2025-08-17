@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native'; // Added ActivityIndicator and SafeAreaView
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
 import Fonts from '../../constants/fonts';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext'; // Import useTheme
+import { useTheme } from '../../context/ThemeContext';
 import * as eventService from '../../services/eventService';
 import CustomAlert from '../../components/common/alert';
 
-// Helper to generate a unique ID (simplified)
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
 
 const CreateThemeScreen = () => {
   const { user, isAuthenticated } = useAuth();
-  const { refreshAvailableThemes } = useTheme(); // Get refresh function
+  const { refreshAvailableThemes } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [themeName, setThemeName] = useState('');
   const [primaryColor, setPrimaryColor] = useState(Colors.light.primary);
@@ -25,7 +24,6 @@ const CreateThemeScreen = () => {
   const [cardBgColor, setCardBgColor] = useState(Colors.light.backgroundPaper);
   const [borderColor, setBorderColor] = useState(Colors.light.border);
 
-  // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
     type: 'success' | 'error';
@@ -68,7 +66,7 @@ const CreateThemeScreen = () => {
     setIsLoading(true);
 
     const newTheme: Theme = {
-      id: generateId(), // Firestore doc ID will be this theme.id if saveUserTheme uses it
+      id: generateId(),
       name: themeName.trim(),
       isPredefined: false,
       colors: {
@@ -87,15 +85,13 @@ const CreateThemeScreen = () => {
     };
 
     try {
-      // TODO: Implement theme saving functionality
       console.log('Theme would be saved:', newTheme);
-      await refreshAvailableThemes(); // Refresh themes in context
+      await refreshAvailableThemes();
       showAlert('success', 'Theme Saved', `Theme "${newTheme.name}" has been saved successfully and added to your list.`);
-      // No longer a TODO here
       if (router.canGoBack()) {
         router.back();
       } else {
-        router.replace('/(main)/home'); // Fallback navigation
+        router.replace('/(main)/home');
       }
     } catch (error) {
       console.error('Failed to save theme:', error);
@@ -119,7 +115,6 @@ const CreateThemeScreen = () => {
         />
 
         <Text style={styles.sectionTitle}>Colors</Text>
-        {/* Basic TextInputs for colors for now; replace with ColorPickers */}
         <Text style={styles.label}>Primary Color</Text>
         <TextInput style={styles.input} value={primaryColor} onChangeText={setPrimaryColor} placeholder="#RRGGBB" />
 
@@ -143,7 +138,6 @@ const CreateThemeScreen = () => {
 
 
         <Text style={styles.sectionTitle}>Fonts</Text>
-        {/* Basic TextInputs for fonts for now; replace with FontSelectors */}
         <Text style={styles.label}>Heading Font Family</Text>
         <TextInput
           style={styles.input}
@@ -151,7 +145,6 @@ const CreateThemeScreen = () => {
           onChangeText={(text) => setHeadingFont(prev => ({ ...prev, fontFamily: text }))}
           placeholder="e.g., Poppins-Bold"
         />
-        {/* Add inputs for fontWeight, fontStyle if needed, or use a proper selector */}
 
         <Text style={styles.label}>Body Font Family</Text>
         <TextInput
@@ -160,7 +153,6 @@ const CreateThemeScreen = () => {
           onChangeText={(text) => setBodyFont(prev => ({ ...prev, fontFamily: text }))}
           placeholder="e.g., Poppins-Regular"
         />
-        {/* Add inputs for fontWeight, fontStyle if needed, or use a proper selector */}
         
         <View style={styles.buttonContainer}>
           {isLoading ? (
@@ -171,7 +163,6 @@ const CreateThemeScreen = () => {
         </View>
       </ScrollView>
       
-      {/* Custom Alert */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

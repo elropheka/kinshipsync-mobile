@@ -4,12 +4,12 @@ import { FamilyMemberNode } from '../../types/teamTypes';
 import { styles } from '../../styles/components/teams/FamilyMemberNode.styles';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors'; // Import Colors
+import { Colors } from '../../constants/Colors';
 
 interface FamilyMemberNodeProps {
   node: FamilyMemberNode | Pick<FamilyMemberNode, 'id' | 'name' | 'imageUrl'>; // Allow Pick for spouse
-  onAddChildPress?: () => void;    // New prop for adding a child
-  onAddSpousePress?: () => void;   // New prop for adding a spouse
+  onAddChildPress?: () => void;
+  onAddSpousePress?: () => void;
   onRemovePress?: () => void;
 }
 
@@ -20,9 +20,6 @@ const FamilyMemberNodeComponent: React.FC<FamilyMemberNodeProps> = ({
   onRemovePress 
 }) => {
   const isFullNode = 'parentIds' in node || 'children' in node || 'spouse' in node;
-  // A node can have a spouse added if it's a full node and doesn't already have one,
-  // or if it's a 'Pick' type (which represents a spouse already and thus cannot have another spouse added to ITSELF).
-  // For simplicity, only allow adding spouse to a "full node" that doesn't have one.
   const canAddSpouse = isFullNode && !('spouse' in node && node.spouse);
 
 
@@ -36,7 +33,7 @@ const FamilyMemberNodeComponent: React.FC<FamilyMemberNodeProps> = ({
             <Ionicons name="person-circle-outline" size={40} color={Colors.light.textSecondary} />
           </View>
         )}
-        {/* Action Icons - Absolutely Positioned */}
+
         {isFullNode && onRemovePress && (
           <TouchableOpacity onPress={onRemovePress} style={[styles.iconButton, styles.removeNodeIcon]}>
             <Ionicons name="remove-circle-outline" size={22} color={Colors.light.danger} />

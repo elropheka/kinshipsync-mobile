@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons as Icon } from '@expo/vector-icons'; // Ensure alias is used if Icon is MaterialIcons
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Event as EventType } from '../../types/eventTypes'; // Use actual Event type
+import { Event as EventType } from '../../types/eventTypes';
 import { styles } from '../../styles/app/(main)/home.styles'; 
-import { Colors } from 'constants/Colors'; // For default icon colors
+import { Colors } from 'constants/Colors';
 
 interface UpcomingEventItemProps {
   event: EventType;
@@ -19,7 +19,6 @@ const UpcomingEventItem: React.FC<UpcomingEventItemProps> = ({ event, index }) =
   const time = event.time;
   const location = event.location;
 
-  // Alternating colors for the date background and text
   const dateBgColor = index % 2 === 0 ? '#EAE9FE' : '#FEEBD6';
   const dateTextColor = index % 2 === 0 ? '#6338EF' : '#F2671D';
 
@@ -57,7 +56,7 @@ const UpcomingEventItem: React.FC<UpcomingEventItemProps> = ({ event, index }) =
 };
 
 interface UpcomingEventsProps {
-  events: EventType[]; // Changed from allEvents to events to match original prop name
+  events: EventType[];
   searchQuery?: string;
   onSeeAllPress: () => void;
 }
@@ -65,7 +64,7 @@ interface UpcomingEventsProps {
 const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events: allEvents, searchQuery, onSeeAllPress }) => {
   const upcomingEvents = useMemo(() => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Compare dates only
+    today.setHours(0, 0, 0, 0);
 
     let filtered = allEvents.filter(event => new Date(event.date) >= today);
 
@@ -86,14 +85,14 @@ const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events: allEvents, sear
     <View style={styles.section}>
       <View style={[styles.sectionHeader, styles.recentActivityHeader]}>
         <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        {upcomingEvents.length > 0 && ( // Only show "See all" if there are events
+        {upcomingEvents.length > 0 && (
             <TouchableOpacity onPress={onSeeAllPress}>
                 <Text style={styles.seeAllText}>See all</Text>
             </TouchableOpacity>
         )}
       </View>
       {upcomingEvents.length > 0 ? (
-        upcomingEvents.slice(0, 3).map((event, index) => ( // Show top 3 for dashboard
+        upcomingEvents.slice(0, 3).map((event, index) => (
           <UpcomingEventItem key={event.id} event={event} index={index} />
         ))
       ) : (

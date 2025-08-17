@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Schedule, ScheduleFormData } from '../../../types/scheduleTypes';
 import { UserProfile } from '../../../types/userTypes';
 import { Colors } from '../../../constants/Colors';
-import MultiUserPicker from '../../common/MultiUserPicker'; // Assuming path is correct
+import MultiUserPicker from '../../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 interface ScheduleFormProps {
@@ -51,7 +51,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   );
 
   useEffect(() => {
-    // If initialSchedule is provided, populate the form
     if (initialSchedule) {
       setTitle(initialSchedule.title || '');
       setDescription(initialSchedule.description || '');
@@ -84,13 +83,12 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
       description: description.trim(),
       startTime,
       endTime,
-      assignedUserIds: assignedToUserIds, // Explicitly mapping
+      assignedUserIds: assignedToUserIds,
     };
 
     onSubmit(scheduleData, initialSchedule?.id);
   };
 
-  // Make selectedDate required in signature, handle undefined internally if necessary based on event.type
   const onTimeChange = (event: DateTimePickerEvent, selectedDate: Date | undefined, type: 'start' | 'end') => {
     const currentDate = selectedDate;
     if (Platform.OS === 'android') {
@@ -172,11 +170,11 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </TouchableOpacity>
           {showEndTimePicker && (
             <DateTimePicker
-              value={endTime || startTime || new Date()} // Default to startTime if endTime not set
+              value={endTime || startTime || new Date()}
               mode="datetime"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               onChange={(event, date) => onTimeChange(event, date, 'end')}
-              minimumDate={startTime} // Prevent end time from being before start time
+              minimumDate={startTime}
             />
           )}
         </View>
@@ -252,7 +250,7 @@ const styles = StyleSheet.create({
     color: Colors.light.error,
   },
   input: {
-    backgroundColor: Colors.light.backgroundPaper, // Ensure inputs have a distinct background if form bg is different
+    backgroundColor: Colors.light.backgroundPaper,
     borderWidth: 1,
     borderColor: Colors.light.border,
     borderRadius: 8,
@@ -297,9 +295,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   cancelButton: {
-    backgroundColor: Colors.light.backgroundPaper, // Or a light grey
+    backgroundColor: Colors.light.backgroundPaper,
     borderWidth: 1,
-    borderColor: Colors.light.border, // Or primary color for outline
+    borderColor: Colors.light.border,
     marginRight: 10,
   },
   buttonText: {
@@ -307,10 +305,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   submitButtonText: {
-    color: Colors.light.primaryContrastText, // White or light color
+    color: Colors.light.primaryContrastText,
   },
   cancelButtonText: {
-    color: Colors.light.textSecondary, // Or primary color for outline button
+    color: Colors.light.textSecondary,
   },
 });
 

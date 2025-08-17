@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../types/eventTypes';
 import { Vendor } from '../../types/vendorTypes';
 import { VendorItem } from '../../types/vendorItemTypes';
-import { useVendorSearch, useVendorItemsSearch } from '../../hooks/useVendors'; // Import useVendorItemsSearch
+import { useVendorSearch, useVendorItemsSearch } from '../../hooks/useVendors';
 import { Colors } from '../../constants/Colors';
 import CustomAlert from '../common/alert';
 
@@ -26,7 +26,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   onCancel,
   formTitle = 'Budget Item',
 }) => {
-  // Item details
   const [itemName, setItemName] = useState(initialBudgetItem?.itemName || '');
   const [category, setCategory] = useState(initialBudgetItem?.category || '');
   const [estimatedCost, setEstimatedCost] = useState<string>(
@@ -38,29 +37,25 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   const [paid, setPaid] = useState(initialBudgetItem?.paid || false);
   const [notes, setNotes] = useState(initialBudgetItem?.notes || '');
 
-  // Vendor state
   const [vendorEntryMode, setVendorEntryMode] = useState<'manual' | 'select'>(
     initialBudgetItem?.linkedVendorId ? 'select' : 'manual'
   );
   const [manualVendorNameInput, setManualVendorNameInput] = useState(initialBudgetItem?.manualVendorName || '');
   const [selectedVendorId, setSelectedVendorId] = useState<string | undefined>(initialBudgetItem?.linkedVendorId);
 
-  // Vendor Item state
   const [itemEntryMode, setItemEntryMode] = useState<'manual' | 'select'>(
     initialBudgetItem?.linkedVendorId && initialBudgetItem?.linkedVendorItemId ? 'select' : 'manual'
   );
   const [selectedVendorItemId, setSelectedVendorItemId] = useState<string | undefined>(initialBudgetItem?.linkedVendorItemId);
 
-  // Hooks for fetching data
   const { vendors, isLoading: loadingVendors, error: vendorsError } = useVendorSearch({});
   const { 
-    displayItems: vendorItems, // Renamed to avoid conflict if useVendorItemsSearch returns 'items'
+    displayItems: vendorItems,
     isLoading: loadingVendorItems, 
     error: vendorItemsError,
-    performItemSearch, // To trigger search when selectedVendorId changes
+    performItemSearch,
   } = useVendorItemsSearch({ vendorId: selectedVendorId });
 
-  // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
     type: 'error' | 'warning';
@@ -94,7 +89,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
       if (initialBudgetItem.linkedVendorId) {
         setVendorEntryMode('select');
         setSelectedVendorId(initialBudgetItem.linkedVendorId);
-        setManualVendorNameInput(''); // Clear manual name if vendor is selected
+        setManualVendorNameInput('');
         if (initialBudgetItem.linkedVendorItemId) {
           setItemEntryMode('select');
           setSelectedVendorItemId(initialBudgetItem.linkedVendorItemId);
@@ -106,23 +101,17 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         setVendorEntryMode('manual');
         setSelectedVendorId(undefined);
         setManualVendorNameInput(initialBudgetItem.manualVendorName || '');
-        setItemEntryMode('manual'); // Item entry must be manual if vendor is manual
+        setItemEntryMode('manual');
         setSelectedVendorItemId(undefined);
       }
     }
   }, [initialBudgetItem]);
 
-  // Fetch vendor items when a vendor is selected
   useEffect(() => {
     if (vendorEntryMode === 'select' && selectedVendorId) {
       performItemSearch({ vendorId: selectedVendorId });
-      // When a new vendor is selected, we should clear the previously selected item.
-      // We don't necessarily force itemEntryMode to 'manual'.
-      // If the user was in 'select' item mode, they might want to remain in it for the new vendor.
-      // If they were in 'manual' item mode, they will remain in it.
       setSelectedVendorItemId(undefined); 
     } else {
-      // If vendor mode is 'manual' or no vendor is selected, clear items and force item mode to manual.
       performItemSearch({ vendorId: undefined }); 
       setItemEntryMode('manual');
       setSelectedVendorItemId(undefined);
@@ -161,14 +150,14 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
     const budgetItemData: CreateBudgetItemPayload | UpdateBudgetItemPayload = {
       itemName: itemName.trim(),
-      category: category.trim() || undefined, // Convert empty string to undefined
+      category: category.trim() || undefined,
       estimatedCost: estimatedCostNum,
-      actualCost: actualCostNum, // actualCost is number | undefined, which is fine
+      actualCost: actualCostNum,
       paid,
-      notes: notes.trim() || undefined, // Convert empty string to undefined
-      linkedVendorId: vendorEntryMode === 'select' ? selectedVendorId : undefined, // undefined is fine, field will be omitted
-      manualVendorName: vendorEntryMode === 'manual' ? (manualVendorNameInput.trim() || undefined) : undefined, // empty string to undefined, else undefined
-      linkedVendorItemId: vendorEntryMode === 'select' && itemEntryMode === 'select' ? selectedVendorItemId : undefined, // undefined is fine
+      notes: notes.trim() || undefined,
+      linkedVendorId: vendorEntryMode === 'select' ? selectedVendorId : undefined,
+      manualVendorName: vendorEntryMode === 'manual' ? (manualVendorNameInput.trim() || undefined) : undefined,
+      linkedVendorItemId: vendorEntryMode === 'select' && itemEntryMode === 'select' ? selectedVendorItemId : undefined,
     };
 
     if (initialBudgetItem?.id) {
@@ -183,9 +172,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     if (itemId) {
       const item = vendorItems.find((i: VendorItem) => i.id === itemId);
       if (item) {
-        setItemName(item.name); // Pre-fill item name
+        setItemName(item.name);
         if (typeof item.price === 'number') {
-          setEstimatedCost(item.price.toString()); // Pre-fill cost if available
+          setEstimatedCost(item.price.toString());
         }
       }
     }
@@ -205,7 +194,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
       </View>
 
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {/* Vendor Selection Section */}
         <Text style={styles.sectionTitle}>Vendor Details</Text>
         <View style={styles.entryModeContainer}>
           <TouchableOpacity
@@ -213,7 +201,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             onPress={() => { 
               setVendorEntryMode('manual'); 
               setSelectedVendorId(undefined);
-              setItemEntryMode('manual'); // Item must be manual if vendor is manual
+              setItemEntryMode('manual');
               setSelectedVendorItemId(undefined);
             }}
           >
@@ -223,7 +211,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             style={[styles.entryModeButton, vendorEntryMode === 'select' && styles.entryModeButtonActive]}
             onPress={() => {
               setVendorEntryMode('select');
-              setManualVendorNameInput(''); // Clear manual name
+              setManualVendorNameInput('');
             }}
           >
             <Text style={[styles.entryModeText, vendorEntryMode === 'select' && styles.entryModeTextActive]}>Select Existing Vendor</Text>
@@ -252,7 +240,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
                   selectedValue={selectedVendorId}
                   onValueChange={(itemValue) => {
                     setSelectedVendorId(itemValue as string | undefined);
-                    // Item selection will reset/refetch based on useEffect for selectedVendorId
                   }}
                   style={styles.picker}
                   itemStyle={styles.pickerItem}
@@ -267,9 +254,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           </View>
         )}
 
-        {/* Item Details Section */}
         <Text style={styles.sectionTitle}>Item/Service Details</Text>
-        {vendorEntryMode === 'select' && selectedVendorId && ( // Only show item selection if a vendor is selected
+        {vendorEntryMode === 'select' && selectedVendorId && (
           <View style={styles.entryModeContainer}>
             <TouchableOpacity
               style={[styles.entryModeButton, itemEntryMode === 'manual' && styles.entryModeButtonActive]}
@@ -283,7 +269,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             <TouchableOpacity
               style={[styles.entryModeButton, itemEntryMode === 'select' && styles.entryModeButtonActive]}
               onPress={() => setItemEntryMode('select')}
-              disabled={!selectedVendorId} // Disable if no vendor selected
+              disabled={!selectedVendorId}
             >
               <Text style={[styles.entryModeText, itemEntryMode === 'select' && styles.entryModeTextActive, !selectedVendorId && styles.disabledText]}>Select Vendor's Item</Text>
             </TouchableOpacity>
@@ -324,12 +310,11 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
                 </Picker>
               </View>
             )}
-             {/* Display Item Name field even when selecting, prefilled by selection */}
              <Text style={styles.label}>Item Name (from selected item) <Text style={styles.requiredStar}>*</Text></Text>
              <TextInput
-                style={[styles.input, styles.readOnlyInput]} // Make it look read-only
+                style={[styles.input, styles.readOnlyInput]}
                 value={itemName}
-                editable={false} // User cannot directly edit if item is selected
+                editable={false}
               />
           </View>
         )}
@@ -393,10 +378,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
           />
         </View>
 
-        {/* Removed explicit submit/cancel buttons from form body, using header buttons */}
               </ScrollView>
         
-        {/* Custom Alert */}
         <CustomAlert
           visible={alertConfig.visible}
           type={alertConfig.type}
@@ -411,7 +394,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   );
 };
 
-// Using similar styles to TaskForm for consistency
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -430,11 +412,11 @@ const styles = StyleSheet.create({
   readOnlyInput: {
     backgroundColor: Colors.light.divider, 
     color: Colors.light.textSecondary,
-    paddingHorizontal: 12, // Keep padding consistent with input
-    paddingVertical: 10,   // Keep padding consistent with input
-    borderRadius: 8,       // Keep border radius consistent
-    borderWidth: 1,        // Add border to look like other inputs
-    borderColor: Colors.light.border, // Add border to look like other inputs
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
   },
   entryModeContainer: {
     flexDirection: 'row',
@@ -460,22 +442,19 @@ const styles = StyleSheet.create({
     color: Colors.light.primary,
   },
   entryModeTextActive: {
-    color: Colors.light.backgroundPaper, // Or Colors.dark.text if primary is light
+    color: Colors.light.backgroundPaper,
   },
   pickerWrapper: {
     borderWidth: 1,
     borderColor: Colors.light.border,
     borderRadius: 8,
     backgroundColor: Colors.light.backgroundPaper,
-    // height: 50, // Adjust if necessary, Picker can be tricky with height
     justifyContent: 'center',
   },
   picker: {
-    // height: '100%', // Try to make it fill wrapper
-    // width: '100%', // Try to make it fill wrapper
-    color: Colors.light.text, // For Android text color
+    color: Colors.light.text,
   },
-  pickerItem: { // For iOS item text color
+  pickerItem: {
     color: Colors.light.text,
   },
   pickerItemPlaceholder: {

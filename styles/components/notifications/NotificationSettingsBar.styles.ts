@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from 'constants/Colors'; // Adjusted path
-import Fonts from 'constants/fonts'; // Adjusted path
+import { Colors } from 'constants/Colors';
+import Fonts from 'constants/fonts';
 import {
   Spacing,
   ResponsiveFontSizes,
-} from 'constants/dimensions'; // Adjusted path
+} from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   notificationSettings: {
@@ -14,15 +14,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider, // Ensure Colors.light is used
+    borderBottomColor: Colors.light.divider,
   },
   settingsText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text, // Ensure Colors.light is used
+    color: Colors.light.text,
   },
-  // Switch track and thumb colors are set inline in the component
-  // but you could define them here if preferred, e.g.:
-  // switchTrackColor: { false: Colors.light.grey, true: Colors.light.primaryLight },
-  // switchThumbColor: Colors.light.background,
 });

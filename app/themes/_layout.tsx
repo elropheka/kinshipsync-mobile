@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { Colors } from '../../constants/Colors'; // Adjusted path
+import { Colors } from '../../constants/Colors';
 import BackButton from '@/components/common/Navigation/BackButton';
 
 export default function ThemeLayout() {
@@ -10,10 +10,9 @@ export default function ThemeLayout() {
         headerStyle: {
           backgroundColor: Colors.light.backgroundPrimary,
         },
-        headerLeft: () => <BackButton />, // Custom back button
+        headerLeft: () => <BackButton />,
         headerTintColor: Colors.light.primary,
         headerTitleStyle: {
-          // fontFamily: 'Poppins-Medium', // Example if you have a specific font for headers
         },
         
       }}
@@ -21,8 +20,7 @@ export default function ThemeLayout() {
       <Stack.Screen
         name="createTheme"
         options={{
-          title: 'Create Theme', // You can customize the title
-          // headerBackVisible: true, // This is true by default if there's a screen to go back to
+          title: 'Create Theme',
         }}
       />
     </Stack>

@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   vendorCard: {
-    backgroundColor: Colors.light.backgroundPaper, // Use backgroundPaper for cards
+    backgroundColor: Colors.light.backgroundPaper,
     borderRadius: 8,
     marginBottom: 16,
     padding: 16,
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
-    backgroundColor: Colors.light.backgroundSecondary, // Slightly different background for image placeholder
+    backgroundColor: Colors.light.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -76,10 +76,10 @@ export const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontSize: 16,
   },
-  itemPrice: { // Added style for item price
+  itemPrice: {
     fontSize: 14,
-    fontWeight: '600', // Semi-bold
-    color: Colors.light.primary, // Or another distinct color for price
+    fontWeight: '600',
+    color: Colors.light.primary,
     marginTop: 4,
   },
 });

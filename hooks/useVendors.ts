@@ -4,24 +4,21 @@ import {
   Vendor, VendorCategory, VendorReview,
   CreateVendorReviewPayload, VendorSearchParams
 } from '../types/vendorTypes';
-// UserProfile is not needed here if vendorProfile is Vendor
-import { VendorItem, VendorItemSearchParams } from '../types/vendorItemTypes'; // Import VendorItem types
-import { useAppAuth } from './useAppAuth'; // For userId if adding reviews
-import { useAuth } from '../context/AuthContext'; // Added
+import { VendorItem, VendorItemSearchParams } from '../types/vendorItemTypes';
+import { useAppAuth } from './useAppAuth';
+import { useAuth } from '../context/AuthContext';
 
-import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'; // Added for pagination
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
-// Combined type for display purposes
 export interface DisplayVendorItem extends VendorItem {
-  vendorProfile?: Vendor | null; // Reverted to Vendor | null
+  vendorProfile?: Vendor | null;
 }
-// Hook for fetching and managing vendor categories
-export const useVendorCategories = (parentId?: string) => { // Added parentId parameter
+export const useVendorCategories = (parentId?: string) => {
   const [categories, setCategories] = useState<VendorCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchCategories = useCallback(async (pId?: string) => { // Renamed parentId to pId to avoid conflict
+  const fetchCategories = useCallback(async (pId?: string) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -42,7 +39,6 @@ export const useVendorCategories = (parentId?: string) => { // Added parentId pa
   return { categories, isLoading, error, fetchCategories };
 };
 
-// Hook for searching vendors and managing a list of vendors
 export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [totalVendors, setTotalVendors] = useState(0);
@@ -61,11 +57,9 @@ export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
       setVendors(prev => loadMore && currentLastVisible ? [...prev, ...result.vendors] : result.vendors);
       setTotalVendors(result.total);
       setLastVisibleDoc(result.lastVisible);
-      // Update page number in searchParams if loading more
       if (loadMore && result.vendors.length > 0) {
         setSearchParams(prev => ({ ...prev, page: (prev.page || 1) + 1 }));
       } else if (!loadMore) {
-        // Reset page to 1 if it's a new search
         setSearchParams(prev => ({ ...prev, page: 1 }));
       }
 
@@ -75,22 +69,20 @@ export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, []); // Removed lastVisibleDoc, setters are stable
+  }, []);
 
   useEffect(() => {
-    // Perform initial search, not loading more
     performSearch(searchParams, false);
-  }, [searchParams.categorySlug, searchParams.keyword, searchParams.minRating, searchParams.sortBy, searchParams.limit]); // Dependencies that trigger a new search
+  }, [searchParams.categorySlug, searchParams.keyword, searchParams.minRating, searchParams.sortBy, searchParams.limit]);
 
 
   const updateSearchCriteria = useCallback((newCriteria: Partial<VendorSearchParams>) => {
-    setLastVisibleDoc(undefined); // Reset pagination cursor
-    setSearchParams(prev => ({ ...(prev || { page: 1, limit: 10 }), ...newCriteria, page: 1 })); // Reset to page 1
-  }, []); // Stable reference
+    setLastVisibleDoc(undefined);
+    setSearchParams(prev => ({ ...(prev || { page: 1, limit: 10 }), ...newCriteria, page: 1 }));
+  }, []);
 
   const loadMore = () => {
     if (vendors.length < totalVendors && !isLoading) {
-       // Pass current searchParams, and indicate it's a loadMore operation
       performSearch(searchParams, true);
     }
   };
@@ -165,16 +157,14 @@ export const useVendorDetail = (vendorId?: string) => {
     setError(null);
     try {
       const newReview = await vendorService.addReviewForVendor(vendorId, authUser.uid, payload);
-      // Refetch reviews to see the new one and update counts/ratings from server
-      setLastReviewVisibleDoc(undefined); // Reset pagination
+      setLastReviewVisibleDoc(undefined);
       fetchReviews(vendorId, 10, false); 
-      // Optionally, refetch vendor details if review affects averageRating/numberOfReviews and it's not updated optimistically
       fetchVendor(vendorId); 
       return newReview;
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to add review for vendor ${vendorId}:`, e);
-      throw e; // Re-throw to allow UI to handle if needed
+      throw e;
     } finally {
       setIsSubmittingReview(false);
     }
@@ -195,14 +185,13 @@ export const useVendorDetail = (vendorId?: string) => {
     isLoadingReviews,
     isSubmittingReview,
     error,
-    fetchVendor, // To manually refetch vendor
-    fetchReviews, // To manually refetch reviews (e.g., for pagination)
+    fetchVendor,
+    fetchReviews,
     addReview,
     loadMoreReviews,
   };
 };
 
-// Hook for fetching vendors a user has chosen to patronize
 export const useUserVendors = (userId?: string) => {
   const [userVendors, setUserVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -231,7 +220,6 @@ export const useUserVendors = (userId?: string) => {
     if (userId) {
       fetchUserVendors(userId);
     } else {
-      // Clear vendors if userId is not provided (e.g., user logged out)
       setUserVendors([]);
     }
   }, [userId, fetchUserVendors]);
@@ -239,16 +227,13 @@ export const useUserVendors = (userId?: string) => {
   return { userVendors, isLoading, error, refetchUserVendors: fetchUserVendors };
 };
 
-// Hook for searching vendor items and managing a list of items with their vendor profiles
 export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) => {
   const [displayItems, setDisplayItems] = useState<DisplayVendorItem[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   
-  // searchCriteria stores the actual filters like vendorId, category, keyword
-  const [searchCriteria, setSearchCriteria] = useState<VendorItemSearchParams>(initialCriteria || { limit: 100 }); // High limit for pickers
-  // pagination state
+  const [searchCriteria, setSearchCriteria] = useState<VendorItemSearchParams>(initialCriteria || { limit: 100 });
   const [currentPage, setCurrentPage] = useState(1);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot<DocumentData> | undefined>(undefined);
 
@@ -268,7 +253,6 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
         })
       );
 
-      // Client-side filter by vendorCategorySlug if provided (as in original logic)
       if (criteriaToFetch.vendorCategorySlug) {
         const categoryToFilter = await vendorService.getVendorCategoryBySlug(criteriaToFetch.vendorCategorySlug);
         if (categoryToFilter && categoryToFilter.id) {
@@ -281,7 +265,7 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
       }
       
       setDisplayItems(prev => isLoadMore ? [...prev, ...itemsWithVendors] : itemsWithVendors);
-      setTotalItems(criteriaToFetch.vendorCategorySlug ? itemsWithVendors.length : result.total); // Adjust total if client-filtered
+      setTotalItems(criteriaToFetch.vendorCategorySlug ? itemsWithVendors.length : result.total);
       setLastVisibleDoc(result.lastVisible);
       if (!isLoadMore) {
         setCurrentPage(1);
@@ -293,14 +277,10 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
     } finally {
       setIsLoading(false);
     }
-  }, []); // Empty deps: uses lastVisibleDoc from state, setters are stable.
+  }, []);
 
-  // Effect to fetch data when searchCriteria (excluding page) changes
   useEffect(() => {
-    // Always attempt to fetch when primary search criteria change.
-    // The fetchData function (and the service it calls) will handle undefined filters correctly
-    // by typically not applying them, thus fetching "all" if no specific filters are set.
-    setLastVisibleDoc(undefined); // Reset pagination for any new criteria-based search
+    setLastVisibleDoc(undefined);
     fetchData(searchCriteria, 1, false); 
   }, [
     searchCriteria.vendorId, 
@@ -312,12 +292,10 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
     searchCriteria.sortBy, 
     searchCriteria.limit,
     searchCriteria.vendorCategorySlug,
-    fetchData // fetchData reference is stable
+    fetchData
   ]);
-  // Note: fetchData is in dependency array. Its own useCallback deps must be stable.
 
   const updateSearchCriteria = useCallback((newCriteria: Partial<VendorItemSearchParams>) => {
-    // Clear items immediately for responsiveness if primary filters change
     const primaryFiltersChanged = 
         (newCriteria.keyword !== undefined && newCriteria.keyword !== searchCriteria.keyword) ||
         (newCriteria.category !== undefined && newCriteria.category !== searchCriteria.category) ||
@@ -329,36 +307,32 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
         setTotalItems(0);
     }
     setSearchCriteria(prev => ({ ...(prev || {}), ...(newCriteria || {}), limit: prev?.limit || 100, page: 1 }));
-    // The useEffect above will trigger fetchData
-  }, []); // Stable: setSearchCriteria is stable. Other state setters also stable.
+  }, []);
 
 
   const loadMore = useCallback(() => {
     if (displayItems.length < totalItems && !isLoading) {
       const nextPage = currentPage + 1;
-      fetchData(searchCriteria, nextPage, true); // fetchData uses current searchCriteria state
+      fetchData(searchCriteria, nextPage, true);
       setCurrentPage(nextPage);
     }
   }, [displayItems.length, totalItems, isLoading, currentPage, searchCriteria, fetchData]);
 
-  // This is the function BudgetForm will call. It just updates the criteria.
-  // Renamed from performSearch in previous thought process to align with what BudgetForm expects.
   const performItemSearch = useCallback((params: VendorItemSearchParams) => {
     updateSearchCriteria(params);
-  }, [updateSearchCriteria]); // updateSearchCriteria is now stable
+  }, [updateSearchCriteria]);
 
   return { 
     displayItems, 
     totalItems, 
     isLoading, 
     error, 
-    performItemSearch: performItemSearch, // Exposed for BudgetForm, calls updateSearchCriteria
-    updateItemSearchCriteria: updateSearchCriteria, // Expose updateSearchCriteria under the key "updateItemSearchCriteria"
+    performItemSearch: performItemSearch,
+    updateItemSearchCriteria: updateSearchCriteria,
     loadMoreItems: loadMore,
   };
 };
 
-// Hook for managing a single vendor item's details (including vendor profile)
 export const useVendorItemDetail = (itemId?: string) => {
   const [displayItem, setDisplayItem] = useState<DisplayVendorItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -370,10 +344,10 @@ export const useVendorItemDetail = (itemId?: string) => {
     try {
       const itemData = await vendorService.getVendorItemById(id);
       if (itemData) {
-        const vendorProfile = await vendorService.getVendorById(itemData.vendorId); // Reverted to vendorService
+        const vendorProfile = await vendorService.getVendorById(itemData.vendorId);
         setDisplayItem({ ...itemData, vendorProfile });
       } else {
-        setDisplayItem(null); // Item not found
+        setDisplayItem(null);
       }
     } catch (e) {
       setError(e as Error);

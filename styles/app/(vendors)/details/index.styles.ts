@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
     backgroundColor: Colors.light.background,
-    zIndex: 10, // Keep zIndex for potential overlapping elements
+    zIndex: 10,
   },
   backButton: {
     padding: Spacing.s,
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    fontFamily: Fonts.headerSemiBold, // Keep existing font family
+    fontFamily: Fonts.headerSemiBold,
     color: Colors.light.text,
   },
   favoriteButton: {
@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     fontFamily: Fonts.headerBold,
     color: Colors.light.text,
-    flexShrink: 1, // Allow name to wrap if long
+    flexShrink: 1,
   },
   vendorCategory: {
     fontSize: ResponsiveFontSizes.body,
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // Removed marginTop as it's part of titleRow spacing or can be added to vendorCategory
+
   },
   ratingText: {
     marginLeft: Spacing.xs,
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
   contactButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.s, // Added padding for better touch area
+    padding: Spacing.s,
   },
   contactButtonText: {
     marginTop: Spacing.xs,
@@ -122,7 +122,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.divider,
-    paddingHorizontal: Spacing.m, // Added horizontal padding for consistency
+    paddingHorizontal: Spacing.m,
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.subtitle,
@@ -132,7 +132,7 @@ export const styles = StyleSheet.create({
   },
   sectionContent: {
     paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.m, // Added horizontal padding for consistency
+    paddingHorizontal: Spacing.m,
   },
   descriptionText: {
     fontSize: ResponsiveFontSizes.body,
@@ -193,7 +193,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // marginBottom: Spacing.xs, // Added for spacing
+
   },
   reviewAuthor: {
     fontSize: ResponsiveFontSizes.subtitle - 1,
@@ -212,7 +212,7 @@ export const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     lineHeight: ResponsiveFontSizes.body * 1.4,
     fontFamily: Fonts.bodyRegular,
-    marginTop: Spacing.xs, // Added margin top
+    marginTop: Spacing.xs,
   },
   writeReviewButton: {
     alignSelf: 'center',

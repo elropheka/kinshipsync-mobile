@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84, // Consider moderateScale or a new constant
+    shadowRadius: 3.84,
     elevation: 5,
   },
   actionButtonIcon: {
@@ -88,27 +88,22 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     color: Colors.light.text,
-                                  // If button bg is light, text should be dark. If button bg is dark, text should be light.
-                                  // For now, using default text color. This might need adjustment based on specific button bg.
   },
   venueButton: {
-    backgroundColor: '#ffa726', // Orange - Consider adding to Colors.ts if widely used
-                                  // e.g., Colors.custom.orangeAccent
+    backgroundColor: '#ffa726',
   },
   guestButton: {
-    backgroundColor: '#b39ddb', // Purple - Consider adding to Colors.ts
-                                  // e.g., Colors.custom.purpleAccent
+    backgroundColor: '#b39ddb',
     transform: [{ rotate: '-5deg' }],
   },
   bandButton: {
-    backgroundColor: '#ffa726', // Orange
+    backgroundColor: '#ffa726',
   },
   vendorButton: {
-    backgroundColor: '#b39ddb', // Purple
+    backgroundColor: '#b39ddb',
   },
   rsvpButton: {
-    backgroundColor: '#80deea', // Teal - Consider adding to Colors.ts
-                                  // e.g., Colors.custom.tealAccent
+    backgroundColor: '#80deea',
     transform: [{ rotate: '-3deg' }],
   },
 });

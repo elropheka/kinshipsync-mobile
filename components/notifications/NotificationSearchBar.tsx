@@ -6,7 +6,7 @@ import { styles } from '../../styles/components/notifications/NotificationSearch
 interface NotificationSearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  // isSearchVisible: boolean; // This might be managed by the parent or here
+
 }
 
 const NotificationSearchBar: React.FC<NotificationSearchBarProps> = ({

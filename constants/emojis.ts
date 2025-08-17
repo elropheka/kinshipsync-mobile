@@ -1,10 +1,8 @@
-// Define interface for EmojiCategory
 export interface EmojiCategory {
   title: string;
   emojis: string[];
 }
 
-// Mock data for emoji categories with type annotation
 export const emojiCategories: EmojiCategory[] = [
   {
     title: 'Frequently Used',

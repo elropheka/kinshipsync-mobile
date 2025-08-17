@@ -2,14 +2,14 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Schedule } from '../../../types/scheduleTypes';
-import { UserProfile } from '../../../types/userTypes'; // To display assigned user names
-import { Colors } from '../../../constants/Colors'; // Assuming you have a Colors constant
+import { UserProfile } from '../../../types/userTypes';
+import { Colors } from '../../../constants/Colors';
 
 interface ScheduleListItemProps {
   schedule: Schedule;
-  teamMembers: UserProfile[]; // Pass team members to find names for assignedUserIds
-  onPress: () => void; // For editing
-  onDelete: () => void; // For deleting
+  teamMembers: UserProfile[];
+  onPress: () => void;
+  onDelete: () => void;
 }
 
 const ScheduleListItem: React.FC<ScheduleListItemProps> = ({ schedule, teamMembers, onPress, onDelete }) => {

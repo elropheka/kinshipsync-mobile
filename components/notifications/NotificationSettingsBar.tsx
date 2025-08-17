@@ -15,8 +15,8 @@ const NotificationSettingsBar: React.FC<NotificationSettingsBarProps> = ({
     <View style={styles.notificationSettings}>
       <Text style={styles.settingsText}>Show only unread</Text>
       <Switch
-        trackColor={{ false: "#e0e0e0", true: "#8df5d3" }} // Consider moving colors to constants
-        thumbColor={"#fff"} // Consider moving colors to constants
+        trackColor={{ false: "#e0e0e0", true: "#8df5d3" }}
+        thumbColor={"#fff"}
         onValueChange={setShowOnlyUnread}
         value={showOnlyUnread}
       />

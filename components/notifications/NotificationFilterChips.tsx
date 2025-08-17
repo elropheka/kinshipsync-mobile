@@ -4,7 +4,7 @@ import { styles } from '../../styles/components/notifications/NotificationFilter
 
 export interface FilterChip {
   id: string;
-  label: 'All' | 'Events' | 'Messages' | 'Updates'; // Keep this consistent with NotificationsPage
+  label: 'All' | 'Events' | 'Messages' | 'Updates';
 }
 
 interface NotificationFilterChipsProps {

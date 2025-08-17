@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from 'constants/Colors'; // Adjusted path
+import { Colors } from 'constants/Colors';
 import {
   Spacing,
   BorderRadius,
   ResponsiveFontSizes,
   Layout,
-} from 'constants/dimensions'; // Adjusted path
+} from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   searchContainer: {
