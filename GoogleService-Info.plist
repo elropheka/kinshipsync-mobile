@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj.apps.googleusercontent.com</string>
+	<string>433750501084-nfttqj2lvmufqob2eavidcgsnse2p5t8.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj</string>
+	<string>com.googleusercontent.apps.433750501084-nfttqj2lvmufqob2eavidcgsnse2p5t8</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>433750501084-elne7dmerohtg6lu72e0im66u3f88ldf.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.kinship.kinshipsync</string>
+	<string>com.kinshipsyncapp</string>
 	<key>PROJECT_ID</key>
 	<string>kinshipsync-f2896</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,8 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:433750501084:ios:b7ea1e6a05c220e800b619</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-     <string>We need access to your photo library to let you upload photos.</string>
+	<string>1:433750501084:ios:db272644ed7f8e9c00b619</string>
 </dict>
 </plist>
