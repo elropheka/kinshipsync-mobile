@@ -8,6 +8,9 @@ import BottomNavigation from 'components/common/Navigation/bottomNavigation';
 import { useAllEvents } from '../../hooks/useEvents';
 import { Event } from '../../types/eventTypes';
 import { Colors } from '@/constants/Colors';
+import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
+import { ResponsiveContainer } from '../../components/common/Layout/ResponsiveContainer';
+import { ResponsiveGrid } from '../../components/common/Layout/ResponsiveGrid';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -17,6 +20,7 @@ const EventListScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
+  const { isTablet, isLandscape, sizeClass } = useResponsiveLayout();
 
   const getEventStatus = (eventDate: string): 'Upcoming' | 'Past' => {
     const today = new Date();
@@ -66,11 +70,11 @@ const EventListScreen = () => {
       <View style={styles.statusContainer}>
         <View style={[
           styles.statusDot,
-          { backgroundColor: item.eventStatus === 'Upcoming' ? '#6ee0bd' : '#ff6b6b' }
+          { backgroundColor: item.eventStatus === 'Upcoming' ? Colors.light.success : Colors.light.error }
         ]} />
         <Text style={[
           styles.statusText,
-          { color: item.eventStatus === 'Upcoming' ? '#000' : '#ff6b6b' }
+          { color: item.eventStatus === 'Upcoming' ? Colors.light.textDarkContrast : Colors.light.error }
         ]}>
           {item.eventStatus}
         </Text>

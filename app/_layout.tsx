@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState, useCallback } from "react";
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from "../context/AuthContext";
 import { SidebarProvider } from "../context/SidebarContext";
@@ -10,6 +10,7 @@ import ErrorBoundary from "../components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';
 import AppCoreNav from "../components/common/Navigation/AppCoreNav";
+import { ResponsiveContainer } from "../components/common/Layout/ResponsiveContainer";
 // import CustomSplashScreen from "./(auth)/splashScreen"; // Import your custom splash screen
 import * as SplashScreen from 'expo-splash-screen'; // Import expo-splash-screen
 import { useFonts } from 'expo-font'; // Import useFonts
@@ -72,13 +73,16 @@ const RootLayout: React.FC = () => {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <StatusBar barStyle="dark-content" />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ErrorBoundary>
         <ReduxProvider store={store}>
           <AuthProvider>
             <SidebarProvider>
               <ThemeProvider>
-                <AppCoreNav />
+                <ResponsiveContainer>
+                  <AppCoreNav />
+                </ResponsiveContainer>
               </ThemeProvider>
             </SidebarProvider>
           </AuthProvider>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image,TouchableOpacity } from 'react-native';
 import { FamilyMemberNode } from '@/types/teamTypes';
 import { styles } from '@/styles/components/teams/FamilyMemberNode.styles';
-import { TouchableOpacity } from 'react-native';
+// import {  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
