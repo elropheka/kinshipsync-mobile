@@ -4,6 +4,8 @@
   <dict>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
@@ -59,7 +61,7 @@
       <true/>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>We need access to your camera to let you take photos and videos.</string>
+    <string>We need access to your camera to take photos and videos.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library to let you upload photos.</string>
     <key>NSUserActivityTypes</key>

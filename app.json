@@ -32,8 +32,8 @@
           }
         ],
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "We need access to your photo library to let you upload photos.",
-        "NSCameraUsageDescription": "We need access to your camera to take photos and videos."
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload a profile picture for your account and also profiles for family tree.",
+        "NSCameraUsageDescription": "This app needs access to your camera to take photos and videos for messaging and profile pictures."
       }
     },
     "android": {
