@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, Image } from 'react-native';
-import { FamilyMemberNode } from '../../types/teamTypes';
-import { styles } from '../../styles/components/teams/FamilyMemberNode.styles';
+import { FamilyMemberNode } from '@/types/teamTypes';
+import { styles } from '@/styles/components/teams/FamilyMemberNode.styles';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors';
+import { Colors } from '@/constants/Colors';
 
 interface FamilyMemberNodeProps {
   node: FamilyMemberNode | Pick<FamilyMemberNode, 'id' | 'name' | 'imageUrl'>; // Allow Pick for spouse
@@ -30,7 +30,7 @@ const FamilyMemberNodeComponent: React.FC<FamilyMemberNodeProps> = ({
           <Image source={{ uri: node.imageUrl }} style={styles.nodeImage} />
         ) : (
           <View style={[styles.nodeImage, styles.avatarPlaceholder]}>
-            <Ionicons name="person-circle-outline" size={40} color={Colors.light.textSecondary} />
+            <Ionicons name="person-circle-outline" size={40} color={Colors.light.accent} />
           </View>
         )}
 

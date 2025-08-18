@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Added useFocusEffect
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FamilyMemberNodeComponent from '@/components/teams/FamilyMemberNode';
 import { FamilyMemberNode, Team } from '@/types/teamTypes';
-import { getTeamById, removeFamilyTreeNode } from '../../../services/teamService'; // Import removeFamilyTreeNode
-import { styles } from '../../../styles/app/(teams)/familyTreeScreen.styles';
-import { Colors } from '../../../constants/Colors';
+import { getTeamById, removeFamilyTreeNode } from '@/services/teamService';
+import { styles } from '@/styles/app/(teams)/familyTreeScreen.styles';
+import { Colors } from '@/constants/Colors';
 
-// Helper function to find a node by ID in the tree
 const findNodeById = (
   node: FamilyMemberNode | null | undefined, 
   targetId: string
@@ -19,11 +18,7 @@ const findNodeById = (
   if (node.id === targetId) return node;
 
   if (node.spouse && node.spouse.id === targetId) {
-    // The spouse is Pick<>, not a full FamilyMemberNode for further recursion here.
-    // If we need to return the spouse as a FamilyMemberNode, this needs adjustment
-    // or the caller needs to handle the Pick<> type.
-    // For now, returning as is, assuming targetId refers to main nodes or caller handles spouse.
-    return node.spouse as FamilyMemberNode; // Casting, be cautious if spouse isn't always full node
+    return node.spouse as FamilyMemberNode;
   }
 
   if (node.children) {
@@ -49,7 +44,7 @@ const FamilyTreeScreen = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const team: Team | null = await getTeamById(true, teamId); // Assuming true for isAuthenticated
+        const team: Team | null = await getTeamById(true, teamId);
         if (team) {
           setTeamName(team.name || '');
           setFamilyTreeData(team.familyTreeRoot || null);
@@ -65,7 +60,7 @@ const FamilyTreeScreen = () => {
         } else {
           setError("Failed to load family tree data due to an unknown error.");
         }
-        setFamilyTreeData(null); // Clear data on error
+        setFamilyTreeData(null);
       } finally {
         setIsLoading(false);
       }
@@ -75,28 +70,25 @@ const FamilyTreeScreen = () => {
       setFamilyTreeData(null);
       setTeamName('');
     }
-  }, [teamId]); // Add any other dependencies loadFamilyTreeData might have if they change
+  }, [teamId]);
 
   useEffect(() => {
     loadFamilyTreeData();
-  }, [loadFamilyTreeData]); // Runs when teamId (via loadFamilyTreeData dependency) changes
+  }, [loadFamilyTreeData]);
 
   useFocusEffect(
     useCallback(() => {
-      // This will run when the screen comes into focus, including when navigating back.
       loadFamilyTreeData();
       return () => {
-        // Optional: Any cleanup when the screen goes out of focus
-        // For example, if you had a subscription, you might unsubscribe here.
       };
-    }, [loadFamilyTreeData]) // Re-run if loadFamilyTreeData changes (i.e. teamId changes)
+    }, [loadFamilyTreeData])
   );
 
   const handleHeaderAddPress = () => {
     if (typeof teamId === 'string') {
-      if (!familyTreeData) { // Tree is empty, add root
+      if (!familyTreeData) {
         router.push(`/(teams)/addFamilyMember/new?teamId=${teamId}&isRoot=true`);
-      } else { // Tree exists
+      } else {
         router.push(`/(teams)/addFamilyMember/new?teamId=${teamId}`);
       }
     } else {
@@ -111,15 +103,13 @@ const FamilyTreeScreen = () => {
           <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
         </TouchableOpacity>
       ),
-      // Ensure title is also set if it was dynamic or needs to be preserved
       title: teamName || (teamId ? `Team: ${teamId}` : 'Family Tree'),
     });
-  }, [navigation, familyTreeData, teamId, teamName]); // Added teamName to dependencies
+  }, [navigation, familyTreeData, teamId, teamName]);
 
   const navigateToAddMember = (memberNodeId: string, relationshipType: 'child' | 'spouse') => {
     if (typeof teamId === 'string') {
-      // Pass parentName to prefill or give context on the add screen
-      const parentNode = findNodeById(familyTreeData, memberNodeId); // Helper needed or fetch parent name
+      const parentNode = findNodeById(familyTreeData, memberNodeId);
       const parentNameParam = parentNode ? `&parentName=${encodeURIComponent(parentNode.name)}` : '';
       router.push(`/(teams)/addFamilyMember/${memberNodeId}?teamId=${teamId}&relationshipType=${relationshipType}${parentNameParam}`);
     } else {
@@ -147,13 +137,13 @@ const FamilyTreeScreen = () => {
             try {
               await removeFamilyTreeNode(teamId, memberIdToRemove);
               Alert.alert("Success", "Member removed successfully.");
-              loadFamilyTreeData(); // Refresh the tree from Firestore
+              loadFamilyTreeData();
             } catch (error: any) {
               console.error("Failed to remove member:", error);
               Alert.alert("Error", error.message || "Failed to remove member.");
-              setIsLoading(false); // Stop loading only on error, success will refresh
+              setIsLoading(false);
             }
-            // setIsLoading(false) will be called by loadFamilyTreeData's finally block
+            setIsLoading(false);
           },
         },
       ]
@@ -175,7 +165,6 @@ const FamilyTreeScreen = () => {
             <View style={styles.lineHorizontal} />
             <FamilyMemberNodeComponent
               node={node.spouse} 
-              // Spouse node typically doesn't have add child/spouse actions from itself in this representation
               onRemovePress={() => handleRemoveMember(node.spouse!.id)} 
             />
           </>
@@ -244,7 +233,6 @@ const FamilyTreeScreen = () => {
         horizontal={true}
       >
         <View style={styles.container}>
-          {/* <Text style={styles.title}>Family Tree: {teamId}</Text> */}
           {renderNode(familyTreeData)}
         </View>
       </ScrollView>

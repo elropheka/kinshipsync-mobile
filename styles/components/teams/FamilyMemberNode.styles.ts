@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   },
   nodeContent: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: Colors.light.accent,
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -20,12 +20,14 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginBottom: 5,
+    backgroundColor: Colors.light.accent
 
   },
   avatarPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.divider,
+    backgroundColor: Colors.light.background,
+    color: Colors.light.accent,
   },
   nodeName: {
     fontSize: 14,
