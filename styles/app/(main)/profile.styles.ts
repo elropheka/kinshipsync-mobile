@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.l,
-    // paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl, // Consider Platform.OS for status bar height
+
     paddingBottom: Spacing.l,
     backgroundColor: Colors.light.backgroundLight,
   },
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xl, // To balance the back button if it were used with text
+    marginRight: Spacing.xl,
     color: Colors.light.text,
   },
   profileImageContainer: {
@@ -174,29 +174,29 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     color: Colors.light.neutralBg,
   },
-  centered: { // Added
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.l,
   },
-  errorText: { // Added
+  errorText: {
     fontSize: ResponsiveFontSizes.body,
     color: Colors.light.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
-  scrollContainer: { // Added (for ScrollView content)
-    paddingBottom: Spacing.xxl, // Ensure space for buttons at the bottom
+  scrollContainer: {
+    paddingBottom: Spacing.xxl,
   },
-  disabledInput: { // Added
-    backgroundColor: Colors.light.divider, // A slightly different background for disabled inputs
+  disabledInput: {
+    backgroundColor: Colors.light.divider,
     color: Colors.light.textSecondary,
   },
-  disabledButton: { // Added
-    backgroundColor: Colors.light.textSecondary, // Using textSecondary as a disabled color
+  disabledButton: {
+    backgroundColor: Colors.light.textSecondary,
   },
-  secondaryButton: { // Added
+  secondaryButton: {
     backgroundColor: 'transparent',
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.l,
@@ -205,7 +205,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.buttonPrimary,
   },
-  secondaryButtonText: { // Added
+  secondaryButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.buttonPrimary,

@@ -19,9 +19,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.l,
-    paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl, // Adjust for status bar
+    paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl,
     paddingBottom: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight, // Optional: if header needs different bg
+    backgroundColor: Colors.light.backgroundLight,
   },
   backButton: {
     padding: Spacing.s,
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xl, // To balance the back button space
+    marginRight: Spacing.xl,
     color: Colors.light.text,
   },
   tabContainer: {
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: Colors.light.backgroundLight, // Optional
+    backgroundColor: Colors.light.backgroundLight,
   },
   tabItem: {
     flex: 1,
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
     height: moderateScale(40),
     borderRadius: BorderRadius.round,
     margin: Spacing.xs,
-    // backgroundColor is set dynamically
+
     borderWidth: 1,
     borderColor: Colors.light.divider,
   },
@@ -158,7 +158,7 @@ export const styles = StyleSheet.create({
   },
   selectedFontStyle: {
     backgroundColor: Colors.light.accent,
-                                        // Consider adding a specific purple to Colors.ts if needed
+                                    
   },
   fontStyleText: {
     textAlign: 'center',
@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.danger, // Assuming Colors.light.danger exists
+    color: Colors.light.danger,
     textAlign: 'center',
     marginVertical: Spacing.m,
   },

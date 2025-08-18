@@ -11,7 +11,7 @@ import {
 } from 'constants/dimensions';
 
 const SIDEBAR_WIDTH = Layout.SCREEN_WIDTH * 0.75;
-// SIDEBAR_HEIGHT can be Layout.SCREEN_HEIGHT, but often flex:1 handles this better in SafeAreaView
+
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -21,27 +21,26 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: Colors.dark.background + 'BF',
-    zIndex: 998, // Keep zIndex as is for layering logic
-    // height: Layout.SCREEN_HEIGHT, // Usually not needed if bottom: 0
+    zIndex: 998,
+
   },
   sidebar: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: SIDEBAR_WIDTH,
-    height: Layout.SCREEN_HEIGHT, // Ensure full height
+    height: Layout.SCREEN_HEIGHT,
     backgroundColor: Colors.light.background,
     zIndex: 999,
     shadowColor: Colors.light.text,
-    shadowOffset: { width: moderateScale(2), height: 0 }, // Adjusted shadow
-    shadowOpacity: 0.15, // Adjusted shadow
-    shadowRadius: moderateScale(5), // Adjusted shadow
-    elevation: 10, // Keep elevation for Android
+    shadowOffset: { width: moderateScale(2), height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: moderateScale(5),
+    elevation: 10,
   },
   safeArea: {
     flex: 1,
     backgroundColor: Colors.light.background,
-    // height: Layout.SCREEN_HEIGHT, // flex:1 should handle this
   },
   container: {
     flex: 1,
@@ -49,10 +48,10 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     flexDirection: 'column',
     backgroundColor: Colors.light.background,
-    // height: Layout.SCREEN_HEIGHT, // flex:1 should handle this
+
   },
   scrollContent: {
-    flex: 1, // Ensures scroll view takes available space
+    flex: 1,
   },
   sidebarHeader: {
     flexDirection: 'row',
@@ -83,11 +82,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarImage: { // Style for the Image component
+  avatarImage: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    // backgroundColor: Colors.light.divider, // Optional placeholder color for image loading
+
   },
   avatarText: {
     color: Colors.light.buttonPrimary,
@@ -135,7 +134,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.l,
     borderTopWidth: 1,
     borderTopColor: Colors.light.divider,
-    marginTop: 'auto', // Pushes logout to the bottom if container has flex:1
+    marginTop: 'auto',
   },
   logoutButton: {
     flexDirection: 'row',

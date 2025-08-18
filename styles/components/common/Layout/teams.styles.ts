@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xl, // To balance back button
+    marginRight: Spacing.xl,
     color: Colors.light.text,
   },
   tabContainer: {
@@ -194,7 +194,7 @@ export const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginVertical: 20,
-    fontSize: ResponsiveFontSizes.body, // Using existing responsive font size
+    fontSize: ResponsiveFontSizes.body,
   },
   emptyListText: {
     textAlign: 'center',

@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.backgroundLight,
-    paddingTop: Spacing.m, // Explicitly set paddingTop to 0
+    paddingTop: Spacing.m,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
-    // paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
+
     backgroundColor: Colors.light.backgroundLight,
   },
   backButton: {
@@ -109,7 +109,6 @@ export const styles = StyleSheet.create({
   },
   unreadItem: {
     backgroundColor: Colors.light.info + '1A',
-                                              // Using info color with ~10% opacity
   },
   avatarContainer: {
     width: moderateScale(50),
@@ -121,7 +120,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarIcon: {
-    // Size and color are set by Ionicons props directly
   },
   notificationContent: {
     flex: 1,
@@ -156,7 +154,7 @@ export const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: Colors.light.divider,
-    marginLeft: Spacing.l + moderateScale(50) + Spacing.m, // Approx: paddingH + avatarWidth + marginRight
+    marginLeft: Spacing.l + moderateScale(50) + Spacing.m,
   },
   markAllReadButton: {
     position: 'absolute',
@@ -175,7 +173,6 @@ export const styles = StyleSheet.create({
     elevation: 5,
   },
   markAllReadIcon: {
-    // Size and color are set by Ionicons props directly
   },
   centerContent: {
     justifyContent: 'center',

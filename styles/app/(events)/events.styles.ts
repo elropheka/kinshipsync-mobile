@@ -28,8 +28,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     color: Colors.light.text,
-    // flex: 1, // Add if title needs to take up space for centering with other elements
-    // textAlign: 'center',
+
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -59,7 +58,7 @@ export const styles = StyleSheet.create({
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.xl,
-    height: Layout.inputHeight, // Using standard input height
+    height: Layout.inputHeight,
   },
   searchIcon: {
     marginRight: Spacing.s,
@@ -91,10 +90,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.medium,
     color: Colors.light.info,
   },
-  // activeFilterText style would be needed if selectedFilter text color changes
-  // activeFilterText: {
-  //   color: Colors.light.infoContrastText,
-  // },
+  
   addEventButton: {
     backgroundColor: Colors.light.accent,
     paddingHorizontal: Spacing.m,
@@ -122,7 +118,7 @@ export const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: Spacing.m,
-    flex: 1, // Ensure list takes available space
+    flex: 1,
   },
   eventItem: {
     flexDirection: 'row',
@@ -149,14 +145,14 @@ export const styles = StyleSheet.create({
     height: moderateScale(8),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.xs,
-    // backgroundColor is set dynamically
+
   },
   statusText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    // color is set dynamically
+
   },
-  eventLocationText: { // Added style for event location
+  eventLocationText: {
     fontSize: ResponsiveFontSizes.small,
     color: Colors.light.textSecondary,
     marginTop: Spacing.xxs,
@@ -165,11 +161,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.small,
     color: Colors.light.textSecondary,
     marginTop: Spacing.xxs,
-    fontStyle: 'italic', // Optional: to differentiate it
+    fontStyle: 'italic',
   },
   eventGuestCount: {
-    fontSize: ResponsiveFontSizes.body, // Or small, adjust as needed
-    color: Colors.light.textSecondary, // Or a different color
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.textSecondary,
     marginTop: Spacing.xxs,
     fontWeight: Fonts.weights.medium,
   },
@@ -185,7 +181,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error, // Corrected to use existing error color
+    color: Colors.light.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },

@@ -15,16 +15,16 @@ export const styles = StyleSheet.create({
     left: Spacing.xl,
     right: Spacing.l,
     flexDirection: 'row',
-    justifyContent: 'space-between', // Changed from space-around
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.light.backgroundPrimary,
-    height: Layout.SCREEN_HEIGHT * 0.08, // Retain percentage or use a fixed moderateScale value
-    width: Layout.SCREEN_WIDTH * 0.85,   // Retain percentage
+    height: Layout.SCREEN_HEIGHT * 0.08,
+    width: Layout.SCREEN_WIDTH * 0.85,
     borderRadius: moderateScale(35),
     shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
-    shadowRadius: 5, // This could be a new constant in BorderRadius or moderateScale(5)
+    shadowRadius: 5,
     elevation: 5,
     paddingHorizontal: Spacing.xs,
     zIndex: 10,
@@ -49,18 +49,18 @@ export const styles = StyleSheet.create({
     shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
-    shadowRadius: 3, // Could be moderateScale(3)
+    shadowRadius: 3,
     elevation: 3,
   },
   tabLabel: {
     fontSize: ResponsiveFontSizes.small,
     marginTop: Spacing.xxs,
-    // Color is set dynamically by getLabelColor
+
   },
   addButton: {
-    width: Layout.SCREEN_WIDTH * 0.15, // Retain percentage
-    height: Layout.SCREEN_WIDTH * 0.15, // Retain percentage
-    borderRadius: (Layout.SCREEN_WIDTH * 0.15) / 2, // Keep calculation for perfect circle
+    width: Layout.SCREEN_WIDTH * 0.15,
+    height: Layout.SCREEN_WIDTH * 0.15,
+    borderRadius: (Layout.SCREEN_WIDTH * 0.15) / 2,
     backgroundColor: Colors.light.accent,
     justifyContent: 'center',
     alignItems: 'center',
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
     shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 2, // Could be moderateScale(2)
+    shadowRadius: 2,
     marginHorizontal: Spacing.xs,
     zIndex: 20,
   },
@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
     shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.25,
-    shadowRadius: 6, // Could be moderateScale(6)
+    shadowRadius: 6,
     zIndex: 20,
   },
   addMenuItem: {

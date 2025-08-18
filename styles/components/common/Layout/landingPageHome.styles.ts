@@ -135,7 +135,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   phonePreview: {
-    width: Layout.SCREEN_WIDTH * 0.6, // Full phone width
+    width: Layout.SCREEN_WIDTH * 0.6,
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.xs,
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(3),
     elevation: 3,
-    marginLeft: -Layout.SCREEN_WIDTH * 0.3, // Shift left to show only right half
+    marginLeft: -Layout.SCREEN_WIDTH * 0.3,
   },
   phoneHeader: {
     flexDirection: 'row',
@@ -192,11 +192,11 @@ export const styles = StyleSheet.create({
   featureHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // Added for better alignment
+    alignItems: 'center',
     marginBottom: Spacing.xs,
   },
-  vendorHeader: { // This style seems specific, might need its own color in Colors.ts if used widely
-    backgroundColor: '#FFA500', // Kept for now, consider adding to Colors.ts as accentOrange or similar
+  vendorHeader: {
+    backgroundColor: '#FFA500',
     borderRadius: BorderRadius.s,
     padding: Spacing.xs,
   },
@@ -242,7 +242,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   announcementText: {
-    fontSize: ResponsiveFontSizes.small - 1, // Was 9, slightly smaller than 'small'
+    fontSize: ResponsiveFontSizes.small - 1,
     textAlign: 'center',
     color: Colors.light.textSecondary,
   },
@@ -255,19 +255,19 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eventsButton: {
-    backgroundColor: '#8a85ff', // Consider adding to Colors.ts
+    backgroundColor: '#8a85ff',
     alignSelf: 'flex-start',
   },
   vendorsButton: {
-    backgroundColor: '#FFA500', // Consider adding to Colors.ts
+    backgroundColor: '#FFA500',
     alignSelf: 'flex-start',
   },
   websiteButton: {
-    backgroundColor: '#9370DB', // Consider adding to Colors.ts
+    backgroundColor: '#9370DB',
     alignSelf: 'flex-start',
   },
   miscButton: {
-    backgroundColor: '#C0A9A9', // Consider adding to Colors.ts
+    backgroundColor: '#C0A9A9',
     alignSelf: 'flex-start',
   },
   featureButtonText: {
@@ -284,7 +284,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.body,
   },
-  // New styles for slider-based features
+
   sliderContainer: {
     flex: 1,
     marginHorizontal: Spacing.l,

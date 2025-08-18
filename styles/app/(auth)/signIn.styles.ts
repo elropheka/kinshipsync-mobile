@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: Spacing.l,
-    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s, // Adjusted for platform differences
+    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s,
   },
   backButton: {
     padding: Spacing.xs,
@@ -197,11 +197,8 @@ export const styles = StyleSheet.create({
     opacity: 0.5,
   },
   passwordVisibilityToggle: {
-    // This style is for the TouchableOpacity around the eye icon
-    // It can be used to adjust touch area or alignment if needed
-    // For now, inputIcon style on the Icon itself handles padding
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: Spacing.s, // Add some padding to make it easier to press
+    paddingHorizontal: Spacing.s,
   },
 });

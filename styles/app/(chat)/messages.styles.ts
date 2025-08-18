@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.background,
   },
-  centered: { // For loading/error/empty states
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -70,10 +70,10 @@ export const styles = StyleSheet.create({
     color: Colors.light.text,
     fontSize: ResponsiveFontSizes.body,
   },
-  messageList: { // Style for the FlatList itself
+  messageList: {
     flex: 1,
   },
-  messageItem: { // Style for each conversation item
+  messageItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.m,
@@ -84,13 +84,13 @@ export const styles = StyleSheet.create({
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.m,
-    backgroundColor: Colors.light.divider, // Placeholder bg
+    backgroundColor: Colors.light.divider,
   },
   avatarPlaceholder: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.buttonPrimary, // Placeholder bg
+    backgroundColor: Colors.light.buttonPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: Colors.light.divider,
-    marginLeft: Spacing.m + moderateScale(50) + Spacing.m, // Indent past avatar and margin
+    marginLeft: Spacing.m + moderateScale(50) + Spacing.m,
   },
   emptyListText: {
     fontSize: ResponsiveFontSizes.body,
@@ -167,8 +167,8 @@ export const styles = StyleSheet.create({
     borderRadius: moderateScale(28),
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8, // Android shadow
-    shadowColor: Colors.light.text, // iOS shadow
+    elevation: 8,
+    shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,

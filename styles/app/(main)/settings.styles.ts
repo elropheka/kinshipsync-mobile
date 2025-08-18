@@ -6,15 +6,15 @@ import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'const
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Changed to a more neutral background
+    backgroundColor: Colors.light.background,
   },
-  centered: { // For loading/error states
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.l,
   },
-  errorText: { // For error messages
+  errorText: {
     fontSize: ResponsiveFontSizes.body,
     color: Colors.light.error,
     textAlign: 'center',
@@ -24,22 +24,22 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
-    paddingVertical: Spacing.s, // Reduced padding
-    paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m, // Adjusted for status bar
+    paddingVertical: Spacing.s,
+    paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper, // Header distinct background
+    backgroundColor: Colors.light.backgroundPaper,
   },
-  backButton: { // Added for consistency
+  backButton: {
     padding: Spacing.s,
     marginRight: Spacing.s,
   },
-  header: { // Renamed from headerTitle for clarity
-    fontSize: ResponsiveFontSizes.header2, // Adjusted size
+  header: {
+    fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.text,
-    flex: 1, // Allow title to take space
-    textAlign: 'center', // Center title if no right element
+    flex: 1,
+    textAlign: 'center',
   },
   sectionContainer: {
     marginTop: Spacing.l,
@@ -68,28 +68,27 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: Spacing.m,
-    // Removed bottom border, will be handled by section or last item
+
   },
-  optionTextContainer: { // Added for better text layout
+  optionTextContainer: {
     flex: 1,
     marginRight: Spacing.m,
   },
   optionText: {
-    fontSize: ResponsiveFontSizes.body, // Adjusted size
+    fontSize: ResponsiveFontSizes.body,
     color: Colors.light.text,
   },
-  optionDescription: { // Added for descriptions under options
+  optionDescription: {
     fontSize: ResponsiveFontSizes.caption,
     color: Colors.light.textSecondary,
     marginTop: Spacing.xxs,
   },
-  linkOptionContainer: { // For navigation links like "Subscription Plans"
+  linkOptionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: Spacing.m,
-    // borderTopWidth: 1, // Add separator if needed within a section
-    // borderTopColor: Colors.light.divider,
+
   },
   themeSelector: {
     flexDirection: 'row',
@@ -114,7 +113,7 @@ export const styles = StyleSheet.create({
     color: Colors.light.primaryContrastText,
     fontWeight: Fonts.weights.bold,
   },
-  button: { // General button style
+  button: {
     marginHorizontal: Spacing.m,
     marginTop: Spacing.l,
     paddingVertical: Spacing.l,
@@ -122,19 +121,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  saveButton: { // Specific for save
+  saveButton: {
     backgroundColor: Colors.light.buttonPrimary,
   },
-  logoutButton: { // Specific for logout
-    backgroundColor: Colors.light.error, // Use error color for logout
-    marginTop: Spacing.m, // Less margin if it's the last button
+  logoutButton: {
+    backgroundColor: Colors.light.error,
+    marginTop: Spacing.m,
   },
   buttonText: {
     color: Colors.light.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
   },
-  logoutButtonText: { // If different color needed for logout text
-     color: Colors.light.primaryContrastText, // Or Colors.dark.text for contrast on error bg
+  logoutButtonText: {
+     color: Colors.light.primaryContrastText,
   },
 });

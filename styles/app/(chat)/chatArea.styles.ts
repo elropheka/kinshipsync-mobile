@@ -6,7 +6,7 @@ import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'const
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Or a specific chat background
+    backgroundColor: Colors.light.background,
   },
   container: {
     flex: 1,
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
-    // backgroundColor: Colors.light.backgroundLight,
+
   },
   backButton: {
     padding: Spacing.xs,
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.light.divider,
   },
-  centered: { // For loading/error/empty states
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -45,14 +45,14 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
-  retryButton: { // Added for potential retry mechanism
+  retryButton: {
     marginTop: Spacing.m,
     backgroundColor: Colors.light.buttonPrimary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.s,
   },
-  retryButtonText: { // Added
+  retryButtonText: {
     color: Colors.light.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
@@ -64,28 +64,28 @@ export const styles = StyleSheet.create({
   messageBubbleContainer: {
     flexDirection: 'row',
     marginBottom: Spacing.m,
-    maxWidth: '80%', // Bubbles don't take full width
+    maxWidth: '80%',
   },
   userMessageContainer: {
     alignSelf: 'flex-end',
-    flexDirection: 'row-reverse', // To have bubble first, then avatar (if shown for user)
+    flexDirection: 'row-reverse',
   },
   otherMessageContainer: {
     alignSelf: 'flex-start',
   },
-  avatar: { // Style for actual avatar image
+  avatar: {
     width: moderateScale(36),
     height: moderateScale(36),
     borderRadius: BorderRadius.round,
-    marginRight: Spacing.s, // For other users
-    marginLeft: Spacing.s, // For current user if avatar shown on right
+    marginRight: Spacing.s,
+    marginLeft: Spacing.s,
     alignSelf: 'flex-end',
   },
-  avatarPlaceholder: { // Style for placeholder if no avatarUrl
+  avatarPlaceholder: {
     width: moderateScale(36),
     height: moderateScale(36),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.buttonPrimary, // Placeholder color
+    backgroundColor: Colors.light.buttonPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.s,
@@ -98,12 +98,12 @@ export const styles = StyleSheet.create({
   },
   userMessage: {
     backgroundColor: Colors.light.buttonPrimary,
-    borderBottomRightRadius: BorderRadius.xs, // Tail effect
+    borderBottomRightRadius: BorderRadius.xs,
   },
   otherMessage: {
     backgroundColor: Colors.light.backgroundPaper,
-    borderBottomLeftRadius: BorderRadius.xs, // Tail effect
-    elevation: 1, // Subtle shadow for other messages
+    borderBottomLeftRadius: BorderRadius.xs,
+    elevation: 1,
   },
   senderName: {
     fontWeight: Fonts.weights.semiBold,
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xxs,
   },
   userTimestamp: {
-    color: Colors.light.primaryContrastText + '99', // Lighter version for user
+    color: Colors.light.primaryContrastText + '99',
   },
   otherTimestamp: {
     color: Colors.light.textSecondary,
@@ -146,29 +146,29 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.m,
-    paddingVertical: Platform.OS === 'ios' ? Spacing.s : Spacing.xs, // Adjust padding for platform
+    paddingVertical: Platform.OS === 'ios' ? Spacing.s : Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
     color: Colors.light.text,
     marginRight: Spacing.m,
   },
   sendButton: {
     backgroundColor: Colors.light.buttonPrimary,
-    borderRadius: BorderRadius.round, // Make it circular
+    borderRadius: BorderRadius.round,
     width: moderateScale(44),
     height: moderateScale(44),
     justifyContent: 'center',
     alignItems: 'center',
   },
-  disabledSendButton: { // Added
-    backgroundColor: Colors.light.textSecondary, // Or Colors.light.divider
+  disabledSendButton: {
+    backgroundColor: Colors.light.textSecondary,
   },
-  emptyChatText: { // Added
+  emptyChatText: {
     textAlign: 'center',
     color: Colors.light.textSecondary,
     marginTop: Spacing.xl,
     fontSize: ResponsiveFontSizes.body,
   },
-  // New styles for attachments and emoji picker
+
   iconButton: {
     padding: Spacing.s,
     marginHorizontal: Spacing.xs,
@@ -208,40 +208,39 @@ export const styles = StyleSheet.create({
     padding: Spacing.xs,
   },
   emojiPickerContainer: {
-    height: moderateScale(250), // Adjust height as needed
+    height: moderateScale(250),
     backgroundColor: Colors.light.backgroundPaper,
     borderTopWidth: 1,
     borderTopColor: Colors.light.divider,
     paddingVertical: Spacing.s,
   },
   emojiCategory: {
-    marginBottom: Spacing.m, // Add some space between categories
+    marginBottom: Spacing.m,
   },
   emojiCategoryTitle: {
-    fontSize: ResponsiveFontSizes.body, // Or small, adjust as needed
+    fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
     color: Colors.light.textSecondary,
     marginBottom: Spacing.s,
-    marginLeft: Spacing.m, // Align with emojiRow padding
+    marginLeft: Spacing.m,
   },
   emojiRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Allow emojis to wrap
+    flexWrap: 'wrap',
     paddingHorizontal: Spacing.m,
-    // justifyContent: 'space-around',
+
   },
   emojiButton: {
     padding: Spacing.s,
-    // alignItems: 'center',
-    // justifyContent: 'center',
+
   },
   emojiText: {
-    fontSize: ResponsiveFontSizes.title, // Use title or another appropriate large size
+    fontSize: ResponsiveFontSizes.title,
   },
-  // Styles for image and file messages in MessageBubble
+
   chatImage: {
-    width: moderateScale(200), // Max width for chat images
-    height: moderateScale(150), // Max height for chat images
+    width: moderateScale(200),
+    height: moderateScale(150),
     borderRadius: BorderRadius.m,
     marginTop: Spacing.xs,
     resizeMode: 'cover',
@@ -250,7 +249,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.s,
-    backgroundColor: Colors.light.background + '80', // Slightly different background for file bubble
+    backgroundColor: Colors.light.background + '80',
     borderRadius: BorderRadius.s,
     marginTop: Spacing.xs,
   },
@@ -260,23 +259,23 @@ export const styles = StyleSheet.create({
   fileName: {
     flex: 1,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text, // Or primary for user, text for other
+    color: Colors.light.text,
   },
   fileSize: {
     fontSize: ResponsiveFontSizes.small,
     color: Colors.light.textSecondary,
     marginLeft: Spacing.s,
   },
-  captionText: { // Style for captions under images/files
+  captionText: {
     fontSize: ResponsiveFontSizes.small,
     fontStyle: 'italic',
-    // color is inherited from userMessageText or otherMessageText
+
   },
-  // RSVP Styles
+
   rsvpButtonContainer: {
     flexDirection: 'row',
     marginTop: Spacing.s,
-    justifyContent: 'flex-start', // Align to start for otherUser messages
+    justifyContent: 'flex-start',
   },
   rsvpButton: {
     paddingVertical: Spacing.xs,
@@ -293,7 +292,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.error,
   },
   rsvpButtonText: {
-    color: Colors.dark.text, // Assuming dark text for contrast on colored buttons
+    color: Colors.dark.text,
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.semiBold,
   },
@@ -302,26 +301,26 @@ export const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontStyle: 'italic',
   },
-  // Styles for Header Menu and Search Bar
-  headerRightContainer: { // To wrap header icons if needed, e.g. for multiple icons
+
+  headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)', // Semi-transparent background
-    justifyContent: 'flex-start', // Align menu to top
-    alignItems: 'flex-end', // Align menu to right
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
   },
   dropdownMenu: {
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
     paddingVertical: Spacing.s,
-    marginTop: Platform.OS === 'ios' ? moderateScale(50) : moderateScale(60), // Adjust based on header height
+    marginTop: Platform.OS === 'ios' ? moderateScale(50) : moderateScale(60),
     marginRight: Spacing.m,
     minWidth: moderateScale(180),
-    elevation: 5, // Android shadow
-    shadowColor: Colors.dark.text, // iOS shadow
+    elevation: 5,
+    shadowColor: Colors.dark.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: BorderRadius.s,

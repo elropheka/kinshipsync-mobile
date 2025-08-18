@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: Spacing.l,
-    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s, // Consider Platform.OS for status bar
+    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s,
   },
   backButton: {
     padding: Spacing.xs,
@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.l,
     marginTop: Spacing.xs,
   },
-  checkbox: { // This style seems to wrap the actual checkbox, might not need specific sizing if icon is used
+  checkbox: {
     marginRight: Spacing.s,
   },
   uncheckedBox: {
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
   termsText: {
     color: Colors.light.textSecondary,
     fontSize: ResponsiveFontSizes.body,
-    flexShrink: 1, // Allow text to wrap
+    flexShrink: 1,
   },
   termsLink: {
     color: Colors.light.success,
@@ -220,10 +220,9 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.body,
   },
   passwordVisibilityToggle: {
-    // This style is for the TouchableOpacity around the eye icon
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: Spacing.s, // Add some padding to make it easier to press
+    paddingHorizontal: Spacing.s,
   },
   avatarContainer: {
     alignSelf: 'center',

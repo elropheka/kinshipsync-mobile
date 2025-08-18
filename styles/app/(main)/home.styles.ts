@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
-import Fonts, { FontSizes } from 'constants/fonts'; // Assuming FontSizes is exported from fonts.ts
+import Fonts, { FontSizes } from 'constants/fonts';
 import {
   Spacing,
   BorderRadius,
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     backgroundColor: Colors.light.backgroundLight,
     borderTopColor: Colors.light.icon,
-    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Retain percentage for now, or define a specific Spacing value
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
   },
   kinshipText: {
     fontSize: ResponsiveFontSizes.header2,
@@ -38,23 +38,21 @@ export const styles = StyleSheet.create({
     height: IconSizes.xl,
     width: IconSizes.xl,
     paddingLeft: Spacing.xxs,
-    // Added for vertical alignment if needed, can be adjusted
     justifyContent: 'center',
     alignItems: 'center',
   },
   searchContainer: {
-    // flex: 1, // No longer flex 1 as it's not in the header row
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.neutralBg, // Or Colors.light.background for a slight difference
+    backgroundColor: Colors.light.neutralBg,
     borderWidth: 1,
-    borderColor: Colors.light.icon, // Or Colors.light.border for a softer look
+    borderColor: Colors.light.icon,
     borderRadius: BorderRadius.l,
-    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Match dashboardContent/header horizontal margin
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
     paddingHorizontal: Spacing.s,
-    marginTop: Spacing.m, // Add margin to separate from header
-    marginBottom: Spacing.s, // Add some space before the dashboard title
-    height: Layout.SCREEN_HEIGHT * 0.055, // Slightly taller if desired, or use Layout.inputHeight
+    marginTop: Spacing.m,
+    marginBottom: Spacing.s,
+    height: Layout.SCREEN_HEIGHT * 0.055,
   },
   searchIcon: {
     marginRight: Spacing.s,
@@ -67,15 +65,14 @@ export const styles = StyleSheet.create({
   },
   dashboardContent: {
     flex: 1,
-    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // Retain percentage
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
   },
   dashboardTitle: {
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.medium,
     marginBottom: Spacing.m,
     fontFamily: Fonts.headerSemiBold,
-    // marginTop: Spacing.m, // Removed to reduce space below header
-    marginHorizontal: Layout.SCREEN_WIDTH * 0.06, // This seems redundant if dashboardContent has it
+    marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
     color: Colors.light.textDarkContrast,
   },
   sectionHeader: {
@@ -153,23 +150,22 @@ export const styles = StyleSheet.create({
     color: Colors.light.icon,
     marginLeft: Spacing.xs,
   },
-  // New Recent Activity Styles
   activityItemCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.m,
     borderRadius: BorderRadius.m,
     marginBottom: Spacing.s,
-    shadowColor: Colors.light.text, // Softer shadow
+    shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
   },
   activityIconCircle: {
-    width: moderateScale(44), // Slightly larger icon container
+    width: moderateScale(44),
     height: moderateScale(44),
-    borderRadius: moderateScale(22), // Circular
+    borderRadius: moderateScale(22),
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
@@ -180,16 +176,15 @@ export const styles = StyleSheet.create({
   },
   activityDescriptionText: {
     fontSize: ResponsiveFontSizes.body,
-    fontFamily: Fonts.bodyRegular, // Using defined font family
-    color: Colors.light.text, // Main text color for better readability
+    fontFamily: Fonts.bodyRegular,
+    color: Colors.light.text,
     marginBottom: Spacing.xxs,
   },
   activityTimeText: {
     fontSize: ResponsiveFontSizes.caption,
-    fontFamily: Fonts.captionRegular, // Using defined font family
-    color: Colors.light.textSecondary, // Softer color for time
+    fontFamily: Fonts.captionRegular,
+    color: Colors.light.textSecondary,
   },
-  // End New Recent Activity Styles
   proFeatureContent: {
     alignItems: 'center',
     paddingVertical: Spacing.l,
@@ -262,14 +257,13 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.m,
     fontSize: ResponsiveFontSizes.body,
   },
-  errorText: { // Added
+  errorText: {
     textAlign: 'center',
     color: Colors.light.error,
     marginTop: Spacing.m,
     fontSize: ResponsiveFontSizes.body,
     paddingHorizontal: Spacing.l,
   },
-  // New styles for RecentActivities component
   activityActions: {
     marginTop: 8,
     flexDirection: 'column',

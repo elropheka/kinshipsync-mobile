@@ -20,15 +20,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
-    // paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
+
     backgroundColor: Colors.light.backgroundLight,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     color: Colors.light.text,
-    // flex: 1, // Add if title needs to take up space for centering with other elements
-    // textAlign: 'center',
+
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -58,7 +57,7 @@ export const styles = StyleSheet.create({
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.xl,
-    height: Layout.inputHeight, // Using standard input height
+    height: Layout.inputHeight,
   },
   searchIcon: {
     marginRight: Spacing.s,
@@ -103,7 +102,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 'auto',
   },
-  addEventText: { // Consider renaming
+  addEventText: {
     color: Colors.light.accentContrastText,
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
@@ -125,15 +124,15 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.s,
   },
   progressFill: {
-    width: '60%', // Example progress
+    width: '60%',
     height: '100%',
     backgroundColor: Colors.light.buttonPrimary,
     borderRadius: BorderRadius.s,
   },
   guestList: {
     paddingHorizontal: Spacing.m,
-    paddingBottom: Layout.buttonHeight + Spacing.xxl, // Ensure space for BottomNavigation + FAB
-    flex: 1, // Ensure list takes available space
+    paddingBottom: Layout.buttonHeight + Spacing.xxl,
+    flex: 1,
   },
   guestItem: {
     flexDirection: 'row',
@@ -142,7 +141,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
   },
   guestItemPressed: {
-    backgroundColor: Colors.light.border, // This is gray-300 (#D1D5DB)
+    backgroundColor: Colors.light.border,
   },
   guestName: {
     fontSize: ResponsiveFontSizes.subtitle,
@@ -163,18 +162,18 @@ export const styles = StyleSheet.create({
     height: moderateScale(8),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.xs,
-    // backgroundColor is set dynamically
+
   },
   statusText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    // color is set dynamically
+
   },
   separator: {
     height: 1,
     backgroundColor: Colors.light.divider,
   },
-  // Styles for Event Selection List
+
   eventListContainer: {
     paddingHorizontal: Spacing.m,
     paddingBottom: Layout.buttonHeight + Spacing.xxl, 
@@ -183,14 +182,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing.l, // Increased padding for better touchability
-    backgroundColor: Colors.light.backgroundLight, // Or Colors.light.card for distinct items
+    paddingVertical: Spacing.l,
+    backgroundColor: Colors.light.backgroundLight,
   },
   eventName: {
-    fontSize: ResponsiveFontSizes.subtitle, // Slightly larger for event names
+    fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     color: Colors.light.text,
-    marginBottom: Spacing.xxs, // Small margin if date is below
+    marginBottom: Spacing.xxs,
   },
   eventDate: {
     fontSize: ResponsiveFontSizes.body,

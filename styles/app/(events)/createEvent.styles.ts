@@ -1,6 +1,6 @@
 import { StyleSheet, Platform } from 'react-native';
 import { Colors } from 'constants/Colors';
-import Fonts from 'constants/fonts'; // Import Fonts
+import Fonts from 'constants/fonts';
 import {
   Spacing,
   BorderRadius,
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
-    // paddingTop: Platform.OS === 'ios' ? 60 : 40,
+
     paddingBottom: 20,
     backgroundColor: Colors.light.backgroundLight,
   },
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 30, // Increased padding for better spacing
+    paddingHorizontal: 30,
     marginBottom: 24,
     backgroundColor: Colors.light.backgroundLight,
     paddingVertical: 10,
@@ -46,11 +46,11 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   tabItem: {
-    flex: 1, // Distribute space equally
-    marginRight: 6, // Small margin between tabs
+    flex: 1,
+    marginRight: 6,
     alignItems: 'center',
-    paddingTop: 8, // Padding inside tab
-    paddingBottom: 8, // Padding inside tab
+    paddingTop: 8,
+    paddingBottom: 8,
     borderTopWidth: 4,
     borderTopColor: Colors.light.icon,
   },
@@ -60,7 +60,7 @@ export const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     color: Colors.light.icon,
-    marginBottom: 8, // Space below text
+    marginBottom: 8,
   },
   activeTabText: {
     color: Colors.light.accent,
@@ -89,26 +89,26 @@ export const styles = StyleSheet.create({
     color: Colors.light.textDarkContrast,
   },
   multilineInput: {
-    height: 120, // Fixed height for multiline
-    textAlignVertical: 'top', // Align text to top
+    height: 120,
+    textAlignVertical: 'top',
   },
-  datePickerContainer: { // For styling the TouchableOpacity acting as Date/Time picker input
+  datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  datePickerText: { // Placeholder text for date/time picker
+  datePickerText: {
     color: Colors.light.icon,
   },
-  datePickerTextSelected: { // Text when date/time is selected
+  datePickerTextSelected: {
     color: Colors.light.textDarkContrast,
   },
-  dropdownContainer: { // For styling the TouchableOpacity acting as dropdown input
+  dropdownContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  dropdownText: { // Placeholder text for dropdown
+  dropdownText: {
     color: Colors.light.icon,
   },
   nextButton: {
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
-    marginTop: 30, // Space above the button
+    marginTop: 30,
     width: '100%',
     height: 50,
   },
@@ -125,19 +125,19 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.light.neutralBg,
   },
-  modalOverlay: { // For Venue and EventType modals
+  modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
-  modalContent: { // For Venue and EventType modals
+  modalContent: {
     backgroundColor: Colors.light.neutralBg,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: 20, // Space at the bottom
-    maxHeight: '80%', // Limit modal height
+    paddingBottom: 20,
+    maxHeight: '80%',
   },
-  modalHeader: { // For Venue and EventType modals
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -145,12 +145,12 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.icon,
   },
-  modalTitle: { // For Venue and EventType modals
+  modalTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.light.textDarkContrast,
   },
-  optionItem: { // For items in Venue/EventType modals
+  optionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -158,11 +158,11 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.backgroundLight,
   },
-  optionText: { // For text in Venue/EventType modal items
+  optionText: {
     fontSize: 16,
     color: Colors.light.textDarkContrast,
   },
-  // Styles for iOS DateTimePicker Modal
+
   iosPickerModalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
@@ -172,14 +172,14 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light.neutralBg,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingVertical: 20, // Add some vertical padding
+    paddingVertical: 20,
   },
   iosPickerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 10, // Space below header items
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.icon,
   },
@@ -190,19 +190,19 @@ export const styles = StyleSheet.create({
   },
   iosPickerButtonText: {
     fontSize: 16,
-    // Color is set dynamically in the component
+
   },
   requiredStar: {
-    color: Colors.light.error, // Or your preferred color for required indicators
+    color: Colors.light.error,
     marginLeft: Spacing.xxs,
   },
   disabledButton: {
-    backgroundColor: Colors.light.textSecondary, // Fallback to textSecondary
+    backgroundColor: Colors.light.textSecondary,
   },
-  // Visibility Picker Styles
+
   visibilitySelectorContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around', // Or 'flex-start' and add margin to buttons
+    justifyContent: 'space-around',
     marginBottom: Spacing.m,
   },
   visibilityOptionButton: {
@@ -212,8 +212,8 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.buttonPrimary,
     alignItems: 'center',
-    flex: 1, // Make buttons take equal width if space-around
-    marginHorizontal: Spacing.xs, // Add some space between buttons
+    flex: 1,
+    marginHorizontal: Spacing.xs,
   },
   visibilityOptionButtonSelected: {
     backgroundColor: Colors.light.buttonPrimary,
@@ -227,7 +227,7 @@ export const styles = StyleSheet.create({
     color: Colors.light.primaryContrastText,
     fontWeight: Fonts.weights.bold,
   },
-  // Theme Picker Styles (Step 2)
+
   themeItemButton: {
     padding: Spacing.m,
     borderWidth: 1,
@@ -238,7 +238,7 @@ export const styles = StyleSheet.create({
   },
   themeItemButtonSelected: {
     borderColor: Colors.light.buttonPrimary,
-    backgroundColor: Colors.light.buttonPrimary + '20', // Light primary background
+    backgroundColor: Colors.light.buttonPrimary + '20',
   },
   themeItemText: {
     fontSize: ResponsiveFontSizes.body,
@@ -249,16 +249,16 @@ export const styles = StyleSheet.create({
     color: Colors.light.buttonPrimary,
     fontWeight: Fonts.weights.bold,
   },
-  // Previous Button Style
+
   previousButton: {
-    backgroundColor: Colors.light.backgroundPaper, // Different background for previous
+    backgroundColor: Colors.light.backgroundPaper,
     borderColor: Colors.light.buttonPrimary,
     borderWidth: 1,
-    marginRight: Spacing.m, // If next button is also present
-    flex: 1, // If in a row with next button
+    marginRight: Spacing.m,
+    flex: 1,
   },
   previousButtonText: {
-    color: Colors.light.buttonPrimary, // Text color matching border
+    color: Colors.light.buttonPrimary,
     fontSize: 16,
     fontWeight: 'bold',
   },

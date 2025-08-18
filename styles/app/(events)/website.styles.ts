@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.s : Spacing.m,
     paddingBottom: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight, // Optional: if header needs different bg
+    backgroundColor: Colors.light.backgroundLight,
   },
   backButton: {
     padding: Spacing.s,
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xl, // To balance the back button space
+    marginRight: Spacing.xl,
     color: Colors.light.text,
   },
   tabContainer: {
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: Colors.light.backgroundLight, // Optional
+    backgroundColor: Colors.light.backgroundLight,
   },
   tabItem: {
     flex: 1,
@@ -94,10 +94,10 @@ export const styles = StyleSheet.create({
     letterSpacing: 2,
     color: Colors.light.buttonPrimary,
   },
-  weddingImage: { // Assuming this is an ImageBackground or similar
+  weddingImage: {
     width: '100%',
-    height: '60%', // Adjust as needed, or use aspectRatio
-    // backgroundColor: Colors.light.backgroundPaper, // Placeholder if image fails to load
+    height: '60%',
+
   },
   websiteFooter: {
     flex: 1,
@@ -127,7 +127,7 @@ export const styles = StyleSheet.create({
   weddingDate: {
     fontSize: ResponsiveFontSizes.subtitle,
     letterSpacing: 1,
-    color: Colors.light.textDarkContrast, // Themed for primary background
+    color: Colors.light.textDarkContrast,
   },
   doneButton: {
     backgroundColor: Colors.light.buttonPrimary,
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: Spacing.l,
     alignItems: 'center',
     marginBottom: Spacing.xl,
-    marginTop: Spacing.l, // Added margin top for spacing from preview
+    marginTop: Spacing.l,
   },
   doneButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,

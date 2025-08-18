@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { Colors } from 'constants/Colors'; // Assuming Colors is in constants
+import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import {
   Spacing,
@@ -55,13 +55,11 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: moderateScale(2.5),
-    // backgroundColor and borderColor are dynamic
   },
   planHeader: {
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.l,
     alignItems: 'center',
-    // backgroundColor is dynamic
   },
   planName: {
     fontSize: ResponsiveFontSizes.header2,
@@ -84,7 +82,7 @@ export const styles = StyleSheet.create({
   },
   featureIcon: {
     marginRight: Spacing.s,
-    // color is dynamic
+
   },
   featureText: {
     fontSize: ResponsiveFontSizes.subtitle - 1,
@@ -98,7 +96,7 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.m,
     alignItems: 'center',
     elevation: 1,
-    // backgroundColor is dynamic
+
   },
   currentPlanButton: {
     backgroundColor: Colors.light.textSecondary,
@@ -108,49 +106,49 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
   },
-  centered: { // Added
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.l,
   },
-  errorText: { // Added
+  errorText: {
     fontSize: ResponsiveFontSizes.body,
     color: Colors.light.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
-  currentPlanInfoCard: { // Added
+  currentPlanInfoCard: {
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
-    marginHorizontal: Spacing.s, // Match container padding
+    marginHorizontal: Spacing.s,
     marginBottom: Spacing.l,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary, // Highlight current plan
+    borderColor: Colors.light.buttonPrimary,
     elevation: 2,
     shadowColor: Colors.light.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(2),
   },
-  currentPlanInfoTitle: { // Added
+  currentPlanInfoTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.buttonPrimary,
     marginBottom: Spacing.s,
   },
-  currentPlanInfoText: { // Added
+  currentPlanInfoText: {
     fontSize: ResponsiveFontSizes.body,
     color: Colors.light.textDarkContrast,
     marginBottom: Spacing.xs,
   },
-  cancelButton: { // Added for the cancel subscription button
-    backgroundColor: Colors.light.error, // Use error color for cancel
+  cancelButton: {
+    backgroundColor: Colors.light.error,
     marginTop: Spacing.m,
   },
-  disabledButton: { // Added
-    backgroundColor: Colors.light.textSecondary, // Fallback for disabled state
+  disabledButton: {
+    backgroundColor: Colors.light.textSecondary,
     opacity: 0.7,
   },
 });
