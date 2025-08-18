@@ -136,4 +136,13 @@ export const styles = StyleSheet.create({
   logoutButtonText: {
      color: Colors.light.primaryContrastText,
   },
+  deleteAccountButton: {
+    backgroundColor: Colors.light.error,
+    marginTop: Spacing.m,
+    borderWidth: 2,
+    borderColor: Colors.light.error,
+  },
+  deleteAccountButtonText: {
+    color: Colors.light.primaryContrastText,
+  },
 });

@@ -234,6 +234,13 @@ const SettingsScreen: React.FC = () => {
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
             <Text style={[styles.buttonText, styles.logoutButtonText]}>Logout</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.button, styles.deleteAccountButton]} 
+          onPress={() => router.push('/(auth)/deleteAccount')}
+        >
+          <Text style={[styles.buttonText, styles.deleteAccountButtonText]}>Delete Account</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
