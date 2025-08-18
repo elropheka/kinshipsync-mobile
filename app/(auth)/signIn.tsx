@@ -32,7 +32,8 @@ const SignInScreen: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Added for password visibility
   const [isLoading, setIsLoading] = useState(false); // General loading state for email/password
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
-  const { signIn, signInWithGoogle } = useAuth(); // Get signIn and signInWithGoogle from AuthContext
+  const [isAppleLoading, setIsAppleLoading] = useState(false); // For Apple loading state
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth(); // Get signIn and signInWithGoogle from AuthContext
 
   const handleSignIn = async () => {
     if (!formData.email || !formData.password) {
@@ -74,9 +75,16 @@ const SignInScreen: React.FC = () => {
     }
   };
 
-  const handleAppleSignIn = () => {
-    // Handle Apple sign in 
-    console.log('Sign in with Apple');
+  const handleAppleSignIn = async () => {
+    setIsAppleLoading(true);
+    try {
+      await signInWithApple();
+    } catch (error) {
+      console.error('Apple Sign In failed:', error);
+      // Error handling is already done in AuthContext
+    } finally {
+      setIsAppleLoading(false);
+    }
   };
 
   const handleSignUp = () => {
@@ -194,10 +202,16 @@ const SignInScreen: React.FC = () => {
                 <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing In...' : 'Google'}</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.appleButton} onPress={handleAppleSignIn}>
-                <Ionicons name="logo-apple" size={20} color="black" />
-                <Text style={styles.socialButtonText}>Apple</Text>
-              </TouchableOpacity>
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={[styles.appleButton, isAppleLoading && styles.disabledButton]} 
+                  onPress={handleAppleSignIn}
+                  disabled={isAppleLoading}
+                >
+                  <Ionicons name="logo-apple" size={20} color="black" />
+                  <Text style={styles.socialButtonText}>{isAppleLoading ? 'Signing In...' : 'Apple'}</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Need an account */}

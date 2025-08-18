@@ -2,12 +2,15 @@ import React, { createContext, useContext, useEffect, useCallback, useMemo, useS
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import * as SecureStore from 'expo-secure-store';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { Platform } from 'react-native';
 import { useAppAuth } from '../hooks/useAppAuth';
 import { LoginCredentials, SignupCredentials, LoginResponse, SignupResponse, BackendUser } from '../types/auth';
 import { User as FirebaseUserT } from 'firebase/auth';
 
 import { 
   GoogleAuthProvider, 
+  OAuthProvider,
   getIdToken, 
   signInWithCredential, 
   signInWithCustomToken, 
@@ -75,6 +78,7 @@ interface AuthContextType {
   signUp: (credentials: SignupCredentials) => Promise<any>;
   signOut: () => Promise<any>;
   signInWithGoogle: () => Promise<any>;
+  signInWithApple: () => Promise<any>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -325,6 +329,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [dispatch, router]);
   
+  const handleSignInWithApple = useCallback(async () => {
+    dispatch(setAuthIsLoading(true));
+    try {
+      // Check if we're on iOS
+      if (Platform.OS !== 'ios') {
+        throw new Error('Apple Sign In is only available on iOS devices');
+      }
+
+      // Check if Apple Authentication is available
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      if (!isAvailable) {
+        throw new Error('Apple Authentication is not available on this device');
+      }
+
+      // Perform Apple Sign In
+      const appleAuthResponse = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      console.log('Apple Sign-In result:', appleAuthResponse);
+
+      if (!appleAuthResponse.identityToken) {
+        throw new Error('Apple Sign-In failed to return an identity token.');
+      }
+
+      // Create OAuth provider credential for Firebase
+      const provider = new OAuthProvider('apple.com');
+      const credential = provider.credential({
+        idToken: appleAuthResponse.identityToken,
+        rawNonce: appleAuthResponse.nonce,
+      });
+
+      // Sign in to Firebase with Apple credential
+      const userCredential = await signInWithCredential(firebaseAppAuth, credential);
+      const firebaseUser = userCredential.user;
+
+      if (firebaseUser) {
+        // Check if user profile exists, if not create one
+        const profileDocRef = doc(clientFirestore, "profiles", firebaseUser.uid);
+        const profileSnap = await getDoc(profileDocRef);
+        
+        if (!profileSnap.exists()) {
+          // Create profile with Apple user data
+          const newProfileData = {
+            first_name: appleAuthResponse.fullName?.givenName || firebaseUser.displayName?.split(' ')[0] || '',
+            last_name: appleAuthResponse.fullName?.familyName || firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            phone: firebaseUser.phoneNumber || '',
+            location: '',
+            userId: firebaseUser.uid,
+            role: 'organizer',
+            email: appleAuthResponse.email || firebaseUser.email,
+            avatarUrl: firebaseUser.photoURL,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          };
+          await setDoc(profileDocRef, newProfileData);
+        }
+        
+        router.replace('/(main)/home');
+      } else {
+        throw new Error('No user returned from Firebase after Apple Sign-In');
+      }
+    } catch (error: any) {
+      if (error.code === 'ERR_CANCELED') {
+        console.log('Apple Sign-In cancelled by user');
+      } else {
+        console.error('AuthContext: Apple Sign-In failed', error);
+        dispatch(setAuthError(error.message || 'Apple Sign-In failed'));
+      }
+      router.replace('/(auth)/signIn');
+      throw error;
+    } finally {
+      dispatch(setAuthIsLoading(false));
+    }
+  }, [dispatch, router]);
+  
   const value = useMemo<AuthContextType>(() => ({
     isAuthenticated: !!user && !!token && isAuthInitialized,
     isLoading: isAuthLoading,
@@ -335,6 +418,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut: handleSignOut,
     signUp: handleSignUp,
     signInWithGoogle: handleSignInWithGoogle,
+    signInWithApple: handleSignInWithApple,
   }), [
     token, 
     isAuthInitialized, 
@@ -344,7 +428,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     handleSignIn, 
     handleSignOut, 
     handleSignUp, 
-    handleSignInWithGoogle
+    handleSignInWithGoogle,
+    handleSignInWithApple
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

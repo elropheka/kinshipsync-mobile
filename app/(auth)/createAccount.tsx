@@ -44,7 +44,8 @@ const CreateAccountScreen: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Added for password visibility
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
-  const { signUp, signInWithGoogle } = useAuth(); // Get signUp and signInWithGoogle from AuthContext
+  const [isAppleLoading, setIsAppleLoading] = useState(false); // For Apple loading state
+  const { signUp, signInWithGoogle, signInWithApple } = useAuth(); // Get signUp and signInWithGoogle from AuthContext
 
   const handleSignUp = async () => {
     // Basic Validation
@@ -127,9 +128,16 @@ const CreateAccountScreen: React.FC = () => {
     }
   };
 
-  const handleAppleSignUp = () => {
-    // Handle Apple sign up
-    console.log('Sign up with Apple');
+  const handleAppleSignUp = async () => {
+    setIsAppleLoading(true);
+    try {
+      await signInWithApple();
+    } catch (error) {
+      console.error('Apple Sign Up failed:', error);
+      // Error handling is already done in AuthContext
+    } finally {
+      setIsAppleLoading(false);
+    }
   };
 
   const handleSignIn = () => {
@@ -306,10 +314,16 @@ const CreateAccountScreen: React.FC = () => {
                 <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing Up...' : 'Google'}</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.appleButton} onPress={handleAppleSignUp}>
-                <Ionicons name="logo-apple" size={20} color="black" />
-                <Text style={styles.socialButtonText}>Apple</Text>
-              </TouchableOpacity>
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={[styles.appleButton, isAppleLoading && styles.disabledButton]} 
+                  onPress={handleAppleSignUp}
+                  disabled={isAppleLoading}
+                >
+                  <Ionicons name="logo-apple" size={20} color="black" />
+                  <Text style={styles.socialButtonText}>{isAppleLoading ? 'Signing Up...' : 'Apple'}</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Already have an account */}
