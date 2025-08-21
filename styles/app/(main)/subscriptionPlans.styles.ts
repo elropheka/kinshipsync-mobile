@@ -6,6 +6,7 @@ import {
   BorderRadius,
   ResponsiveFontSizes,
   moderateScale,
+  isTablet,
 } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
@@ -17,18 +18,18 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.m,
-    paddingTop: Platform.OS === 'android' ? Spacing.xl : Spacing.xxl,
-    paddingBottom: Spacing.m,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.m,
+    paddingTop: Platform.OS === 'android' ? (isTablet() ? Spacing.xxl * 2 : Spacing.xl) : (isTablet() ? Spacing.xxl * 2 : Spacing.xxl),
+    paddingBottom: isTablet() ? Spacing.l : Spacing.m,
     backgroundColor: Colors.light.backgroundLight,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.divider,
   },
   headerBackButton: {
-    padding: Spacing.xs
+    padding: isTablet() ? Spacing.s : Spacing.xs
   },
   headerTitle: {
-    fontSize: ResponsiveFontSizes.header3,
+    fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
     flex: 1,
     textAlign: 'center',
@@ -36,18 +37,22 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: Spacing.s,
+    padding: isTablet() ? Spacing.m : Spacing.s,
+    maxWidth: isTablet() ? 900 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   introText: {
-    fontSize: ResponsiveFontSizes.subtitle,
+    fontSize: isTablet() ? ResponsiveFontSizes.title : ResponsiveFontSizes.subtitle,
     textAlign: 'center',
-    marginVertical: Spacing.m,
+    marginVertical: isTablet() ? Spacing.l : Spacing.m,
     color: Colors.light.textDarkContrast,
-    paddingHorizontal: Spacing.s,
+    paddingHorizontal: isTablet() ? Spacing.m : Spacing.s,
+    maxWidth: isTablet() ? 700 : '100%',
+    alignSelf: 'center',
   },
   planCard: {
     borderRadius: BorderRadius.l,
-    marginBottom: Spacing.l,
+    marginBottom: isTablet() ? Spacing.xxl : Spacing.l,
     borderWidth: moderateScale(2),
     overflow: 'hidden',
     elevation: 3,
@@ -55,6 +60,8 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: moderateScale(2.5),
+    maxWidth: isTablet() ? 600 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   planHeader: {
     paddingVertical: Spacing.m,

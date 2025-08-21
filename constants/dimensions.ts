@@ -6,9 +6,27 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const guidelineBaseWidth = 375;
 const guidelineBaseHeight = 667;
 
-export const scale = (size: number): number => (SCREEN_WIDTH / guidelineBaseWidth) * size;
+// Add tablet detection
+export const isTablet = () => {
+  const { width, height } = Dimensions.get('window');
+  return Math.max(width, height) >= 768; // iPad mini and larger
+};
 
-export const verticalScale = (size: number): number => (SCREEN_HEIGHT / guidelineBaseHeight) * size;
+export const scale = (size: number): number => {
+  if (isTablet()) {
+    // Use a different scaling approach for tablets
+    return size * (SCREEN_WIDTH / 768); // 768 is typical tablet width
+  }
+  return (SCREEN_WIDTH / guidelineBaseWidth) * size;
+};
+
+export const verticalScale = (size: number): number => {
+  if (isTablet()) {
+    // Use a different scaling approach for tablets
+    return size * (SCREEN_HEIGHT / 1024); // 1024 is typical tablet height
+  }
+  return (SCREEN_HEIGHT / guidelineBaseHeight) * size;
+};
 
 export const moderateScale = (size: number, factor: number = 0.5): number =>
   size + (scale(size) - size) * factor;

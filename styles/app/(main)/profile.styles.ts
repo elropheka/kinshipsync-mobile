@@ -7,6 +7,7 @@ import {
   ResponsiveFontSizes,
   IconSizes,
   moderateScale,
+  isTablet,
 } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
@@ -17,29 +18,28 @@ export const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.l,
-
-    paddingBottom: Spacing.l,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
+    paddingBottom: isTablet() ? Spacing.xxl : Spacing.l,
     backgroundColor: Colors.light.backgroundLight,
   },
   backButton: {
-    padding: Spacing.s,
+    padding: isTablet() ? Spacing.m : Spacing.s,
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: ResponsiveFontSizes.header3,
+    fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xl,
+    marginRight: isTablet() ? Spacing.xxl : Spacing.xl,
     color: Colors.light.text,
   },
   profileImageContainer: {
     alignItems: 'center',
-    marginVertical: Spacing.l,
+    marginVertical: isTablet() ? Spacing.xxl : Spacing.l,
     position: 'relative',
-    height: moderateScale(120),
-    width: moderateScale(120),
-    borderRadius: moderateScale(60),
+    height: isTablet() ? moderateScale(160) : moderateScale(120),
+    width: isTablet() ? moderateScale(160) : moderateScale(120),
+    borderRadius: isTablet() ? moderateScale(80) : moderateScale(60),
     borderWidth: 1,
     borderColor: Colors.light.border,
     backgroundColor: Colors.light.neutralBg,
@@ -47,9 +47,9 @@ export const styles = StyleSheet.create({
     marginHorizontal: 'auto',
   },
   profileImage: {
-    width: moderateScale(120),
-    height: moderateScale(120),
-    borderRadius: moderateScale(60),
+    width: isTablet() ? moderateScale(160) : moderateScale(120),
+    height: isTablet() ? moderateScale(160) : moderateScale(120),
+    borderRadius: isTablet() ? moderateScale(80) : moderateScale(60),
   },
   editImageButton: {
     position: 'absolute',
@@ -57,12 +57,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: Colors.light.buttonPrimary,
-    width: moderateScale(40),
-    height: moderateScale(40),
+    width: isTablet() ? moderateScale(50) : moderateScale(40),
+    height: isTablet() ? moderateScale(50) : moderateScale(40),
     bottom: 0,
     right: 0,
-    paddingHorizontal: Spacing.s,
-    paddingVertical: Spacing.s,
+    paddingHorizontal: isTablet() ? Spacing.m : Spacing.s,
+    paddingVertical: isTablet() ? Spacing.m : Spacing.s,
     borderRadius: BorderRadius.round,
     alignItems: 'center',
   },
@@ -72,8 +72,10 @@ export const styles = StyleSheet.create({
 
   },
   formContainer: {
-    paddingHorizontal: Spacing.l,
-    paddingBottom: Spacing.xxl,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
+    paddingBottom: isTablet() ? Spacing.xxl : Spacing.xxl,
+    maxWidth: isTablet() ? 800 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   inputContainer: {
     marginBottom: Spacing.m,

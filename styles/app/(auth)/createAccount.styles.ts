@@ -7,12 +7,14 @@ import {
   ResponsiveFontSizes,
   IconSizes,
   moderateScale,
+  isTablet,
 } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.backgroundLight,
+    width: '100%',
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -21,7 +23,7 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingHorizontal: Spacing.l,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s,
   },
   backButton: {
@@ -29,20 +31,25 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.xl,
     paddingTop: Spacing.s,
+    maxWidth: isTablet() ? 600 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
+    width: '100%',
   },
   title: {
-    fontSize: ResponsiveFontSizes.header2,
+    fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.s,
     color: Colors.light.text,
+    textAlign: isTablet() ? 'center' : 'left',
   },
   subtitle: {
-    fontSize: ResponsiveFontSizes.body,
+    fontSize: isTablet() ? ResponsiveFontSizes.subtitle : ResponsiveFontSizes.body,
     color: Colors.light.textSecondary,
     marginBottom: Spacing.l,
-    lineHeight: ResponsiveFontSizes.body * 1.4,
+    lineHeight: isTablet() ? ResponsiveFontSizes.subtitle * 1.4 : ResponsiveFontSizes.body * 1.4,
+    textAlign: isTablet() ? 'center' : 'left',
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -50,6 +57,8 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     marginVertical: Spacing.l,
     padding: Spacing.xs,
+    maxWidth: isTablet() ? 400 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   toggleButtonActive: {
     flex: 1,

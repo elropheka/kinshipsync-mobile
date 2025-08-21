@@ -1,7 +1,7 @@
 import { StyleSheet, Platform } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
-import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
+import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale, isTablet } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,10 +12,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.l,
+    padding: isTablet() ? Spacing.xxl : Spacing.l,
   },
   errorText: {
-    fontSize: ResponsiveFontSizes.body,
+    fontSize: isTablet() ? ResponsiveFontSizes.subtitle : ResponsiveFontSizes.body,
     color: Colors.light.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
@@ -23,36 +23,38 @@ export const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.m,
-    paddingVertical: Spacing.s,
-    paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.m,
+    paddingVertical: isTablet() ? Spacing.m : Spacing.s,
+    paddingTop: Platform.OS === 'ios' ? (isTablet() ? Spacing.xxl : Spacing.l) : (isTablet() ? Spacing.xl : Spacing.m),
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.divider,
     backgroundColor: Colors.light.backgroundPaper,
   },
   backButton: {
-    padding: Spacing.s,
-    marginRight: Spacing.s,
+    padding: isTablet() ? Spacing.m : Spacing.s,
+    marginRight: isTablet() ? Spacing.m : Spacing.s,
   },
   header: {
-    fontSize: ResponsiveFontSizes.header2,
+    fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.text,
     flex: 1,
     textAlign: 'center',
   },
   sectionContainer: {
-    marginTop: Spacing.l,
-    marginBottom: Spacing.s,
-    marginHorizontal: Spacing.m,
+    marginTop: isTablet() ? Spacing.xxl : Spacing.l,
+    marginBottom: isTablet() ? Spacing.m : Spacing.s,
+    marginHorizontal: isTablet() ? Spacing.xl : Spacing.m,
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
-    padding: Spacing.m,
+    padding: isTablet() ? Spacing.l : Spacing.m,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+    maxWidth: isTablet() ? 800 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.title,

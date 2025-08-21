@@ -8,44 +8,46 @@ import {
   IconSizes,
   Layout,
   moderateScale,
+  isTablet,
 } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.backgroundLight,
-    paddingTop: Spacing.m,
+    paddingTop: isTablet() ? Spacing.l : Spacing.m,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.l,
-    paddingVertical: Spacing.m,
-
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
+    paddingVertical: isTablet() ? Spacing.l : Spacing.m,
     backgroundColor: Colors.light.backgroundLight,
   },
   backButton: {
-    padding: Spacing.s,
-    marginRight: Spacing.s,
+    padding: isTablet() ? Spacing.m : Spacing.s,
+    marginRight: isTablet() ? Spacing.m : Spacing.s,
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: ResponsiveFontSizes.header3,
+    fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    marginRight: Spacing.xxl,
+    marginRight: isTablet() ? Spacing.xxl : Spacing.xxl,
     color: Colors.light.text,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.light.neutralBg,
-    marginHorizontal: Spacing.l,
-    marginBottom: Spacing.m,
-    paddingHorizontal: Spacing.m,
+    marginHorizontal: isTablet() ? Spacing.xl : Spacing.l,
+    marginBottom: isTablet() ? Spacing.l : Spacing.m,
+    paddingHorizontal: isTablet() ? Spacing.l : Spacing.m,
     borderRadius: BorderRadius.xl,
-    height: Layout.inputHeight,
+    height: isTablet() ? Layout.inputHeight * 1.2 : Layout.inputHeight,
+    maxWidth: isTablet() ? 600 : '100%',
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   searchIcon: {
     marginRight: Spacing.s,

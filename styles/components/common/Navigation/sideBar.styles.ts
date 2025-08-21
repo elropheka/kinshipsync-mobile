@@ -8,10 +8,10 @@ import {
   ResponsiveFontSizes,
   IconSizes,
   moderateScale,
+  isTablet,
 } from 'constants/dimensions';
 
-const SIDEBAR_WIDTH = Layout.SCREEN_WIDTH * 0.75;
-
+const SIDEBAR_WIDTH = isTablet() ? Layout.SCREEN_WIDTH * 0.4 : Layout.SCREEN_WIDTH * 0.75;
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -22,7 +22,6 @@ export const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: Colors.dark.background + 'BF',
     zIndex: 998,
-
   },
   sidebar: {
     position: 'absolute',
@@ -44,11 +43,10 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? (Spacing.xxl) : undefined,
-    paddingHorizontal: Spacing.l,
+    paddingTop: Platform.OS === 'ios' ? (isTablet() ? Spacing.xxl * 2 : Spacing.xxl) : undefined,
+    paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.l,
     flexDirection: 'column',
     backgroundColor: Colors.light.background,
-
   },
   scrollContent: {
     flex: 1,
@@ -57,11 +55,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.l,
-    paddingTop: Spacing.s,
+    marginBottom: isTablet() ? Spacing.xxl : Spacing.l,
+    paddingTop: isTablet() ? Spacing.m : Spacing.s,
   },
   sidebarTitle: {
-    fontSize: ResponsiveFontSizes.header2,
+    fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.medium,
     fontFamily: Fonts.headerBold,
     color: Colors.light.text,

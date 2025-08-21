@@ -1,8 +1,9 @@
 import { Stack } from 'expo-router';
-// Removed: import { useAuth } from 'context/AuthContext';
+import { Colors } from '../../constants/Colors';
+
 
 export default function AuthLayout() {
-  // Removed: const { isAuthenticated } = useAuth();
+
 
   return (
     <Stack
@@ -10,6 +11,9 @@ export default function AuthLayout() {
         headerShown: false,
         gestureEnabled: false,
         animation: 'fade',
+        contentStyle: {
+          backgroundColor: Colors.light.backgroundSecondary,
+        },
       }}
     >
       <Stack.Screen 

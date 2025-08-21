@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React, { useEffect, useState, useCallback } from "react";
 import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,15 +10,14 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';
 import AppCoreNav from "../components/common/Navigation/AppCoreNav";
 import { ResponsiveContainer } from "../components/common/Layout/ResponsiveContainer";
-// import CustomSplashScreen from "./(auth)/splashScreen"; // Import your custom splash screen
-import * as SplashScreen from 'expo-splash-screen'; // Import expo-splash-screen
-import { useFonts } from 'expo-font'; // Import useFonts
+import * as SplashScreen from 'expo-splash-screen'; 
+import { useFonts } from 'expo-font'; 
+import { Colors } from "../constants/Colors";
 
-// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout: React.FC = () => {
-  // Define your font map
+  
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
     'Poppins-BlackItalic': require('../assets/fonts/Poppins-BlackItalic.ttf'),
@@ -47,13 +45,13 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     async function prepare() {
       try {
-        // You can add other async pre-loading tasks here if needed
+        
         if (fontsLoaded || fontError) {
           setAppIsReady(true);
         }
       } catch (e) {
         console.warn("Error during app preparation:", e);
-        setAppIsReady(true); // Set ready even in case of error to avoid infinite splash
+        setAppIsReady(true); 
       }
     }
     prepare();
@@ -66,14 +64,13 @@ const RootLayout: React.FC = () => {
   }, [appIsReady]);
 
   if (!appIsReady) {
-    // Return null or a minimal loading indicator if needed,
-    // but the native splash screen should remain visible.
+   
     return null;
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ErrorBoundary>
         <ReduxProvider store={store}>

@@ -2,14 +2,12 @@ import { Tabs } from 'expo-router';
 import React, { useState, useRef, useCallback, createContext, useContext } from 'react';
 import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
-// import { useAuth } from 'context/AuthContext';
+
 import { SubscriptionProvider } from '@/context/SubscriptionContext';
 import { Colors } from '@/constants/Colors';
-import BackButton from '@/components/common/Navigation/BackButton'; // Import BackButton
+import BackButton from '@/components/common/Navigation/BackButton'; 
 
-// Create a context for scroll handling
-// It's fine to keep this here if MainTabsLayout is in the same file,
-// or move to a dedicated context file if used more broadly.
+
 export const ScrollContext = createContext<{
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   isNavVisible: boolean;
@@ -18,28 +16,25 @@ export const ScrollContext = createContext<{
   isNavVisible: true,
 });
 
-// Hook to use the scroll context
+  
 export const useScrollHandler = () => useContext(ScrollContext);
 
-// Inner component to handle auth, scroll logic, and Tabs setup
+
 function MainTabsLayout() {
-  // const { isAuthenticated } = useAuth();
+ 
   const [isNavVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const scrollThreshold = 10; // Minimum scroll distance to trigger nav visibility change
+  const scrollThreshold = 10; 
 
-  // if (!isAuthenticated) {
-  //   return null; // Or redirect, consistent with other layouts
-  // }
 
-  // Handle scroll events to show/hide navigation
+
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
     
     if (currentScrollY > lastScrollY.current + scrollThreshold) {
-      setNavVisible(false); // Scrolling down
+      setNavVisible(false); 
     } else if (currentScrollY < lastScrollY.current - scrollThreshold) {
-      setNavVisible(true); // Scrolling up
+      setNavVisible(true); 
     }
     
     lastScrollY.current = currentScrollY;
@@ -51,7 +46,7 @@ function MainTabsLayout() {
         <Tabs
           screenOptions={{
             headerShown: false,
-            headerLeft: () => <BackButton />, // Use BackButton component
+            headerLeft: () => <BackButton />, 
             tabBarStyle: {
               display: Platform.OS === 'web' ? 'none' : 'flex',
             },
@@ -99,5 +94,5 @@ function MainTabsLayout() {
   );
 }
 
-// Default export is now simpler
+
 export default MainTabsLayout;
