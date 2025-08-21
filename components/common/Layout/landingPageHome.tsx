@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { Colors } from '@/constants/Colors';
@@ -22,7 +22,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   onLoginPress,
   onCreateAccountPress
 }) => {
-  // Group features into three slides
+
   const featuresData: Feature[][] = [
     [
       {
@@ -100,49 +100,47 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
 
   return (
     <View style={styles.pageContainer}>
-      {/* Logo and app name */}
+      
       <View style={styles.headerContainer}>
         <View style={styles.logoContainer}>
-          {/* Logo can be added here */}
+          
         </View>
         <Text style={styles.appName}>KINSHIP SYNC</Text>
       </View>
 
-      {/* Tagline */}
+      
       <Text style={styles.tagline}>
         Your ultimate event planner and beyond!
       </Text>
 
-      {/* Description */}
+      
       <Text style={styles.description}>
         Bring everyone together—easily organize your reunion with family and friends in one central spot.
       </Text>
 
-      {/* Features Slider */}
+      
       <View style={styles.sliderContainer}>
         <Slider
-          height={400}
+          height={300}
           autoPlay={true}
           autoPlayInterval={4000}
-          showDots={true}
-          showArrows={true}
+          showDots={false}
+          showArrows={false}
           loop={true}
-          width={Layout.SCREEN_WIDTH - Spacing.xxl}
+          width={Layout.SCREEN_WIDTH - Spacing.xxxxl}
         >
           {featuresData.map((slideFeatures, index) => 
             renderFeatureSlide(slideFeatures)
           )}
+
         </Slider>
-      </View>
-
-      {/* Collaboration text */}
-      <View style={styles.collaborationContainer}>
         <Text style={styles.collaborationText}>
-          Collaborate with family and friends to streamline your reunion—all in one place.
+            Collaborate with family and friends to streamline your reunion—all in one place.
         </Text>
+     
       </View>
 
-      {/* Login/Create Account Buttons */}
+      
       <View style={styles.authButtonsContainer}>
         <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
           <Text style={styles.loginButtonText}>Login</Text>

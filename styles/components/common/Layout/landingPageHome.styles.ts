@@ -19,8 +19,8 @@ export const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.l,
     gap: isTablet() ? Spacing.m : Spacing.s,
-    maxWidth: isTablet() ? 600 : '100%',
-    alignSelf: 'center',
+    width: '100%',
+    alignSelf: 'center'
   },
   loginButton: {
     backgroundColor: Colors.light.background,
@@ -121,7 +121,6 @@ export const styles = StyleSheet.create({
     lineHeight: ResponsiveFontSizes.body * 1.4,
     marginTop: Spacing.m,
     padding: Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
     borderRadius: BorderRadius.m,
     color: Colors.light.text,
     fontWeight: Fonts.weights.medium,
@@ -294,7 +293,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: Spacing.l,
     marginBottom: Spacing.l,
-
   },
   featureSlide: {
     flex: 1,

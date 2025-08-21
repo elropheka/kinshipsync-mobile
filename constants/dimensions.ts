@@ -51,6 +51,8 @@ export const Spacing = {
   l: moderateScale(24),
   xl: moderateScale(32),
   xxl: moderateScale(48),
+  xxxl: moderateScale(64),
+  xxxxl: moderateScale(80), 
   screenHorizontalPadding: moderateScale(16),
   screenVerticalPadding: moderateScale(16),
 };

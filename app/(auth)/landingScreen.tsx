@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LandingPageHome from 'components/common/Layout/landingPageHome';
-import { styles } from '../../styles/app/(auth)/landingScreen.styles';
+import { styles } from '@/styles/app/(auth)/landingScreen.styles';
 
 const LandingScreen: React.FC = () => {
   const handleLoginPress = () => {
