@@ -1,22 +1,19 @@
-import React, { createContext, useContext, useEffect, useCallback, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import * as SecureStore from 'expo-secure-store';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
 import { useAppAuth } from '../hooks/useAppAuth';
-import { LoginCredentials, SignupCredentials, LoginResponse, SignupResponse, BackendUser } from '../types/auth';
-import { User as FirebaseUserT } from 'firebase/auth';
-
+import { LoginCredentials, SignupCredentials, BackendUser } from '../types/auth';
 import { 
   GoogleAuthProvider, 
   OAuthProvider,
-  getIdToken, 
   signInWithCredential, 
-  signInWithCustomToken, 
   onAuthStateChanged,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  User as FirebaseUserT
 } from 'firebase/auth';
 import { auth as firebaseAppAuth, firestore as clientFirestore } from '../services/firebaseConfig';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -55,7 +52,7 @@ const mapFirebaseUserToBackendUser = (
 };
 
 function fetchWithTimeout<TData>(promise: Promise<TData>, timeoutMs: number = 10000): Promise<TData> {
-  let timeoutId: number;
+  let timeoutId: NodeJS.Timeout;
   const timeoutPromise = new Promise<TData>((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error(`Operation timed out after ${timeoutMs} ms`));
@@ -86,24 +83,19 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const {
     user,
-    token, // from Redux, drives isAuthenticated
-    isLoading: isAuthLoading, // from Redux
+    token, 
+    isLoading: isAuthLoading, 
     error: authError,
-    isInitialized: isAuthInitialized, // From Redux
-    // directLogin, // Will be replaced by handleSignIn
-    // directSignup, // Will be replaced by handleSignUp
-    // googleLogin, // No longer used from useAppAuth here
-    // appleLogin, // Uncomment when implemented
-    // initializeAuth, // Will be replaced by onAuthStateChanged effect
-    logout,         // This thunk will be refactored in authSlice.ts
+    isInitialized: isAuthInitialized, 
+         
   } = useAppAuth();
-  const dispatch = useDispatch(); // For dispatching authSliceActions
+  const dispatch = useDispatch(); 
 
-  // This useEffect sets up the onAuthStateChanged listener
+
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '433750501084-trq5r04hpjv03s5u56ce3fqpsa64nuqu.apps.googleusercontent.com', // Web client ID for Firebase
-      iosClientId: '433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj.apps.googleusercontent.com', // iOS client ID from GoogleService-Info.plist
+      webClientId: '433750501084-trq5r04hpjv03s5u56ce3fqpsa64nuqu.apps.googleusercontent.com', 
+      iosClientId: '433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj.apps.googleusercontent.com', 
       offlineAccess: true, 
     });
 
@@ -117,42 +109,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           console.log('[AuthContext] Attempting to fetch profile for UID:', firebaseUser.uid);
           const profileDocRef = doc(clientFirestore, "profiles", firebaseUser.uid);
-          // Wrap getDoc with fetchWithTimeout
+         
           const profileSnap = await fetchWithTimeout(getDoc(profileDocRef)); 
           if (profileSnap.exists()) {
             userProfileData = profileSnap.data();
             console.log('[AuthContext] Profile data found:', userProfileData);
           } else {
             console.warn(`[AuthContext] Profile not found for UID: ${firebaseUser.uid}. This might be an issue if profile creation is expected.`);
-            // If profile is critical and not found, could treat as an error or proceed with Firebase data only
+
           }
         } catch (error) {
           console.error("[AuthContext] Error fetching profile (or timeout) during onAuthStateChanged:", error);
-          // If profile fetch fails, we can still proceed with Firebase user data.
-          // The appUser will be mapped using firebaseUser only.
+      
         }
         
         try {
           console.log('[AuthContext] Attempting to map Firebase user to BackendUser.');
-          // Pass userProfileData (which might be null if fetch failed)
+         
           appUser = mapFirebaseUserToBackendUser(firebaseUser, userProfileData);
           console.log('[AuthContext] Mapped appUser:', appUser);
         } catch (error) {
           console.error('[AuthContext] Error in mapFirebaseUserToBackendUser:', error);
-          // If mapping fails, we might not be able to proceed with a valid appUser.
-          // Consider clearing auth data or handling this as a critical error.
+      
         }
 
         try {
           console.log('[AuthContext] Attempting to get ID token.');
-          idToken = await firebaseUser.getIdToken(); // This can also fail
+          idToken = await firebaseUser.getIdToken();
           console.log('[AuthContext] ID token obtained:', idToken ? 'Exists (not logging full token)' : 'null');
         } catch (error) {
           console.error('[AuthContext] Error getting ID token:', error);
-          // If getting ID token fails, authentication cannot proceed.
+       
         }
 
-        // Proceed if we have at least the Firebase user mapped and an ID token
+      
         if (appUser && idToken) {
           try {
             console.log('[AuthContext] Attempting to store token in SecureStore.');
@@ -163,25 +153,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch (error) {
             console.error('[AuthContext] Error storing token or dispatching setAuthUserAndToken:', error);
             await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on error:', e));
-            dispatch(clearAuthData()); // Clear auth data on critical error
+            dispatch(clearAuthData()); 
           }
         } else {
-          // This case means appUser mapping might have failed or idToken couldn't be retrieved.
-          // This is a critical failure in the auth process.
+         
           console.warn('[AuthContext] Critical failure: appUser could not be mapped or idToken is null. Clearing auth data.');
           console.log('[AuthContext] Details: appUser is null?', !appUser, 'idToken is null?', !idToken);
           await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on critical failure:', e));
           dispatch(clearAuthData());
         }
       } else {
-        // No Firebase user (signed out state)
+    
         console.log('[AuthContext] No Firebase user. Clearing auth data.');
         await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on sign out:', e));
         dispatch(clearAuthData());
       }
       
-      // Always set isInitialized to true after the first auth state check completes,
-      // regardless of whether a user is signed in or if there were non-critical errors (like profile fetch).
+
       if (!isAuthInitialized) {
         console.log('[AuthContext] Dispatching setAuthIsInitialized(true). Current isAuthInitialized (from Redux):', isAuthInitialized);
         dispatch(setAuthIsInitialized(true));
@@ -192,15 +180,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[AuthContext] Unsubscribing from onAuthStateChanged.');
       unsubscribe();
     };
-  }, [dispatch, isAuthInitialized]); // Added isAuthInitialized to ensure effect runs if it changes externally, though typically it's set here.
+  }, [dispatch, isAuthInitialized]); 
 
   const handleSignIn = useCallback(async (credentials: LoginCredentials) => {
     dispatch(setAuthIsLoading(true));
     try {
-      // Client-side Firebase sign-in
+     
       await signInWithEmailAndPassword(firebaseAppAuth, credentials.email, credentials.pass);
-      // onAuthStateChanged will handle Redux state update and navigation
-      router.replace('/(main)/home'); // Removed for declarative navigation
+     
+      router.replace('/(main)/home'); 
 
     } catch (err: any) {
       console.error('AuthContext: Sign in failed', err);
@@ -208,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(auth)/signIn');
       throw err;
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
 
   const handleSignUp = useCallback(async (credentials: SignupCredentials) => {
     dispatch(setAuthIsLoading(true));
@@ -220,27 +208,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let avatarUrl: string | undefined = undefined;
       if (credentials.avatarUri) {
         try {
-          // Upload avatar if provided
+         
           const uploadResult = await uploadUserAvatar(credentials.avatarUri, newUserUid);
           avatarUrl = uploadResult.avatarUrl;
         } catch (uploadError) {
           console.error("AuthContext: Failed to upload avatar during signup", uploadError);
-          // Decide how to handle upload failure: proceed without avatar, show error, etc.
-          // For now, we'll log and proceed without the avatar.
+          
         }
       }
 
-      // Create profile in Firestore
-      const profileData: any = { // Use any for now, refine with a proper type later if needed
+  
+      const profileData: any = { 
         first_name: credentials.first_name,
         last_name: credentials.last_name,
-        phone: credentials.phone,
-        location: credentials.location,
         userId: newUserUid,
-        role: 'organizer', // Default role
+        role: 'organizer', 
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
+
+   
+      if (credentials.phone) {
+        profileData.phone = credentials.phone;
+      }
+      if (credentials.location) {
+        profileData.location = credentials.location;
+      }
 
       if (avatarUrl) {
         profileData.avatarUrl = avatarUrl;
@@ -254,7 +247,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dispatch(setAuthError(err.message || 'Sign up failed'));
       throw err;
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
 
   const handleSignOut = useCallback(async () => {
     dispatch(setAuthIsLoading(true));
@@ -266,7 +259,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dispatch(setAuthError(err.message || 'Sign out failed'));
       throw err;
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
 
   const handleSignInWithGoogle = useCallback(async () => {
     dispatch(setAuthIsLoading(true));
@@ -327,7 +320,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(auth)/signIn');
       throw error;
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
   
   const handleSignInWithApple = useCallback(async () => {
     dispatch(setAuthIsLoading(true));
@@ -337,13 +330,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Apple Sign In is only available on iOS devices');
       }
 
-      // Check if Apple Authentication is available
+     
       const isAvailable = await AppleAuthentication.isAvailableAsync();
       if (!isAvailable) {
         throw new Error('Apple Authentication is not available on this device');
       }
 
-      // Perform Apple Sign In
+   
       const appleAuthResponse = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
@@ -361,20 +354,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const provider = new OAuthProvider('apple.com');
       const credential = provider.credential({
         idToken: appleAuthResponse.identityToken,
-        rawNonce: appleAuthResponse.nonce,
+        rawNonce: appleAuthResponse.authorizationCode as string,
       });
 
-      // Sign in to Firebase with Apple credential
+     
       const userCredential = await signInWithCredential(firebaseAppAuth, credential);
       const firebaseUser = userCredential.user;
 
       if (firebaseUser) {
-        // Check if user profile exists, if not create one
+    
         const profileDocRef = doc(clientFirestore, "profiles", firebaseUser.uid);
         const profileSnap = await getDoc(profileDocRef);
         
         if (!profileSnap.exists()) {
-          // Create profile with Apple user data
+    
           const newProfileData = {
             first_name: appleAuthResponse.fullName?.givenName || firebaseUser.displayName?.split(' ')[0] || '',
             last_name: appleAuthResponse.fullName?.familyName || firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
@@ -406,7 +399,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       dispatch(setAuthIsLoading(false));
     }
-  }, [dispatch, router]);
+  }, [dispatch ]);
   
   const value = useMemo<AuthContextType>(() => ({
     isAuthenticated: !!user && !!token && isAuthInitialized,

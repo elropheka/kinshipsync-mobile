@@ -228,6 +228,12 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: Spacing.l,
   },
+  avatarLabel: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    marginBottom: Spacing.s,
+  },
   avatarPlaceholder: {
     width: moderateScale(80),
     height: moderateScale(80),

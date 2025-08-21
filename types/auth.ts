@@ -1,8 +1,8 @@
-// Types for your backend's user object
+
 interface UserMetadata {
   lastSignInTime?: string;
   creationTime?: string;
-  lastRefreshTime?: string; // Note: This was in your example, might be specific
+  lastRefreshTime?: string; 
 }
 
 interface UserProviderData {
@@ -17,14 +17,14 @@ export interface BackendUser {
   emailVerified?: boolean;
   disabled?: boolean;
   metadata?: UserMetadata;
-  tokensValidAfterTime?: string; // Note: This was in your example
+  tokensValidAfterTime?: string; 
   providerData?: UserProviderData[];
-  // Add any other fields your backend user object might have, e.g., name, photoURL
+ 
   displayName?: string;
   photoURL?: string;
 }
 
-// API Request/Response Types
+
 export interface LoginCredentials {
   email: string;
   pass: string;
@@ -35,9 +35,9 @@ export interface SignupCredentials {
   pass: string;
   first_name: string;
   last_name: string;
-  phone: string;
-  location: string;
-  avatarUri?: string | null; // Added optional avatarUri
+  phone?: string;
+  location?: string;
+  avatarUri?: string | null; 
 }
 
 export interface LoginResponse {
@@ -46,7 +46,7 @@ export interface LoginResponse {
 
 export interface SignupResponse {
   uid: string; 
-  token: string; // Custom Firebase token
+  token: string; 
 }
 
 export interface GetUserProfileResponse {
@@ -59,14 +59,14 @@ export interface FirebaseSocialAuthPayload {
 
 export interface FirebaseSocialAuthResponse {
   token: string;
-  user?: BackendUser; // User might be returned directly, or need a separate fetch
+  user?: BackendUser; 
 }
 
-// Redux Auth Slice State
+
 export interface AuthState {
   user: BackendUser | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
-  isInitialized: boolean; // To track if initial auth check (e.g., from SecureStore) is done
+  isInitialized: boolean; 
 }

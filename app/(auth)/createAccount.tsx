@@ -10,25 +10,25 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Removed FontAwesome since we're using custom GoogleIcon
+import { Ionicons } from '@expo/vector-icons'; 
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
-import { styles } from '../../styles/app/(auth)/createAccount.styles';
-import Toast from 'react-native-toast-message'; // For showing simple alerts
-import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
-import { Colors } from 'constants/Colors'; // Import Colors
-import { IconSizes } from '../../constants/dimensions';
-import GoogleIcon from '../../components/common/GoogleIcon';
+import { useAuth } from '@/context/AuthContext'; 
+import { styles } from '@/styles/app/(auth)/createAccount.styles';
+import Toast from 'react-native-toast-message'; 
+import * as ImagePicker from 'expo-image-picker'; 
+import { Colors } from '@/constants/Colors'; 
+import { IconSizes } from '@/constants/dimensions';
+import GoogleIcon from '@/components/common/GoogleIcon';
 
 interface FormData {
   fullName: string;
   email: string;
-  phoneNumber: string;
-  location: string;
+  phoneNumber?: string;
+  location?: string;
   password: string;
   acceptTerms: boolean;
-  avatarUri: string | null; // Added avatarUri
+  avatarUri: string | null; 
 }
 
 const CreateAccountScreen: React.FC = () => {
@@ -39,17 +39,17 @@ const CreateAccountScreen: React.FC = () => {
     location: '',
     password: '',
     acceptTerms: false,
-    avatarUri: null, // Initialize avatarUri
+    avatarUri: null, 
   });
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Added for password visibility
-  const [isLoading, setIsLoading] = useState(false); // Add loading state
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
-  const [isAppleLoading, setIsAppleLoading] = useState(false); // For Apple loading state
-  const { signUp, signInWithGoogle, signInWithApple } = useAuth(); // Get signUp and signInWithGoogle from AuthContext
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false); 
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false); 
+  const [isAppleLoading, setIsAppleLoading] = useState(false); 
+  const { signUp, signInWithGoogle, signInWithApple } = useAuth(); 
 
   const handleSignUp = async () => {
-    // Basic Validation
-    if (!formData.fullName || !formData.email || !formData.password || !formData.phoneNumber || !formData.location) {
+   
+    if (!formData.fullName || !formData.email || !formData.password) {
       Toast.show({ type: 'error', text1: 'Missing Fields', text2: 'Please fill in all required fields.', position: 'bottom' });
       return;
     }
@@ -66,20 +66,16 @@ const CreateAccountScreen: React.FC = () => {
 
       await signUp({
         email: formData.email.trim(),
-        pass: formData.password, // AuthContext expects 'pass'
+        pass: formData.password, 
         first_name,
         last_name,
-        phone: formData.phoneNumber.trim(),
-        location: formData.location.trim(),
-        avatarUri: formData.avatarUri, // Pass avatarUri to signUp
+        phone: formData.phoneNumber?.trim() || undefined,
+        location: formData.location?.trim() || undefined,
+        avatarUri: formData.avatarUri, 
       });
-      // Navigation is handled by AuthContext on success
     } catch (error: any) {
       console.error('Sign-Up failed on screen:', error);
-      // Toast for error is likely handled in AuthContext/authSlice
-      // If not, or for specific screen errors:
-      // Toast.show({ type: 'error', text1: 'Sign Up Failed', text2: error.message || 'An unexpected error occurred.', position: 'bottom' });
-      // As per feedback, navigate back on error.
+      Toast.show({ type: 'error', text1: 'Sign Up Failed', text2: error.message || 'An unexpected error occurred.', position: 'bottom' });
       if (router.canGoBack()) {
         router.back();
       }
@@ -98,8 +94,8 @@ const CreateAccountScreen: React.FC = () => {
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], // Square aspect ratio for avatars
-      quality: 0.7, // Compress image slightly
+      aspect: [1, 1], 
+      quality: 0.7, 
     });
 
     if (pickerResult.canceled === true) {
@@ -115,11 +111,8 @@ const CreateAccountScreen: React.FC = () => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
-      // Navigation is handled within signInWithGoogle on success
     } catch (error) {
       console.error('Google Sign-Up failed on screen:', error);
-      // Optionally, show an error message to the user
-      // As per feedback, navigate back on error for consistency
       if (router.canGoBack()) {
         router.back();
       }
@@ -134,20 +127,17 @@ const CreateAccountScreen: React.FC = () => {
       await signInWithApple();
     } catch (error) {
       console.error('Apple Sign Up failed:', error);
-      // Error handling is already done in AuthContext
     } finally {
       setIsAppleLoading(false);
     }
   };
 
   const handleSignIn = () => {
-    // Navigate to sign in screen
     router.push('/(auth)/signIn');
     console.log('Navigate to sign in');
   };
 
   const handleBackPress = () => {
-    // Navigate back to previous screen
     router.back();
   };
 
@@ -159,22 +149,23 @@ const CreateAccountScreen: React.FC = () => {
         style={styles.keyboardAvoidingView}
       >
         <ScrollView contentContainerStyle={styles.scrollView}>
-          {/* Header */}
+         
           <View style={styles.header}>
             <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
               <Ionicons name="chevron-back" size={24} color="black" />
             </TouchableOpacity>
           </View>
 
-          {/* Main Content */}
+         
           <View style={styles.content}>
             <Text style={styles.title}>Create an Account</Text>
             <Text style={styles.subtitle}>
-              Sign up to unlock exclusive features and a seamless experience on Kinship
+              Sign up to unlock exclusive features and a seamless experience on Kinship. Profile picture, phone number, and location are optional.
             </Text>
 
-            {/* Avatar Upload Section */}
+           
             <View style={styles.avatarContainer}>
+              <Text style={styles.avatarLabel}>Profile Picture (Optional)</Text>
               <TouchableOpacity onPress={handlePickAvatar}>
                 {formData.avatarUri ? (
                   <Image source={{ uri: formData.avatarUri }} style={styles.avatarImage} />
@@ -189,7 +180,7 @@ const CreateAccountScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Toggle between Sign Up and Sign In */}
+           
             <View style={styles.toggleContainer}>
               <TouchableOpacity style={styles.toggleButtonActive}>
                 <Text style={styles.toggleTextActive}>Sign Up</Text>
@@ -199,7 +190,7 @@ const CreateAccountScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Form */}
+           
             <View style={styles.form}>
               <View style={styles.inputContainer}>
                 <TextInput
@@ -227,7 +218,7 @@ const CreateAccountScreen: React.FC = () => {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Phone Number"
+                  placeholder="Phone Number (Optional)"
                   keyboardType="phone-pad"
                   autoCapitalize="none"
                   value={formData.phoneNumber}
@@ -239,7 +230,7 @@ const CreateAccountScreen: React.FC = () => {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Location (e.g., City, Country)"
+                  placeholder="Location (Optional) - e.g., City, Country"
                   autoCapitalize="sentences"
                   value={formData.location}
                   onChangeText={(text) => setFormData({ ...formData, location: text })}
@@ -261,12 +252,12 @@ const CreateAccountScreen: React.FC = () => {
                     name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
                     size={24}
                     color="#888"
-                    style={styles.inputIcon} // Re-using inputIcon style for now
+                    style={styles.inputIcon} 
                   />
                 </TouchableOpacity>
               </View>
 
-              {/* Terms and Conditions Checkbox */}
+           
               <View style={styles.termsContainer}>
                 <TouchableOpacity
                   style={styles.checkbox}
@@ -286,7 +277,7 @@ const CreateAccountScreen: React.FC = () => {
                 </Text>
               </View>
 
-              {/* Sign Up Button */}
+        
               <TouchableOpacity 
                 style={[styles.signUpButton, isLoading && styles.disabledButton]} 
                 onPress={handleSignUp}
@@ -296,14 +287,14 @@ const CreateAccountScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Or sign up with */}
+          
             <View style={styles.dividerContainer}>
               <View style={styles.divider} />
               <Text style={styles.dividerText}>or sign up with</Text>
               <View style={styles.divider} />
             </View>
 
-                        {/* Social Sign Up Buttons */}
+                       
             <View style={styles.socialButtons}>
               <TouchableOpacity 
                 style={[styles.googleButton, isGoogleLoading && styles.disabledButton]} 
@@ -326,7 +317,7 @@ const CreateAccountScreen: React.FC = () => {
               )}
             </View>
 
-            {/* Already have an account */}
+           
             <View style={styles.signInContainer}>
               <Text style={styles.signInText}>Already have an account? </Text>
               <TouchableOpacity onPress={handleSignIn}>
