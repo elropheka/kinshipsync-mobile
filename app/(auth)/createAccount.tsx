@@ -160,12 +160,12 @@ const CreateAccountScreen: React.FC = () => {
           <View style={styles.content}>
             <Text style={styles.title}>Create an Account</Text>
             <Text style={styles.subtitle}>
-              Sign up to unlock exclusive features and a seamless experience on Kinship. Profile picture, phone number, and location are optional.
+              Sign up to unlock exclusive features and a seamless experience on Kinship.
             </Text>
 
            
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatarLabel}>Profile Picture (Optional)</Text>
+              <Text style={styles.optionalLabel}>Profile Picture (Optional)</Text>
               <TouchableOpacity onPress={handlePickAvatar}>
                 {formData.avatarUri ? (
                   <Image source={{ uri: formData.avatarUri }} style={styles.avatarImage} />
@@ -192,69 +192,86 @@ const CreateAccountScreen: React.FC = () => {
 
            
             <View style={styles.form}>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Full name"
-                  autoCapitalize="words"
-                  value={formData.fullName}
-                  onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                />
-                <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  value={formData.email}
-                  onChangeText={(text) => setFormData({ ...formData, email: text })}
-                />
-                <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Phone Number (Optional)"
-                  keyboardType="phone-pad"
-                  autoCapitalize="none"
-                  value={formData.phoneNumber}
-                  onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-                />
-                <Text style={styles.inputIcon}>#</Text>
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Location (Optional) - e.g., City, Country"
-                  autoCapitalize="sentences"
-                  value={formData.location}
-                  onChangeText={(text) => setFormData({ ...formData, location: text })}
-                />
-                <Ionicons name="location-outline" size={20} color="#888" style={styles.inputIcon} />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Password"
-                  secureTextEntry={!isPasswordVisible}
-                  autoCapitalize="none"
-                  value={formData.password}
-                  onChangeText={(text) => setFormData({ ...formData, password: text })}
-                />
-                <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.passwordVisibilityToggle}>
-                  <Ionicons
-                    name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
-                    size={24}
-                    color="#888"
-                    style={styles.inputIcon} 
+              <Text style={styles.formNote}>Fields marked with * are required</Text>
+              
+              <View style={styles.inputWrapper}>
+                <Text style={styles.requiredLabel}>Full name *</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your full name"
+                    autoCapitalize="words"
+                    value={formData.fullName}
+                    onChangeText={(text) => setFormData({ ...formData, fullName: text })}
                   />
-                </TouchableOpacity>
+                  <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
+                </View>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Text style={styles.requiredLabel}>Email *</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email address"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={formData.email}
+                    onChangeText={(text) => setFormData({ ...formData, email: text })}
+                  />
+                  <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
+                </View>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Text style={styles.optionalLabel}>Phone Number (Optional)</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your phone number"
+                    keyboardType="phone-pad"
+                    autoCapitalize="none"
+                    value={formData.phoneNumber}
+                    onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+                  />
+                  <Text style={styles.inputIcon}>#</Text>
+                </View>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Text style={styles.optionalLabel}>Location (Optional)</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g., City, Country"
+                    autoCapitalize="sentences"
+                    value={formData.location}
+                    onChangeText={(text) => setFormData({ ...formData, location: text })}
+                  />
+                  <Ionicons name="location-outline" size={20} color="#888" style={styles.inputIcon} />
+                </View>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Text style={styles.requiredLabel}>Password *</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Create a strong password"
+                    secureTextEntry={!isPasswordVisible}
+                    autoCapitalize="none"
+                    value={formData.password}
+                    onChangeText={(text) => setFormData({ ...formData, password: text })}
+                  />
+                  <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.passwordVisibilityToggle}>
+                    <Ionicons
+                      name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                      size={24}
+                      color="#888"
+                      style={styles.inputIcon} 
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
            

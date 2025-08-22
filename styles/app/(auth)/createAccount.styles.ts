@@ -87,8 +87,16 @@ export const styles = StyleSheet.create({
   form: {
     marginTop: Spacing.s,
   },
-  inputContainer: {
+  formNote: {
+    fontSize: ResponsiveFontSizes.body,
+    color: Colors.light.textSecondary,
     marginBottom: Spacing.m,
+    fontStyle: 'italic',
+  },
+  inputWrapper: {
+    marginBottom: Spacing.m,
+  },
+  inputContainer: {
     borderWidth: 1,
     borderColor: Colors.light.border,
     borderRadius: BorderRadius.m,
@@ -96,6 +104,18 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     color: Colors.light.text,
+  },
+  requiredLabel: {
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+    color: Colors.light.text,
+    marginBottom: Spacing.xs,
+  },
+  optionalLabel: {
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.xs,
   },
   input: {
     flex: 1,
