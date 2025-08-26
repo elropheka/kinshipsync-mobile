@@ -134,9 +134,9 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
           )}
 
         </Slider>
-        <Text style={styles.collaborationText}>
+        {/* <Text style={styles.collaborationText}>
             Collaborate with family and friends to streamline your reunion—all in one place.
-        </Text>
+        </Text> */}
      
       </View>
 
