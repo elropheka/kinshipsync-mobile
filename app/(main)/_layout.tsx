@@ -3,7 +3,7 @@ import React, { useState, useRef, useCallback, createContext, useContext } from 
 import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
 
-import { SubscriptionProvider } from '@/context/SubscriptionContext';
+// import { SubscriptionProvider } from '@/context/SubscriptionContext';
 import { Colors } from '@/constants/Colors';
 import BackButton from '@/components/common/Navigation/BackButton'; 
 
@@ -42,7 +42,7 @@ function MainTabsLayout() {
 
   return (
     <ScrollContext.Provider value={{ handleScroll, isNavVisible }}>
-      <SubscriptionProvider>
+      {/* <SubscriptionProvider> */}
         <Tabs
           screenOptions={{
             headerShown: false,
@@ -80,16 +80,16 @@ function MainTabsLayout() {
             name="settings"
             options={{ title: "Settings", headerShown: true }}
           />
-          <Tabs.Screen
+          {/* <Tabs.Screen
             name="subscriptionPlans"
             options={{ title: "Subscription Plans", headerShown: true }}
-          />
+          /> */}
           <Tabs.Screen
             name="teams"
             options={{ title: "Teams", headerShown: true }}
           />
         </Tabs>
-      </SubscriptionProvider>
+      {/* </SubscriptionProvider> */}
     </ScrollContext.Provider>
   );
 }

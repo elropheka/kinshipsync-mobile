@@ -126,7 +126,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
 
   // Hide the navigation bar completely on settings and subscriptionPlans pages
   // This takes precedence over the scroll animation
-   const routesToHideTabBar = ['settings', 'subscriptionPlans'];
+   const routesToHideTabBar = ['settings'];
    // Safely access routeName
    if (routesToHideTabBar.includes(routeName)) {
      return null;
