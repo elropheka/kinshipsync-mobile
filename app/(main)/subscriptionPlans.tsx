@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(main)/subscriptionPlans.styles';
-import { useCurrentUser } from '../../hooks/useUser';
-import { SubscriptionPlan, UserSubscription } from '../../types/userTypes';
-import { Colors } from 'constants/Colors';
-import CustomAlert from '../../components/common/alert';
+import { styles } from '@/styles/app/(main)/subscriptionPlans.styles';
+import { useCurrentUser } from '@/hooks/useUser';
+// import { SubscriptionPlan, UserSubscription } from '../../types/userTypes';
+import { Colors } from '@/constants/Colors';
+import CustomAlert from '@/components/common/alert';
 
 const SubscriptionPlansScreen = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const { 
     availablePlans, 
     subscription: currentUserSubscription, 

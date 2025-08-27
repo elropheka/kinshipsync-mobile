@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StatusBar } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from 'constants/Colors';
-import { styles } from '../../styles/app/(main)/settings.styles';
-import { useCurrentUser } from '../../hooks/useUser';
-import { UserSettings, UpdateUserSettingsPayload } from '../../types/userTypes';
-import { useAuth } from '../../context/AuthContext';
+import { styles } from '@/styles/app/(main)/settings.styles';
+import { useCurrentUser } from '@/hooks/useUser';
+import { UserSettings, UpdateUserSettingsPayload } from '@/types/userTypes';
+import { useAuth } from '@/context/AuthContext';
 
 interface SettingOptionProps {
   title: string;
@@ -125,7 +125,7 @@ const SettingsScreen: React.FC = () => {
     try {
       await signOut();
       router.replace('/(auth)/signIn'); 
-    } catch (error) {
+    } catch {
       Alert.alert("Logout Failed", "Could not log out. Please try again.");
     }
   };

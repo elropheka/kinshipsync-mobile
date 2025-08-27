@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { AuthProvider } from "../context/AuthContext";
-import { SidebarProvider } from "../context/SidebarContext";
-import { ThemeProvider } from "../context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { SidebarProvider } from "@/context/SidebarContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
-import ErrorBoundary from "../components/common/ErrorBoundary";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';
-import AppCoreNav from "../components/common/Navigation/AppCoreNav";
-import { ResponsiveContainer } from "../components/common/Layout/ResponsiveContainer";
+import AppCoreNav from "@/components/common/Navigation/AppCoreNav";
+// import { ResponsiveContainer } from "@/components/common/Layout/ResponsiveContainer";
 import * as SplashScreen from 'expo-splash-screen'; 
 import { useFonts } from 'expo-font'; 
-import { Colors } from "../constants/Colors";
+import { Colors } from "@/constants/Colors";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -77,9 +77,9 @@ const RootLayout: React.FC = () => {
           <AuthProvider>
             <SidebarProvider>
               <ThemeProvider>
-                <ResponsiveContainer>
+                {/* <ResponsiveContainer> */}
                   <AppCoreNav />
-                </ResponsiveContainer>
+                {/* </ResponsiveContainer> */}
               </ThemeProvider>
             </SidebarProvider>
           </AuthProvider>

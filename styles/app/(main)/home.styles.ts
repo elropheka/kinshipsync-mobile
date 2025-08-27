@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
-import Fonts, { FontSizes } from 'constants/fonts';
+import Fonts from 'constants/fonts';
 import {
   Spacing,
   BorderRadius,
@@ -23,7 +23,6 @@ export const styles = StyleSheet.create({
     paddingVertical: isTablet() ? Spacing.l : Spacing.m,
     backgroundColor: Colors.light.backgroundLight,
     borderTopColor: Colors.light.icon,
-    marginHorizontal: isTablet() ? Layout.SCREEN_WIDTH * 0.08 : Layout.SCREEN_WIDTH * 0.06,
   },
   kinshipText: {
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
@@ -49,8 +48,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.icon,
     borderRadius: BorderRadius.l,
-    marginHorizontal: isTablet() ? Layout.SCREEN_WIDTH * 0.08 : Layout.SCREEN_WIDTH * 0.06,
-    paddingHorizontal: isTablet() ? Spacing.m : Spacing.s,
+    // paddingHorizontal: isTablet() ? Spacing.m : Spacing.s,
     marginTop: isTablet() ? Spacing.l : Spacing.m,
     marginBottom: isTablet() ? Spacing.m : Spacing.s,
     height: isTablet() ? Layout.SCREEN_HEIGHT * 0.07 : Layout.SCREEN_HEIGHT * 0.055,
@@ -66,7 +64,6 @@ export const styles = StyleSheet.create({
   },
   dashboardContent: {
     flex: 1,
-    marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
   },
   dashboardTitle: {
     fontSize: ResponsiveFontSizes.header3,

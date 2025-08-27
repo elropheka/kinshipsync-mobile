@@ -1,7 +1,7 @@
 import { StyleSheet, Platform } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
-import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale, isTablet } from 'constants/dimensions';
+import { Spacing, BorderRadius, ResponsiveFontSizes, Layout, isTablet } from 'constants/dimensions';
 
 export const styles = StyleSheet.create({
   container: {
@@ -42,9 +42,9 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionContainer: {
-    marginTop: isTablet() ? Spacing.xxl : Spacing.l,
-    marginBottom: isTablet() ? Spacing.m : Spacing.s,
-    marginHorizontal: isTablet() ? Spacing.xl : Spacing.m,
+    marginTop: Spacing.l,
+    marginBottom: Spacing.s,
+    marginHorizontal: Spacing.m,
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: isTablet() ? Spacing.l : Spacing.m,
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
-    maxWidth: isTablet() ? 800 : '100%',
+    width: Layout.SCREEN_WIDTH * 0.8,
     alignSelf: isTablet() ? 'center' : 'stretch',
   },
   sectionTitle: {

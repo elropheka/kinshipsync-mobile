@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/Colors';
+import { Colors } from '@/constants/Colors';
+import { Layout } from 'constants/dimensions';
 
 export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boolean) => {
-  const basePadding = isTablet ? 24 : 16;
-  const maxWidth = isTablet ? 1200 : '100%';
+  // const basePadding = isTablet ? 24 : 16;
+  // const maxWidth = isTablet ? 1200 : '100%';
   
   return StyleSheet.create({
     container: {
@@ -12,14 +13,12 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
     },
     content: {
       flex: 1,
-      paddingHorizontal: basePadding,
-      maxWidth: maxWidth,
       alignSelf: 'center',
-      width: '100%',
+      width: Layout.SCREEN_WIDTH,
     },
     header: {
       paddingVertical: isTablet ? 20 : 16,
-      paddingHorizontal: basePadding,
+      // paddingHorizontal: basePadding,
       borderBottomWidth: 1,
       borderBottomColor: Colors.light?.border || '#E5E5E5',
     },
@@ -39,7 +38,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
     card: {
       backgroundColor: Colors.light?.background || '#FFFFFF',
       borderRadius: 12,
-      padding: basePadding,
+      // padding: basePadding,
       marginBottom: 16,
       shadowColor: Colors.light?.divider || '#000000',
       shadowOffset: {
@@ -83,7 +82,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       margin: isTablet ? 40 : 20,
       borderRadius: 12,
       backgroundColor: Colors.light?.background || '#FFFFFF',
-      padding: basePadding,
+      // padding: basePadding,
     },
     modalHeader: {
       flexDirection: 'row',
@@ -99,7 +98,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       flexDirection: 'row',
       alignItems: 'center',
       paddingVertical: isTablet ? 16 : 12,
-      paddingHorizontal: basePadding,
+      // paddingHorizontal: basePadding,
       borderBottomWidth: 1,
       borderBottomColor: Colors.light?.border || '#E5E5E5',
     },

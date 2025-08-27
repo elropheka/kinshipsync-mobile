@@ -114,7 +114,7 @@ const DashboardScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
       <ResponsiveContainer>
         
-        <View style={[styles.header, { paddingHorizontal: isTablet ? 24 : 16 }]}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={globalToggleSidebar}>
             <Text style={[styles.kinshipText, { fontSize: isTablet ? 28 : 24 }]}>Kinship</Text>
           </TouchableOpacity>
@@ -162,7 +162,7 @@ const DashboardScreen: React.FC = () => {
           Welcome, {welcomeName}!
         </Text>
         <ScrollView 
-          style={[styles.dashboardContent, { paddingHorizontal: isTablet ? 24 : 16 }]} 
+          style={styles.dashboardContent} 
           showsVerticalScrollIndicator={false} 
           onScroll={handleScroll} 
           scrollEventThrottle={16}
