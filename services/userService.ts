@@ -1,6 +1,5 @@
 import {
   UserProfile, UpdateUserProfilePayload,
-  Notification, MarkNotificationReadPayload, MarkAllNotificationsReadPayload,
   SubscriptionPlan, UserSubscription, ChangeSubscriptionPayload, CancelSubscriptionPayload,
   UserSettings, UpdateUserSettingsPayload,
   Notification as UserNotification // Alias to avoid conflict if Notification is imported from elsewhere
@@ -9,7 +8,6 @@ import {
 import {
   collection,
   doc,
-  addDoc,
   setDoc, // Added setDoc
   getDoc,
   getDocs,
@@ -27,19 +25,6 @@ import {
 import { firestore } from './firebaseConfig';
 
 
-// --- Mock Data ---
-let mockUserProfiles: UserProfile[] = [];
-let mockNotifications: Notification[] = [];
-let mockUserSubscriptions: UserSubscription[] = [];
-let mockUserSettings: UserSettings[] = [];
-let mockAvailablePlans: SubscriptionPlan[] = [
-  { id: 'free', name: 'Free Tier', description: 'Basic access', price: 0, currency: 'USD', interval: 'month', features: ['View events', 'RSVP'], isCurrentPlan: false, metadata: { color: '#757575', accentColor: '#f5f5f5'} },
-  { id: 'premium_monthly', name: 'Premium Monthly', description: 'Full access, billed monthly', price: 999, currency: 'USD', interval: 'month', features: ['Create events', 'Manage teams', 'Advanced analytics'], trialDays: 7, metadata: { color: '#42A5F5', accentColor: '#E3F2FD'} },
-  { id: 'premium_yearly', name: 'Premium Yearly', description: 'Full access, billed yearly (save 20%)', price: 9999, currency: 'USD', interval: 'year', features: ['Create events', 'Manage teams', 'Advanced analytics'], metadata: { color: '#66BB6A', accentColor: '#E8F5E9'} },
-];
-
-const generateId = () => Math.random().toString(36).substr(2, 9);
-const getCurrentISOString = () => new Date().toISOString();
 
 // === User Profile Management ===
 export const getUserProfile = async (isAuthenticated: boolean, userId: string): Promise<UserProfile | null> => {
@@ -524,8 +509,7 @@ export const changeUserSubscription = async (isAuthenticated: boolean, userId: s
     if (!newPlan) throw new Error(`Plan with ID ${payload.newPlanId} not found.`);
 
     const subDocRef = doc(firestore, 'users', userId, 'subscription', 'current');
-    
-    const now = new Date();
+
     const startDate = serverTimestamp();
     let trialEndDateFirestore: FieldValue | undefined = undefined;
     if (newPlan.trialDays && newPlan.trialDays > 0) {
@@ -534,9 +518,7 @@ export const changeUserSubscription = async (isAuthenticated: boolean, userId: s
       // trialEndDate = Timestamp.fromDate(new Date(now.getTime() + newPlan.trialDays * 24 * 60 * 60 * 1000));
     }
     
-    let nextBillingDateFirestore: FieldValue | undefined = undefined;
-    // Similar logic for nextBillingDate - ideally calculated and set by backend upon successful payment/subscription start
-    
+
     // Data to be written to Firestore
     const subscriptionDataForFirestore: any = {
       planId: newPlan.id,
