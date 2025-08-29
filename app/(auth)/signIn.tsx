@@ -69,21 +69,34 @@ const SignInScreen: React.FC = () => {
       return;
     }
     setIsLoading(true);
-    await signIn({ email: formData.email, pass: formData.password });
+    const signInResponse = await signIn({ email: formData.email, pass: formData.password });
+    if (signInResponse) {
+      showAlert('success', 'Sign In Successful', 'You are now signed in.');
+    } else {
+      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
+    }
     setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await signInWithGoogle();
-   
+    const signInWithGoogleResponse = await signInWithGoogle();
+    if (signInWithGoogleResponse) {
+      showAlert('success', 'Sign In Successful', 'You are now signed in.');
+    } else {
+      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
+    }
     setIsGoogleLoading(false);
   };
 
   const handleAppleSignIn = async () => {
     setIsAppleLoading(true);
-    await signInWithApple();
-    
+    const signInWithAppleResponse = await signInWithApple();
+    if (signInWithAppleResponse) {
+      showAlert('success', 'Sign In Successful', 'You are now signed in.');
+    } else {
+      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
+    }
     setIsAppleLoading(false);
   };
 
@@ -98,7 +111,7 @@ const SignInScreen: React.FC = () => {
   };
 
   const handleBackPress = () => {
-    // Navigate back to previous screen
+    
     router.back();
   };
 

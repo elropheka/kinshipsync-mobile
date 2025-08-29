@@ -92,7 +92,7 @@ const CreateAccountScreen: React.FC = () => {
     const first_name = nameParts[0] || '';
     const last_name = nameParts.slice(1).join(' ') || '';
 
-    await signUp({
+    const  signUpResponse = await signUp({
       email: formData.email.trim(),
       pass: formData.password, 
       first_name,
@@ -101,11 +101,15 @@ const CreateAccountScreen: React.FC = () => {
       location: formData.location?.trim() || undefined,
       avatarUri: formData.avatarUri, 
     });
+    if (signUpResponse) {
+      showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
+    } else {
+      showAlert('error', 'Account Creation Failed', 'Please check your credentials and try again.');
+    }
+   
+   
     
-    // Show success message before navigation
-    showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
-    
-    // Navigate after a short delay to show the success message
+   
     setTimeout(() => {
       hideAlert();
     }, 2000);
@@ -138,15 +142,25 @@ const CreateAccountScreen: React.FC = () => {
 
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
-    await signInWithGoogle();
-    // Errors are handled by the alert service
+    const signInWithGoogleResponse = await signInWithGoogle();
+    if (signInWithGoogleResponse) {
+      showAlert('success', 'Sign In Successful', 'You are now signed in.');
+    } else {
+      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
+    }
+   
     setIsGoogleLoading(false);
   };
 
   const handleAppleSignUp = async () => {
     setIsAppleLoading(true);
-    await signInWithApple();
-    // Errors are handled by the alert service
+    const signInWithAppleResponse = await signInWithApple();
+    if (signInWithAppleResponse) {
+      showAlert('success', 'Sign In Successful', 'You are now signed in.');
+    } else {
+      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
+    }
+  
     setIsAppleLoading(false);
   };
 
