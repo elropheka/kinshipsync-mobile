@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext'; 
 import { styles } from '@/styles/app/(auth)/createAccount.styles';
-import Toast from 'react-native-toast-message'; 
+import CustomAlert, { AlertType } from '@/components/common/alert';
 import * as ImagePicker from 'expo-image-picker'; 
 import { Colors } from '@/constants/Colors'; 
 import { IconSizes } from '@/constants/dimensions';
@@ -45,16 +45,44 @@ const CreateAccountScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false); 
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); 
   const [isAppleLoading, setIsAppleLoading] = useState(false); 
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    type: AlertType;
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    type: 'error',
+    title: '',
+    message: '',
+  });
   const { signUp, signInWithGoogle, signInWithApple } = useAuth(); 
 
+  const showAlert = (type: AlertType, title: string, message: string) => {
+    console.log('showAlert called:', { type, title, message });
+    setAlertConfig({
+      visible: true,
+      type,
+      title,
+      message,
+    });
+  };
+
+  const hideAlert = () => {
+    console.log('hideAlert called');
+    setAlertConfig({
+      ...alertConfig,
+      visible: false,
+    });
+  };
+
   const handleSignUp = async () => {
-   
     if (!formData.fullName || !formData.email || !formData.password) {
-      Toast.show({ type: 'error', text1: 'Missing Fields', text2: 'Please fill in all required fields.', position: 'bottom' });
+      showAlert('error', 'Missing Fields', 'Please fill in all required fields.');
       return;
     }
     if (!formData.acceptTerms) {
-      Toast.show({ type: 'error', text1: 'Terms Not Accepted', text2: 'Please accept the terms and conditions.', position: 'bottom' });
+      showAlert('error', 'Terms Not Accepted', 'Please accept the terms and conditions.');
       return;
     }
 
@@ -73,12 +101,19 @@ const CreateAccountScreen: React.FC = () => {
         location: formData.location?.trim() || undefined,
         avatarUri: formData.avatarUri, 
       });
+      
+      // Show success message before navigation
+      showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
+      
+      // Navigate after a short delay to show the success message
+      setTimeout(() => {
+        hideAlert();
+      }, 2000);
+      
     } catch (error: any) {
       console.error('Sign-Up failed on screen:', error);
-      Toast.show({ type: 'error', text1: 'Sign Up Failed', text2: error.message || 'An unexpected error occurred.', position: 'bottom' });
-      if (router.canGoBack()) {
-        router.back();
-      }
+      const errorMessage = error.message || 'An unexpected error occurred during account creation.';
+      showAlert('error', 'Sign Up Failed', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +122,7 @@ const CreateAccountScreen: React.FC = () => {
   const handlePickAvatar = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Toast.show({ type: 'error', text1: 'Permission Required', text2: 'Permission to access camera roll is required to set your avatar.', position: 'bottom' });
+      showAlert('error', 'Permission Required', 'Permission to access camera roll is required to set your avatar.');
       return;
     }
 
@@ -111,11 +146,10 @@ const CreateAccountScreen: React.FC = () => {
     setIsGoogleLoading(true);
     try {
       await signInWithGoogle();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google Sign-Up failed on screen:', error);
-      if (router.canGoBack()) {
-        router.back();
-      }
+      const errorMessage = error.message || 'Google sign-up failed. Please try again.';
+      showAlert('error', 'Google Sign-Up Failed', errorMessage);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -125,8 +159,10 @@ const CreateAccountScreen: React.FC = () => {
     setIsAppleLoading(true);
     try {
       await signInWithApple();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Apple Sign Up failed:', error);
+      const errorMessage = error.message || 'Apple sign-up failed. Please try again.';
+      showAlert('error', 'Apple Sign-Up Failed', errorMessage);
     } finally {
       setIsAppleLoading(false);
     }
@@ -344,6 +380,13 @@ const CreateAccountScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 };
