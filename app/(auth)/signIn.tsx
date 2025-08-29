@@ -9,15 +9,15 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Removed FontAwesome since we're using custom GoogleIcon
+import { Ionicons } from '@expo/vector-icons'; 
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../context/AuthContext';
-import { IconSizes } from '../../constants/dimensions';
-import { styles } from '../../styles/app/(auth)/signIn.styles';
+import { useAuth } from '@/context/AuthContext';
+import { IconSizes } from '@/constants/dimensions';
+import { styles } from '@/styles/app/(auth)/signIn.styles';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import GoogleIcon from '../../components/common/GoogleIcon';
-import CustomAlert, { AlertType } from '../../components/common/alert';
+import GoogleIcon from '@/components/common/GoogleIcon';
+import CustomAlert, { AlertType } from '@/components/common/alert';
 
 
 interface FormData {
@@ -69,52 +69,31 @@ const SignInScreen: React.FC = () => {
       return;
     }
     setIsLoading(true);
-    try {
-      await signIn({ email: formData.email, pass: formData.password });
-      // Navigation is handled by AuthContext on success
-    } catch (error: any) {
-      console.error('Sign-In failed on screen:', error);
-      const errorMessage = error.message || 'Sign-in failed. Please check your credentials and try again.';
-      showAlert('error', 'Sign-In Failed', errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    await signIn({ email: formData.email, pass: formData.password });
+    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      // Navigation is handled within signInWithGoogle on success
-    } catch (error: any) {
-      console.error('Google Sign-In failed on screen:', error);
-      const errorMessage = error.message || 'Google sign-in failed. Please try again.';
-      showAlert('error', 'Google Sign-In Failed', errorMessage);
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    await signInWithGoogle();
+   
+    setIsGoogleLoading(false);
   };
 
   const handleAppleSignIn = async () => {
     setIsAppleLoading(true);
-    try {
-      await signInWithApple();
-    } catch (error: any) {
-      console.error('Apple Sign In failed:', error);
-      const errorMessage = error.message || 'Apple sign-in failed. Please try again.';
-      showAlert('error', 'Apple Sign-In Failed', errorMessage);
-    } finally {
-      setIsAppleLoading(false);
-    }
+    await signInWithApple();
+    
+    setIsAppleLoading(false);
   };
 
   const handleSignUp = () => {
-    // Navigate to sign up screen
+  
     router.push('/createAccount');
   };
 
   const handleForgotPassword = () => {
-    // Navigate to forgot password screen
+   
     router.push({ pathname: '/(auth)/ForgotPasswordScreen' });
   };
 
@@ -145,7 +124,7 @@ const SignInScreen: React.FC = () => {
               Hello, kindly fill in the required information below to continue
             </Text>
 
-            {/* Toggle between Sign In and Sign Up */}
+           
             <View style={styles.toggleContainer}>
               <TouchableOpacity style={styles.toggleButtonActive}>
                 <Text style={styles.toggleTextActive}>Sign In</Text>
@@ -155,7 +134,7 @@ const SignInScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Form */}
+            
             <View style={styles.form}>
               <View style={styles.inputContainer}>
                 <TextInput
@@ -212,12 +191,12 @@ const SignInScreen: React.FC = () => {
               <View style={styles.divider} />
             </View>
 
-            {/* Social Sign In Buttons */}
+           
             <View style={styles.socialButtons}>
               <TouchableOpacity 
                 style={[styles.googleButton, isGoogleLoading && styles.disabledButton]} // Optional: style for disabled state
                 onPress={handleGoogleSignIn}
-                disabled={isGoogleLoading} // Disable button when loading
+                disabled={isGoogleLoading}
               >
                 <GoogleIcon size={IconSizes.m} style={styles.socialIcon} />
                 <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing In...' : 'Google'}</Text>
@@ -235,7 +214,7 @@ const SignInScreen: React.FC = () => {
               )}
             </View>
 
-            {/* Need an account */}
+            
             <View style={styles.signUpContainer}>
               <Text style={styles.signUpText}>Need an account? </Text>
               <TouchableOpacity onPress={handleSignUp}>

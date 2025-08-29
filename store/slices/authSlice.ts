@@ -92,6 +92,9 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
+    clearAuthError: (state) => {
+      state.error = null;
+    },
     setAuthIsInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
       if (action.payload) state.isLoading = false;
@@ -117,6 +120,7 @@ export const {
   clearAuthData,
   setAuthIsLoading,
   setAuthError,
+  clearAuthError,
   setAuthIsInitialized,
   resetAuthState,
 } = authSlice.actions;

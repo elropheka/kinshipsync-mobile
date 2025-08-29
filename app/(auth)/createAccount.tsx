@@ -13,7 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'; 
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/context/AuthContext'; 
+import { useAuth } from '@/context/AuthContext';
 import { styles } from '@/styles/app/(auth)/createAccount.styles';
 import CustomAlert, { AlertType } from '@/components/common/alert';
 import * as ImagePicker from 'expo-image-picker'; 
@@ -56,7 +56,7 @@ const CreateAccountScreen: React.FC = () => {
     title: '',
     message: '',
   });
-  const { signUp, signInWithGoogle, signInWithApple } = useAuth(); 
+    const { signUp, signInWithGoogle, signInWithApple } = useAuth();
 
   const showAlert = (type: AlertType, title: string, message: string) => {
     console.log('showAlert called:', { type, title, message });
@@ -87,36 +87,30 @@ const CreateAccountScreen: React.FC = () => {
     }
 
     setIsLoading(true);
-    try {
-      const nameParts = formData.fullName.trim().split(' ');
-      const first_name = nameParts[0] || '';
-      const last_name = nameParts.slice(1).join(' ') || '';
+    
+    const nameParts = formData.fullName.trim().split(' ');
+    const first_name = nameParts[0] || '';
+    const last_name = nameParts.slice(1).join(' ') || '';
 
-      await signUp({
-        email: formData.email.trim(),
-        pass: formData.password, 
-        first_name,
-        last_name,
-        phone: formData.phoneNumber?.trim() || undefined,
-        location: formData.location?.trim() || undefined,
-        avatarUri: formData.avatarUri, 
-      });
-      
-      // Show success message before navigation
-      showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
-      
-      // Navigate after a short delay to show the success message
-      setTimeout(() => {
-        hideAlert();
-      }, 2000);
-      
-    } catch (error: any) {
-      console.error('Sign-Up failed on screen:', error);
-      const errorMessage = error.message || 'An unexpected error occurred during account creation.';
-      showAlert('error', 'Sign Up Failed', errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    await signUp({
+      email: formData.email.trim(),
+      pass: formData.password, 
+      first_name,
+      last_name,
+      phone: formData.phoneNumber?.trim() || undefined,
+      location: formData.location?.trim() || undefined,
+      avatarUri: formData.avatarUri, 
+    });
+    
+    // Show success message before navigation
+    showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
+    
+    // Navigate after a short delay to show the success message
+    setTimeout(() => {
+      hideAlert();
+    }, 2000);
+    
+    setIsLoading(false);
   };
 
   const handlePickAvatar = async () => {
@@ -144,28 +138,16 @@ const CreateAccountScreen: React.FC = () => {
 
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-    } catch (error: any) {
-      console.error('Google Sign-Up failed on screen:', error);
-      const errorMessage = error.message || 'Google sign-up failed. Please try again.';
-      showAlert('error', 'Google Sign-Up Failed', errorMessage);
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    await signInWithGoogle();
+    // Errors are handled by the alert service
+    setIsGoogleLoading(false);
   };
 
   const handleAppleSignUp = async () => {
     setIsAppleLoading(true);
-    try {
-      await signInWithApple();
-    } catch (error: any) {
-      console.error('Apple Sign Up failed:', error);
-      const errorMessage = error.message || 'Apple sign-up failed. Please try again.';
-      showAlert('error', 'Apple Sign-Up Failed', errorMessage);
-    } finally {
-      setIsAppleLoading(false);
-    }
+    await signInWithApple();
+    // Errors are handled by the alert service
+    setIsAppleLoading(false);
   };
 
   const handleSignIn = () => {

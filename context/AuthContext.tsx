@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux';
 import * as SecureStore from 'expo-secure-store';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
-import { useAppAuth } from '../hooks/useAppAuth';
+import { alertService } from '../services/alertService';
+import { useAppAuth } from '@/hooks/useAppAuth';
 import { LoginCredentials, SignupCredentials, BackendUser } from '../types/auth';
 import { 
   GoogleAuthProvider, 
@@ -15,16 +16,15 @@ import {
   signInWithEmailAndPassword,
   User as FirebaseUserT
 } from 'firebase/auth';
-import { auth as firebaseAppAuth, firestore as clientFirestore } from '../services/firebaseConfig';
+import { auth as firebaseAppAuth, firestore as clientFirestore } from '@/services/firebaseConfig';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { GoogleSignin, statusCodes, User as GoogleUser } from '@react-native-google-signin/google-signin';
-import { uploadUserAvatar } from '../services/storageService';
+import { uploadUserAvatar } from '@/services/storageService';
 
 import {
   setAuthUserAndToken,
   clearAuthData,
   setAuthIsLoading,
-  setAuthError,
   setAuthIsInitialized,
 } from '../store/slices/authSlice';
 
@@ -185,29 +185,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleSignIn = useCallback(async (credentials: LoginCredentials) => {
     dispatch(setAuthIsLoading(true));
     try {
+     
       await signInWithEmailAndPassword(firebaseAppAuth, credentials.email, credentials.pass);
+     
       router.replace('/(main)/home'); 
+
     } catch (err: any) {
       console.error('AuthContext: Sign in failed', err);
-      let userFriendlyMessage = 'Sign in failed. Please try again.';
-      
-      // Provide user-friendly error messages for common Firebase errors
-      if (err.code === 'auth/user-not-found') {
-        userFriendlyMessage = 'No account found with this email address. Please check your email or create a new account.';
-      } else if (err.code === 'auth/wrong-password') {
-        userFriendlyMessage = 'Incorrect password. Please check your password and try again.';
-      } else if (err.code === 'auth/invalid-email') {
-        userFriendlyMessage = 'Invalid email address. Please enter a valid email.';
-      } else if (err.code === 'auth/too-many-requests') {
-        userFriendlyMessage = 'Too many failed attempts. Please try again later.';
-      } else if (err.code === 'auth/user-disabled') {
-        userFriendlyMessage = 'This account has been disabled. Please contact support.';
-      } else if (err.code === 'auth/network-request-failed') {
-        userFriendlyMessage = 'Network error. Please check your internet connection and try again.';
-      }
-      
-      dispatch(setAuthError(userFriendlyMessage));
-      throw new Error(userFriendlyMessage);
+      const errorMessage = err.message || 'Sign in failed';
+      alertService.showAlert('error', 'Sign In Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
     }
@@ -223,15 +209,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let avatarUrl: string | undefined = undefined;
       if (credentials.avatarUri) {
         try {
+         
           const uploadResult = await uploadUserAvatar(credentials.avatarUri, newUserUid);
           avatarUrl = uploadResult.avatarUrl;
         } catch (uploadError) {
           console.error("AuthContext: Failed to upload avatar during signup", uploadError);
-          // Continue with signup even if avatar upload fails
+          
         }
       }
 
-      // Create user profile in Firestore
+  
       const profileData: any = { 
         first_name: credentials.first_name,
         last_name: credentials.last_name,
@@ -241,7 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatedAt: serverTimestamp()
       };
 
-      // Add optional fields if provided
+   
       if (credentials.phone) {
         profileData.phone = credentials.phone;
       }
@@ -258,23 +245,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(main)/home');
     } catch (err: any) {
       console.error('AuthContext: Sign up failed', err);
-      let userFriendlyMessage = 'Sign up failed. Please try again.';
-      
-      // Provide user-friendly error messages for common Firebase errors
-      if (err.code === 'auth/email-already-in-use') {
-        userFriendlyMessage = 'An account with this email already exists. Please sign in instead.';
-      } else if (err.code === 'auth/invalid-email') {
-        userFriendlyMessage = 'Invalid email address. Please enter a valid email.';
-      } else if (err.code === 'auth/weak-password') {
-        userFriendlyMessage = 'Password is too weak. Please choose a stronger password (at least 6 characters).';
-      } else if (err.code === 'auth/operation-not-allowed') {
-        userFriendlyMessage = 'Email/password accounts are not enabled. Please contact support.';
-      } else if (err.code === 'auth/network-request-failed') {
-        userFriendlyMessage = 'Network error. Please check your internet connection and try again.';
-      }
-      
-      dispatch(setAuthError(userFriendlyMessage));
-      throw new Error(userFriendlyMessage);
+      const errorMessage = err.message || 'Sign up failed';
+      alertService.showAlert('error', 'Sign Up Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
     }
@@ -287,8 +259,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(auth)/signIn');
     } catch (err: any) {
       console.error('AuthContext: Sign out failed', err);
-      dispatch(setAuthError(err.message || 'Sign out failed'));
-      throw err;
+      const errorMessage = err.message || 'Sign out failed';
+      alertService.showAlert('error', 'Sign Out Failed', errorMessage);
+    } finally {
+      dispatch(setAuthIsLoading(false));
     }
   }, [dispatch]);
 
@@ -310,7 +284,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Google Sign-In result:', googleSignInResponse);
 
       if (!googleSignInResponse || !googleSignInResponse.data.idToken) {
-        throw new Error('Google Sign-In failed to return an ID token.');
+        const errorMessage = 'Google Sign-In failed to return an ID token.';
+        alertService.showAlert('error', 'Google Sign-In Failed', errorMessage);
+        return;
       }
       const googleCredential = GoogleAuthProvider.credential(googleSignInResponse.data.idToken);
       const userCredential = await signInWithCredential(firebaseAppAuth, googleCredential);
@@ -338,32 +314,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         router.replace('/(main)/home');
       } else {
-        throw new Error('No user returned from Firebase after Google Sign-In');
+        alertService.showAlert('error', 'Google Sign-In Failed', 'No user returned from Firebase after Google Sign-In');
+        return;
       }
     } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('Google Sign-In cancelled');
-        // Don't show error for user cancellation
-        return;
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Google Sign-In in progress');
-        return;
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.error('Google Play services not available');
-        dispatch(setAuthError('Google Play services not available. Please update Google Play Services.'));
-      } else {
-        console.error('AuthContext: Google Sign-In failed', error);
-        let userFriendlyMessage = 'Google Sign-In failed. Please try again.';
-        
-        if (error.code === 'auth/network-request-failed') {
-          userFriendlyMessage = 'Network error. Please check your internet connection and try again.';
-        } else if (error.code === 'auth/account-exists-with-different-credential') {
-          userFriendlyMessage = 'An account already exists with this email using a different sign-in method.';
-        }
-        
-        dispatch(setAuthError(userFriendlyMessage));
-      }
-      throw error;
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) console.log('Google Sign-In cancelled');
+      else if (error.code === statusCodes.IN_PROGRESS) console.log('Google Sign-In in progress');
+      else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) console.error('Google Play services not available');
+      else console.error('AuthContext: Google Sign-In failed', error);
+      alertService.showAlert('error', 'Google Sign-In Failed', error.message || 'Google Sign-In failed');
+    } finally {
+      dispatch(setAuthIsLoading(false));
     }
   }, [dispatch]);
   
@@ -372,13 +333,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Check if we're on iOS
       if (Platform.OS !== 'ios') {
-        throw new Error('Apple Sign In is only available on iOS devices');
+        alertService.showAlert('error', 'Apple Sign-In Failed', 'Apple Sign In is only available on iOS devices');
+        return;
       }
 
      
       const isAvailable = await AppleAuthentication.isAvailableAsync();
       if (!isAvailable) {
-        throw new Error('Apple Authentication is not available on this device');
+        alertService.showAlert('error', 'Apple Sign-In Failed', 'Apple Authentication is not available on this device');
+        return;
       }
 
    
@@ -392,7 +355,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Apple Sign-In result:', appleAuthResponse);
 
       if (!appleAuthResponse.identityToken) {
-        throw new Error('Apple Sign-In failed to return an identity token.');
+        alertService.showAlert('error', 'Apple Sign-In Failed', 'Apple Sign-In failed to return an identity token.');
+        return;
       }
 
       // Create OAuth provider credential for Firebase
@@ -430,27 +394,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         router.replace('/(main)/home');
       } else {
-        throw new Error('No user returned from Firebase after Apple Sign-In');
+        alertService.showAlert('error', 'Apple Sign-In Failed', 'No user returned from Firebase after Apple Sign-In');
+        return;
       }
     } catch (error: any) {
       if (error.code === 'ERR_CANCELED') {
         console.log('Apple Sign-In cancelled by user');
-        // Don't show error for user cancellation
-        return;
       } else {
         console.error('AuthContext: Apple Sign-In failed', error);
-        let userFriendlyMessage = 'Apple Sign-In failed. Please try again.';
-        
-        if (error.code === 'auth/network-request-failed') {
-          userFriendlyMessage = 'Network error. Please check your internet connection and try again.';
-        } else if (error.code === 'auth/account-exists-with-different-credential') {
-          userFriendlyMessage = 'An account already exists with this email using a different sign-in method.';
-        } else if (error.message?.includes('not available')) {
-          userFriendlyMessage = 'Apple Sign In is not available on this device.';
-        }
-        
-        dispatch(setAuthError(userFriendlyMessage));
-        throw new Error(userFriendlyMessage);
+        alertService.showAlert('error', 'Apple Sign-In Failed', error.message || 'Apple Sign-In failed');
       }
     } finally {
       dispatch(setAuthIsLoading(false));
