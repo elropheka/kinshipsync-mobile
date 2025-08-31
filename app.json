@@ -18,6 +18,7 @@
       "supportsTablet": true, 
       "deviceFamilies": [1], 
       "bundleIdentifier": "com.kinshipsyncapp",
+      "buildNumber": "2",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
