@@ -112,6 +112,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               placeholderTextColor={Colors.light.textSecondary}
               multiline={item.multiline}
               numberOfLines={item.numberOfLines}
+              onFocus={() => setShowDatePicker(false)}
             />
           </View>
         );
@@ -146,7 +147,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 <TouchableOpacity
                   key={opt}
                   style={[styles.segmentButton, item.selectedValue === opt && styles.segmentButtonActive]}
-                  onPress={() => item.onSelect(opt)}
+                  onPress={() => {
+                    setShowDatePicker(false);
+                    item.onSelect(opt);
+                  }}
                 >
                   <Text style={[styles.segmentText, item.selectedValue === opt && styles.segmentTextActive]}>{opt.replace('-', ' ')}</Text>
                 </TouchableOpacity>
@@ -164,11 +168,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 : "No team members available. Task will be assigned to you by default."}
             </Text>
             {item.users.length > 0 ? (
-              <MultiUserPicker
-                users={item.users}
-                selectedUserIds={item.selectedUserIds}
-                onSelectionChange={item.onSelectionChange}
-              />
+              <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                <MultiUserPicker
+                  users={item.users}
+                  selectedUserIds={item.selectedUserIds}
+                  onSelectionChange={item.onSelectionChange}
+                />
+              </TouchableOpacity>
             ) : (
               <View style={styles.noUsersContainer}>
                 <Text style={styles.noUsersText}>No team members found</Text>
