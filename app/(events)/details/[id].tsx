@@ -1,24 +1,23 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { useLocalSearchParams, router, Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams,  Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(events)/details/[id].styles';
-import { useEventDetail } from '../../../hooks/useEvents';
-import { UserProfile } from '../../../types/userTypes';
-import { Colors } from '../../../constants/Colors';
-import { useAppAuth } from '../../../hooks/useAppAuth'; 
+import { styles } from '@/styles/app/(events)/details/[id].styles';
+import { useEventDetail } from '@/hooks/useEvents';
+import { UserProfile } from '@/types/userTypes';
+import { Colors } from '@/constants/Colors';
+import { useAppAuth } from '@/hooks/useAppAuth'; 
 
-// Import new sub-components
-import EventDetailHeader from '../../../components/events/details/EventDetailHeader';
-import EventDetailNavButtons from '../../../components/events/details/EventDetailNavButtons';
-import EventDetailTasks from '../../../components/events/details/EventDetailTasks';
-import EventDetailBudget from '../../../components/events/details/EventDetailBudget';
-import EventDetailIdeas from '../../../components/events/details/EventDetailIdeas';
-import EventDetailTeams from '../../../components/events/details/EventDetailTeams';
-import EventDetailTheme from '../../../components/events/details/EventDetailTheme';
-import EventDetailWebsite from '../../../components/events/details/EventDetailWebsite';
-import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, WebsitePayload } from '../../../types/eventTypes';
+
+import EventDetailHeader from '@/components/events/details/EventDetailHeader';
+import EventDetailNavButtons from '@/components/events/details/EventDetailNavButtons';
+import EventDetailTasks from '@/components/events/details/EventDetailTasks';
+import EventDetailBudget from '@/components/events/details/EventDetailBudget';
+import EventDetailIdeas from '@/components/events/details/EventDetailIdeas';
+import EventDetailTeams from '@/components/events/details/EventDetailTeams';
+import EventDetailTheme from '@/components/events/details/EventDetailTheme';
+import EventDetailWebsite from '@/components/events/details/EventDetailWebsite';
+import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, WebsitePayload } from '@/types/eventTypes';
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -46,7 +45,6 @@ export default function EventDetailsScreen() {
     updateEventTeam,
     deleteEventTeam,
     addTeamMember,
-    // updateTeamMember, // This was in useEventDetail but not used directly here after refactor
     removeTeamMember,
     currentTheme,
     availableThemes, 
@@ -57,7 +55,7 @@ export default function EventDetailsScreen() {
     error: eventError 
   } = useEventDetail(eventId);
 
-  // This mapping remains as it's used by child components like EventDetailTeams
+
   const assignableUsers: UserProfile[] = guests.map(guest => ({
     userId: guest.id, 
     displayName: guest.name,
@@ -67,13 +65,13 @@ export default function EventDetailsScreen() {
     avatarUrl: undefined, 
   }));
 
-  // For task assignment, only allow team members to be assigned
+
   const taskAssignableUsers: UserProfile[] = eventTeams.flatMap(team => 
-    team.memberIds.map(memberId => {
-      const member = assignableUsers.find(user => user.userId === memberId);
-      return member || {
-        userId: memberId,
-        displayName: `Team Member ${memberId.substring(0, 6)}...`,
+    team.members.map((member: { userId: string }) => {
+      const memberProfile = assignableUsers.find(user => user.userId === member.userId);
+      return memberProfile || {
+        userId: member.userId,
+        displayName: `Team Member ${member.userId.substring(0, 6)}...`,
         email: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -82,10 +80,85 @@ export default function EventDetailsScreen() {
     })
   );
 
-  // This logic remains as it's used by EventDetailHeader
+ 
   const getRsvpDeadlineInfo = () => {
-    // Placeholder: Implement actual logic based on event.rsvpDeadline or other fields
-    return { text: 'RSVP details not available', style: styles.deadlineTextDefault };
+    if (!event) {
+      return { text: 'RSVP details not available', style: styles.deadlineTextDefault };
+    }
+
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    const daysUntilEvent = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Calculate RSVP statistics
+    const totalGuests = guests.length;
+    const respondedGuests = guests.filter(guest => 
+      guest.status === 'accepted' || guest.status === 'declined'
+    ).length;
+    const pendingGuests = guests.filter(guest => 
+      guest.status === 'pending' || guest.status === 'Invited'
+    ).length;
+    
+    // Determine appropriate message and style based on event timing and RSVP status
+    if (daysUntilEvent < 0) {
+      // Event has passed
+      return {
+        text: `Event has passed (${Math.abs(daysUntilEvent)} days ago)`,
+        style: styles.deadlineTextPassed
+      };
+    } else if (daysUntilEvent === 0) {
+      // Event is today
+      if (pendingGuests > 0) {
+        return {
+          text: `Event is today! ${pendingGuests} guests still pending RSVP`,
+          style: styles.deadlineTextUrgent
+        };
+      } else {
+        return {
+          text: `Event is today! All ${totalGuests} guests have responded`,
+          style: styles.deadlineTextDefault
+        };
+      }
+    } else if (daysUntilEvent <= 3) {
+      // Event is very soon
+      if (pendingGuests > 0) {
+        return {
+          text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! ${pendingGuests} guests pending`,
+          style: styles.deadlineTextUrgent
+        };
+      } else {
+        return {
+          text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! All ${totalGuests} guests responded`,
+          style: styles.deadlineTextDefault
+        };
+      }
+    } else if (daysUntilEvent <= 7) {
+      // Event is within a week
+      if (pendingGuests > 0) {
+        return {
+          text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
+          style: styles.deadlineTextDefault
+        };
+      } else {
+        return {
+          text: `Event in ${daysUntilEvent} days. All ${totalGuests} guests responded`,
+          style: styles.deadlineTextDefault
+        };
+      }
+    } else {
+      // Event is more than a week away
+      if (totalGuests === 0) {
+        return {
+          text: `Event in ${daysUntilEvent} days. No guests invited yet`,
+          style: styles.deadlineTextDefault
+        };
+      } else {
+        return {
+          text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
+          style: styles.deadlineTextDefault
+        };
+      }
+    }
   };
 
   if (isLoadingEventDetails) {
@@ -100,7 +173,7 @@ export default function EventDetailsScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>Error loading event: {eventError.message}</Text>
-        {/* Inline back button removed, header provides back functionality */}
+      
       </View>
     );
   }
@@ -108,16 +181,14 @@ export default function EventDetailsScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>Event not found.</Text>
-        {/* Inline back button removed, header provides back functionality */}
+       
       </View>
     );
   }
 
   const deadlineInfo = getRsvpDeadlineInfo();
 
-  // Wrapper functions to match expected signatures if sub-components don't directly use useEventDetail returns
-  // For example, if a sub-component expects a simple onDelete that doesn't return a value or has a different alert logic
-  // However, for this refactor, we'll pass the hook functions directly where possible.
+ 
 
   const handleAddTask = async (taskData: CreateTaskPayload) => {
     await addEventTask(taskData);
@@ -180,7 +251,7 @@ export default function EventDetailsScreen() {
   return (
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: event.name || 'Event Details' }} />
-      {/* Custom header View removed */}
+     
       <ScrollView style={styles.container}>
         <EventDetailHeader event={event} deadlineInfo={deadlineInfo} />
         
@@ -232,7 +303,7 @@ export default function EventDetailsScreen() {
         />
 
       </ScrollView>
-      {/* Modals are now managed within their respective components */}
+     
     </SafeAreaView>
   );
 }

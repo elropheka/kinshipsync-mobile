@@ -130,7 +130,9 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
           width={Layout.SCREEN_WIDTH - Spacing.xxxxl}
         >
           {featuresData.map((slideFeatures, index) => 
-            renderFeatureSlide(slideFeatures)
+            <View key={index}>
+              {renderFeatureSlide(slideFeatures)}
+            </View>
           )}
 
         </Slider>

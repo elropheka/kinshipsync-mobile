@@ -3,12 +3,12 @@ import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, Alert, Ac
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, router, useLocalSearchParams } from 'expo-router'; // Stack import moved here
-import { styles } from '../../styles/app/(events)/rsvps.styles';
-import { useAppAuth } from '../../hooks/useAppAuth';
-import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest } from '../../services/eventService';
-import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload } from '../../types/eventTypes';
-import { Colors } from '../../constants/Colors';
+import { Stack, useLocalSearchParams } from 'expo-router'; 
+import { styles } from '@/styles/app/(events)/rsvps.styles';
+import { useAppAuth } from '@/hooks/useAppAuth';
+import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest } from '@/services/eventService';
+import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload } from '@/types/eventTypes';
+import { Colors } from '@/constants/Colors';
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
@@ -29,7 +29,7 @@ const RsvpListScreen = () => {
   
   const [isPreferenceModalVisible, setIsPreferenceModalVisible] = useState(false);
   const [editingGuest, setEditingGuest] = useState<GuestType | null>(null);
-  const [remindingGuestId, setRemindingGuestId] = useState<string | null>(null); // For loading state
+  const [remindingGuestId, setRemindingGuestId] = useState<string | null>(null); 
 
   useEffect(() => {
     if (!eventId) {
@@ -202,7 +202,7 @@ const RsvpListScreen = () => {
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent}/>
       <Stack.Screen options={{ title: `RSVPs: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'List')}` }} />
-      {/* Custom header View removed */}
+   
       
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
