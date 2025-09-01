@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
@@ -51,25 +51,7 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
   };
 
-  const showConfirmAlert = (
-    type: 'success' | 'error' | 'info',
-    title: string,
-    message: string,
-    onConfirm: () => void,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel'
-  ) => {
-    setAlertConfig({ 
-      visible: true, 
-      type, 
-      title, 
-      message, 
-      showCancelButton: true, 
-      onConfirm, 
-      confirmText, 
-      cancelText 
-    });
-  };
+  
 
   // const hideAlert = () => {
   //   setAlertConfig(prev => ({ ...prev, visible: false }));
@@ -102,21 +84,25 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
   };
 
   const handleDeletePress = (taskId: string) => {
-    showConfirmAlert(
-      'info',
-      'Confirm Delete',
-      'Are you sure you want to delete this task?',
-      async () => {
-        try { 
-          await onDeleteTask(taskId); 
-          showAlert('success', 'Success', 'Task deleted successfully.');
-        } 
-        catch (e) { 
-          showAlert('error', 'Error', e as string); 
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this task?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try { 
+              await onDeleteTask(taskId); 
+              Alert.alert('Success', 'Task deleted successfully.');
+            } 
+            catch { 
+              Alert.alert('Error', 'Failed to delete task.'); 
+            }
+          }
         }
-      },
-      'Delete',
-      'Cancel'
+      ]
     );
   };
 
