@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { UserProfile } from '@/types/userTypes';
 import { Colors } from '@/constants/Colors';
@@ -27,10 +27,11 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
     onSelectionChange(newSelectedIds);
   };
 
-  const renderUserItem = ({ item }: { item: UserProfile }) => {
+  const renderUserItem = (item: UserProfile) => {
     const isSelected = selectedUserIds.includes(item.userId);
     return (
       <TouchableOpacity
+        key={item.userId}
         style={[styles.itemContainer, { height: itemHeight }]}
         onPress={() => handleToggleUser(item.userId)}
       >
@@ -51,13 +52,12 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
     <View style={styles.container}>
       <Text style={styles.pickerTitle}>Assign to:</Text>
       <View style={[styles.listWrapper, { maxHeight: listMaxHeight }]}>
-        <FlatList
-          data={users}
-          renderItem={renderUserItem}
-          keyExtractor={item => item.userId}
+        <ScrollView
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled
-        />
+        >
+          {users.map(renderUserItem)}
+        </ScrollView>
       </View>
       {selectedUserIds.length > 0 && (
         <Text style={styles.selectedCountText}>

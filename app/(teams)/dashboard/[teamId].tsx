@@ -189,10 +189,15 @@ const TeamDashboardScreen = () => {
           Alert.alert('Error', 'Failed to update task. Task not found or an error occurred.');
         }
       } else { // Creating new task
+        // Default assignee to creator if no assignees are selected
+        const assignedToUserIds = taskFormData.assignedToUserIds && taskFormData.assignedToUserIds.length > 0 
+          ? taskFormData.assignedToUserIds 
+          : [currentUser.uid];
+        
         const newTaskPayload: Omit<TeamTask, 'id' | 'teamId' | 'createdAt' | 'updatedAt'> & { title: string } = {
           title: taskFormData.title || 'Untitled Task',
           description: taskFormData.description || undefined,
-          assignedToUserIds: taskFormData.assignedToUserIds || [],
+          assignedToUserIds,
           status: derivedStatus,
           dueDate: taskFormData.dueDate || undefined,
           createdBy: currentUser.uid,

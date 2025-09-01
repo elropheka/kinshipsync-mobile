@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, Alert, SafeAreaView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes';
@@ -158,12 +158,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
         return (
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Assignees</Text>
-            <Text style={styles.placeholderText}>Only team members can be assigned to tasks</Text>
-            <MultiUserPicker
-              users={item.users}
-              selectedUserIds={item.selectedUserIds}
-              onSelectionChange={item.onSelectionChange}
-            />
+            <Text style={styles.placeholderText}>
+              {item.users.length > 0 
+                ? "Only team members can be assigned to tasks" 
+                : "No team members available. Task will be assigned to you by default."}
+            </Text>
+            {item.users.length > 0 ? (
+              <MultiUserPicker
+                users={item.users}
+                selectedUserIds={item.selectedUserIds}
+                onSelectionChange={item.onSelectionChange}
+              />
+            ) : (
+              <View style={styles.noUsersContainer}>
+                <Text style={styles.noUsersText}>No team members found</Text>
+              </View>
+            )}
           </View>
         );
       case 'buttonGroup':
@@ -350,6 +360,20 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: Colors.light.textSecondary,
+  },
+  noUsersContainer: {
+    backgroundColor: Colors.light.backgroundPaper,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noUsersText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontStyle: 'italic',
   },
 });
 
