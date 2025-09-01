@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams,  Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,7 +6,8 @@ import { styles } from '@/styles/app/(events)/details/[id].styles';
 import { useEventDetail } from '@/hooks/useEvents';
 import { UserProfile } from '@/types/userTypes';
 import { Colors } from '@/constants/Colors';
-import { useAppAuth } from '@/hooks/useAppAuth'; 
+import { useAppAuth } from '@/hooks/useAppAuth';
+import { getUserProfileById } from '@/services/userService'; 
 
 
 import EventDetailHeader from '@/components/events/details/EventDetailHeader';
@@ -23,6 +24,7 @@ export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const eventId = id || ''; 
   const { user: currentUser } = useAppAuth();
+  const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
 
   const { 
     event, 
@@ -55,6 +57,41 @@ export default function EventDetailsScreen() {
     error: eventError 
   } = useEventDetail(eventId);
 
+  // Fetch team member profiles when eventTeams change
+  useEffect(() => {
+    const fetchTeamMemberProfiles = async () => {
+      if (!eventTeams || eventTeams.length === 0) {
+        setTeamMemberProfiles([]);
+        return;
+      }
+
+      try {
+        // Get all unique user IDs from all teams
+        const allUserIds = new Set<string>();
+        eventTeams.forEach(team => {
+          team.members.forEach(member => {
+            allUserIds.add(member.userId);
+          });
+        });
+
+        // Fetch profiles for all team members
+        const profilePromises = Array.from(allUserIds).map(userId => 
+          getUserProfileById(userId)
+        );
+        
+        const profiles = await Promise.all(profilePromises);
+        const validProfiles = profiles.filter((profile): profile is UserProfile => profile !== null);
+        
+        setTeamMemberProfiles(validProfiles);
+      } catch (error) {
+        console.error('Error fetching team member profiles:', error);
+        setTeamMemberProfiles([]);
+      }
+    };
+
+    fetchTeamMemberProfiles();
+  }, [eventTeams]);
+
 
   const assignableUsers: UserProfile[] = guests.map(guest => ({
     userId: guest.id, 
@@ -65,19 +102,22 @@ export default function EventDetailsScreen() {
     avatarUrl: undefined, 
   }));
 
+  // Create a comprehensive user list that includes both guests and team members
+  const allAssignableUsers: UserProfile[] = [
+    ...assignableUsers,
+    ...teamMemberProfiles
+  ];
+
+  // Remove duplicates based on userId
+  const uniqueAssignableUsers = allAssignableUsers.filter((user, index, self) => 
+    index === self.findIndex(u => u.userId === user.userId)
+  );
 
   const taskAssignableUsers: UserProfile[] = eventTeams.flatMap(team => 
     team.members.map((member: { userId: string }) => {
-      const memberProfile = assignableUsers.find(user => user.userId === member.userId);
-      return memberProfile || {
-        userId: member.userId,
-        displayName: `Team Member ${member.userId.substring(0, 6)}...`,
-        email: '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        avatarUrl: undefined,
-      };
-    })
+      const memberProfile = uniqueAssignableUsers.find(user => user.userId === member.userId);
+      return memberProfile;
+    }).filter((profile): profile is UserProfile => profile !== undefined)
   );
 
  
@@ -283,7 +323,7 @@ export default function EventDetailsScreen() {
 
         <EventDetailTeams
           eventTeams={eventTeams}
-          assignableUsers={assignableUsers}
+          assignableUsers={uniqueAssignableUsers}
           onCreateEventTeam={handleCreateEventTeam}
           onUpdateEventTeam={handleUpdateEventTeam}
           onDeleteEventTeam={handleDeleteEventTeam}

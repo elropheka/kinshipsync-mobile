@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
 import TaskForm from '@/components/tasks/TaskForm'; // Path to existing TaskForm
-import { styles } from '@/styles/app/(events)/details/[id].styles'; // Adjust path as needed
+import { styles } from '@/styles/app/(events)/details/[id].styles';
 import { Colors } from '@/constants/Colors';
 import CustomAlert from '@/components/common/alert';
 
@@ -51,7 +51,17 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
   };
 
-  
+  // Helper function to get user display names from IDs
+  const getUserDisplayNames = (userIds: string[]): string => {
+    if (!userIds || userIds.length === 0) return '';
+    
+    const names = userIds
+      .map(id => assignableUsers.find(user => user.userId === id))
+      .filter(Boolean)
+      .map(user => user!.displayName || user!.email || user!.userId);
+    
+    return names.join(', ');
+  };
 
   // const hideAlert = () => {
   //   setAlertConfig(prev => ({ ...prev, visible: false }));
@@ -106,23 +116,28 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     );
   };
 
-  const renderTaskItem = ({ item }: { item: Task }) => (
-    <TouchableOpacity style={styles.taskItem} onPress={() => handleOpenTaskForm(item)}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.taskTitle}>{item.title}</Text>
-        {item.description && <Text style={styles.taskDescription} numberOfLines={1}>{item.description}</Text>}
-        {item.dueDate && <Text style={styles.taskDueDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>}
-      </View>
-      <Ionicons 
-        name={item.completed ? "checkmark-circle" : "ellipse-outline"} 
-        size={24} 
-        color={item.completed ? Colors.light.success : Colors.light.textSecondary} 
-      />
-      <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
-          <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+  const renderTaskItem = ({ item }: { item: Task }) => {
+    const assignedNames = getUserDisplayNames(item.assignedToUserIds || []);
+    
+    return (
+      <TouchableOpacity style={styles.taskItem} onPress={() => handleOpenTaskForm(item)}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.taskTitle}>{item.title}</Text>
+          {item.description && <Text style={styles.taskDescription} numberOfLines={1}>{item.description}</Text>}
+          {assignedNames && <Text style={styles.taskAssignedTo}>Assigned to: {assignedNames}</Text>}
+          {item.dueDate && <Text style={styles.taskDueDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>}
+        </View>
+        <Ionicons 
+          name={item.completed ? "checkmark-circle" : "ellipse-outline"} 
+          size={24} 
+          color={item.completed ? Colors.light.success : Colors.light.textSecondary} 
+        />
+        <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
+            <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
     <View style={styles.card}>

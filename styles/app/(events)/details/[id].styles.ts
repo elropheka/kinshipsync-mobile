@@ -225,6 +225,12 @@ export const styles = StyleSheet.create({
     color: Colors.light.warning, 
     marginTop: Spacing.xxs,
   },
+  taskAssignedTo: {
+    fontSize: ResponsiveFontSizes.caption,
+    color: Colors.light.info,
+    marginTop: Spacing.xxs,
+    fontStyle: 'italic',
+  },
   taskSeparator: {
     height: 1,
     backgroundColor: Colors.light.divider,
