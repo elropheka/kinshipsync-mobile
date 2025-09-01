@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../../types/eventTypes';
-import { UserProfile } from '../../../types/userTypes';
-import TaskForm from '../../tasks/TaskForm'; // Path to existing TaskForm
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
-import { Colors } from '../../../constants/Colors';
-import CustomAlert from '../../common/alert';
+import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
+import { UserProfile } from '@/types/userTypes';
+import TaskForm from '@/components/tasks/TaskForm'; // Path to existing TaskForm
+import { styles } from '@/styles/app/(events)/details/[id].styles'; // Adjust path as needed
+import { Colors } from '@/constants/Colors';
+import CustomAlert from '@/components/common/alert';
 
 interface EventDetailTasksProps {
   tasks: Task[];
@@ -71,9 +71,9 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     });
   };
 
-  const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
-  };
+  // const hideAlert = () => {
+  //   setAlertConfig(prev => ({ ...prev, visible: false }));
+  // };
 
   const handleOpenTaskForm = (task?: Partial<Task> & { id?: string }) => {
     setEditingTask(task);
@@ -89,29 +89,35 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     try {
       if (taskId) {
         await onUpdateTask(taskId, taskData as UpdateTaskPayload);
-        Alert.alert('Success', 'Task updated successfully.');
+        showAlert('success', 'Success', 'Task updated successfully.');
       } else {
         await onAddTask(taskData as CreateTaskPayload);
-        Alert.alert('Success', 'Task created successfully.');
+        showAlert('success', 'Success', 'Task created successfully.');
       }
       handleCloseTaskForm();
     } catch (e) {
       console.error("Failed to submit task:", e);
-      Alert.alert('Error', 'Failed to save task. Please try again.');
+      showAlert('error', 'Error', 'Failed to save task. Please try again.');
     }
   };
 
   const handleDeletePress = (taskId: string) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this task?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => {
+    showConfirmAlert(
+      'info',
+      'Confirm Delete',
+      'Are you sure you want to delete this task?',
+      async () => {
         try { 
           await onDeleteTask(taskId); 
-          Alert.alert('Success', 'Task deleted successfully.');
+          showAlert('success', 'Success', 'Task deleted successfully.');
         } 
-        catch (e) { Alert.alert("Error", "Failed to delete task."); }
-      }}
-    ]);
+        catch (e) { 
+          showAlert('error', 'Error', e as string); 
+        }
+      },
+      'Delete',
+      'Cancel'
+    );
   };
 
   const renderTaskItem = ({ item }: { item: Task }) => (
@@ -160,6 +166,17 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
           formTitle={editingTask ? 'Edit Task' : 'Create New Task'} 
         />
       </Modal>
+      
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        onClose={() => setAlertConfig(prev => ({ ...prev, visible: false }))}
+        onConfirm={alertConfig.onConfirm}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+      />
     </View>
   );
 };

@@ -1,17 +1,13 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { Stack, router } from 'expo-router'; // Stack import moved here
+import { Stack, router } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(events)/events.styles';
-import BottomNavigation from 'components/common/Navigation/bottomNavigation';
-import { useAllEvents } from '../../hooks/useEvents';
-import { Event } from '../../types/eventTypes';
+import { styles } from '@/styles/app/(events)/events.styles';
+import { useAllEvents } from '@/hooks/useEvents';
+import { Event } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
-import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
-import { ResponsiveContainer } from '../../components/common/Layout/ResponsiveContainer';
-import { ResponsiveGrid } from '../../components/common/Layout/ResponsiveGrid';
-import { useAppAuth } from '../../hooks/useAppAuth';
+import { useAppAuth } from '@/hooks/useAppAuth';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -23,7 +19,7 @@ const EventListScreen = () => {
   const [showOnlyOwnEvents, setShowOnlyOwnEvents] = useState(true);
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
   const { user: currentUser } = useAppAuth();
-  const { isTablet, isLandscape, sizeClass } = useResponsiveLayout();
+
 
   const getEventStatus = (eventDate: string): 'Upcoming' | 'Past' => {
     const today = new Date();
@@ -39,7 +35,7 @@ const EventListScreen = () => {
       eventStatus: getEventStatus(event.date),
     }));
 
-    // Filter by ownership first
+ 
     if (showOnlyOwnEvents && currentUser?.uid) {
       processedEvents = processedEvents.filter(event => event.organizerId === currentUser.uid);
     }
@@ -96,7 +92,7 @@ const EventListScreen = () => {
     if (tabName === 'Guests') {
       router.push('/(events)/guests');
     } else if (tabName === 'Events') {
-      // Already on Events
+   
     } else if (tabName === 'RSVPs') {
       router.push('/(events)/rsvps');
     } else if (tabName === 'Messages') {
@@ -116,13 +112,13 @@ const EventListScreen = () => {
         options={{ 
           title: "Events",
           headerRight: () => (
-            <TouchableOpacity style={{ marginRight: 10 }}>{/* Add onPress handler if needed for info icon */}
+            <TouchableOpacity style={{ marginRight: 10 }}>
               <Ionicons name="information-circle-outline" size={24} color="black" />
             </TouchableOpacity>
           )
         }} 
       />
-      {/* Custom header View removed */}
+   
       
       <View style={styles.tabsContainer}>
         {TABS.map(tab => (
@@ -161,7 +157,7 @@ const EventListScreen = () => {
           </TouchableOpacity>
         ))}
         
-        {/* Event ownership toggle */}
+      
         <TouchableOpacity 
           style={[
             styles.ownershipToggle,
@@ -219,7 +215,7 @@ const EventListScreen = () => {
           ListFooterComponent={isLoading && eventsToDisplay.length > 0 ? <ActivityIndicator size="small" color="#0000ff" style={{ marginVertical: 20 }} /> : null}
         />
       )}
-      {/* <BottomNavigation /> */}
+  
     </SafeAreaView>
   );
 };
