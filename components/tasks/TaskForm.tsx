@@ -156,11 +156,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
         );
       case 'multiUserPicker':
         return (
-          <MultiUserPicker
-            users={item.users}
-            selectedUserIds={item.selectedUserIds}
-            onSelectionChange={item.onSelectionChange}
-          />
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Assignees</Text>
+            <Text style={styles.placeholderText}>Only team members can be assigned to tasks</Text>
+            <MultiUserPicker
+              users={item.users}
+              selectedUserIds={item.selectedUserIds}
+              onSelectionChange={item.onSelectionChange}
+            />
+          </View>
         );
       case 'buttonGroup':
         return (

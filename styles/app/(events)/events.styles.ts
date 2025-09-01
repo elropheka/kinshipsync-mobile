@@ -106,6 +106,29 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
+  ownershipToggle: {
+    backgroundColor: Colors.light.backgroundPaper,
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    borderRadius: BorderRadius.xl,
+    marginRight: Spacing.s,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.light.primary,
+  },
+  ownershipToggleActive: {
+    backgroundColor: Colors.light.primary,
+  },
+  ownershipToggleText: {
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+    color: Colors.light.primary,
+    marginLeft: Spacing.xs,
+  },
+  ownershipToggleTextActive: {
+    color: Colors.light.primaryContrastText,
+  },
   itemCountContainer: {
     paddingHorizontal: Spacing.m,
     marginBottom: Spacing.m,

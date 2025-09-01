@@ -11,6 +11,7 @@ import { Colors } from '@/constants/Colors';
 import { useResponsiveLayout } from '../../hooks/useResponsiveLayout';
 import { ResponsiveContainer } from '../../components/common/Layout/ResponsiveContainer';
 import { ResponsiveGrid } from '../../components/common/Layout/ResponsiveGrid';
+import { useAppAuth } from '../../hooks/useAppAuth';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -19,7 +20,9 @@ const EventListScreen = () => {
   const [activeTab, setActiveTab] = useState('Events');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showOnlyOwnEvents, setShowOnlyOwnEvents] = useState(true);
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
+  const { user: currentUser } = useAppAuth();
   const { isTablet, isLandscape, sizeClass } = useResponsiveLayout();
 
   const getEventStatus = (eventDate: string): 'Upcoming' | 'Past' => {
@@ -35,6 +38,11 @@ const EventListScreen = () => {
       ...event,
       eventStatus: getEventStatus(event.date),
     }));
+
+    // Filter by ownership first
+    if (showOnlyOwnEvents && currentUser?.uid) {
+      processedEvents = processedEvents.filter(event => event.organizerId === currentUser.uid);
+    }
 
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
@@ -52,9 +60,11 @@ const EventListScreen = () => {
       processedEvents = processedEvents.filter(event => event.eventStatus === 'Past');
     }
     return processedEvents;
-  }, [searchQuery, events, selectedFilter]);
+  }, [searchQuery, events, selectedFilter, showOnlyOwnEvents, currentUser?.uid]);
 
   const keyExtractor = useCallback((item: Event & { eventStatus: 'Upcoming' | 'Past' }) => item.id, []);
+
+  const ItemSeparator = useCallback(() => <View style={styles.separator} />, []);
 
   const renderEventItem = useCallback(({ item }: { item: Event & { eventStatus: 'Upcoming' | 'Past' } }) => (
     <View style={styles.eventItem}>
@@ -150,6 +160,28 @@ const EventListScreen = () => {
             <Text style={styles.filterText}>{filter}</Text>
           </TouchableOpacity>
         ))}
+        
+        {/* Event ownership toggle */}
+        <TouchableOpacity 
+          style={[
+            styles.ownershipToggle,
+            showOnlyOwnEvents && styles.ownershipToggleActive
+          ]}
+          onPress={() => setShowOnlyOwnEvents(!showOnlyOwnEvents)}
+        >
+          <Ionicons 
+            name={showOnlyOwnEvents ? "person" : "people"} 
+            size={16} 
+            color={showOnlyOwnEvents ? "white" : Colors.light.primary} 
+          />
+          <Text style={[
+            styles.ownershipToggleText,
+            showOnlyOwnEvents && styles.ownershipToggleTextActive
+          ]}>
+            {showOnlyOwnEvents ? 'My Events' : 'All Events'}
+          </Text>
+        </TouchableOpacity>
+        
         <TouchableOpacity style={styles.addEventButton} onPress={() => router.push('/(events)/createEvent')}>
           <AntDesign name="plus" size={18} color="white" />
           <Text style={styles.addEventText}>Add new event</Text>
@@ -179,7 +211,7 @@ const EventListScreen = () => {
           renderItem={renderEventItem}
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.listContainer}
-          ItemSeparatorComponent={useCallback(() => <View style={styles.separator} />, [])}
+          ItemSeparatorComponent={ItemSeparator}
           onRefresh={refreshEvents}
           refreshing={isLoading}
           onEndReached={loadMoreEvents}

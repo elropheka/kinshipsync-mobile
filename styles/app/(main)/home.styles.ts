@@ -41,6 +41,28 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  notificationIconContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: Colors.light.error,
+    borderRadius: BorderRadius.round,
+    minWidth: moderateScale(18),
+    height: moderateScale(18),
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xxs,
+  },
+  notificationBadgeText: {
+    color: Colors.light.primaryContrastText,
+    fontSize: ResponsiveFontSizes.caption,
+    fontWeight: Fonts.weights.bold,
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',

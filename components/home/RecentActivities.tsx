@@ -342,16 +342,15 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onAc
                 <RecentActivityItem
                   key={primaryNotification.id}
                   notification={primaryNotification}
-                  onPress={() => onActivityPress(primaryNotification.id)}
+                  onPress={() => {}} // Empty function since we don't want it clickable
                 />
               );
             }
             
             return (
-              <TouchableOpacity 
+              <View 
                 key={primaryNotification.id}
                 style={[styles.activityItemCard, { backgroundColor: Colors.light.backgroundPaper }]} 
-                onPress={() => onActivityPress(primaryNotification.id)}
               >
                 <View style={[styles.activityIconCircle, { backgroundColor: getActivityIconDetails(primaryNotification.type).bgColor }]}>
                   {getActivityIconDetails(primaryNotification.type).icon}
@@ -362,7 +361,7 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onAc
                   </Text>
                   <Text style={styles.activityTimeText}>{formatNotificationTime(primaryNotification.createdAt)}</Text>
                 </View>
-              </TouchableOpacity>
+              </View>
             );
           })
         ) : (

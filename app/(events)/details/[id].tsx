@@ -67,6 +67,21 @@ export default function EventDetailsScreen() {
     avatarUrl: undefined, 
   }));
 
+  // For task assignment, only allow team members to be assigned
+  const taskAssignableUsers: UserProfile[] = eventTeams.flatMap(team => 
+    team.memberIds.map(memberId => {
+      const member = assignableUsers.find(user => user.userId === memberId);
+      return member || {
+        userId: memberId,
+        displayName: `Team Member ${memberId.substring(0, 6)}...`,
+        email: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        avatarUrl: undefined,
+      };
+    })
+  );
+
   // This logic remains as it's used by EventDetailHeader
   const getRsvpDeadlineInfo = () => {
     // Placeholder: Implement actual logic based on event.rsvpDeadline or other fields
@@ -173,7 +188,7 @@ export default function EventDetailsScreen() {
 
         <EventDetailTasks 
           tasks={tasks}
-          assignableUsers={assignableUsers}
+          assignableUsers={taskAssignableUsers}
           onAddTask={handleAddTask}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}

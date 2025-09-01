@@ -125,7 +125,19 @@ const DashboardScreen: React.FC = () => {
               <Icon name="search" size={isTablet ? 28 : 25} color={Colors.light.tint} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.headerIcon}>
-              <SecondaryIcon name="notifications-outline" size={isTablet ? 28 : 25} color={Colors.light.tint} />
+              <View style={styles.notificationIconContainer}>
+                <SecondaryIcon name="notifications-outline" size={isTablet ? 28 : 25} color={Colors.light.tint} />
+                {(() => {
+                  const unreadCount = notifications.filter(n => !n.isRead).length;
+                  return unreadCount > 0 ? (
+                    <View style={styles.notificationBadge}>
+                      <Text style={styles.notificationBadgeText}>
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Text>
+                    </View>
+                  ) : null;
+                })()}
+              </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={globalToggleSidebar} style={[styles.headerIcon, { paddingLeft: 4, paddingTop: 1 }]}>
               <SecondaryIcon name="menu-outline" size={isTablet ? 28 : 25} color={Colors.light.tint} />
