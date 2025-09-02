@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, Modal, Button, StatusBar, Image, ActivityIndicator, ScrollView } from 'react-native';
-import RichTextEditor from '../common/RichTextEditor';
-import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, Modal,  StatusBar, Image, ActivityIndicator, ScrollView } from 'react-native';
+import RichTextEditor from '@/components/common/RichTextEditor';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { uploadImage } from '../../services/storageService';
-import { WebsitePayload, UpdateEventWebsiteDetailsPayload, EventWebsiteSection, Theme } from '../../types/eventTypes';
-import { Colors } from '../../constants/Colors';
-import { useTheme } from '../../context/ThemeContext';
+import { uploadImage } from '@/services/storageService';
+import { WebsitePayload, UpdateEventWebsiteDetailsPayload, EventWebsiteSection, Theme } from '@/types/eventTypes';
+import { Colors } from '@/constants/Colors';
+import { useTheme } from '@/context/ThemeContext';
 import { generateSlug, isValidSlug, suggestEventSlug } from '../../utils/eventWebsiteUtils';
 
 interface EventWebsiteFormProps {
-  eventId?: string; // Optional: if available, can be used for a more specific storage path
+  eventId?: string; 
   initialWebsiteData?: WebsitePayload;
   onSubmit: (websiteData: UpdateEventWebsiteDetailsPayload) => void;
   onCancel: () => void;
@@ -31,15 +31,15 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   const [isUploadingHeader, setIsUploadingHeader] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState(initialWebsiteData?.welcomeMessage || '');
   const [sections, setSections] = useState<EventWebsiteSection[]>(initialWebsiteData?.sections || []);
-  const [published, setPublished] = useState(initialWebsiteData?.published || false); // New state for published status
-  const { availableThemes, theme: currentGlobalTheme, setTheme: setGlobalTheme } = useTheme();
+  const [published, setPublished] = useState(initialWebsiteData?.published || false); 
+  const { availableThemes, theme: currentGlobalTheme} = useTheme();
   const [selectedWebsiteThemeId, setSelectedWebsiteThemeId] = useState<string | undefined>(
     initialWebsiteData?.websiteThemeId || currentGlobalTheme.id
   );
   const [isThemePickerVisible, setThemePickerVisible] = useState(false);
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null);
 
-  // Use provided eventId prop or fallback to undefined
+
   const eventId = propEventId;
 
   useEffect(() => {
@@ -58,14 +58,14 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   };
 
   const addSection = () => {
-    // Generate a simple unique ID for new sections
+   
     const newSectionId = `section-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
     setSections([...sections, { id: newSectionId, title: '', content: '', order: sections.length }]);
   };
 
   const removeSection = (index: number) => {
     const updatedSections = sections.filter((_, i) => i !== index);
-    // Re-order sections after removal
+   
     setSections(updatedSections.map((s, i) => ({ ...s, order: i })));
   };
 
@@ -79,7 +79,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [16, 9], // Common aspect ratio for headers
+      aspect: [16, 9], 
       quality: 0.8,
     });
 
@@ -91,7 +91,6 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
       const imageUri = pickerResult.assets[0].uri;
       setIsUploadingHeader(true);
       try {
-        // Use 'event_website_headers' as prefix. eventId can be passed if available for sub-folder.
         const uploadResult = await uploadImage(imageUri, 'event_website_headers', eventId); 
         setHeaderImageUrl(uploadResult.imageUrl);
         Alert.alert("Image Uploaded", "Header image has been updated.");
@@ -118,15 +117,15 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
       );
       return;
     }
-    // headerImageUrl state now holds the URL from upload or initial data
+   
     const trimmedWelcomeMessage = welcomeMessage.trim();
 
     const payload: UpdateEventWebsiteDetailsPayload = {
       title: title.trim(),
-      headerImageUrl: headerImageUrl || undefined, // Send if present, otherwise undefined
-      sections: sections.map(s => ({ id: s.id, title: s.title.trim(), content: s.content.trim(), order: s.order })), // Ensure id and order are included
+      headerImageUrl: headerImageUrl || undefined, 
+      sections: sections.map(s => ({ id: s.id, title: s.title.trim(), content: s.content.trim(), order: s.order })), 
       websiteThemeId: selectedWebsiteThemeId,
-      published: published, // Include published status
+      published: published, 
     };
 
     if (trimmedCustomUrlSlug) {
@@ -135,9 +134,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
     if (trimmedWelcomeMessage) {
       payload.welcomeMessage = trimmedWelcomeMessage;
     }
-    // If you want to explicitly clear a field, you'd send null or use deleteField()
-    // For now, omitting them if empty means they won't be written or will be merged over if existing.
-    // If the intention is to clear existing values, the service layer might need to handle that.
+    
 
     onSubmit(payload);
   };
@@ -298,7 +295,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
               {published ? 'Published (Visible to Public)' : 'Draft (Not Visible)'}
             </Text>
             <Ionicons
-              name={published ? 'toggle-sharp' : 'toggle-outline'} // Corrected Ionicons names
+              name={published ? 'toggle-sharp' : 'toggle-outline'} 
               size={32}
               color={published ? Colors.light.primary : Colors.light.textSecondary}
             />
@@ -430,10 +427,10 @@ const styles = StyleSheet.create({
   },
   headerPreviewImage: {
     width: '100%',
-    height: 180, // Adjust height as needed
+    height: 180,
     borderRadius: 8,
     marginBottom: 10,
-    backgroundColor: Colors.light.border, // Placeholder background
+    backgroundColor: Colors.light.border, 
   },
   imagePlaceholder: {
     width: '100%',
@@ -466,7 +463,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   removeImageButton: {
-    backgroundColor: Colors.light.error + '30', // Lighter error color
+    backgroundColor: Colors.light.error + '30',
     marginTop: 8,
   },
   removeImageButtonText: {
@@ -493,7 +490,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.light.tint + '30', // Light tint background
+    backgroundColor: Colors.light.tint + '30', 
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 10,
@@ -520,8 +517,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.border,
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 12, // Adjusted padding for better touch area
-    minHeight: 48, // Ensure consistent height with inputs
+    paddingVertical: 12, 
+    minHeight: 48, 
   },
   themeSelectorButtonText: {
     fontSize: 16,
@@ -545,19 +542,19 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'flex-end', // Positions modal at the bottom
+    justifyContent: 'flex-end', 
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: Colors.light.background, // Use background color for modal
+    backgroundColor: Colors.light.background, 
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    paddingBottom: 30, // Extra padding for bottom safe area
+    paddingBottom: 30,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: -2, // Shadow for top edge
+      height: -2, 
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -572,9 +569,9 @@ const styles = StyleSheet.create({
   },
   pickerInModal: {
     width: '100%',
-    // height: 200, // Adjust height if needed, or let it be default
+ 
     color: Colors.light.text,
-    backgroundColor: Colors.light.backgroundPaper, // Ensure picker background contrasts if needed
+    backgroundColor: Colors.light.backgroundPaper, 
     marginBottom: 20,
   },
   modalCloseButton: {

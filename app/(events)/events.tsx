@@ -7,7 +7,6 @@ import { styles } from '@/styles/app/(events)/events.styles';
 import { useAllEvents } from '@/hooks/useEvents';
 import { Event } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
-import { useAppAuth } from '@/hooks/useAppAuth';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -16,9 +15,7 @@ const EventListScreen = () => {
   const [activeTab, setActiveTab] = useState('Events');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showOnlyOwnEvents, setShowOnlyOwnEvents] = useState(true);
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
-  const { user: currentUser } = useAppAuth();
   const lastRefetchRef = useRef<number>(0);
 
   // Refresh events list when screen comes into focus (e.g., returning from create/edit screens)
@@ -50,11 +47,6 @@ const EventListScreen = () => {
       eventStatus: getEventStatus(event.date),
     }));
 
- 
-    if (showOnlyOwnEvents && currentUser?.uid) {
-      processedEvents = processedEvents.filter(event => event.organizerId === currentUser.uid);
-    }
-
     if (searchQuery) {
       const lowercasedQuery = searchQuery.toLowerCase();
       processedEvents = processedEvents.filter(
@@ -71,7 +63,7 @@ const EventListScreen = () => {
       processedEvents = processedEvents.filter(event => event.eventStatus === 'Past');
     }
     return processedEvents;
-  }, [searchQuery, events, selectedFilter, showOnlyOwnEvents, currentUser?.uid]);
+  }, [searchQuery, events, selectedFilter]);
 
   const keyExtractor = useCallback((item: Event & { eventStatus: 'Upcoming' | 'Past' }) => item.id, []);
 
@@ -173,25 +165,7 @@ const EventListScreen = () => {
         ))}
         
       
-        <TouchableOpacity 
-          style={[
-            styles.ownershipToggle,
-            showOnlyOwnEvents && styles.ownershipToggleActive
-          ]}
-          onPress={() => setShowOnlyOwnEvents(!showOnlyOwnEvents)}
-        >
-          <Ionicons 
-            name={showOnlyOwnEvents ? "person" : "people"} 
-            size={16} 
-            color={showOnlyOwnEvents ? "white" : Colors.light.primary} 
-          />
-          <Text style={[
-            styles.ownershipToggleText,
-            showOnlyOwnEvents && styles.ownershipToggleTextActive
-          ]}>
-            {showOnlyOwnEvents ? 'My Events' : 'All Events'}
-          </Text>
-        </TouchableOpacity>
+
         
         <TouchableOpacity style={styles.addEventButton} onPress={() => router.push('/(events)/createEvent')}>
           <AntDesign name="plus" size={18} color="white" />

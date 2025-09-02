@@ -79,6 +79,7 @@ const SettingsScreen: React.FC = () => {
         language: currentSettings.language,
         emailNotifications: { ...currentSettings.emailNotifications },
         pushNotifications: { ...currentSettings.pushNotifications },
+        eventVisibility: { ...currentSettings.eventVisibility },
       });
     }
   }, [currentSettings]);
@@ -89,7 +90,7 @@ const SettingsScreen: React.FC = () => {
     value: any
   ) => {
     setEditableSettings(prev => {
-      if (key && (category === 'emailNotifications' || category === 'pushNotifications')) {
+      if (key && (category === 'emailNotifications' || category === 'pushNotifications' || category === 'eventVisibility')) {
         return {
           ...prev,
           [category]: {
@@ -110,6 +111,7 @@ const SettingsScreen: React.FC = () => {
         language: editableSettings.language,
         emailNotifications: editableSettings.emailNotifications,
         pushNotifications: editableSettings.pushNotifications,
+        eventVisibility: editableSettings.eventVisibility,
       };
       await updateSettings(payload);
       Alert.alert("Success", "Settings updated successfully.");
@@ -154,6 +156,7 @@ const SettingsScreen: React.FC = () => {
     language: 'en',
     emailNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, newsletter: true },
     pushNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, taskAlerts: true },
+    eventVisibility: { showAllPublicEvents: false },
   };
 
 
@@ -217,6 +220,16 @@ const SettingsScreen: React.FC = () => {
             title="Task Alerts"
             value={!!displaySettings.pushNotifications?.taskAlerts}
             onToggle={(val) => handleSettingChange('pushNotifications', 'taskAlerts', val)}
+          />
+        </View>
+
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Event Visibility</Text>
+          <SettingOption
+            title="Show All Public Events"
+            value={!!displaySettings.eventVisibility?.showAllPublicEvents}
+            onToggle={(val) => handleSettingChange('eventVisibility', 'showAllPublicEvents', val)}
+            description="When enabled, you'll see all public events. When disabled, you'll only see events you're invited to or organizing."
           />
         </View>
         

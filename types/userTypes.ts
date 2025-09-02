@@ -98,6 +98,9 @@ export interface UserSettings {
     messageAlerts: boolean;
     taskAlerts: boolean;
   };
+  eventVisibility: {
+    showAllPublicEvents: boolean; // If true, show all public events; if false, show only user's events (invited/organizer)
+  };
   // Add other user-configurable settings
   updatedAt: string;
 }

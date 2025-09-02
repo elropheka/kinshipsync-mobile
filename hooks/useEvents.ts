@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrentUser } from '@/hooks/useUser';
 import * as eventService from '@/services/eventService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
@@ -14,13 +15,43 @@ import {
   SeatingChart, UpdateSeatingChartPayload, WebsitePayload,
 } from '@/types/eventTypes';
 export const useAllEvents = () => {
-  const { isAuthenticated } = useAuth();
-  const [events, setEvents] = useState<Event[]>([]);
+  const { isAuthenticated, user } = useAuth();
+  const { settings } = useCurrentUser();
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchedEvent, setLastFetchedEvent] = useState<Event | undefined>(undefined);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
   const eventsLimit = 10;
+
+  // Compute filtered events based on user settings
+  const events = useMemo(() => {
+    if (!user?.uid || !settings?.eventVisibility) {
+      return allEvents;
+    }
+
+    const showAllPublicEvents = settings.eventVisibility.showAllPublicEvents;
+    
+    if (showAllPublicEvents) {
+      // Show all public events
+      return allEvents.filter(event => event.visibility === 'public');
+    } else {
+      // Show only events where user is organizer or invited
+      return allEvents.filter(event => {
+        // User is the organizer
+        if (event.organizerId === user.uid) {
+          return true;
+        }
+        
+        // User is in the allowed users list (invited)
+        if (event.allowedUserIds && event.allowedUserIds.includes(user.uid)) {
+          return true;
+        }
+        
+        return false;
+      });
+    }
+  }, [allEvents, user?.uid, settings?.eventVisibility]);
 
   const fetchEvents = useCallback(async (isInitialFetch: boolean = false) => {
     if (!hasMoreEvents && !isInitialFetch) return;
@@ -29,20 +60,20 @@ export const useAllEvents = () => {
     setError(null);
     try {
       const cursor = isInitialFetch ? undefined : lastFetchedEvent;
-      const data = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, cursor);
+      const rawData = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, cursor);
       
       if (isInitialFetch) {
-        setEvents(data);
+        setAllEvents(rawData);
       } else {
-        setEvents(prev => {
+        setAllEvents(prev => {
           const existingIds = new Set(prev.map(e => e.id));
-          return [...prev, ...data.filter(e => !existingIds.has(e.id))];
+          return [...prev, ...rawData.filter(e => !existingIds.has(e.id))];
         });
       }
       
-      setHasMoreEvents(data.length === eventsLimit);
-      if (data.length > 0) {
-        setLastFetchedEvent(data[data.length - 1]);
+      setHasMoreEvents(rawData.length === eventsLimit);
+      if (rawData.length > 0) {
+        setLastFetchedEvent(rawData[rawData.length - 1]);
       }
     } catch (e) {
       setError(e as Error);
@@ -50,16 +81,32 @@ export const useAllEvents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, hasMoreEvents, lastFetchedEvent?.createdAt, eventsLimit]);
+  }, [isAuthenticated, hasMoreEvents, lastFetchedEvent, eventsLimit]);
 
   useEffect(() => {
     const performInitialFetch = async () => {
       if (isAuthenticated) {
         setLastFetchedEvent(undefined);
         setHasMoreEvents(true);
-        await fetchEvents(true);
+        
+        // Fetch events directly here to avoid circular dependency
+        setIsLoading(true);
+        setError(null);
+        try {
+          const rawData = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, undefined);
+          setAllEvents(rawData);
+          setHasMoreEvents(rawData.length === eventsLimit);
+          if (rawData.length > 0) {
+            setLastFetchedEvent(rawData[rawData.length - 1]);
+          }
+        } catch (e) {
+          setError(e as Error);
+          console.error("Failed to fetch events:", e);
+        } finally {
+          setIsLoading(false);
+        }
       } else {
-        setEvents([]);
+        setAllEvents([]);
         setIsLoading(false);
         setError(null);
         setHasMoreEvents(false);
@@ -67,28 +114,66 @@ export const useAllEvents = () => {
       }
     };
     performInitialFetch();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, eventsLimit]);
 
   const loadMoreEvents = useCallback(() => {
     if (isAuthenticated && hasMoreEvents && !isLoading) {
-      fetchEvents(false);
+      // Load more events directly to avoid circular dependency
+      setIsLoading(true);
+      setError(null);
+      eventService.getEventsPaginated(isAuthenticated, eventsLimit, lastFetchedEvent)
+        .then(rawData => {
+          setAllEvents(prev => {
+            const existingIds = new Set(prev.map(e => e.id));
+            return [...prev, ...rawData.filter(e => !existingIds.has(e.id))];
+          });
+          setHasMoreEvents(rawData.length === eventsLimit);
+          if (rawData.length > 0) {
+            setLastFetchedEvent(rawData[rawData.length - 1]);
+          }
+        })
+        .catch(e => {
+          setError(e as Error);
+          console.error("Failed to fetch more events:", e);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  }, [isAuthenticated, hasMoreEvents, isLoading, fetchEvents]);
+  }, [isAuthenticated, hasMoreEvents, isLoading, eventsLimit, lastFetchedEvent]);
 
   const refreshEvents = useCallback(() => {
     if (isAuthenticated) {
       setLastFetchedEvent(undefined);
       setHasMoreEvents(true);
-      fetchEvents(true);
+      
+      // Fetch events directly here to avoid circular dependency
+      setIsLoading(true);
+      setError(null);
+      eventService.getEventsPaginated(isAuthenticated, eventsLimit, undefined)
+        .then(rawData => {
+          setAllEvents(rawData);
+          setHasMoreEvents(rawData.length === eventsLimit);
+          if (rawData.length > 0) {
+            setLastFetchedEvent(rawData[rawData.length - 1]);
+          }
+        })
+        .catch(e => {
+          setError(e as Error);
+          console.error("Failed to fetch events:", e);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  }, [isAuthenticated, fetchEvents]);
+  }, [isAuthenticated, eventsLimit]);
 
   const addEvent = useCallback(async (payload: CreateEventPayload, organizerId: string) => {
     setIsLoading(true);
     setError(null);
     try {
       const newEvent = await eventService.createEvent(isAuthenticated, payload, organizerId);
-      setEvents(prev => [newEvent, ...prev.filter(e => e.id !== newEvent.id)]);
+      setAllEvents(prev => [newEvent, ...prev.filter(e => e.id !== newEvent.id)]);
       return newEvent;
     } catch (e) {
       setError(e as Error);
