@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; // Added
-import * as eventService from '../services/eventService';
+import { useAuth } from '@/context/AuthContext';
+import * as eventService from '@/services/eventService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload, UpdateRSVPPayload,
@@ -9,21 +9,18 @@ import {
   BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload,
   Idea, CreateIdeaPayload, UpdateIdeaPayload,
   Theme, 
-
   EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, UpdateTeamMemberPayload,
   EventMessage, CreateEventMessagePayload,
-  SeatingChart, UpdateSeatingChartPayload, WebsitePayload, // Added SeatingChart types
-} from '../types/eventTypes';
-
-// Hook for managing a list of all events
+  SeatingChart, UpdateSeatingChartPayload, WebsitePayload,
+} from '@/types/eventTypes';
 export const useAllEvents = () => {
-  const { isAuthenticated } = useAuth(); // Added
+  const { isAuthenticated } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [lastFetchedEvent, setLastFetchedEvent] = useState<Event | undefined>(undefined);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
-  const eventsLimit = 10; // Number of events per page
+  const eventsLimit = 10;
 
   const fetchEvents = useCallback(async (isInitialFetch: boolean = false) => {
     if (!hasMoreEvents && !isInitialFetch) return;
@@ -32,7 +29,7 @@ export const useAllEvents = () => {
     setError(null);
     try {
       const cursor = isInitialFetch ? undefined : lastFetchedEvent;
-      const data = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, cursor); // Modified
+      const data = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, cursor);
       
       if (isInitialFetch) {
         setEvents(data);
@@ -53,17 +50,15 @@ export const useAllEvents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, hasMoreEvents, lastFetchedEvent?.createdAt, eventsLimit]); // Changed lastFetchedEvent to lastFetchedEvent?.createdAt
+  }, [isAuthenticated, hasMoreEvents, lastFetchedEvent?.createdAt, eventsLimit]);
 
   useEffect(() => {
-    // Initial fetch logic when component mounts or isAuthenticated changes
     const performInitialFetch = async () => {
       if (isAuthenticated) {
         setLastFetchedEvent(undefined);
         setHasMoreEvents(true);
-        await fetchEvents(true); // Call the memoized fetchEvents
+        await fetchEvents(true);
       } else {
-        // Clear data if not authenticated
         setEvents([]);
         setIsLoading(false);
         setError(null);
@@ -72,17 +67,16 @@ export const useAllEvents = () => {
       }
     };
     performInitialFetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]); // Removed fetchEvents from here, depends only on isAuthenticated
+  }, [isAuthenticated]);
 
   const loadMoreEvents = useCallback(() => {
-    if (isAuthenticated && hasMoreEvents && !isLoading) { // check isAuthenticated
+    if (isAuthenticated && hasMoreEvents && !isLoading) {
       fetchEvents(false);
     }
   }, [isAuthenticated, hasMoreEvents, isLoading, fetchEvents]);
 
   const refreshEvents = useCallback(() => {
-    if (isAuthenticated) { // check isAuthenticated
+    if (isAuthenticated) {
       setLastFetchedEvent(undefined);
       setHasMoreEvents(true);
       fetchEvents(true);
@@ -90,15 +84,11 @@ export const useAllEvents = () => {
   }, [isAuthenticated, fetchEvents]);
 
   const addEvent = useCallback(async (payload: CreateEventPayload, organizerId: string) => {
-    setIsLoading(true); // Consider a specific loading state for addEvent
+    setIsLoading(true);
     setError(null);
     try {
-      const newEvent = await eventService.createEvent(isAuthenticated, payload, organizerId); // Modified
-      // Optimistically add to the start of the list or refetch/refresh
+      const newEvent = await eventService.createEvent(isAuthenticated, payload, organizerId);
       setEvents(prev => [newEvent, ...prev.filter(e => e.id !== newEvent.id)]);
-      // If using createdAt for pagination, new event should appear at top after refresh.
-      // Or, if not refreshing, ensure `lastFetchedEvent` logic doesn't break.
-      // For simplicity, prepending. A full refresh might be better for consistency.
       return newEvent;
     } catch (e) {
       setError(e as Error);
@@ -107,7 +97,7 @@ export const useAllEvents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]); // Added isAuthenticated to dependency array
+  }, [isAuthenticated]);
   
   return { 
     events, 
@@ -119,9 +109,8 @@ export const useAllEvents = () => {
   };
 };
 
-// Hook for managing a single event and its details (including sub-entities like guests and schedule)
 export const useEventDetail = (eventId?: string) => {
-  const { isAuthenticated, user } = useAuth(); // Added user
+  const { isAuthenticated, user } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -133,16 +122,15 @@ export const useEventDetail = (eventId?: string) => {
   const [eventWebsite, setEventWebsite] = useState<WebsitePayload | null>(null);
   const [eventTeams, setEventTeams] = useState<EventTeam[]>([]);
   const [eventMessages, setEventMessages] = useState<EventMessage[]>([]);
-  const [seatingChart, setSeatingChart] = useState<SeatingChart | null>(null); // Added state for seating chart
+  const [seatingChart, setSeatingChart] = useState<SeatingChart | null>(null);
 
   const [isLoadingEvent, setIsLoadingEvent] = useState(true); 
   const [isLoadingSubEntities, setIsLoadingSubEntities] = useState(true); 
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   const [isLoadingWebsite, setIsLoadingWebsite] = useState(false);
-  const [isLoadingSeatingChart, setIsLoadingSeatingChart] = useState(false); // Added loading state for seating chart
+  const [isLoadingSeatingChart, setIsLoadingSeatingChart] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // Fetch main event data (non-real-time for now, can be enhanced)
   const fetchMainEvent = useCallback(async (id: string) => {
     if (!id) {
       setEvent(null);
@@ -152,7 +140,7 @@ export const useEventDetail = (eventId?: string) => {
     setIsLoadingEvent(true);
     setError(null);
     try {
-      const eventData = await eventService.getEventById(isAuthenticated, id); // Modified
+      const eventData = await eventService.getEventById(isAuthenticated, id);
       setEvent(eventData);
     } catch (e) {
       setError(e as Error);
@@ -180,8 +168,8 @@ export const useEventDetail = (eventId?: string) => {
         setIsLoadingSeatingChart(true);
         try {
           const [eventThemeData, allThemesData, websiteData, seatingChartData] = await Promise.all([
-            eventService.getEventTheme(isAuthenticated, eventId, user?.uid), // user?.uid is fine here as getEventTheme accepts string | undefined for userId
-            eventService.getAvailableThemes(isAuthenticated, user?.uid || null), // Pass user?.uid or null
+            eventService.getEventTheme(isAuthenticated, eventId, user?.uid),
+            eventService.getAvailableThemes(isAuthenticated, user?.uid || null),
             eventService.getEventWebsite(isAuthenticated, eventId), 
             eventService.getSeatingChartForEvent(isAuthenticated, eventId) 
           ]);
@@ -216,37 +204,37 @@ export const useEventDetail = (eventId?: string) => {
         }
       };
       
-      unsubscribeGuests = eventService.listenToGuestsWithRsvp(isAuthenticated, eventId, (updatedGuests) => { // Modified
+      unsubscribeGuests = eventService.listenToGuestsWithRsvp(isAuthenticated, eventId, (updatedGuests) => {
         setGuests(updatedGuests);
         loadedFlags.guests = true; checkAllLoaded();
       });
       
-      unsubscribeSchedule = eventService.listenToSchedule(isAuthenticated, eventId, (updatedSchedule) => { // Modified
+      unsubscribeSchedule = eventService.listenToSchedule(isAuthenticated, eventId, (updatedSchedule) => {
         setSchedule(updatedSchedule);
         loadedFlags.schedule = true; checkAllLoaded();
       });
 
-      unsubscribeTasks = eventService.listenToEventTasks(isAuthenticated, eventId, (updatedTasks) => { // Modified
+      unsubscribeTasks = eventService.listenToEventTasks(isAuthenticated, eventId, (updatedTasks) => {
         setTasks(updatedTasks);
         loadedFlags.tasks = true; checkAllLoaded();
       });
 
-      unsubscribeBudgetItems = eventService.listenToBudgetItems(isAuthenticated, eventId, (updatedBudgetItems) => { // Modified
+      unsubscribeBudgetItems = eventService.listenToBudgetItems(isAuthenticated, eventId, (updatedBudgetItems) => {
         setBudgetItems(updatedBudgetItems);
         loadedFlags.budget = true; checkAllLoaded();
       });
 
-      unsubscribeIdeas = eventService.listenToIdeas(isAuthenticated, eventId, (updatedIdeas) => { // Modified
+      unsubscribeIdeas = eventService.listenToIdeas(isAuthenticated, eventId, (updatedIdeas) => {
         setIdeas(updatedIdeas);
         loadedFlags.ideas = true; checkAllLoaded();
       });
 
-      unsubscribeEventTeams = eventService.listenToEventTeams(isAuthenticated, eventId, (updatedTeams) => { // Modified
+      unsubscribeEventTeams = eventService.listenToEventTeams(isAuthenticated, eventId, (updatedTeams) => {
         setEventTeams(updatedTeams);
         loadedFlags.teams = true; checkAllLoaded();
       });
 
-      unsubscribeEventMessages = eventService.listenToEventMessages(isAuthenticated, eventId, (updatedMessages) => { // Modified
+      unsubscribeEventMessages = eventService.listenToEventMessages(isAuthenticated, eventId, (updatedMessages) => {
         setEventMessages(updatedMessages);
         loadedFlags.messages = true; checkAllLoaded();
       });
@@ -283,25 +271,22 @@ export const useEventDetail = (eventId?: string) => {
   }, [eventId, fetchMainEvent]);
 
   const updateThisEvent = useCallback(async (payload: UpdateEventPayload) => {
-    if (!eventId) { // Use eventId from params as event state might not be set yet
+    if (!eventId) {
       console.error("No event ID provided to update.");
       setError(new Error("No event ID provided to update."));
       return null;
     }
-    // setIsLoadingEvent(true); // Or a general loading state
     setError(null);
     try {
-      const updatedEventData = await eventService.updateEvent(isAuthenticated, eventId, payload); // Modified
+      const updatedEventData = await eventService.updateEvent(isAuthenticated, eventId, payload, user?.uid);
       setEvent(updatedEventData); 
       return updatedEventData;
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to update event ${eventId}:`, e);
       throw e;
-    } finally {
-      // setIsLoadingEvent(false);
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated, user?.uid]);
 
   const deleteThisEvent = useCallback(async () => {
     if (!eventId) {
@@ -309,10 +294,9 @@ export const useEventDetail = (eventId?: string) => {
       setError(new Error("No event ID provided to delete."));
       return false;
     }
-    // setIsLoadingEvent(true);
     setError(null);
     try {
-      const success = await eventService.deleteEvent(isAuthenticated, eventId); // Modified
+      const success = await eventService.deleteEvent(isAuthenticated, eventId);
       if (success) {
         setEvent(null); 
         setGuests([]);  
@@ -325,36 +309,28 @@ export const useEventDetail = (eventId?: string) => {
         setEventTeams([]);
         setEventMessages([]);
         setSeatingChart(null);
-        // Clear other sub-entities
       }
       return success;
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to delete event ${eventId}:`, e);
       throw e;
-    } finally {
-      // setIsLoadingEvent(false);
     }
   }, [eventId]);
 
 
-  // --- Guest Management specific to this event (now uses Firestore-backed services) ---
   const addGuest = useCallback(async (payload: CreateGuestPayload) => {
     if (!eventId) {
       setError(new Error("Event not loaded. Cannot add guest."));
       throw new Error("Event not loaded. Cannot add guest.");
     }
-    // setIsLoadingSubEntities(true); // Or a specific guest loading state
     setError(null);
     try {
-      // Listener will update the guests state
-      return await eventService.addGuestToEvent(isAuthenticated, eventId, payload); // Modified
+      return await eventService.addGuestToEvent(isAuthenticated, eventId, payload);
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to add guest to event ${eventId}:`, e);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
@@ -363,17 +339,13 @@ export const useEventDetail = (eventId?: string) => {
       setError(new Error("Event not loaded. Cannot update guest/RSVP."));
       throw new Error("Event not loaded. Cannot update guest/RSVP.");
     }
-    // setIsLoadingSubEntities(true);
     setError(null);
     try {
-      // Listener will update the guests state
-      return await eventService.updateGuestRsvp(isAuthenticated, eventId, guestId, payload); // Modified
+      return await eventService.updateGuestRsvp(isAuthenticated, eventId, guestId, payload);
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to update guest/RSVP ${guestId}:`, e);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
@@ -382,103 +354,84 @@ export const useEventDetail = (eventId?: string) => {
       setError(new Error("Event not loaded. Cannot remove guest."));
       throw new Error("Event not loaded. Cannot remove guest.");
     }
-    // setIsLoadingSubEntities(true);
     setError(null);
     try {
-      // Listener will update the guests state
-      await eventService.removeGuestFromEvent(isAuthenticated, eventId, guestId); // Modified
+      await eventService.removeGuestFromEvent(isAuthenticated, eventId, guestId);
     } catch (e) {
       setError(e as Error);
       console.error(`Failed to remove guest ${guestId}:`, e);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
-  // --- Schedule Item Management ---
   const addScheduleItemHook = useCallback(async (payload: CreateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    // setIsLoadingSubEntities(true);
     try {
-      // Listener will update schedule state
-      return await eventService.addScheduleItem(isAuthenticated, eventId, payload); // Modified
+      return await eventService.addScheduleItem(isAuthenticated, eventId, payload);
     } catch (e) {
       console.error("Error in addScheduleItemHook", e);
       setError(e as Error);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
   const updateScheduleItemHook = useCallback(async (itemId: string, payload: UpdateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    // setIsLoadingSubEntities(true);
     try {
-      // Listener will update schedule state
-      return await eventService.updateScheduleItem(isAuthenticated, eventId, itemId, payload); // Modified
+      return await eventService.updateScheduleItem(isAuthenticated, eventId, itemId, payload);
     } catch (e) {
       console.error("Error in updateScheduleItemHook", e);
       setError(e as Error);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
   const deleteScheduleItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
-    // setIsLoadingSubEntities(true);
     try {
-      // Listener will update schedule state
-      await eventService.deleteScheduleItem(isAuthenticated, eventId, itemId); // Modified
+      await eventService.deleteScheduleItem(isAuthenticated, eventId, itemId);
     } catch (e) {
       console.error("Error in deleteScheduleItemHook", e);
       setError(e as Error);
       throw e;
-    } finally {
-      // setIsLoadingSubEntities(false);
     }
   }, [eventId]);
 
-  // --- Event Task Management ---
   const addEventTaskHook = useCallback(async (payload: CreateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { return await eventService.addTaskToEvent(isAuthenticated, eventId, payload); } // Modified
+    try { return await eventService.addTaskToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
   const updateEventTaskHook = useCallback(async (taskId: string, payload: UpdateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { return await eventService.updateEventTask(isAuthenticated, eventId, taskId, payload); } // Modified
+    try { return await eventService.updateEventTask(isAuthenticated, eventId, taskId, payload); }
     catch (e) { console.error("Error in updateEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
   const deleteEventTaskHook = useCallback(async (taskId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { await eventService.deleteEventTask(isAuthenticated, eventId, taskId); } // Modified
+    try { await eventService.deleteEventTask(isAuthenticated, eventId, taskId); }
     catch (e) { console.error("Error in deleteEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
-  // --- Budget Item Management ---
   const addBudgetItemHook = useCallback(async (payload: CreateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { return await eventService.addBudgetItemToEvent(isAuthenticated, eventId, payload); } // Modified
+    try { return await eventService.addBudgetItemToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
   const updateBudgetItemHook = useCallback(async (itemId: string, payload: UpdateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { return await eventService.updateBudgetItem(isAuthenticated, eventId, itemId, payload); } // Modified
+    try { return await eventService.updateBudgetItem(isAuthenticated, eventId, itemId, payload); }
     catch (e) { console.error("Error in updateBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
   const deleteBudgetItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
-    try { await eventService.deleteBudgetItem(isAuthenticated, eventId, itemId); } // Modified
+    try { await eventService.deleteBudgetItem(isAuthenticated, eventId, itemId); }
     catch (e) { console.error("Error in deleteBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId, isAuthenticated]);
+  }, [eventId]);
 
   return {
     event,
@@ -487,14 +440,14 @@ export const useEventDetail = (eventId?: string) => {
     tasks,
     budgetItems,
     ideas,
-    isLoading: isLoadingEvent || isLoadingSubEntities, // Combined loading state
+    isLoading: isLoadingEvent || isLoadingSubEntities,
     error,
-    fetchEventDetails: () => eventId && fetchMainEvent(eventId), // Keep a way to manually refetch main event
+    fetchEventDetails: () => eventId && fetchMainEvent(eventId),
     updateThisEvent,
     deleteThisEvent,
     addGuest,
-    updateGuestAndRsvp, // Renamed from updateGuestDetails
-    removeGuestFromEvent: removeGuest, // Renamed from removeGuestFromEvent
+    updateGuestAndRsvp,
+    removeGuestFromEvent: removeGuest,
     addScheduleItem: addScheduleItemHook,
     updateScheduleItem: updateScheduleItemHook,
     deleteScheduleItem: deleteScheduleItemHook,
@@ -506,25 +459,24 @@ export const useEventDetail = (eventId?: string) => {
     deleteBudgetItem: deleteBudgetItemHook,
     addIdea: useCallback(async (payload: CreateIdeaPayload, userId: string) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { return await eventService.addIdeaToEvent(isAuthenticated, eventId, payload, userId); } // Modified
+      try { return await eventService.addIdeaToEvent(isAuthenticated, eventId, payload, userId); }
       catch (e) { console.error("Error in addIdeaHook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
     updateIdea: useCallback(async (ideaId: string, payload: UpdateIdeaPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { return await eventService.updateIdea(isAuthenticated, eventId, ideaId, payload); } // Modified
+      try { return await eventService.updateIdea(isAuthenticated, eventId, ideaId, payload); }
       catch (e) { console.error("Error in updateIdeaHook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
     deleteIdea: useCallback(async (ideaId: string) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.deleteIdea(isAuthenticated, eventId, ideaId); } // Modified
+      try { await eventService.deleteIdea(isAuthenticated, eventId, ideaId); }
       catch (e) { console.error("Error in deleteIdeaHook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
     voteForIdea: useCallback(async (ideaId: string, increment: number = 1) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.voteForIdea(isAuthenticated, eventId, ideaId, increment); } // Modified
+      try { await eventService.voteForIdea(isAuthenticated, eventId, ideaId, increment); }
       catch (e) { console.error("Error in voteForIdeaHook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
-    // Theme Management
     currentTheme,
     availableThemes,
     isLoadingThemes,
@@ -533,19 +485,18 @@ export const useEventDetail = (eventId?: string) => {
       try { 
         const success = await eventService.setEventTheme(isAuthenticated, eventId, themeId); 
         if (success) {
-          const updatedTheme = await eventService.getEventTheme(isAuthenticated, eventId, user?.uid); // Pass userId
+          const updatedTheme = await eventService.getEventTheme(isAuthenticated, eventId, user?.uid);
           setCurrentTheme(updatedTheme);
-          // Also update the themeId on the main event object if it's being displayed directly
           setEvent(prev => prev ? ({ ...prev, themeId: themeId ?? undefined }) : null);
         }
         return success;
       }
       catch (e) { console.error("Error in setEventThemeHook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
-    fetchAvailableThemes: useCallback(async () => { // This can be called independently if needed
+    fetchAvailableThemes: useCallback(async () => {
         setIsLoadingThemes(true);
         try {
-            const themes = await eventService.getAvailableThemes(isAuthenticated, user?.uid || null); // Pass user?.uid or null
+            const themes = await eventService.getAvailableThemes(isAuthenticated, user?.uid || null);
             setAvailableThemes(themes);
         } catch (e) {
             console.error("Error fetching available themes in hook", e);
@@ -554,14 +505,13 @@ export const useEventDetail = (eventId?: string) => {
             setIsLoadingThemes(false);
         }
     }, [isAuthenticated]),
-    // Event Website Management
     eventWebsite,
     isLoadingWebsite,
     updateEventWebsite: useCallback(async (payload: WebsitePayload) => {
       if (!eventId) throw new Error("Event ID is required.");
       setIsLoadingWebsite(true);
       try {
-        const updatedWebsite = await eventService.updateEventWebsite(isAuthenticated, eventId, payload); // Modified
+        const updatedWebsite = await eventService.updateEventWebsite(isAuthenticated, eventId, payload);
         setEventWebsite(updatedWebsite);
         return updatedWebsite;
       } catch (e) {
@@ -572,53 +522,50 @@ export const useEventDetail = (eventId?: string) => {
         setIsLoadingWebsite(false);
       }
     }, [eventId, isAuthenticated]),
-    // Event Team Management
     eventTeams,
     createEventTeam: useCallback(async (payload: CreateEventTeamPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { return await eventService.createEventTeam(isAuthenticated, eventId, payload); } // Modified
+      try { return await eventService.createEventTeam(isAuthenticated, eventId, payload); }
       catch (e) { console.error("Error in createEventTeam hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
     updateEventTeam: useCallback(async (teamId: string, payload: UpdateEventTeamPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { return await eventService.updateEventTeam(isAuthenticated, eventId, teamId, payload); } // Modified
+      try { return await eventService.updateEventTeam(isAuthenticated, eventId, teamId, payload); }
       catch (e) { console.error("Error in updateEventTeam hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
     deleteEventTeam: useCallback(async (teamId: string) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.deleteEventTeam(isAuthenticated, eventId, teamId); } // Modified
+      try { await eventService.deleteEventTeam(isAuthenticated, eventId, teamId); }
       catch (e) { console.error("Error in deleteEventTeam hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
     addTeamMember: useCallback(async (teamId: string, memberPayload: AddTeamMemberPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.addTeamMemberToEventTeam(isAuthenticated, eventId, teamId, memberPayload); } // Modified
+      try { await eventService.addTeamMemberToEventTeam(isAuthenticated, eventId, teamId, memberPayload); }
       catch (e) { console.error("Error in addTeamMember hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
     updateTeamMember: useCallback(async (teamId: string, userId: string, rolePayload: UpdateTeamMemberPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.updateTeamMemberInEventTeam(isAuthenticated, eventId, teamId, userId, rolePayload); } // Modified
+      try { await eventService.updateTeamMemberInEventTeam(isAuthenticated, eventId, teamId, userId, rolePayload); }
       catch (e) { console.error("Error in updateTeamMember hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
     removeTeamMember: useCallback(async (teamId: string, userId: string) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { await eventService.removeTeamMemberFromEventTeam(isAuthenticated, eventId, teamId, userId); } // Modified
+      try { await eventService.removeTeamMemberFromEventTeam(isAuthenticated, eventId, teamId, userId); }
       catch (e) { console.error("Error in removeTeamMember hook", e); setError(e as Error); throw e;}
     }, [eventId, isAuthenticated]),
-    // Event Message Management
     eventMessages,
     sendEventMessage: useCallback(async (payload: CreateEventMessagePayload, senderId: string) => {
       if (!eventId) throw new Error("Event ID is required.");
-      try { return await eventService.sendEventMessage(isAuthenticated, eventId, payload, senderId); } // Modified
+      try { return await eventService.sendEventMessage(isAuthenticated, eventId, payload, senderId); }
       catch (e) { console.error("Error in sendEventMessage hook", e); setError(e as Error); throw e; }
     }, [eventId, isAuthenticated]),
-    // Seating Chart Management
     seatingChart,
     isLoadingSeatingChart,
     updateSeatingChart: useCallback(async (payload: UpdateSeatingChartPayload) => {
       if (!eventId) throw new Error("Event ID is required.");
       setIsLoadingSeatingChart(true);
       try {
-        const updatedChart = await eventService.updateSeatingChart(isAuthenticated, eventId, payload); // Modified
+        const updatedChart = await eventService.updateSeatingChart(isAuthenticated, eventId, payload);
         setSeatingChart(updatedChart);
         return updatedChart;
       } catch (e) {
@@ -629,17 +576,14 @@ export const useEventDetail = (eventId?: string) => {
         setIsLoadingSeatingChart(false);
       }
     }, [eventId, isAuthenticated]),
-    // Overall Budget Management
     updateEventOverallBudgetHook: useCallback(async (budgetAmount: number) => {
       if (!eventId) {
         setError(new Error("Event not loaded. Cannot update overall budget."));
         throw new Error("Event not loaded. Cannot update overall budget.");
       }
-      // Consider a specific loading state if needed, or use setIsLoadingEvent
       setError(null);
       try {
-        await eventService.updateEventOverallBudget(isAuthenticated, eventId, budgetAmount); // Modified
-        // Optimistically update the local event state or refetch
+        await eventService.updateEventOverallBudget(isAuthenticated, eventId, budgetAmount);
         setEvent(prevEvent => prevEvent ? { ...prevEvent, overallBudget: budgetAmount, updatedAt: new Date().toISOString() } : null);
       } catch (e) {
         setError(e as Error);
@@ -650,5 +594,4 @@ export const useEventDetail = (eventId?: string) => {
   };
 };
 
-// You might create more specialized hooks, e.g., useEventGuests(eventId), useEventBudget(eventId)
-// if the useEventDetail hook becomes too large or if components only need a subset of data.
+

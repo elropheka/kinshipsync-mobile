@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Event } from '../../../types/eventTypes';
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
+import { Event } from '@/types/eventTypes';
+import { styles } from '@/styles/app/(events)/details/[id].styles';
+import { Colors } from '@/constants/Colors';
 
 interface EventDetailHeaderProps {
   event: Event;
@@ -10,16 +11,27 @@ interface EventDetailHeaderProps {
     text: string;
     style: object;
   };
+  currentUserId?: string;
+  onEditEvent?: () => void;
 }
 
-const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo }) => {
+const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId, onEditEvent }) => {
   if (!event) {
-    return null; // Or some placeholder/loading state if preferred
+    return null; 
   }
+
+  const isOrganizer = currentUserId === event.organizerId;
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{event.name}</Text>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.title}>{event.name}</Text>
+        {isOrganizer && onEditEvent && (
+          <TouchableOpacity onPress={onEditEvent} style={styles.editButton}>
+            <Ionicons name="create-outline" size={24} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
+      </View>
       <View style={styles.detailItem}>
         <Ionicons name="calendar-outline" size={20} color="#555" style={styles.icon} />
         <Text style={styles.detailText}>{new Date(event.date).toLocaleDateString()}</Text>

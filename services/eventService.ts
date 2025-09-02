@@ -266,7 +266,7 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
   }
 };
 
-export const updateEvent = async (isAuthenticated: boolean, eventId: string, payload: UpdateEventPayload): Promise<Event | null> => {
+export const updateEvent = async (isAuthenticated: boolean, eventId: string, payload: UpdateEventPayload, currentUserId?: string): Promise<Event | null> => {
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
@@ -274,6 +274,20 @@ export const updateEvent = async (isAuthenticated: boolean, eventId: string, pay
   if (!eventId) throw new Error("Event ID is required for update.");
   try {
     const eventDocRef = doc(firestore, 'events', eventId);
+    
+    // Check if user is the organizer before allowing update
+    if (currentUserId) {
+      const currentEventSnap = await getDoc(eventDocRef);
+      if (currentEventSnap.exists()) {
+        const currentEventData = currentEventSnap.data();
+        if (currentEventData.organizerId !== currentUserId) {
+          throw new Error("Only the event organizer can update this event.");
+        }
+      } else {
+        throw new Error("Event not found.");
+      }
+    }
+    
     const updateData: any = { ...payload, updatedAt: serverTimestamp() };
 
     if (payload.name || payload.description || payload.location) {

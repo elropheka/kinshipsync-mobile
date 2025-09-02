@@ -1,39 +1,32 @@
-import React, { useState, useEffect } from 'react'; // Added useEffect
+import React, { useState, useEffect, useMemo } from 'react'; 
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Platform, Alert, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { styles } from '../../styles/app/(events)/createEvent.styles';
+import { styles } from '@/styles/app/(events)/createEvent.styles';
 import { Colors } from 'constants/Colors';
-import { useAllEvents } from '../../hooks/useEvents'; 
-// Consolidated and corrected type imports
+import { useAllEvents } from '@/hooks/useEvents'; 
 import { 
   CreateEventPayload, 
-  Event as EventType, // Used for visibility state type
-  Theme, // Theme type might be needed for explicit typing, though often inferred from useTheme
+  Event as EventType, 
   UpdateEventWebsiteDetailsPayload 
-} from '../../types/eventTypes';
-import { UserProfile } from '../../types/userTypes'; // Moved UserProfile import higher
-import { useAppAuth } from '../../hooks/useAppAuth'; 
-import { useTheme } from '../../context/ThemeContext'; 
-import MultiUserPicker from '../../components/common/MultiUserPicker';
-import * as userService from '../../services/userService'; 
-// eventService is already imported via useTheme or can be imported directly if specific functions are needed not exposed by useTheme
-// Import EventWebsiteForm with error handling
-let EventWebsiteForm: any = null;
-try {
-  EventWebsiteForm = require('../../components/website/EventWebsiteForm').default;
-} catch (error) {
-  console.error('Error importing EventWebsiteForm:', error);
-  // Create a fallback component
-  EventWebsiteForm = ({ initialWebsiteData, onSubmit, onCancel }: any) => (
-    <View style={{ padding: 20, alignItems: 'center' }}>
-      <Text style={{ color: 'red', fontSize: 16 }}>Error loading website form</Text>
-      <Text style={{ color: 'red', fontSize: 14, marginTop: 10 }}>Please try again or go back</Text>
-    </View>
-  );
-}
+} from '@/types/eventTypes';
+import { UserProfile } from '@/types/userTypes'; 
+import { useAppAuth } from '@/hooks/useAppAuth'; 
+import { useTheme } from '@/context/ThemeContext'; 
+import MultiUserPicker from '@/components/common/MultiUserPicker';
+import * as userService from '@/services/userService'; 
+
+
+const EventWebsiteFormFallback = ({ initialWebsiteData, onSubmit, onCancel }: any) => (
+  <View style={{ padding: 20, alignItems: 'center' }}>
+    <Text style={{ color: 'red', fontSize: 16 }}>Error loading website form</Text>
+    <Text style={{ color: 'red', fontSize: 14, marginTop: 10 }}>Please try again or go back</Text>
+  </View>
+);
+
+EventWebsiteFormFallback.displayName = 'EventWebsiteFormFallback';
 
 
 const CreateEventScreen = () => {
@@ -42,11 +35,13 @@ const CreateEventScreen = () => {
   let addEvent: any = null;
   let isCreatingEvent = false;
   let currentUser: any = null;
+  let refreshEvents: any = null; // Used in handleFinalizeEventCreation
   
   try {
     const eventsHook = useAllEvents();
     addEvent = eventsHook.addEvent;
     isCreatingEvent = eventsHook.isLoading || false;
+    refreshEvents = eventsHook.fetchEvents;
   } catch (error) {
     console.error('Error accessing useAllEvents:', error);
   }
@@ -60,7 +55,7 @@ const CreateEventScreen = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Step 1: Details
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -72,35 +67,21 @@ const CreateEventScreen = () => {
   const [allUsersForPicker, setAllUsersForPicker] = useState<UserProfile[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
-  // Step 2: Theme - Use ThemeContext
-  let availableThemes: any[] = [];
-  let isLoadingThemes = false;
-  let refreshAvailableThemes: (() => Promise<void>) | null = null;
-  let currentGlobalTheme: any = null;
-  
-  try {
-    const themeContext = useTheme();
-    availableThemes = themeContext.availableThemes || [];
-    isLoadingThemes = themeContext.isLoadingThemes || false;
-    refreshAvailableThemes = themeContext.refreshAvailableThemes || null;
-    currentGlobalTheme = themeContext.theme || null;
-  } catch (error) {
-    console.error('Error accessing ThemeContext:', error);
-    // Use fallback values
-    availableThemes = [];
-    isLoadingThemes = false;
-    refreshAvailableThemes = null;
-    currentGlobalTheme = null;
-  }
-  const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(undefined); // Initialize as undefined
 
-  // Step 3: Website
-  const [eventWebsiteData, setEventWebsiteData] = useState<Partial<UpdateEventWebsiteDetailsPayload>>({});
+  const themeContext = useTheme();
+  const availableThemes = useMemo(() => themeContext.availableThemes || [], [themeContext.availableThemes]);
+  const isLoadingThemes = themeContext.isLoadingThemes || false;
+  const refreshAvailableThemes = themeContext.refreshAvailableThemes || null;
+  const currentGlobalTheme = themeContext.theme || null;
+  const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(undefined);
+
+
+  const [eventWebsiteData] = useState<Partial<UpdateEventWebsiteDetailsPayload>>({});
 
 
   const [showPicker, setShowPicker] = useState<'date' | 'time' | 'none'>('none');
 
-  // Fetch available themes when step 2 is shown (only once)
+
   useEffect(() => {
     if (currentStep === 2) {
       console.log('Step 2 reached, checking themes...', { 
@@ -110,7 +91,7 @@ const CreateEventScreen = () => {
       
       const loadThemes = async () => {
         try {
-          // Only fetch themes if we don't have any yet
+
           if (availableThemes.length === 0 && refreshAvailableThemes) {
             console.log('No themes available, fetching...');
             await refreshAvailableThemes();
@@ -119,38 +100,37 @@ const CreateEventScreen = () => {
           }
         } catch (error) {
           console.error('Failed to refresh themes:', error);
-          // Don't crash the app, just log the error
-          // Set a fallback state to prevent crashes
+
           console.log('Setting fallback themes to prevent crash');
         }
       };
       
-      // Wrap in try-catch to prevent any unhandled errors
+
       try {
         loadThemes();
       } catch (error) {
         console.error('Unexpected error in loadThemes:', error);
       }
     }
-  }, [currentStep]); // Only depend on currentStep to avoid infinite loops
+  }, [currentStep, availableThemes.length, isLoadingThemes, refreshAvailableThemes]);
 
-  // Set default theme when themes become available (separate effect to avoid infinite loop)
+
   useEffect(() => {
     if (currentStep === 2 && availableThemes.length > 0 && !selectedThemeId) {
-      // Set a default selected theme if none is chosen and themes are available
+
       const firstTheme = availableThemes[0];
       if (firstTheme && firstTheme.id && firstTheme.name) {
         setSelectedThemeId(firstTheme.id);
         console.log('Setting default theme:', firstTheme);
       } else if (currentGlobalTheme && availableThemes.find(t => t.id === currentGlobalTheme.id)) {
-        // Default to currentGlobalTheme if it's in the available list and nothing else is selected
+
         setSelectedThemeId(currentGlobalTheme.id);
         console.log('Setting current global theme:', currentGlobalTheme);
       }
     }
-  }, [currentStep, availableThemes, selectedThemeId, currentGlobalTheme]); // This effect only runs when these values change
+  }, [currentStep, availableThemes, selectedThemeId, currentGlobalTheme]);
 
-  // Debug effect to track step changes
+
   useEffect(() => {
     console.log('Step changed to:', currentStep);
     if (currentStep === 3) {
@@ -161,24 +141,21 @@ const CreateEventScreen = () => {
         availableThemesCount: availableThemes.length
       });
     }
-  }, [currentStep]);
+  }, [currentStep, eventWebsiteData, selectedThemeId, availableThemes.length]);
 
 
   const onDateTimeChange = (event: DateTimePickerEvent, value?: Date) => {
-    const currentMode = showPicker; // Capture current mode before hiding picker
-    setShowPicker('none'); // Hide picker immediately for Android, or after 'Done' on iOS
-
     if (value) {
-      if (currentMode === 'date') {
+      if (showPicker === 'date') {
         setSelectedDate(value);
-      } else if (currentMode === 'time') {
-        // Format time as HH:MM (24-hour) or HH:MM AM/PM based on preference
-        // For simplicity, let's use toLocaleTimeString and let the user see their local format.
-        // The service expects a string like "14:00" or "2:00 PM".
-        // We'll format it to HH:MM AM/PM for display and submission.
+      } else if (showPicker === 'time') {
         setTime(value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       }
     }
+  };
+
+  const handlePickerDismiss = () => {
+    setShowPicker('none');
   };
   
   const handleNextStep = () => {
@@ -186,7 +163,7 @@ const CreateEventScreen = () => {
       console.log('handleNextStep called', { currentStep, name: name.trim(), selectedDate });
       
       if (currentStep === 1) {
-        // Validate Step 1 data
+
         if (!name.trim()) {
           Alert.alert('Error', 'Event name is required.');
           return;
@@ -199,7 +176,7 @@ const CreateEventScreen = () => {
         console.log('Step 1 validation passed, moving to step 2');
         setCurrentStep(2);
       } else if (currentStep === 2) {
-        // No specific validation for theme selection, can be optional
+
         console.log('Step 2 validation passed, moving to step 3');
         setCurrentStep(3);
       }
@@ -225,7 +202,7 @@ const CreateEventScreen = () => {
       return;
     }
     
-    // Validate theme selection if a theme is selected
+
     if (selectedThemeId) {
       const selectedTheme = availableThemes.find(t => t.id === selectedThemeId);
       if (!selectedTheme) {
@@ -235,28 +212,25 @@ const CreateEventScreen = () => {
       console.log('Validating selected theme:', selectedTheme);
     }
 
-    // Ensure allowedUserIds is always an array
+
     const finalAllowedUserIds = visibility === 'private' ? (Array.isArray(allowedUserIds) ? allowedUserIds : []) : [];
     
     const payload: CreateEventPayload = {
       name: name.trim(),
-      date: selectedDate.toISOString(), // Store date as ISO string
+      date: selectedDate.toISOString(),
       description: description.trim() || undefined,
       location: location.trim() || undefined,
       time: time.trim() || undefined,
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
-      themeId: selectedThemeId, // selectedThemeId is already string | undefined
-      // overallBudget can be added here if collected in step 1
+      themeId: selectedThemeId,
     };
     
     console.log('Creating event with payload:', payload);
     console.log('Selected theme ID:', selectedThemeId);
     console.log('Available themes:', availableThemes);
 
-    // Show loading indicator for the final creation process
-    // isCreatingEvent state from useAllEvents can be used here.
-    // For now, let's assume addEvent handles its own loading state for the UI button.
+
 
     try {
       if (!addEvent) {
@@ -271,12 +245,17 @@ const CreateEventScreen = () => {
       console.log('Event created successfully:', newEvent);
       
       if (newEvent) {
-        // After event is created, update website if data exists
-        // Ensure eventService is imported if not already, or use a method from a hook if available
-        const eventServiceRef = await import('../../services/eventService'); // Dynamic import if not top-level
-        if (Object.keys(eventWebsiteData).length > 0 && newEvent.id) { // Check newEvent.id
+        const eventServiceRef = await import('../../services/eventService');
+        if (Object.keys(eventWebsiteData).length > 0 && newEvent.id) {
           await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsiteDetailsPayload);
         }
+        
+        console.log('Refreshing events list after creation...');
+        if (refreshEvents) {
+          await refreshEvents();
+          console.log('Events list refreshed successfully');
+        }
+        
         Alert.alert('Success', 'Event created successfully!');
         router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
       } else {
@@ -333,17 +312,30 @@ const CreateEventScreen = () => {
           </View>
 
           {showPicker !== 'none' && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={showPicker === 'date' ? selectedDate : new Date()} // For time, can use new Date() as base
-              mode={showPicker}
-              is24Hour={false} // Or true based on preference
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateTimeChange}
-            />
+            <View>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={showPicker === 'date' ? selectedDate : new Date()}
+                mode={showPicker}
+                is24Hour={false}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onDateTimeChange}
+              />
+              <TouchableOpacity 
+                style={{ 
+                  backgroundColor: Colors.light.primary, 
+                  padding: 10, 
+                  borderRadius: 5, 
+                  marginTop: 10,
+                  alignItems: 'center'
+                }} 
+                onPress={handlePickerDismiss}
+              >
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Done</Text>
+              </TouchableOpacity>
+            </View>
           )}
-          {/* iOS Modal for DateTimePicker is handled differently in newer react-native-community/datetimepicker versions or via custom modals */}
-          {/* The above single DateTimePicker should work for both if display="spinner" is acceptable for iOS date/time */}
+
 
 
           <View style={styles.inputContainer}>
@@ -357,7 +349,7 @@ const CreateEventScreen = () => {
             />
           </View>
           
-          {/* Visibility Picker */}
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Visibility</Text>
             <View style={styles.visibilitySelectorContainer}>
@@ -386,12 +378,12 @@ const CreateEventScreen = () => {
           {visibility === 'private' && (
             <View style={styles.inputContainer}>
               <TouchableOpacity 
-                style={styles.input} // Re-use input style for button appearance
+                style={styles.input}
                 onPress={async () => {
-                  if (!allUsersForPicker.length) { // Fetch users only if not already fetched
+                  if (!allUsersForPicker.length) {
                     setIsLoadingUsers(true);
                     try {
-                      const users = await userService.getAllUsersForPicker(!!currentUser); // Pass isAuthenticated
+                      const users = await userService.getAllUsersForPicker(!!currentUser);
                       setAllUsersForPicker(users);
                     } catch (err) {
                       console.error("Failed to fetch users for picker:", err);
@@ -438,7 +430,7 @@ const CreateEventScreen = () => {
           <Text style={styles.inputLabel}>Select a Theme</Text>
           {isLoadingThemes && <ActivityIndicator />}
           
-          {/* Basic Theme Picker - replace with a nicer UI if needed */}
+
           {Array.isArray(availableThemes) && availableThemes.length > 0 ? (
             availableThemes.map(theme => {
               try {
@@ -490,15 +482,14 @@ const CreateEventScreen = () => {
     try {
       console.log('Starting to render step 3 website...');
       
-      // Validate eventWebsiteData to prevent crashes
+
       const safeEventWebsiteData = eventWebsiteData || {};
       console.log('Safe event website data:', safeEventWebsiteData);
       
       return (
         <>
           <Text style={styles.inputLabel}>Customize Your Event Website</Text>
-          {/* For now, let's use a simple form instead of the complex EventWebsiteForm */}
-          {/* This will help us identify if the issue is with EventWebsiteForm */}
+
           <Text style={{ fontSize: 14, marginTop: 10, marginBottom: 20 }}>
             Website customization will be available in the next update.
           </Text>
@@ -547,7 +538,7 @@ const CreateEventScreen = () => {
          <View style={{width: 24}} />
        </View>
 
-      {/* Progress Tabs */}
+
       <View style={styles.tabContainer}>
         <View style={[styles.tabItem, currentStep === 1 && styles.activeTab]}>
           <Text style={[styles.tabText, currentStep === 1 && styles.activeTabText]}>Details</Text>
@@ -619,8 +610,7 @@ const CreateEventScreen = () => {
         </View>
       </ScrollView>
 
-      {/* User Picker Modal for Private Event Viewers (used in Step 1) */}
-      {/* For now, this is a simplified modal. Ideally, use MultiUserPicker or a dedicated component */}
+
       <Modal
         visible={isUserPickerVisible}
         animationType="slide"
@@ -640,10 +630,10 @@ const CreateEventScreen = () => {
             <ActivityIndicator style={{marginTop: 20}} size="large" color={Colors.light.primary} />
           ) : (
             <MultiUserPicker
-              users={allUsersForPicker.filter(u => u.userId !== currentUser?.uid)} // Exclude current user
+              users={allUsersForPicker.filter(u => u.userId !== currentUser?.uid)}
               selectedUserIds={allowedUserIds}
               onSelectionChange={(ids) => setAllowedUserIds(ids)}
-              // multiSelection prop removed as it's not part of MultiUserPickerProps
+
             />
           )}
         </SafeAreaView>
@@ -652,5 +642,5 @@ const CreateEventScreen = () => {
   );
 };
 
-// UserProfile and EventWebsiteForm imports moved to the top
+
 export default CreateEventScreen;

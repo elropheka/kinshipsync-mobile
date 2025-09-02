@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams,  Stack } from 'expo-router';
+import { useLocalSearchParams, Stack, useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '@/styles/app/(events)/details/[id].styles';
 import { useEventDetail } from '@/hooks/useEvents';
@@ -24,7 +24,9 @@ export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const eventId = id || ''; 
   const { user: currentUser } = useAppAuth();
+  const router = useRouter();
   const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
+  const lastRefetchRef = useRef<number>(0);
 
   const { 
     event, 
@@ -54,8 +56,24 @@ export default function EventDetailsScreen() {
     eventWebsite,
     updateEventWebsite,
     isLoading: isLoadingEventDetails, 
-    error: eventError 
+    error: eventError,
+    fetchEventDetails
   } = useEventDetail(eventId);
+
+  // Refetch event details when screen comes into focus (e.g., returning from edit screen)
+  useFocusEffect(
+    React.useCallback(() => {
+      const now = Date.now();
+      const timeSinceLastRefetch = now - lastRefetchRef.current;
+      
+      // Only refetch if it's been more than 2 seconds since last refetch
+      if (fetchEventDetails && eventId && timeSinceLastRefetch > 2000) {
+        console.log('Event details screen focused, refetching event data...');
+        lastRefetchRef.current = now;
+        fetchEventDetails();
+      }
+    }, [fetchEventDetails, eventId])
+  );
 
   // Fetch team member profiles when eventTeams change
   useEffect(() => {
@@ -287,13 +305,27 @@ export default function EventDetailsScreen() {
     await updateEventWebsite(websiteData);
   };
 
+  const handleEditEvent = () => {
+    if (event) {
+      router.push({
+        pathname: '/(events)/editEvent',
+        params: { eventId: event.id }
+      });
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: event.name || 'Event Details' }} />
      
       <ScrollView style={styles.container}>
-        <EventDetailHeader event={event} deadlineInfo={deadlineInfo} />
+        <EventDetailHeader 
+          event={event} 
+          deadlineInfo={deadlineInfo} 
+          currentUserId={currentUser?.uid}
+          onEditEvent={handleEditEvent}
+        />
         
         <EventDetailNavButtons eventId={event.id} />
 

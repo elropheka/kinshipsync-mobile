@@ -1,12 +1,10 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet} from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import {
   Spacing,
   BorderRadius,
   ResponsiveFontSizes,
-  IconSizes,
-  Layout,
   moderateScale,
 } from 'constants/dimensions';
 
@@ -50,12 +48,24 @@ export const styles = StyleSheet.create({
     shadowRadius: moderateScale(4),
     elevation: 3,
   },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.m,
+  },
   title: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.text,
-    marginBottom: Spacing.m,
+    flex: 1,
     textAlign: 'center',
+  },
+  editButton: {
+    padding: Spacing.xs,
+    borderRadius: BorderRadius.s,
+    backgroundColor: Colors.light.backgroundPaper,
+    borderColor: Colors.light.primary,
   },
   detailHeaderImage: {
     width: '100%',

@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { Stack, router } from 'expo-router'; 
+import { Stack, router, useFocusEffect } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '@/styles/app/(events)/events.styles';
 import { useAllEvents } from '@/hooks/useEvents';
@@ -19,7 +19,22 @@ const EventListScreen = () => {
   const [showOnlyOwnEvents, setShowOnlyOwnEvents] = useState(true);
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
   const { user: currentUser } = useAppAuth();
+  const lastRefetchRef = useRef<number>(0);
 
+  // Refresh events list when screen comes into focus (e.g., returning from create/edit screens)
+  useFocusEffect(
+    React.useCallback(() => {
+      const now = Date.now();
+      const timeSinceLastRefetch = now - lastRefetchRef.current;
+      
+      // Only refetch if it's been more than 2 seconds since last refetch
+      if (refreshEvents && timeSinceLastRefetch > 2000) {
+        console.log('Events list screen focused, refreshing events...');
+        lastRefetchRef.current = now;
+        refreshEvents();
+      }
+    }, [refreshEvents])
+  );
 
   const getEventStatus = (eventDate: string): 'Upcoming' | 'Past' => {
     const today = new Date();
