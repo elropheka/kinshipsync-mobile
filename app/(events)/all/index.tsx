@@ -25,7 +25,7 @@ interface Summary {
 interface EventsScreenProps {}
 
 const EventsScreen: React.FC<EventsScreenProps> = () => {
-  const { events: fetchedEvents, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
+  const { events: fetchedEvents, isLoading, error, fetchEvents: refreshEvents } = useAllEvents();
   const [activeTab, setActiveTab] = useState<string>('Upcoming');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -190,9 +190,8 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
 
       <ScrollView 
         style={styles.eventsList}
-        onScrollEndDrag={loadMoreEvents}
       >
-        {isLoading && filteredEventsData.length > 0 && <ActivityIndicator style={{paddingVertical: 10}} />}
+
         {!isLoading && filteredEventsData.length === 0 && (
           <View style={styles.noEventsContainer}>
             <Ionicons name="calendar" size={60} color="#ccc" />
@@ -269,7 +268,7 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
             </View>
           </TouchableOpacity>
         ))}
-        {isLoading && filteredEventsData.length > 0 && <ActivityIndicator style={{ marginVertical: 20 }} />}
+
       </ScrollView>
 
       <TouchableOpacity style={styles.addButton} onPress={() => router.push('/(events)/createEvent')}>

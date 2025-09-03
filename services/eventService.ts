@@ -120,12 +120,16 @@ export const getEventsPaginated = async (
     const eventsPromises = querySnapshot.docs.map(async (docSnap) => {
       const data = docSnap.data();
       let totalAttendees = 0;
+      let guestEmails: string[] = [];
       try {
         const guestsColRef = collection(firestore, 'events', docSnap.id, 'guests');
         const guestsSnapshot = await getDocs(guestsColRef);
         guestsSnapshot.forEach((guestDoc) => {
           const guestData = guestDoc.data() as Guest;
           totalAttendees += 1 + (guestData.plusOnes || 0);
+          if (guestData.email) {
+            guestEmails.push(guestData.email);
+          }
         });
       } catch (guestError) {
         console.error(`Error fetching guests for event ${docSnap.id}:`, guestError);
@@ -168,6 +172,7 @@ export const getEventsPaginated = async (
         searchableKeywords,
         overallBudget: data.overallBudget,
         totalAttendees,
+        guestEmails,
         createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
         updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
       } as Event;

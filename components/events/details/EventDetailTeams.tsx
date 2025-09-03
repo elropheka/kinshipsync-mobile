@@ -16,6 +16,7 @@ interface EventDetailTeamsProps {
   onDeleteEventTeam: (teamId: string) => Promise<void>;
   onAddTeamMember: (teamId: string, memberData: AddTeamMemberPayload) => Promise<void>;
   onRemoveTeamMember: (teamId: string, memberUserId: string) => Promise<void>;
+  isOrganizer?: boolean;
   // onUpdateTeamMember: (teamId: string, memberUserId: string, data: UpdateTeamMemberPayload) => Promise<void>; // If role editing is needed directly here
 }
 
@@ -27,6 +28,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   onDeleteEventTeam,
   onAddTeamMember,
   onRemoveTeamMember,
+  isOrganizer = true
 }) => {
   const [isEventTeamFormVisible, setIsEventTeamFormVisible] = useState(false);
   const [editingEventTeam, setEditingEventTeam] = useState<Partial<Omit<EventTeam, 'members'>> & { id?: string; members?: string[] } | undefined>(undefined);
@@ -76,7 +78,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
           await onDeleteEventTeam(teamId); 
           Alert.alert('Success', 'Team deleted.');
         } 
-        catch (e) { Alert.alert("Error", "Failed to delete team."); }
+        catch { Alert.alert("Error", "Failed to delete team."); }
       }}
     ]);
   };
@@ -114,7 +116,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
         try {
           await onRemoveTeamMember(teamId, memberUserId);
           Alert.alert("Success", "Member removed.");
-        } catch (e) {
+        } catch {
           Alert.alert("Error", "Failed to remove member.");
         }
       }}
@@ -124,17 +126,23 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   const renderEventTeamItem = ({ item: team }: { item: EventTeam }) => (
     <View style={styles.teamItemContainer}>
       <View style={styles.teamHeader}>
-        <TouchableOpacity onPress={() => handleOpenEventTeamForm(team)} style={{flex:1}}>
+        <TouchableOpacity 
+          onPress={isOrganizer ? () => handleOpenEventTeamForm(team) : undefined} 
+          style={{flex:1}}
+          disabled={!isOrganizer}
+        >
           <Text style={styles.teamName}>{team.name}</Text>
         </TouchableOpacity>
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => handleOpenTeamMemberModal(team)} style={{ marginRight: 10 }}>
-            <Ionicons name="person-add-outline" size={24} color={Colors.light.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleDeleteTeamPress(team.id)}>
-            <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
-          </TouchableOpacity>
-        </View>
+        {isOrganizer && (
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity onPress={() => handleOpenTeamMemberModal(team)} style={{ marginRight: 10 }}>
+              <Ionicons name="person-add-outline" size={24} color={Colors.light.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDeleteTeamPress(team.id)}>
+              <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
       {team.members && team.members.length > 0 ? (
         team.members.map((member, index) => {
@@ -142,9 +150,11 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
           return (
             <View key={index} style={styles.teamMemberItem}>
               <Text style={styles.teamMemberName}>{memberProfile?.displayName || member.userId} ({member.role})</Text>
-              <TouchableOpacity onPress={() => handleRemoveMemberPress(team.id, member.userId)}>
-                <Ionicons name="remove-circle-outline" size={20} color={Colors.light.error} />
-              </TouchableOpacity>
+              {isOrganizer && (
+                <TouchableOpacity onPress={() => handleRemoveMemberPress(team.id, member.userId)}>
+                  <Ionicons name="remove-circle-outline" size={20} color={Colors.light.error} />
+                </TouchableOpacity>
+              )}
             </View>
           );
         })
@@ -158,9 +168,11 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Event Teams</Text>
-        <TouchableOpacity onPress={() => handleOpenEventTeamForm()}>
-          <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
-        </TouchableOpacity>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => handleOpenEventTeamForm()}>
+            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
       </View>
       {eventTeams.length > 0 ? (
         <FlatList

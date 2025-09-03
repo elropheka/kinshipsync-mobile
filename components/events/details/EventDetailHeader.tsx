@@ -13,14 +13,13 @@ interface EventDetailHeaderProps {
   };
   currentUserId?: string;
   onEditEvent?: () => void;
+  isOrganizer?: boolean;
 }
 
-const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId, onEditEvent }) => {
+const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId, onEditEvent, isOrganizer }) => {
   if (!event) {
     return null; 
   }
-
-  const isOrganizer = currentUserId === event.organizerId;
 
   return (
     <View style={styles.card}>

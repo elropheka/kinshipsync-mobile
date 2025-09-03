@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: isTablet() ? Spacing.xxl : Spacing.l,
   },
   errorText: {
     fontSize: isTablet() ? ResponsiveFontSizes.subtitle : ResponsiveFontSizes.body,
@@ -44,7 +43,6 @@ export const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: Spacing.l,
     marginBottom: Spacing.s,
-    marginHorizontal: Spacing.m,
     backgroundColor: Colors.light.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: isTablet() ? Spacing.l : Spacing.m,

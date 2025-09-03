@@ -18,6 +18,7 @@ export interface Event {
   visibility: 'public' | 'private' | 'unlisted';
   allowedUserIds?: string[];
   totalAttendees?: number;
+  guestEmails?: string[];
   status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   website?: WebsitePayload;
   searchableKeywords?: string[];

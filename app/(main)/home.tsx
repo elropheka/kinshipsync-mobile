@@ -180,15 +180,13 @@ const DashboardScreen: React.FC = () => {
           scrollEventThrottle={16}
         >
 
-        {isLoadingEvents && <ActivityIndicator style={{marginVertical: 20}} size="large" color={Colors.light.primary}/>}
+        {isLoadingEvents && allEvents.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="large" color={Colors.light.primary}/>}
         {eventsError && <Text style={styles.errorText}>Could not load events.</Text>}
-        {!isLoadingEvents && !eventsError && (
-          <UpcomingEvents
-            events={allEvents.slice(0, 3)} 
-            searchQuery={searchQuery} 
-            onSeeAllPress={() => router.push('/(events)/all')}
-          />
-        )}
+        <UpcomingEvents
+          events={allEvents} 
+          searchQuery={searchQuery} 
+          onSeeAllPress={() => router.push('/(events)/all')}
+        />
 
         {isLoadingUserContext && notifications.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="small" color={Colors.light.primary}/>}
         {userContextError && <Text style={styles.errorText}>Could not load recent activity.</Text>}

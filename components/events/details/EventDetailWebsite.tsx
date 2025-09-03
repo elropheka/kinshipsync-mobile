@@ -13,11 +13,13 @@ import * as Linking from 'expo-linking'; // For opening URLs
 interface EventDetailWebsiteProps {
   eventWebsite: WebsitePayload | null | undefined;
   onUpdateEventWebsite: (websiteData: UpdateEventWebsiteDetailsPayload) => Promise<void>;
+  isOrganizer?: boolean;
 }
 
 const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
   eventWebsite,
   onUpdateEventWebsite,
+  isOrganizer = true
 }) => {
   console.log('EventDetailWebsite - eventWebsite:', eventWebsite);
   const { width } = useWindowDimensions();
@@ -72,9 +74,11 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
               <Ionicons name="globe-outline" size={24} color={Colors.light.primary} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleOpenWebsiteForm} style={styles.headerActionButton}>
-            <Ionicons name="create-outline" size={28} color={Colors.light.primary} />
-          </TouchableOpacity>
+          {isOrganizer && (
+            <TouchableOpacity onPress={handleOpenWebsiteForm} style={styles.headerActionButton}>
+              <Ionicons name="create-outline" size={28} color={Colors.light.primary} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       {eventWebsite?.title ? (

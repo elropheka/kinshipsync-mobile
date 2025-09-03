@@ -11,6 +11,7 @@ interface EventDetailBudgetProps {
   onAddBudgetItem: (itemData: CreateBudgetItemPayload) => Promise<void>;
   onUpdateBudgetItem: (itemId: string, itemData: UpdateBudgetItemPayload) => Promise<void>;
   onDeleteBudgetItem: (itemId: string) => Promise<void>;
+  isOrganizer?: boolean;
 }
 
 const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
@@ -18,6 +19,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
   onAddBudgetItem,
   onUpdateBudgetItem,
   onDeleteBudgetItem,
+  isOrganizer = true
 }) => {
   const [isBudgetFormVisible, setIsBudgetFormVisible] = useState(false);
   const [editingBudgetItem, setEditingBudgetItem] = useState<Partial<BudgetItem> & { id?: string } | undefined>(undefined);
@@ -62,7 +64,11 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
   };
 
   const renderBudgetItem = ({ item }: { item: BudgetItem }) => (
-    <TouchableOpacity style={styles.taskItem} onPress={() => handleOpenBudgetForm(item)}>
+    <TouchableOpacity 
+      style={styles.taskItem} 
+      onPress={isOrganizer ? () => handleOpenBudgetForm(item) : undefined}
+      disabled={!isOrganizer}
+    >
       <View style={{ flex: 1 }}>
         <Text style={styles.taskTitle}>{item.itemName} {item.category ? `(${item.category})` : ''}</Text>
         <Text style={styles.taskDescription}>
@@ -72,9 +78,11 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
         </Text>
         {item.notes && <Text style={styles.taskDueDate} numberOfLines={1}>Notes: {item.notes}</Text>}
       </View>
-      <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
-        <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
-      </TouchableOpacity>
+      {isOrganizer && (
+        <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
+          <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 
@@ -82,9 +90,11 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Budget</Text>
-        <TouchableOpacity onPress={() => handleOpenBudgetForm()}>
-          <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
-        </TouchableOpacity>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => handleOpenBudgetForm()}>
+            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
       </View>
       {budgetItems.length > 0 ? (
         <FlatList 

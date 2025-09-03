@@ -9,12 +9,14 @@ interface EventDetailThemeProps {
   currentTheme: Theme | null | undefined;
   availableThemes: Theme[];
   onSetEventTheme: (themeId: string) => Promise<void>;
+  isOrganizer?: boolean;
 }
 
 const EventDetailTheme: React.FC<EventDetailThemeProps> = ({
   currentTheme,
   availableThemes,
   onSetEventTheme,
+  isOrganizer = true
 }) => {
   const [isThemePickerVisible, setIsThemePickerVisible] = useState(false);
 
@@ -33,9 +35,11 @@ const EventDetailTheme: React.FC<EventDetailThemeProps> = ({
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Event Theme</Text>
-        <TouchableOpacity onPress={() => setIsThemePickerVisible(true)}>
-          <Ionicons name="color-palette-outline" size={28} color={Colors.light.primary} />
-        </TouchableOpacity>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => setIsThemePickerVisible(true)}>
+            <Ionicons name="color-palette-outline" size={28} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
       </View>
       <Text style={styles.detailText}>
         Current Theme: {currentTheme ? currentTheme.name : 'None Selected'}

@@ -14,6 +14,7 @@ interface EventDetailIdeasProps {
   onUpdateIdea: (ideaId: string, ideaData: UpdateIdeaPayload) => Promise<void>;
   onDeleteIdea: (ideaId: string) => Promise<void>;
   onVoteForIdea: (ideaId: string, increment: number) => Promise<void>;
+  isOrganizer?: boolean;
 }
 
 const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
@@ -23,6 +24,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
   onUpdateIdea,
   onDeleteIdea,
   onVoteForIdea,
+  isOrganizer = true
 }) => {
   const [isIdeaFormVisible, setIsIdeaFormVisible] = useState(false);
   const [editingIdea, setEditingIdea] = useState<Partial<Idea> & { id?: string } | undefined>(undefined);
@@ -137,7 +139,10 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
   const renderIdeaItem = ({ item }: { item: Idea }) => (
     <View style={styles.ideaItemContainer}>
       <View style={styles.ideaContent}>
-        <TouchableOpacity onPress={() => handleOpenIdeaForm(item)}>
+        <TouchableOpacity 
+          onPress={isOrganizer ? () => handleOpenIdeaForm(item) : undefined}
+          disabled={!isOrganizer}
+        >
           <Text style={styles.ideaTitle}>{item.title}</Text>
           {item.description && <Text style={styles.ideaDescription} numberOfLines={2}>{item.description}</Text>}
         </TouchableOpacity>
@@ -151,9 +156,11 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
         <TouchableOpacity onPress={() => handleVote(item.id, -1)}>
           <Ionicons name="arrow-down-circle-outline" size={28} color={Colors.light.error} />
         </TouchableOpacity>
+        {isOrganizer && (
           <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 15 }}>
             <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -162,9 +169,11 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Ideas</Text>
-        <TouchableOpacity onPress={() => handleOpenIdeaForm()}>
-          <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
-        </TouchableOpacity>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => handleOpenIdeaForm()}>
+            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
       </View>
       {ideas.length > 0 ? (
         <FlatList

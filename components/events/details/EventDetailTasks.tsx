@@ -14,6 +14,7 @@ interface EventDetailTasksProps {
   onAddTask: (taskData: CreateTaskPayload) => Promise<void>;
   onUpdateTask: (taskId: string, taskData: UpdateTaskPayload) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
+  isOrganizer?: boolean;
 }
 
 const EventDetailTasks: React.FC<EventDetailTasksProps> = ({ 
@@ -21,7 +22,8 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
   assignableUsers,
   onAddTask,
   onUpdateTask,
-  onDeleteTask
+  onDeleteTask,
+  isOrganizer = true
 }) => {
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Partial<Task> & { id?: string } | undefined>(undefined);
@@ -120,7 +122,11 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     const assignedNames = getUserDisplayNames(item.assignedToUserIds || []);
     
     return (
-      <TouchableOpacity style={styles.taskItem} onPress={() => handleOpenTaskForm(item)}>
+      <TouchableOpacity 
+        style={styles.taskItem} 
+        onPress={isOrganizer ? () => handleOpenTaskForm(item) : undefined}
+        disabled={!isOrganizer}
+      >
         <View style={{ flex: 1 }}>
           <Text style={styles.taskTitle}>{item.title}</Text>
           {item.description && <Text style={styles.taskDescription} numberOfLines={1}>{item.description}</Text>}
@@ -132,9 +138,11 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
           size={24} 
           color={item.completed ? Colors.light.success : Colors.light.textSecondary} 
         />
-        <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
             <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
       </TouchableOpacity>
     );
   };
@@ -143,9 +151,11 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Tasks</Text>
-        <TouchableOpacity onPress={() => handleOpenTaskForm()}>
-          <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
-        </TouchableOpacity>
+        {isOrganizer && (
+          <TouchableOpacity onPress={() => handleOpenTaskForm()}>
+            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+          </TouchableOpacity>
+        )}
       </View>
       {tasks.length > 0 ? (
         <FlatList 

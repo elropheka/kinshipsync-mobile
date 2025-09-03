@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -59,6 +59,32 @@ export default function EventDetailsScreen() {
     error: eventError,
     fetchEventDetails
   } = useEventDetail(eventId);
+
+  // Determine if current user is the organizer
+  const isOrganizer = currentUser?.uid === event?.organizerId;
+
+  // Check if user has access to view this event
+  const hasAccessToEvent = useMemo(() => {
+    // Must be authenticated to view any event
+    if (!currentUser?.uid) return false;
+    
+    if (!event) return false;
+    
+    // User is the organizer
+    if (event.organizerId === currentUser.uid) return true;
+    
+    // Event is public
+    if (event.visibility === 'public') return true;
+    
+    // User is in the allowed users list (invited)
+    if (event.allowedUserIds && event.allowedUserIds.includes(currentUser.uid)) return true;
+    
+    // Check if user is invited as a guest (by email)
+    const userEmail = currentUser.email;
+    if (userEmail && guests.some(guest => guest.email === userEmail)) return true;
+    
+    return false;
+  }, [event, currentUser?.uid, currentUser?.email, guests]);
 
   // Refetch event details when screen comes into focus (e.g., returning from edit screen)
   useFocusEffect(
@@ -244,6 +270,17 @@ export default function EventDetailsScreen() {
     );
   }
 
+  // Check access control
+  if (!hasAccessToEvent) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>Access Denied</Text>
+        <Text style={styles.errorText}>You don&apos;t have permission to view this event.</Text>
+        <Text style={styles.errorText}>Please contact the event organizer for access.</Text>
+      </View>
+    );
+  }
+
   const deadlineInfo = getRsvpDeadlineInfo();
 
  
@@ -325,6 +362,7 @@ export default function EventDetailsScreen() {
           deadlineInfo={deadlineInfo} 
           currentUserId={currentUser?.uid}
           onEditEvent={handleEditEvent}
+          isOrganizer={isOrganizer}
         />
         
         <EventDetailNavButtons eventId={event.id} />
@@ -335,6 +373,7 @@ export default function EventDetailsScreen() {
           onAddTask={handleAddTask}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}
+          isOrganizer={isOrganizer}
         />
 
         <EventDetailBudget
@@ -342,6 +381,7 @@ export default function EventDetailsScreen() {
           onAddBudgetItem={handleAddBudgetItem}
           onUpdateBudgetItem={handleUpdateBudgetItem}
           onDeleteBudgetItem={handleDeleteBudgetItem}
+          isOrganizer={isOrganizer}
         />
 
         <EventDetailIdeas
@@ -351,6 +391,7 @@ export default function EventDetailsScreen() {
           onUpdateIdea={handleUpdateIdea}
           onDeleteIdea={handleDeleteIdea}
           onVoteForIdea={handleVoteForIdea}
+          isOrganizer={isOrganizer}
         />
 
         <EventDetailTeams
@@ -361,17 +402,20 @@ export default function EventDetailsScreen() {
           onDeleteEventTeam={handleDeleteEventTeam}
           onAddTeamMember={handleAddTeamMember}
           onRemoveTeamMember={handleRemoveTeamMember}
+          isOrganizer={isOrganizer}
         />
         
         <EventDetailTheme
           currentTheme={currentTheme}
           availableThemes={availableThemes}
           onSetEventTheme={handleSetEventTheme}
+          isOrganizer={isOrganizer}
         />
 
         <EventDetailWebsite
           eventWebsite={eventWebsite}
           onUpdateEventWebsite={handleUpdateEventWebsite}
+          isOrganizer={isOrganizer}
         />
 
       </ScrollView>

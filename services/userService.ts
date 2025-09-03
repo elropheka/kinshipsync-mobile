@@ -637,6 +637,23 @@ export const getUserSettings = async (isAuthenticated: boolean, userId: string):
     const docSnap = await getDoc(settingsDocRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
+      
+      // Migration: Add eventVisibility if it doesn't exist
+      if (!data.eventVisibility) {
+        console.log(`Migrating settings for user ${userId}: adding missing eventVisibility field`);
+        const migrationData = {
+          ...data,
+          eventVisibility: { showAllPublicEvents: false },
+          updatedAt: serverTimestamp(),
+        };
+        await setDoc(settingsDocRef, migrationData);
+        return {
+          userId,
+          ...migrationData,
+          updatedAt: new Date().toISOString(),
+        } as UserSettings;
+      }
+      
       return {
         userId, // userId is not part of the doc but part of the type
         ...data,
@@ -650,6 +667,7 @@ export const getUserSettings = async (isAuthenticated: boolean, userId: string):
         language: 'en',
         emailNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, newsletter: false },
         pushNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, taskAlerts: true },
+        eventVisibility: { showAllPublicEvents: false },
       };
       await setDoc(settingsDocRef, { ...defaultSettings, updatedAt: serverTimestamp() });
       return { 
