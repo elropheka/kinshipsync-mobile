@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrentUser } from '@/hooks/useUser';
 import * as eventService from '@/services/eventService';
+import { selectEventRefetchTrigger, selectShowAllPublicEvents, triggerEventRefetch } from '../store/slices/eventVisibilitySlice';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload, UpdateRSVPPayload,
@@ -15,9 +17,14 @@ import {
   SeatingChart, UpdateSeatingChartPayload, WebsitePayload,
 } from '@/types/eventTypes';
 export const useAllEvents = () => {
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useAuth();
   const { settings } = useCurrentUser();
   const [allEvents, setAllEvents] = useState<Event[]>([]);
+  
+  // Get Redux state for event visibility
+  const reduxShowAllPublicEvents = useSelector(selectShowAllPublicEvents);
+  const refetchTrigger = useSelector(selectEventRefetchTrigger) as number;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -67,7 +74,7 @@ export const useAllEvents = () => {
       return filtered;
     }
 
-    const showAllPublicEvents = settings.eventVisibility.showAllPublicEvents;
+    const showAllPublicEvents = reduxShowAllPublicEvents;
     
     if (showAllPublicEvents) {
       // Show all public events plus events where user is organizer or invited
@@ -122,7 +129,7 @@ export const useAllEvents = () => {
       console.log('useEvents: showAllPublicEvents=false, filtered events:', filteredEvents.length);
       return filteredEvents;
     }
-  }, [allEvents, user?.uid, user?.email, settings?.eventVisibility]);
+  }, [allEvents, user?.uid, user?.email, reduxShowAllPublicEvents]);
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -150,6 +157,24 @@ export const useAllEvents = () => {
     }
   }, [isAuthenticated, fetchEvents]);
 
+  // Initialize Redux state with user settings on mount
+  useEffect(() => {
+    if (isAuthenticated && settings?.eventVisibility && refetchTrigger === 0) {
+      console.log('useEvents: Initializing Redux state with user settings:', settings.eventVisibility.showAllPublicEvents);
+      // This will be handled by the settings screen when it loads
+    }
+  }, [isAuthenticated, settings?.eventVisibility, refetchTrigger]);
+
+  // Refetch events when Redux refetch trigger changes
+  useEffect(() => {
+    if (isAuthenticated && refetchTrigger > 0) {
+      console.log('useEvents: Redux refetch trigger changed, refetching events...');
+      console.log('useEvents: Refetch trigger value:', refetchTrigger);
+      console.log('useEvents: New showAllPublicEvents value:', reduxShowAllPublicEvents);
+      fetchEvents();
+    }
+  }, [refetchTrigger, isAuthenticated, fetchEvents, reduxShowAllPublicEvents]);
+
 
 
   const refreshEvents = useCallback(() => {
@@ -174,12 +199,18 @@ export const useAllEvents = () => {
     }
   }, [isAuthenticated]);
   
+  const triggerGlobalRefetch = useCallback(() => {
+    console.log('useEvents: Triggering global event refetch via Redux');
+    dispatch(triggerEventRefetch());
+  }, [dispatch]);
+
   return { 
     events, 
     isLoading, 
     error, 
     fetchEvents: refreshEvents, 
-    addEvent 
+    addEvent,
+    triggerGlobalRefetch
   };
 };
 

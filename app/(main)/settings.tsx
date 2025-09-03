@@ -3,11 +3,13 @@ import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, ActivityIndica
 // import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
 import { Colors } from 'constants/Colors';
 import { styles } from '@/styles/app/(main)/settings.styles';
 import { useCurrentUser } from '@/hooks/useUser';
 import { UserSettings, UpdateUserSettingsPayload } from '@/types/userTypes';
 import { useAuth } from '@/context/AuthContext';
+import { setEventVisibility } from '../../store/slices/eventVisibilitySlice';
 
 interface SettingOptionProps {
   title: string;
@@ -61,6 +63,7 @@ const ThemeOption: React.FC<ThemeOptionProps> = ({ title, currentTheme, onSelect
 
 const SettingsScreen: React.FC = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { signOut } = useAuth();
   const { 
     settings: currentSettings, 
@@ -68,6 +71,9 @@ const SettingsScreen: React.FC = () => {
     isLoading: isLoadingSettings, 
     error: settingsError 
   } = useCurrentUser();
+  
+  // Get current Redux state (for debugging)
+  // const reduxShowAllPublicEvents = useSelector((state: RootState) => state.eventVisibility.showAllPublicEvents);
 
   const [editableSettings, setEditableSettings] = useState<Partial<UpdateUserSettingsPayload>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -81,26 +87,64 @@ const SettingsScreen: React.FC = () => {
         pushNotifications: { ...currentSettings.pushNotifications },
         eventVisibility: { ...currentSettings.eventVisibility },
       });
+      
+      // Initialize Redux state with current settings
+      if (currentSettings.eventVisibility) {
+        console.log('Settings: Initializing Redux state with current settings:', currentSettings.eventVisibility.showAllPublicEvents);
+        dispatch(setEventVisibility({ 
+          showAllPublicEvents: currentSettings.eventVisibility.showAllPublicEvents 
+        }));
+      }
     }
-  }, [currentSettings]);
+  }, [currentSettings, dispatch]);
 
-  const handleSettingChange = (
+  const handleSettingChange = async (
     category: keyof UpdateUserSettingsPayload, 
     key: string | undefined,
     value: any
   ) => {
-    setEditableSettings(prev => {
+    console.log('Settings: Setting changed:', { category, key, value });
+    
+    // Update local state first
+    const newEditableSettings = (() => {
       if (key && (category === 'emailNotifications' || category === 'pushNotifications' || category === 'eventVisibility')) {
         return {
-          ...prev,
+          ...editableSettings,
           [category]: {
-            ...(prev[category] as any),
+            ...(editableSettings[category] as any),
             [key]: value,
           },
         };
       }
-      return { ...prev, [category]: value };
-    });
+      return { ...editableSettings, [category]: value };
+    })();
+    
+    setEditableSettings(newEditableSettings);
+    console.log('Settings: New editable settings:', newEditableSettings);
+
+    // Dispatch Redux action for event visibility changes
+    if (category === 'eventVisibility' && key === 'showAllPublicEvents') {
+      console.log('Settings: Dispatching Redux action for event visibility change:', value);
+      dispatch(setEventVisibility({ showAllPublicEvents: value }));
+    }
+
+    // Auto-save to database
+    try {
+      const payload: UpdateUserSettingsPayload = {
+        theme: newEditableSettings.theme,
+        language: newEditableSettings.language,
+        emailNotifications: newEditableSettings.emailNotifications,
+        pushNotifications: newEditableSettings.pushNotifications,
+        eventVisibility: newEditableSettings.eventVisibility,
+      };
+      console.log('Settings: Auto-saving settings payload:', payload);
+      const updatedSettings = await updateSettings(payload);
+      console.log('Settings: Settings auto-saved successfully:', updatedSettings);
+    } catch (error) {
+      console.error("Failed to auto-save settings:", error);
+      // Revert the local state on error
+      setEditableSettings(editableSettings);
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -113,7 +157,9 @@ const SettingsScreen: React.FC = () => {
         pushNotifications: editableSettings.pushNotifications,
         eventVisibility: editableSettings.eventVisibility,
       };
-      await updateSettings(payload);
+      console.log('Settings: Manual save settings payload:', payload);
+      const updatedSettings = await updateSettings(payload);
+      console.log('Settings: Settings manually saved successfully:', updatedSettings);
       Alert.alert("Success", "Settings updated successfully.");
     } catch (error) {
       console.error("Failed to update settings:", error);
@@ -241,7 +287,7 @@ const SettingsScreen: React.FC = () => {
         </View> */}
 
         <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSaveSettings} disabled={isSaving}>
-          {isSaving ? <ActivityIndicator color="#fff"/> : <Text style={styles.buttonText}>Save Settings</Text>}
+          {isSaving ? <ActivityIndicator color="#fff"/> : <Text style={styles.buttonText}>Settings Auto-Saved</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
