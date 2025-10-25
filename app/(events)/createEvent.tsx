@@ -60,7 +60,7 @@ const CreateEventScreen = () => {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date()); 
-  const [time, setTime] = useState(''); 
+  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
   const [visibility, setVisibility] = useState<EventType['visibility']>('private');
   const [allowedUserIds, setAllowedUserIds] = useState<string[]>([]);
   const [isUserPickerVisible, setIsUserPickerVisible] = useState(false);
@@ -145,11 +145,15 @@ const CreateEventScreen = () => {
 
 
   const onDateTimeChange = (event: DateTimePickerEvent, value?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowPicker('none');
+    }
+    
     if (value) {
       if (showPicker === 'date') {
         setSelectedDate(value);
       } else if (showPicker === 'time') {
-        setTime(value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        setSelectedTime(value);
       }
     }
   };
@@ -220,7 +224,7 @@ const CreateEventScreen = () => {
       date: selectedDate.toISOString(),
       description: description.trim() || undefined,
       location: location.trim() || undefined,
-      time: time.trim() || undefined,
+      time: selectedTime ? selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
       themeId: selectedThemeId,
@@ -303,8 +307,8 @@ const CreateEventScreen = () => {
             <Text style={styles.inputLabel}>Time</Text>
             <TouchableOpacity style={styles.input} onPress={() => setShowPicker('time')}>
               <View style={styles.datePickerContainer}>
-                <Text style={time ? styles.datePickerTextSelected : styles.datePickerText}>
-                  {time || 'Select Time'}
+                <Text style={selectedTime ? styles.datePickerTextSelected : styles.datePickerText}>
+                  {selectedTime ? selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Select Time'}
                 </Text>
                 <Ionicons name="time-outline" size={20} color={Colors.light.icon} />
               </View>
@@ -312,28 +316,76 @@ const CreateEventScreen = () => {
           </View>
 
           {showPicker !== 'none' && (
-            <View>
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={showPicker === 'date' ? selectedDate : new Date()}
-                mode={showPicker}
-                is24Hour={false}
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onDateTimeChange}
-              />
-              <TouchableOpacity 
-                style={{ 
-                  backgroundColor: Colors.light.primary, 
-                  padding: 10, 
-                  borderRadius: 5, 
-                  marginTop: 10,
-                  alignItems: 'center'
-                }} 
-                onPress={handlePickerDismiss}
-              >
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>Done</Text>
-              </TouchableOpacity>
-            </View>
+            <>
+              {Platform.OS === 'android' && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={showPicker === 'date' ? selectedDate : (selectedTime || new Date())}
+                  mode={showPicker}
+                  is24Hour={false}
+                  display="default"
+                  onChange={onDateTimeChange}
+                  style={{
+                    backgroundColor: 'white'
+                  }}
+                  textColor="#000000"
+                  themeVariant="light"
+                />
+              )}
+              {Platform.OS === 'ios' && (
+                <Modal
+                  transparent={true}
+                  animationType="slide"
+                  visible={showPicker === 'date' || showPicker === 'time'}
+                  onRequestClose={handlePickerDismiss}
+                >
+                  <View style={{ 
+                    flex: 1, 
+                    backgroundColor: 'rgba(0,0,0,0.5)', 
+                    justifyContent: 'flex-end' 
+                  }}>
+                    <View style={{ 
+                      backgroundColor: 'white', 
+                      borderTopLeftRadius: 20, 
+                      borderTopRightRadius: 20,
+                      padding: 20,
+                      minHeight: 300
+                    }}>
+                      <View style={{ 
+                        flexDirection: 'row', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        marginBottom: 20
+                      }}>
+                        <TouchableOpacity onPress={handlePickerDismiss}>
+                          <Text style={{ color: Colors.light.primary, fontSize: 16 }}>Cancel</Text>
+                        </TouchableOpacity>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+                          Select {showPicker === 'date' ? 'Date' : 'Time'}
+                        </Text>
+                        <TouchableOpacity onPress={handlePickerDismiss}>
+                          <Text style={{ color: Colors.light.primary, fontSize: 16, fontWeight: 'bold' }}>Done</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={showPicker === 'date' ? selectedDate : (selectedTime || new Date())}
+                        mode={showPicker}
+                        is24Hour={false}
+                        display="spinner"
+                        onChange={onDateTimeChange}
+                        style={{ 
+                          width: '100%',
+                          backgroundColor: 'white'
+                        }}
+                        textColor="#000000"
+                        themeVariant="light"
+                      />
+                    </View>
+                  </View>
+                </Modal>
+              )}
+            </>
           )}
 
 
