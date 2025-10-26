@@ -10,8 +10,8 @@ Your project is now configured for EAS Update! This allows you to push over-the-
 ### 2. Configuration Files
 
 #### `eas.json`
-- Added update channels for development, preview, and production
-- Each build profile now has a corresponding channel
+- Channels are configured in each build profile (`development`, `preview`, `production`)
+- Each build profile now has a corresponding channel for OTA updates
 
 #### `app.json`
 - Added updates configuration with:
