@@ -13,7 +13,7 @@ import AppCoreNav from "@/components/common/Navigation/AppCoreNav";
 import * as SplashScreen from 'expo-splash-screen'; 
 import { useFonts } from 'expo-font'; 
 import { Colors } from "@/constants/Colors";
-import * as Updates from 'expo-updates';
+// import * as Updates from 'expo-updates';
 
 SplashScreen.preventAutoHideAsync();
 
