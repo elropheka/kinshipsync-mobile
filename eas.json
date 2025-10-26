@@ -7,18 +7,15 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development",
-      "npm": "install --legacy-peer-deps"
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview",
-      "npm": "install --legacy-peer-deps"
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production",
-      "npm": "install --legacy-peer-deps"
+      "channel": "production"
     }
   },
   "submit": {
