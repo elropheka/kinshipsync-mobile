@@ -15,12 +15,25 @@
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
-      "supportsTablet": true, 
-      "deviceFamilies": [1], 
+      "supportsTablet": true,
+      "deviceFamilies": [
+        1,
+        1
+      ],
       "bundleIdentifier": "com.kinshipsyncapp",
       "buildNumber": "3",
       "infoPlist": {
         "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj"
+            ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj"
+            ]
+          },
           {
             "CFBundleURLSchemes": [
               "com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj"

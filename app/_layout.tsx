@@ -13,7 +13,6 @@ import AppCoreNav from "@/components/common/Navigation/AppCoreNav";
 import * as SplashScreen from 'expo-splash-screen'; 
 import { useFonts } from 'expo-font'; 
 import { Colors } from "@/constants/Colors";
-// import * as Updates from 'expo-updates';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -46,17 +45,6 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     async function prepare() {
       try {
-        // Check for updates in production
-        // Temporarily disabled for build testing
-        // if (!__DEV__) {
-        //   const update = await Updates.checkForUpdateAsync();
-        //   if (update.isAvailable) {
-        //     await Updates.fetchUpdateAsync();
-        //     // Optionally reload the app to use the new update
-        //     // Uncomment the next line if you want automatic reload
-        //     // await Updates.reloadAsync();
-        //   }
-        // }
         
         if (fontsLoaded || fontError) {
           setAppIsReady(true);
