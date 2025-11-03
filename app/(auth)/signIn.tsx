@@ -69,34 +69,19 @@ const SignInScreen: React.FC = () => {
       return;
     }
     setIsLoading(true);
-    const signInResponse = await signIn({ email: formData.email, pass: formData.password });
-    if (signInResponse) {
-      showAlert('success', 'Sign In Successful', 'You are now signed in.');
-    } else {
-      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
-    }
+    await signIn({ email: formData.email, pass: formData.password });
     setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const signInWithGoogleResponse = await signInWithGoogle();
-    if (signInWithGoogleResponse) {
-      showAlert('success', 'Sign In Successful', 'You are now signed in.');
-    } else {
-      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
-    }
+    await signInWithGoogle();
     setIsGoogleLoading(false);
   };
 
   const handleAppleSignIn = async () => {
     setIsAppleLoading(true);
-    const signInWithAppleResponse = await signInWithApple();
-    if (signInWithAppleResponse) {
-      showAlert('success', 'Sign In Successful', 'You are now signed in.');
-    } else {
-      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
-    }
+    await signInWithApple();
     setIsAppleLoading(false);
   };
 

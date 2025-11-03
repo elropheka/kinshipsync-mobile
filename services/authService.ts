@@ -10,6 +10,7 @@ import {
   // FirebaseSocialAuthResponse, // No longer used
 } from '../types/auth';
 import { auth as firebaseAuth } from './firebaseConfig'; // Ensure firebaseConfig exports auth
+import { getAuthErrorMessageWithContext } from '../utils/authErrorUtils';
 
 const API_URL = '/auth'; // Base path for auth endpoints (if still used for other things)
 
@@ -79,11 +80,9 @@ export const sendPasswordReset = async (email: string): Promise<void> => {
     console.log('Password reset email sent successfully.');
   } catch (error) {
     console.error('Error sending password reset email:', error);
-    // Enhance error handling based on Firebase error codes if needed
-    if (error instanceof Error) {
-        throw new Error(error.message || 'Failed to send password reset email.');
-    }
-    throw new Error('An unknown error occurred while sending the password reset email.');
+    // Use enhanced error handling for user-friendly messages
+    const errorMessage = getAuthErrorMessageWithContext(error, 'passwordReset');
+    throw new Error(errorMessage);
   }
 };
 

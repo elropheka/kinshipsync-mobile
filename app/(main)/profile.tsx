@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, StatusBar } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(main)/profile.styles';
 import { useCurrentUser } from '../../hooks/useUser';
-import { UpdateUserProfilePayload, UserProfile } from '../../types/userTypes';
+import { UpdateUserProfilePayload} from '../../types/userTypes';
 import { Colors } from 'constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';

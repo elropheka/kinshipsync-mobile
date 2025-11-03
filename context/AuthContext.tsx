@@ -7,6 +7,7 @@ import { Platform } from 'react-native';
 import { alertService } from '../services/alertService';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { LoginCredentials, SignupCredentials, BackendUser } from '../types/auth';
+import { getAuthErrorMessageWithContext } from '@/utils/authErrorUtils';
 import { 
   GoogleAuthProvider, 
   OAuthProvider,
@@ -192,7 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     } catch (err: any) {
       console.error('AuthContext: Sign in failed', err);
-      const errorMessage = err.message || 'Sign in failed';
+      const errorMessage = getAuthErrorMessageWithContext(err, 'signIn');
       alertService.showAlert('error', 'Sign In Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
@@ -245,7 +246,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(main)/home');
     } catch (err: any) {
       console.error('AuthContext: Sign up failed', err);
-      const errorMessage = err.message || 'Sign up failed';
+      const errorMessage = getAuthErrorMessageWithContext(err, 'signUp');
       alertService.showAlert('error', 'Sign Up Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
@@ -259,7 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace('/(auth)/signIn');
     } catch (err: any) {
       console.error('AuthContext: Sign out failed', err);
-      const errorMessage = err.message || 'Sign out failed';
+      const errorMessage = getAuthErrorMessageWithContext(err, 'signOut');
       alertService.showAlert('error', 'Sign Out Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
@@ -322,7 +323,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else if (error.code === statusCodes.IN_PROGRESS) console.log('Google Sign-In in progress');
       else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) console.error('Google Play services not available');
       else console.error('AuthContext: Google Sign-In failed', error);
-      alertService.showAlert('error', 'Google Sign-In Failed', error.message || 'Google Sign-In failed');
+      const errorMessage = getAuthErrorMessageWithContext(error, 'general');
+      alertService.showAlert('error', 'Google Sign-In Failed', errorMessage);
     } finally {
       dispatch(setAuthIsLoading(false));
     }
@@ -400,9 +402,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       if (error.code === 'ERR_CANCELED') {
         console.log('Apple Sign-In cancelled by user');
+        // Don't show error for cancelled
+        return;
       } else {
         console.error('AuthContext: Apple Sign-In failed', error);
-        alertService.showAlert('error', 'Apple Sign-In Failed', error.message || 'Apple Sign-In failed');
+        const errorMessage = getAuthErrorMessageWithContext(error, 'general');
+        alertService.showAlert('error', 'Apple Sign-In Failed', errorMessage);
       }
     } finally {
       dispatch(setAuthIsLoading(false));

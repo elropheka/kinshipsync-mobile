@@ -92,7 +92,7 @@ const CreateAccountScreen: React.FC = () => {
     const first_name = nameParts[0] || '';
     const last_name = nameParts.slice(1).join(' ') || '';
 
-    const  signUpResponse = await signUp({
+    await signUp({
       email: formData.email.trim(),
       pass: formData.password, 
       first_name,
@@ -101,18 +101,6 @@ const CreateAccountScreen: React.FC = () => {
       location: formData.location?.trim() || undefined,
       avatarUri: formData.avatarUri, 
     });
-    if (signUpResponse) {
-      showAlert('success', 'Account Created!', 'Your account has been successfully created. Welcome to Kinship!');
-    } else {
-      showAlert('error', 'Account Creation Failed', 'Please check your credentials and try again.');
-    }
-   
-   
-    
-   
-    setTimeout(() => {
-      hideAlert();
-    }, 2000);
     
     setIsLoading(false);
   };
@@ -142,25 +130,13 @@ const CreateAccountScreen: React.FC = () => {
 
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
-    const signInWithGoogleResponse = await signInWithGoogle();
-    if (signInWithGoogleResponse) {
-      showAlert('success', 'Sign In Successful', 'You are now signed in.');
-    } else {
-      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
-    }
-   
+    await signInWithGoogle();
     setIsGoogleLoading(false);
   };
 
   const handleAppleSignUp = async () => {
     setIsAppleLoading(true);
-    const signInWithAppleResponse = await signInWithApple();
-    if (signInWithAppleResponse) {
-      showAlert('success', 'Sign In Successful', 'You are now signed in.');
-    } else {
-      showAlert('error', 'Sign In Failed', 'Please check your credentials and try again.');
-    }
-  
+    await signInWithApple();
     setIsAppleLoading(false);
   };
 
