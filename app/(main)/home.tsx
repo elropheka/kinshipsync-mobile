@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
 import { MaterialIcons as Icon, Ionicons as SecondaryIcon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from 'constants/Colors'; 
@@ -112,6 +112,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundLight} />
       <ResponsiveContainer>
         
         <View style={styles.header}>
