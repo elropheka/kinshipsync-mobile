@@ -17,7 +17,7 @@ const BackButton: React.FC = () => {
       <Ionicons
         name="chevron-back"
         size={28} // Slightly larger for better tap target
-        color={theme.colors.text} // Use text color from the current theme
+        color="white" // White color to match header titles
       />
     </TouchableOpacity>
   );
