@@ -129,7 +129,7 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
           title: "My Events",
           headerRight: () => (
             <TouchableOpacity style={{ marginRight: 10 }} onPress={() => setShowSearchInput(!showSearchInput)}>
-              <Ionicons name="search" size={24} color={"#000"} />
+              <Ionicons name="search" size={24} color="white" />
             </TouchableOpacity>
           )
         }} 

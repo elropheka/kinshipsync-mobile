@@ -233,10 +233,10 @@ const SpecificEventGuestListScreen = () => {
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} style={{ marginRight: 15 }}>
-                    <Ionicons name={isSearchVisible ? "close-circle-outline" : "search"} size={24} color={Colors.light.text} />
+                    <Ionicons name={isSearchVisible ? "close-circle-outline" : "search"} size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{ marginRight: 10 }}>
-                    <Ionicons name="person-add-outline" size={24} color={Colors.light.primary} />
+                    <Ionicons name="person-add-outline" size={24} color="white" />
                 </TouchableOpacity>
             </View>
           )

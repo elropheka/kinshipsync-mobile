@@ -32,6 +32,7 @@ function EventsStack() {
           fontFamily: 'Poppins', // Ensure this font is loaded
           color: 'white', // White title color
         },
+        headerTintColor: 'white', // White color for all header icons
         headerStyle: {
           backgroundColor: Colors.dark.accent,
         },

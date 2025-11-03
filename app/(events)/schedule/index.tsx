@@ -199,7 +199,7 @@ const EventScheduleScreen = () => {
           headerRight: () => (
             isPlannerMode ? (
               <TouchableOpacity onPress={handleAddItem} style={{ marginRight: 10 }}>
-                <Icon name="add" size={30} color={Colors.light.primary} />
+                <Icon name="add" size={30} color="white" />
               </TouchableOpacity>
             ) : null
           )

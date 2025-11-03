@@ -120,7 +120,7 @@ const EventListScreen = () => {
           title: "Events",
           headerRight: () => (
             <TouchableOpacity style={{ marginRight: 10 }}>
-              <Ionicons name="information-circle-outline" size={24} color="black" />
+              <Ionicons name="information-circle-outline" size={24} color="white" />
             </TouchableOpacity>
           )
         }} 
