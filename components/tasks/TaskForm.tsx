@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, Alert, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, Alert, SafeAreaView, StatusBar, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
@@ -69,13 +69,23 @@ const TaskForm: React.FC<TaskFormProps> = ({
     const currentDate = selectedDate || dueDate;
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
-    }
-    if (event.type === 'set' && currentDate) {
-      setDueDate(currentDate);
-      if (Platform.OS === 'ios') {
+      if (event.type === 'set' && currentDate) {
+        setDueDate(currentDate);
       }
-    } else if (event.type === 'dismissed' && Platform.OS === 'ios') {
+    } else if (Platform.OS === 'ios') {
+      // On iOS, the picker updates live, so we update the state immediately
+      if (currentDate) {
+        setDueDate(currentDate);
+      }
     }
+  };
+
+  const handleDatePickerDone = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleDatePickerCancel = () => {
+    setShowDatePicker(false);
   };
 
   const priorities: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
@@ -127,15 +137,47 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <Ionicons name="calendar-outline" size={22} color={Colors.light.icon} />
             </TouchableOpacity>
             {showDatePicker && (
-              <DateTimePicker
-                value={dueDate || new Date()} // Fallback to new Date() if dueDate is undefined
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onDateChange}
-              />
+              <>
+                {Platform.OS === 'android' && (
+                  <DateTimePicker
+                    value={dueDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={onDateChange}
+                  />
+                )}
+                {Platform.OS === 'ios' && (
+                  <Modal
+                    transparent={true}
+                    animationType="slide"
+                    visible={showDatePicker}
+                    onRequestClose={handleDatePickerCancel}
+                  >
+                    <View style={styles.iosPickerModalOverlay}>
+                      <View style={styles.iosPickerModalContent}>
+                        <View style={styles.iosPickerHeader}>
+                          <TouchableOpacity onPress={handleDatePickerCancel}>
+                            <Text style={styles.iosPickerButtonText}>Cancel</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.iosPickerTitle}>Select Date</Text>
+                          <TouchableOpacity onPress={handleDatePickerDone}>
+                            <Text style={styles.iosPickerButtonText}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <DateTimePicker
+                          value={dueDate || new Date()}
+                          mode="date"
+                          display="spinner"
+                          onChange={onDateChange}
+                          style={styles.iosPicker}
+                          textColor={Colors.light.primary}
+                        />
+                      </View>
+                    </View>
+                  </Modal>
+                )}
+              </>
             )}
-            {/* On iOS, you might want to wrap the DateTimePicker in a Modal with Done/Cancel buttons */}
-            {/* For simplicity, this example shows it inline or relies on default OS behavior */}
           </View>
         );
       case 'segmentedControl':
@@ -380,6 +422,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.textSecondary,
     fontStyle: 'italic',
+  },
+  iosPickerModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  iosPickerModalContent: {
+    backgroundColor: Colors.light.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingVertical: 10,
+  },
+  iosPickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  iosPickerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.light.primary,
+  },
+  iosPickerButtonText: {
+    fontSize: 16,
+    color: Colors.light.primary,
+    fontWeight: '600',
+  },
+  iosPicker: {
+    width: '100%',
   },
 });
 
