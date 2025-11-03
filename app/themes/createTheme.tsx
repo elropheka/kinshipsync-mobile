@@ -103,7 +103,7 @@ const CreateThemeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
       <Stack.Screen options={{ title: 'Create New Theme' }} />
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.label}>Theme Name</Text>

@@ -227,7 +227,7 @@ const FamilyTreeScreen = () => {
 
   return (
     <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
         horizontal={true}

@@ -14,7 +14,7 @@ function VendorsStack() {
     <>
     <StatusBar 
             backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
-            style={Platform.OS === 'ios' ? 'dark' : 'auto'}
+            style={Platform.OS === 'ios' ? 'light' : 'auto'}
             translucent={Platform.OS === 'android' ? false : undefined} // On Android, false makes it a solid color bar
           />
       <Stack

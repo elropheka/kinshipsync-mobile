@@ -102,7 +102,7 @@ const SignInScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

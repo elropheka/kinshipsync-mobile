@@ -126,7 +126,7 @@ const NewChatScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
       <Stack.Screen options={{ title: "New Chat" }} />
       {/* Custom header View removed */}
 

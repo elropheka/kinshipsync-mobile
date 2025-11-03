@@ -196,7 +196,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
 
       <Modal visible={isTeamMemberPickerVisible} animationType="slide" onRequestClose={() => setIsTeamMemberPickerVisible(false)}>
         <SafeAreaView style={{flex:1}}>
-          <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+          <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setIsTeamMemberPickerVisible(false)} style={styles.headerButton}>
               <Ionicons name="close-outline" size={28} color={Colors.light.text} />

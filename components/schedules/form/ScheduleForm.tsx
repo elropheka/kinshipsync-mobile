@@ -110,7 +110,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
           <Ionicons name="close-outline" size={28} color={Colors.light.text} />

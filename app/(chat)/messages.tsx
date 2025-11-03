@@ -126,7 +126,7 @@ const ChatListScreen = () => {
   if (isLoading && conversations.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading conversations...</Text>
       </SafeAreaView>
@@ -136,7 +136,7 @@ const ChatListScreen = () => {
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -147,7 +147,7 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 

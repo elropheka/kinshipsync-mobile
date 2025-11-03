@@ -81,7 +81,7 @@ const RootLayout: React.FC = () => {
 
   return (
     <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ErrorBoundary>
         <ReduxProvider store={store}>

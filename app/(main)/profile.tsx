@@ -157,7 +157,7 @@ const ProfileScreen = () => {
   if (isLoadingUser && !currentUserProfile) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading Profile...</Text>
       </SafeAreaView>
@@ -167,7 +167,7 @@ const ProfileScreen = () => {
   if (userError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
         <Text style={styles.errorText}>Error loading profile: {userError.message}</Text>
       </SafeAreaView>
     );
@@ -176,7 +176,7 @@ const ProfileScreen = () => {
   if (!currentUserProfile) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
         <Text>No profile data found.</Text>
          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/signIn')}>
             <Text style={styles.buttonText}>Go to Sign In</Text>
@@ -188,7 +188,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>

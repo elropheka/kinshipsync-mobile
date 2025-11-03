@@ -200,7 +200,7 @@ const RsvpListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
       <Stack.Screen options={{ title: `RSVPs: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'List')}` }} />
    
       

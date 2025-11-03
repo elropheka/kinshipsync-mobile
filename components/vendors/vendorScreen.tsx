@@ -150,7 +150,7 @@ const VendorScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.background} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.background} />
       <View style={styles.header}>
         <Text style={styles.heading}>Local vendors & services</Text>
         <Text style={styles.subheading}>

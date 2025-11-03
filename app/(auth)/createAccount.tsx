@@ -151,7 +151,7 @@ const CreateAccountScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} >
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

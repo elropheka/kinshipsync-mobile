@@ -155,7 +155,7 @@ const DeleteAccountScreen: React.FC = () => {
   if (isCheckingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
           <Text style={styles.loadingText}>Checking your data...</Text>
@@ -178,7 +178,7 @@ const DeleteAccountScreen: React.FC = () => {
           )
         }} 
       />
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Warning Header */}
