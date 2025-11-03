@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import {
@@ -72,8 +72,9 @@ export const styles = StyleSheet.create({
 
   },
   formContainer: {
-    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
+    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.xs,
     paddingBottom: isTablet() ? Spacing.xxl : Spacing.xxl,
+    width: '100%',
     maxWidth: isTablet() ? 800 : '100%',
     alignSelf: isTablet() ? 'center' : 'stretch',
   },
@@ -190,6 +191,7 @@ export const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingBottom: Spacing.xxl,
+    paddingHorizontal: 0,
   },
   disabledInput: {
     backgroundColor: Colors.light.divider,

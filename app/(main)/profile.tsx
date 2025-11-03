@@ -187,13 +187,13 @@ const ProfileScreen = () => {
 
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.dark.accent}/>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>
           <Image 
-            source={{ uri: editableProfile.avatarUrl || 'https://via.placeholder.com/150' }} 
+            source={{ uri: editableProfile.avatarUrl || currentUserProfile.avatarUrl || authUser?.photoURL || 'https://via.placeholder.com/150' }} 
             style={styles.profileImage} 
           />
           {isEditing && (
