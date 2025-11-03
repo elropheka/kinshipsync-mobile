@@ -30,6 +30,7 @@ function EventsStack() {
         headerLeft: () => <BackButton />, // Use BackButton component
         headerTitleStyle: {
           fontFamily: 'Poppins', // Ensure this font is loaded
+          color: 'white', // White title color
         },
         headerStyle: {
           backgroundColor: Colors.dark.accent,
