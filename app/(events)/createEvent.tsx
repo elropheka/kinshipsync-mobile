@@ -254,11 +254,8 @@ const CreateEventScreen = () => {
           await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, eventWebsiteData as UpdateEventWebsiteDetailsPayload);
         }
         
-        console.log('Refreshing events list after creation...');
-        if (refreshEvents) {
-          await refreshEvents();
-          console.log('Events list refreshed successfully');
-        }
+        // Note: addEvent already triggers global refetch via Redux, so all components will update automatically
+        console.log('Event created successfully, global refetch triggered automatically');
         
         Alert.alert('Success', 'Event created successfully!');
         router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });

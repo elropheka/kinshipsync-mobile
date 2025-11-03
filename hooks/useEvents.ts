@@ -189,6 +189,9 @@ export const useAllEvents = () => {
     try {
       const newEvent = await eventService.createEvent(isAuthenticated, payload, organizerId);
       setAllEvents(prev => [newEvent, ...prev.filter(e => e.id !== newEvent.id)]);
+      // Trigger global refetch so all components using useAllEvents get updated
+      console.log('useEvents: Event created, triggering global refetch via Redux');
+      dispatch(triggerEventRefetch());
       return newEvent;
     } catch (e) {
       setError(e as Error);
@@ -197,7 +200,7 @@ export const useAllEvents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, dispatch]);
   
   const triggerGlobalRefetch = useCallback(() => {
     console.log('useEvents: Triggering global event refetch via Redux');
