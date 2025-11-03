@@ -1,7 +1,5 @@
 
-// components/SidebarComponent.tsx
-// components/SidebarComponent.tsx
-import React, { useRef, useEffect } from 'react'; // Removed useState
+import React, { useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,24 +8,17 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Modal,
-  StyleSheet,
-  Dimensions,
-  Image, // Added Image for avatar
-  ActivityIndicator, // Added ActivityIndicator
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SecondaryIcon from 'react-native-vector-icons/Ionicons';
-// Removed Colors and Fonts imports as they are now in the styles file
 import { router } from 'expo-router';
-import { useAuth } from '../../../context/AuthContext'; // Import useAuth
-import { useCurrentUser } from '../../../hooks/useUser'; // Import useCurrentUser
-import { styles } from '../../../styles/components/common/Navigation/sideBar.styles'; // Import styles
-import { SafeAreaView } from 'react-native-safe-area-context'; // Added for safe area view
-import { Colors } from 'constants/Colors'; // Import Colors
-
-const { width, height } = Dimensions.get('window');
-const SIDEBAR_WIDTH = width * 0.75;
-const SIDEBAR_HEIGHT = height * 1;
+import { useAuth } from '../../../context/AuthContext';
+import { useCurrentUser } from '../../../hooks/useUser';
+import { styles, SIDEBAR_WIDTH } from '../../../styles/components/common/Navigation/sideBar.styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from 'constants/Colors';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -37,12 +28,11 @@ interface SidebarProps {
 const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
   const translateX = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  const { signOut } = useAuth(); // Get signOut from AuthContext
-  const { profile: currentUserProfile, isLoading: isLoadingUser } = useCurrentUser(); // Get profile and loading state from useCurrentUser
+  const { signOut } = useAuth();
+  const { profile: currentUserProfile, isLoading: isLoadingUser } = useCurrentUser();
 
   useEffect(() => {
     if (isVisible) {
-      // Open the sidebar
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: 0,
@@ -56,7 +46,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
         }),
       ]).start();
     } else {
-      // Close the sidebar
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: -SIDEBAR_WIDTH,
@@ -72,7 +61,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
     }
   }, [isVisible]);
 
-  // Show loading indicator if user profile is loading
   if (isLoadingUser) {
     return (
       <Modal
@@ -93,15 +81,10 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
     <Modal
       transparent={true}
       visible={isVisible}
-      animationType="none" // Using "none" as custom animations are handled by Animated.View
-      onRequestClose={onClose} // Handles Android back button
+      animationType="none"
+      onRequestClose={onClose}
     >
       <>
-        {/* Overlay */}
-        {/* The isVisible check for rendering the overlay might seem redundant
-            as the Modal itself is controlled by isVisible, but it ensures
-            the overlay is only part of the tree when the sidebar is meant to be open,
-            which can be good for performance and aligns with the animation logic. */}
         {isVisible && (
           <TouchableWithoutFeedback onPress={onClose}>
             <Animated.View
@@ -115,10 +98,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
           </TouchableWithoutFeedback>
         )}
 
-        {/* Sidebar */}
-        {/* Similarly, rendering the sidebar panel conditionally based on isVisible
-            inside the Modal can be kept, though the Modal's visibility is the primary control.
-            The animations rely on isVisible to trigger. */}
         <Animated.View
           style={[
             styles.sidebar,
@@ -129,25 +108,20 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
         >
           <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.container}>
-              {/* Header with close button */}
               <View style={styles.sidebarHeader}>
                 <Text style={styles.sidebarTitle}>Kinship</Text>
-                {/* <TouchableOpacity onPress={onClose}>
-                  <Icon name="close" size={24} color="#333" />
-                </TouchableOpacity> */}
               </View>
 
               <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Profile Section */}
-                {currentUserProfile ? ( // Use currentUserProfile
+                {currentUserProfile ? (
                   <TouchableOpacity 
                     style={styles.profileSection}
                     onPress={() => {
                       onClose();
-                      router.push('/(main)/profile'); // Navigate to full profile screen
+                      router.push('/(main)/profile');
                     }}
                   >
-                    {currentUserProfile.avatarUrl ? ( // Use currentUserProfile.avatarUrl
+                    {currentUserProfile.avatarUrl ? (
                       <Image source={{ uri: currentUserProfile.avatarUrl }} style={styles.avatarImage} />
                     ) : (
                       <View style={styles.avatar}>
@@ -166,7 +140,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     </View>
                   </TouchableOpacity>
                 ) : (
-                   // Optionally show a placeholder or loading state if profile is null/loading
                    <View style={styles.profileSection}>
                       <View style={styles.avatar}>
                          <Text style={styles.avatarText}>??</Text>
@@ -177,9 +150,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                       </View>
                    </View>
                 )}
-                {/* End Profile Section */}
 
-                {/* Account Section */}
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>ACCOUNT</Text>
                   
@@ -187,7 +158,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     style={styles.menuItem}
                     onPress={() => {
                       onClose();
-                      router.push('/(main)/profile'); // Corrected path
+                      router.push('/(main)/profile');
                     }}
                   >
                     <SecondaryIcon name="person-outline" size={22} color="#333" />
@@ -198,7 +169,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     style={styles.menuItem}
                     onPress={() => {
                       onClose();
-                      router.push('/(main)/settings'); // Corrected path
+                      router.push('/(main)/settings');
                     }}
                   >
                     <Icon name="settings" size={22} color="#333" />
@@ -209,7 +180,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     style={styles.menuItem}
                     onPress={() => {
                       onClose();
-                      router.push('/(main)/subscriptionPlans'); // Corrected path
+                      router.push('/(main)/subscriptionPlans');
                     }}
                   >
                     <Icon name="card-membership" size={22} color="#333" />
@@ -218,7 +189,6 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                 </View>
               </ScrollView>
 
-              {/* Logout */}
               <View style={styles.logoutContainer}>
                 <TouchableOpacity 
                   style={styles.logoutButton}
@@ -226,10 +196,9 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     onClose();
                     try {
                       await signOut();
-                      router.replace('/(auth)/signIn'); // Redirect to sign-in screen
+                      router.replace('/(auth)/signIn');
                     } catch (error) {
                       console.error("Logout failed:", error);
-                      // Optionally, show a toast or alert to the user
                     }
                   }}
                 >

@@ -1,4 +1,4 @@
-import { StyleSheet, StatusBar, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import {
@@ -6,12 +6,11 @@ import {
   Spacing,
   BorderRadius,
   ResponsiveFontSizes,
-  IconSizes,
   moderateScale,
   isTablet,
 } from 'constants/dimensions';
 
-const SIDEBAR_WIDTH = isTablet() ? Layout.SCREEN_WIDTH * 0.4 : Layout.SCREEN_WIDTH * 0.75;
+export const SIDEBAR_WIDTH = isTablet() ? Layout.SCREEN_WIDTH * 0.65 : Layout.SCREEN_WIDTH * 0.85;
 
 export const styles = StyleSheet.create({
   overlay: {
