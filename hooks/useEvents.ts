@@ -30,17 +30,8 @@ export const useAllEvents = () => {
 
   const eventsLimit = 1000; // Load all events at once
 
-  // Compute filtered events based on user settings and access control
   const events = useMemo(() => {
-    console.log('useEvents: Computing filtered events...');
-    console.log('useEvents: User ID:', user?.uid);
-    console.log('useEvents: Settings:', settings);
-    console.log('useEvents: All events count:', allEvents.length);
-    console.log('useEvents: All events data:', allEvents.map(e => ({ id: e.id, name: e.name, date: e.date, organizerId: e.organizerId, visibility: e.visibility })));
-    
     if (!user?.uid) {
-      // Not authenticated - show no events
-      console.log('useEvents: No user ID, returning empty array');
       return [];
     }
 
@@ -70,7 +61,6 @@ export const useAllEvents = () => {
         
         return false;
       });
-      console.log('useEvents: Conservative filtering result:', filtered.length, 'events');
       return filtered;
     }
 
@@ -136,8 +126,6 @@ export const useAllEvents = () => {
     setError(null);
     try {
       const rawData = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, undefined);
-      console.log('useEvents: Fetch all events result:', rawData.length, 'events');
-      console.log('useEvents: All events data:', rawData.map(e => ({ id: e.id, name: e.name, date: e.date, organizerId: e.organizerId })));
       setAllEvents(rawData);
     } catch (e) {
       setError(e as Error);
@@ -157,25 +145,12 @@ export const useAllEvents = () => {
     }
   }, [isAuthenticated, fetchEvents]);
 
-  // Initialize Redux state with user settings on mount
-  useEffect(() => {
-    if (isAuthenticated && settings?.eventVisibility && refetchTrigger === 0) {
-      console.log('useEvents: Initializing Redux state with user settings:', settings.eventVisibility.showAllPublicEvents);
-      // This will be handled by the settings screen when it loads
-    }
-  }, [isAuthenticated, settings?.eventVisibility, refetchTrigger]);
 
-  // Refetch events when Redux refetch trigger changes
   useEffect(() => {
     if (isAuthenticated && refetchTrigger > 0) {
-      console.log('useEvents: Redux refetch trigger changed, refetching events...');
-      console.log('useEvents: Refetch trigger value:', refetchTrigger);
-      console.log('useEvents: New showAllPublicEvents value:', reduxShowAllPublicEvents);
       fetchEvents();
     }
   }, [refetchTrigger, isAuthenticated, fetchEvents, reduxShowAllPublicEvents]);
-
-
 
   const refreshEvents = useCallback(() => {
     if (isAuthenticated) {

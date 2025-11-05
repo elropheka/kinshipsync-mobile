@@ -63,22 +63,14 @@ interface UpcomingEventsProps {
 
 const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events: allEvents, searchQuery, onSeeAllPress }) => {
   const upcomingEvents = useMemo(() => {
-    console.log('UpcomingEvents: Received events:', allEvents.length);
-    console.log('UpcomingEvents: Events data:', allEvents.map(e => ({ id: e.id, name: e.name, date: e.date, organizerId: e.organizerId })));
-    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    console.log('UpcomingEvents: Today:', today.toISOString());
 
     let filtered = allEvents.filter(event => {
       const eventDate = new Date(event.date);
       eventDate.setHours(0, 0, 0, 0);
-      const isUpcoming = eventDate >= today;
-      console.log(`UpcomingEvents: Event "${event.name}" (${event.date}) - isUpcoming: ${isUpcoming}`);
-      return isUpcoming;
+      return eventDate >= today;
     });
-    
-    console.log('UpcomingEvents: Filtered upcoming events:', filtered.length);
 
     if (searchQuery && searchQuery.trim() !== '') {
       const lowercasedQuery = searchQuery.toLowerCase();

@@ -35,10 +35,8 @@ import {
   SeatingChart, UpdateSeatingChartPayload, 
   EventMessage, CreateEventMessagePayload,
   EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, UpdateTeamMemberPayload, TeamMember,
-  
 } from '../types/eventTypes';
 
-// Helper function to generate searchable keywords
 const generateKeywords = (name: string, description?: string, location?: string): string[] => {
   const text = `${name} ${description || ''} ${location || ''}`.toLowerCase();
   const words = text.split(/\s+/).filter(word => word.length > 2);
@@ -51,7 +49,6 @@ const generateKeywords = (name: string, description?: string, location?: string)
   return Array.from(new Set([...words, ...substrings]));
 };
 
-// === Event Management ===
 export const getEventsPaginated = async (
   isAuthenticated: boolean,
   limitNum: number = 10,
@@ -96,7 +93,6 @@ export const getEventsPaginated = async (
         console.error(`Error fetching guests for event ${docSnap.id}:`, guestError);
       }
 
-      // Ensure array fields are properly typed
       const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
       const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
       
@@ -142,7 +138,6 @@ export const getEventById = async (isAuthenticated: boolean, eventId: string): P
     const docSnap = await getDoc(eventDocRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
-      // Ensure array fields are properly typed
       const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
       const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
       const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
@@ -174,7 +169,6 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
   try {
     const eventsColRef = collection(firestore, 'events');
     const keywords = generateKeywords(payload.name, payload.description, payload.location);
-    // Ensure allowedUserIds is always an array
     const allowedUserIds = Array.isArray(payload.allowedUserIds) ? payload.allowedUserIds : [];
     
     const newEventData = {
@@ -190,8 +184,6 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
     const createdDoc = await getDoc(docRef);
     if (!createdDoc.exists()) throw new Error("Failed to retrieve created event.");
     const data = createdDoc.data();
-    // Ensure array fields are properly typed
-    // const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
     const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
     const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
     
@@ -257,7 +249,6 @@ export const updateEvent = async (isAuthenticated: boolean, eventId: string, pay
     const updatedDoc = await getDoc(eventDocRef);
     if (!updatedDoc.exists()) return null;
     const data = updatedDoc.data();
-    // Ensure array fields are properly typed
     const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
     const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
     const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
@@ -312,7 +303,6 @@ export const updateEventOverallBudget = async (isAuthenticated: boolean, eventId
   }
 };
 
-// === Guest Management (with RSVP details integrated) ===
 export const listenToGuestsWithRsvp = (
   isAuthenticated: boolean,
   eventId: string,
@@ -596,7 +586,6 @@ export const removeGuestFromEvent = async (isAuthenticated: boolean, eventId: st
   }
 };
 
-// === Budget Item Management ===
 export const listenToSchedule = (isAuthenticated: boolean, eventId: string, callback: (schedule: ScheduleItem[]) => void) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to schedule.");
@@ -844,7 +833,6 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
       querySnapshot.forEach((doc) => {
         try {
           const data = doc.data();
-          // Ensure the data structure matches the Theme interface
           const theme: Theme = {
             id: doc.id,
             name: data.name || '',

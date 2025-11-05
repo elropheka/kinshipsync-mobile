@@ -2,35 +2,26 @@ import React, { useState, useMemo } from 'react';
 import { 
   View, 
   Text, 
-  TextInput, 
   TouchableOpacity, 
-  ScrollView, 
   FlatList, 
-  Switch, 
-  StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(main)/notifications.styles';
 import { useCurrentUser } from '../../hooks/useUser';
 import { Notification as UserNotification } from '../../types/userTypes';
-import { ActivityIndicator } from 'react-native';
 import { formatTimeToNow } from '../../utils/dateUtils';
 import NotificationListItem, { DisplayNotification } from '../../components/notifications/NotificationListItem';
 import NotificationSearchBar from '../../components/notifications/NotificationSearchBar';
 import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips';
 import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
 
-interface Filter extends FilterChipType {}
+type Filter = FilterChipType;
 
-interface NotificationsPageProps {
-  navigation?: NavigationProp<ParamListBase>; 
-}
-
-const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => {
+const NotificationsPage: React.FC = () => {
   const { 
     notifications: rawNotifications, 
     isLoadingNotifications, 
@@ -128,7 +119,6 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
           break;
         case 'task_assigned':
           Alert.alert("Task Notification", `Navigate to task: ${item.message}`);
-          console.log("Navigate to task:", item.relatedEntityId);
           break;
         case 'friend_request':
           Alert.alert("Friend Request", `${item.message}`);
@@ -136,12 +126,10 @@ const NotificationsPage: React.FC<NotificationsPageProps> = ({ navigation }) => 
         case 'system_alert':
         case 'generic':
         default:
-          console.log("Notification pressed:", item);
           Alert.alert(item.sender, item.message);
           break;
       }
     } else {
-      console.log("Notification pressed, but no relatedEntityId for navigation:", item);
       Alert.alert(item.sender, item.message);
     }
   };

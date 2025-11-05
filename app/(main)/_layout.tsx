@@ -2,11 +2,8 @@ import { Tabs } from 'expo-router';
 import React, { useState, useRef, useCallback, createContext, useContext } from 'react';
 import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
-
-// import { SubscriptionProvider } from '@/context/SubscriptionContext';
 import { Colors } from '@/constants/Colors';
-import BackButton from '@/components/common/Navigation/BackButton'; 
-
+import BackButton from '@/components/common/Navigation/BackButton';
 
 export const ScrollContext = createContext<{
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
@@ -16,17 +13,12 @@ export const ScrollContext = createContext<{
   isNavVisible: true,
 });
 
-  
 export const useScrollHandler = () => useContext(ScrollContext);
 
-
 function MainTabsLayout() {
- 
   const [isNavVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const scrollThreshold = 10; 
-
-
+  const scrollThreshold = 10;
 
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
@@ -42,8 +34,7 @@ function MainTabsLayout() {
 
   return (
     <ScrollContext.Provider value={{ handleScroll, isNavVisible }}>
-      {/* <SubscriptionProvider> */}
-        <Tabs
+      <Tabs
           screenOptions={{
             headerShown: false,
             headerLeft: () => <BackButton />, 
@@ -80,19 +71,13 @@ function MainTabsLayout() {
             name="settings"
             options={{ title: "Settings", headerShown: true }}
           />
-          {/* <Tabs.Screen
-            name="subscriptionPlans"
-            options={{ title: "Subscription Plans", headerShown: true }}
-          /> */}
           <Tabs.Screen
             name="teams"
             options={{ title: "Teams", headerShown: true }}
           />
         </Tabs>
-      {/* </SubscriptionProvider> */}
     </ScrollContext.Provider>
   );
 }
-
 
 export default MainTabsLayout;
