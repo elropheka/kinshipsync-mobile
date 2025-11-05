@@ -21,7 +21,7 @@ import {
 import { firestore } from './firebaseConfig';
 import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
 import { getUserProfileById } from './userService';
-import { createBudgetItemAddedNotification, createPaymentMadeNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createScheduleConflictNotification, createScheduleReminderNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createIdeaCommentNotification, createWebsitePublishedNotification, createWebsiteUpdatedNotification, createWebsiteStatsNotification, createPlanningProgressNotification, createVendorBookingNotification, createVendorConfirmationNotification, createVendorQuoteNotification, createVendorReviewNotification, createTaskReminderNotification } from '../services/notificationService';
+import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification } from '../services/notificationService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload,
@@ -29,35 +29,14 @@ import {
   Idea, CreateIdeaPayload, UpdateIdeaPayload,
   ScheduleItem, CreateScheduleItemPayload, UpdateScheduleItemPayload,
   Task, CreateTaskPayload, UpdateTaskPayload,
-  Theme, FontSettings,
+  Theme, 
   WebsitePayload, UpdateEventWebsiteDetailsPayload,
-  RSVP, UpdateRSVPPayload,
-  SeatingChart, UpdateSeatingChartPayload, SeatingTable,
+  UpdateRSVPPayload,
+  SeatingChart, UpdateSeatingChartPayload, 
   EventMessage, CreateEventMessagePayload,
   EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, UpdateTeamMemberPayload, TeamMember,
-  IdeaComment, CreateIdeaCommentPayload
+  
 } from '../types/eventTypes';
-
-// Helper to remove undefined fields from an object before saving to Firestore
-const cleanDataForFirestore = (data: Record<string, any>): Record<string, any> => {
-  const cleaned: Record<string, any> = {};
-  for (const key in data) {
-    if (data[key] !== undefined) {
-      cleaned[key] = data[key];
-    }
-  }
-  return cleaned;
-};
-
-// Mock data arrays
-let mockEvents: Event[] = [];
-let mockGuests: Guest[] = [];
-let mockScheduleItems: ScheduleItem[] = [];
-let mockSeatingCharts: SeatingChart[] = [];
-let mockEventMessages: EventMessage[] = [];
-
-const generateId = () => Math.random().toString(36).substr(2, 9);
-const getCurrentISOString = () => new Date().toISOString();
 
 // Helper function to generate searchable keywords
 const generateKeywords = (name: string, description?: string, location?: string): string[] => {
@@ -72,25 +51,7 @@ const generateKeywords = (name: string, description?: string, location?: string)
   return Array.from(new Set([...words, ...substrings]));
 };
 
-// Helper functions for schedule conflict detection
-const parseTime = (timeString: string) => {
-  const [hours, minutes] = timeString.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-};
-
-const addMinutes = (date: Date, minutes: number) => {
-  return new Date(date.getTime() + minutes * 60000);
-};
-
 // === Event Management ===
-export const getEvents_Mock = async (): Promise<Event[]> => {
-  console.log('Service: Fetching all events (MOCK)...');
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return Promise.resolve([...mockEvents]);
-};
-
 export const getEventsPaginated = async (
   isAuthenticated: boolean,
   limitNum: number = 10,
@@ -133,20 +94,6 @@ export const getEventsPaginated = async (
         });
       } catch (guestError) {
         console.error(`Error fetching guests for event ${docSnap.id}:`, guestError);
-      }
-
-      let organizerFirstName: string | undefined | null = undefined;
-      let organizerLastName: string | undefined | null = undefined;
-      if (data.organizerId) {
-        try {
-          const organizerProfile = await getUserProfileById(data.organizerId);
-          if (organizerProfile) {
-            organizerFirstName = organizerProfile.firstName;
-            organizerLastName = organizerProfile.lastName;
-          }
-        } catch (profileError) {
-          console.error(`Error fetching profile for organizer ${data.organizerId}:`, profileError);
-        }
       }
 
       // Ensure array fields are properly typed
@@ -595,7 +542,7 @@ export const updateGuestRsvp = async (isAuthenticated: boolean, eventId: string,
     if (!updatedDocSnap.exists()) return null;
 
     const firestoreData = updatedDocSnap.data();
-    const { name, status, email, phone, notes, plusOnes, addedAt: addedAtTimestamp, rsvpUpdatedAt: rsvpUpdatedAtTimestamp, ...restOfData } = firestoreData as Omit<Guest, 'id' | 'eventId' | 'addedAt' | 'rsvpUpdatedAt'> & { addedAt?: Timestamp, rsvpUpdatedAt?: Timestamp };
+    const { name, status, email, phone, notes, plusOnes, addedAt: addedAtTimestamp, rsvpUpdatedAt: rsvpUpdatedAtTimestamp } = firestoreData as Omit<Guest, 'id' | 'eventId' | 'addedAt' | 'rsvpUpdatedAt'> & { addedAt?: Timestamp, rsvpUpdatedAt?: Timestamp };
     
     const event = await getEventById(isAuthenticated, eventId);
     if (event && payload.status) {
@@ -647,30 +594,6 @@ export const removeGuestFromEvent = async (isAuthenticated: boolean, eventId: st
     console.error("Error removing guest:", error);
     throw error;
   }
-};
-
-// Keep old mock functions for now, to be removed later
-export const getGuestsForEvent = async (eventId: string): Promise<Guest[]> => {
-  console.log('Service: Fetching guests for event ${eventId} (MOCK)...');
-  await new Promise(resolve => setTimeout(resolve, 300));
-  return Promise.resolve(mockGuests.filter(g => g.eventId === eventId));
-};
-
-export const updateGuest = async (guestId: string, payload: UpdateGuestPayload): Promise<Guest | null> => {
-  console.log(`Service: Updating guest ${guestId} (MOCK)...`, payload);
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const guestIndex = mockGuests.findIndex(g => g.id === guestId);
-  if (guestIndex === -1) return Promise.resolve(null);
-  mockGuests[guestIndex] = { ...mockGuests[guestIndex], ...payload };
-  return Promise.resolve(mockGuests[guestIndex]);
-};
-
-export const removeGuest = async (guestId: string): Promise<boolean> => {
-  console.log(`Service: Removing guest ${guestId} (MOCK)...`);
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const initialLength = mockGuests.length;
-  mockGuests = mockGuests.filter(g => g.id !== guestId);
-  return Promise.resolve(mockGuests.length < initialLength);
 };
 
 // === Budget Item Management ===

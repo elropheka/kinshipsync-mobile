@@ -70,7 +70,7 @@ function MainTabsLayout() {
           />
           <Tabs.Screen
             name="notifications"
-            options={{ title: "Notifications", headerShown: true }}
+            options={{ title: "Notifications", headerShown: true, headerTintColor: '#000000' }}
           />
           <Tabs.Screen
             name="profile"
