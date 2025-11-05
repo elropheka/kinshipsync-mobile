@@ -126,6 +126,7 @@ const IN_APP_NOTIFICATIONS_COLLECTION = 'inAppNotifications';
 
 /**
  * Sends an in-app notification and stores it in Firestore.
+ * Also automatically sends a push notification after successfully creating the in-app notification.
  */
 export const sendInAppNotificationInternal = async (notificationPayload: NewNotificationPayload): Promise<string | null> => {
   try {
@@ -135,6 +136,21 @@ export const sendInAppNotificationInternal = async (notificationPayload: NewNoti
       createdAt: serverTimestamp(), // Use server timestamp for consistency
     });
     console.log('In-app notification sent and saved with ID:', notificationDocRef.id);
+
+    // Automatically send push notification after in-app notification is created
+    const { recipientId, title, body, data } = notificationPayload;
+    sendPushNotificationInternal(recipientId, title, body, data)
+      .then(success => {
+        if (success) {
+          console.log(`Push notification also sent for in-app notification ${notificationDocRef.id}`);
+        } else {
+          console.warn(`Failed to send push notification for in-app notification ${notificationDocRef.id}`);
+        }
+      })
+      .catch(error => {
+        console.error(`Error sending push notification for in-app notification ${notificationDocRef.id}:`, error);
+      });
+
     return notificationDocRef.id;
   } catch (error) {
     console.error('Error sending in-app notification:', error);
@@ -241,10 +257,10 @@ export const deleteInAppNotification = async (notificationId: string): Promise<b
 };
 
 
-// --- Push Notification Service Logic (Placeholder/Stub) ---
+// --- Push Notification Service Logic ---
 /**
- * Sends a push notification.
- * This is a placeholder. Actual implementation would involve a backend service (e.g., Firebase Cloud Functions).
+ * Sends a push notification via Cloud Function.
+ * Calls the 'sendPushNotification' callable Cloud Function which handles FCM token retrieval and sending.
  */
 export const sendPushNotificationInternal = async (
   recipientId: string,
@@ -253,23 +269,51 @@ export const sendPushNotificationInternal = async (
   data?: Record<string, any>
 ): Promise<boolean> => {
   console.log(`Attempting to send PUSH notification to ${recipientId}: Title: "${title}", Body: "${body}"`, data);
-  // In a real app, this would:
-  // 1. Fetch the recipient's FCM tokens from their user profile.
-  // 2. Make a request to your backend (e.g., a Firebase Cloud Function) with the tokens and notification payload.
-  // 3. The backend would then use the FCM Admin SDK to send the messages.
-  // For now, we'll just simulate success.
+  
+  if (!recipientId || !title || !body) {
+    console.error('Missing required parameters for push notification:', { recipientId, title, body });
+    return false;
+  }
+
   try {
-    // Simulate API call to backend
-    // const response = await fetch('YOUR_BACKEND_PUSH_ENDPOINT', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ userId: recipientId, title, body, data }),
-    // });
-    // if (!response.ok) throw new Error('Failed to send push notification');
-    console.log(`PUSH notification for ${recipientId} would be processed by backend.`);
-    return true;
-  } catch (error) {
-    console.error('Error sending push notification:', error);
+    const functionsInstance = getFunctions(app);
+    const callableSendPush = httpsCallable(functionsInstance, 'sendPushNotification');
+
+    // Convert data object to string key-value pairs for FCM (FCM data must be strings)
+    const notificationData: { [key: string]: string } = {};
+    if (data) {
+      Object.keys(data).forEach(key => {
+        const value = data[key];
+        if (value !== undefined && value !== null) {
+          notificationData[key] = String(value);
+        }
+      });
+    }
+
+    const result = await callableSendPush({
+      recipientId,
+      title,
+      body,
+      notificationData: Object.keys(notificationData).length > 0 ? notificationData : undefined,
+    });
+
+    const responseData = result.data as { success: boolean; message: string };
+    
+    if (responseData.success) {
+      console.log(`Push notification successfully sent for recipient: ${recipientId}`);
+      return true;
+    } else {
+      console.warn(`Failed to send push notification for recipient ${recipientId}:`, responseData.message);
+      return false;
+    }
+  } catch (error: any) {
+    console.error('Error sending push notification via Cloud Function:', error);
+    // Handle specific Firebase errors
+    if (error.code === 'functions/not-found') {
+      console.error('Cloud Function "sendPushNotification" not found. Make sure it is deployed.');
+    } else if (error.code === 'functions/permission-denied') {
+      console.error('Permission denied when calling sendPushNotification. Check authentication.');
+    }
     return false;
   }
 };
@@ -336,16 +380,18 @@ export const sendEmailNotificationInternal = async (
 // --- Unified Notification Sending Function ---
 /**
  * Orchestrates sending notifications through different channels.
- * Sends In-App notification first, then Push and Email notifications independently.
+ * Sends In-App notification first (which now automatically sends push), then Email notifications independently.
+ * Note: Push notifications are automatically sent by sendInAppNotificationInternal, so we don't call it separately here.
  */
 export const sendNotification = async (payload: NewNotificationPayload): Promise<void> => {
   const { recipientId, title, body, data } = payload;
 
-  // 1. Send In-App Notification (and wait for it to complete as it's primary)
+  // 1. Send In-App Notification (which now automatically sends push notification)
+  // This is the primary notification channel and will trigger push notification automatically
   try {
     const inAppNotificationId = await sendInAppNotificationInternal(payload);
     if (inAppNotificationId) {
-      console.log(`In-app notification successfully sent for recipient: ${recipientId}`);
+      console.log(`In-app notification (with push) successfully sent for recipient: ${recipientId}`);
     } else {
       console.error(`Failed to send in-app notification for recipient: ${recipientId}`);
       // Decide if you want to proceed if in-app fails. For now, we will.
@@ -353,20 +399,6 @@ export const sendNotification = async (payload: NewNotificationPayload): Promise
   } catch (error) {
     console.error(`Error in sendInAppNotificationInternal for ${recipientId}:`, error);
   }
-
-  // 2. Send Push Notification (independently)
-  // This should not block or depend on the in-app notification result.
-  sendPushNotificationInternal(recipientId, title, body, data)
-    .then(success => {
-      if (success) {
-        console.log(`Push notification process initiated for recipient: ${recipientId}`);
-      } else {
-        console.warn(`Push notification process failed for recipient: ${recipientId}`);
-      }
-    })
-    .catch(error => {
-      console.error(`Error in sendPushNotificationInternal for ${recipientId}:`, error);
-    });
 
   // 3. Send Email Notification (independently)
   // This should not block or depend on other notification results.
