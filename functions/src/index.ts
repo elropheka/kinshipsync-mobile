@@ -591,3 +591,4 @@ export const sendPushNotification = functions.https.onCall(async (request, _cont
 });
 
 export * from "./mailjet";
+export * from "./twilio";

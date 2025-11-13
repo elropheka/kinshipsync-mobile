@@ -6,6 +6,7 @@ import { firestore, app } from './firebaseConfig'; // Import 'app' for functions
 import { getFunctions, httpsCallable } from 'firebase/functions'; // Import for callable functions
 import { UserProfile } from '../types/userTypes';
 import { InAppNotification, NewNotificationPayload, NotificationType } from '../types/notificationTypes';
+import { isValidE164Format } from '../utils/phoneUtils';
 
 // --- Permission Handling ---
 export const requestNotificationPermissions = async (): Promise<boolean> => {
@@ -318,10 +319,87 @@ export const sendPushNotificationInternal = async (
   }
 };
 
-// --- Email Notification Service Logic (Placeholder/Stub) ---
+// --- SMS Notification Service Logic ---
 /**
- * Sends an email notification.
- * This is a placeholder. Actual implementation would involve a backend service.
+ * Sends an SMS notification via Cloud Function using Twilio.
+ * Calls the 'sendSMS' callable Cloud Function which handles SMS sending.
+ */
+export const sendSMSNotificationInternal = async (
+  recipientId: string,
+  message: string,
+  phoneNumber?: string,
+  fromPhoneNumber?: string
+): Promise<boolean> => {
+  console.log(`Attempting to send SMS notification to ${recipientId}: Message: "${message}"`);
+  
+  if (!recipientId || !message) {
+    console.error('Missing required parameters for SMS notification:', { recipientId, message });
+    return false;
+  }
+
+  try {
+    // Fetch recipient's phone number from their user profile if not provided
+    let toPhoneNumber = phoneNumber;
+    if (!toPhoneNumber) {
+      const userDocRef = doc(firestore, 'users', recipientId);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        console.error(`User with ID ${recipientId} not found. Cannot send SMS.`);
+        return false;
+      }
+
+      const userData = userDocSnap.data() as UserProfile;
+      toPhoneNumber = userData.phoneNumber;
+    }
+
+    if (!toPhoneNumber) {
+      console.error(`User ${recipientId} has no phone number. Cannot send SMS.`);
+      return false;
+    }
+
+    // Validate phone number format (E.164 format check)
+    if (!isValidE164Format(toPhoneNumber)) {
+      console.error(`Invalid phone number format: ${toPhoneNumber}. Must be in E.164 format (e.g., +1234567890).`);
+      return false;
+    }
+
+    const functionsInstance = getFunctions(app);
+    const callableSendSMS = httpsCallable(functionsInstance, 'sendSMS');
+
+    const result = await callableSendSMS({
+      toPhoneNumber,
+      message,
+      fromPhoneNumber, // Optional: uses configured Twilio number if not provided
+    });
+
+    const responseData = result.data as { success: boolean; message: string; messageId?: string; status?: string };
+    
+    if (responseData.success) {
+      console.log(`SMS notification successfully sent for recipient: ${recipientId}`, 
+        responseData.messageId ? `Message SID: ${responseData.messageId}` : '',
+        responseData.status ? `Status: ${responseData.status}` : ''
+      );
+      return true;
+    } else {
+      console.warn(`Failed to send SMS notification for recipient ${recipientId}:`, responseData.message);
+      return false;
+    }
+  } catch (error: any) {
+    console.error('Error sending SMS notification via Cloud Function:', error);
+    // Handle specific Firebase errors
+    if (error.code === 'functions/not-found') {
+      console.error('Cloud Function "sendSMS" not found. Make sure it is deployed.');
+    } else if (error.code === 'functions/permission-denied') {
+      console.error('Permission denied when calling sendSMS. Check authentication.');
+    }
+    return false;
+  }
+};
+
+// --- Email Notification Service Logic ---
+/**
+ * Sends an email notification via Cloud Function.
  */
 export const sendEmailNotificationInternal = async (
   recipientId: string,

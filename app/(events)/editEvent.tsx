@@ -211,9 +211,9 @@ const EditEventScreen = () => {
     const payload: UpdateEventPayload = {
       name: name.trim(),
       date: selectedDate.toISOString(),
-      description: description.trim() || undefined,
-      location: location.trim() || undefined,
-      time: time.trim() || undefined,
+      ...(description.trim() ? { description: description.trim() } : {}),
+      ...(location.trim() ? { location: location.trim() } : {}),
+      ...(time.trim() ? { time: time.trim() } : {}),
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
       themeId: selectedThemeId,

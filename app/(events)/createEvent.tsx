@@ -222,8 +222,8 @@ const CreateEventScreen = () => {
     const payload: CreateEventPayload = {
       name: name.trim(),
       date: selectedDate.toISOString(),
-      description: description.trim() || undefined,
-      location: location.trim() || undefined,
+      ...(description.trim() ? { description: description.trim() } : {}),
+      ...(location.trim() ? { location: location.trim() } : {}),
       time: selectedTime ? selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
