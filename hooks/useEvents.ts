@@ -119,7 +119,7 @@ export const useAllEvents = () => {
       console.log('useEvents: showAllPublicEvents=false, filtered events:', filteredEvents.length);
       return filteredEvents;
     }
-  }, [allEvents, user?.uid, user?.email, reduxShowAllPublicEvents]);
+  }, [allEvents, user?.uid, user?.email, reduxShowAllPublicEvents, settings?.eventVisibility]);
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -231,7 +231,7 @@ export const useEventDetail = (eventId?: string) => {
     } finally {
       setIsLoadingEvent(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchMainEvent(eventId || '');
@@ -351,7 +351,7 @@ export const useEventDetail = (eventId?: string) => {
       if (unsubscribeEventTeams) unsubscribeEventTeams();
       if (unsubscribeEventMessages) unsubscribeEventMessages();
     };
-  }, [eventId, fetchMainEvent]);
+  }, [eventId, fetchMainEvent, isAuthenticated, user?.uid]);
 
   const updateThisEvent = useCallback(async (payload: UpdateEventPayload) => {
     if (!eventId) {
@@ -399,7 +399,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to delete event ${eventId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
 
   const addGuest = useCallback(async (payload: CreateGuestPayload) => {
@@ -415,7 +415,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to add guest to event ${eventId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateGuestAndRsvp = useCallback(async (guestId: string, payload: Partial<UpdateGuestPayload & UpdateRSVPPayload>) => {
     if (!eventId) {
@@ -430,7 +430,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to update guest/RSVP ${guestId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const removeGuest = useCallback(async (guestId: string) => {
     if (!eventId) {
@@ -445,7 +445,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to remove guest ${guestId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addScheduleItemHook = useCallback(async (payload: CreateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -456,7 +456,7 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateScheduleItemHook = useCallback(async (itemId: string, payload: UpdateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -467,7 +467,7 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteScheduleItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -478,43 +478,43 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addEventTaskHook = useCallback(async (payload: CreateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.addTaskToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateEventTaskHook = useCallback(async (taskId: string, payload: UpdateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.updateEventTask(isAuthenticated, eventId, taskId, payload); }
     catch (e) { console.error("Error in updateEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteEventTaskHook = useCallback(async (taskId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { await eventService.deleteEventTask(isAuthenticated, eventId, taskId); }
     catch (e) { console.error("Error in deleteEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addBudgetItemHook = useCallback(async (payload: CreateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.addBudgetItemToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateBudgetItemHook = useCallback(async (itemId: string, payload: UpdateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.updateBudgetItem(isAuthenticated, eventId, itemId, payload); }
     catch (e) { console.error("Error in updateBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteBudgetItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { await eventService.deleteBudgetItem(isAuthenticated, eventId, itemId); }
     catch (e) { console.error("Error in deleteBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   return {
     event,
@@ -575,7 +575,7 @@ export const useEventDetail = (eventId?: string) => {
         return success;
       }
       catch (e) { console.error("Error in setEventThemeHook", e); setError(e as Error); throw e; }
-    }, [eventId, isAuthenticated]),
+    }, [eventId, isAuthenticated, user?.uid]),
     fetchAvailableThemes: useCallback(async () => {
         setIsLoadingThemes(true);
         try {
@@ -587,7 +587,7 @@ export const useEventDetail = (eventId?: string) => {
         } finally {
             setIsLoadingThemes(false);
         }
-    }, [isAuthenticated]),
+    }, [isAuthenticated, user?.uid]),
     eventWebsite,
     isLoadingWebsite,
     updateEventWebsite: useCallback(async (payload: WebsitePayload) => {

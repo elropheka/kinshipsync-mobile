@@ -6,9 +6,7 @@ import {
 } from '../types/vendorTypes';
 import { VendorItem, VendorItemSearchParams } from '../types/vendorItemTypes';
 import { useAppAuth } from './useAppAuth';
-import { useAuth } from '../context/AuthContext';
 
-import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
 export interface DisplayVendorItem extends VendorItem {
   vendorProfile?: Vendor | null;
@@ -45,7 +43,7 @@ export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [searchParams, setSearchParams] = useState<VendorSearchParams>(initialSearchParams || { page: 1, limit: 10 });
-  const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot<DocumentData> | undefined>(undefined);
+  const [lastVisibleDoc, setLastVisibleDoc] = useState<any | undefined>(undefined);
 
   const performSearch = useCallback(async (params: VendorSearchParams, loadMore = false) => {
     setIsLoading(true);
@@ -97,7 +95,7 @@ export const useVendorDetail = (vendorId?: string) => {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [reviews, setReviews] = useState<VendorReview[]>([]);
   const [totalReviews, setTotalReviews] = useState(0);
-  const [lastReviewVisibleDoc, setLastReviewVisibleDoc] = useState<QueryDocumentSnapshot<DocumentData> | undefined>(undefined);
+  const [lastReviewVisibleDoc, setLastReviewVisibleDoc] = useState<any | undefined>(undefined);
   
   const [isLoadingVendor, setIsLoadingVendor] = useState(false);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
@@ -235,7 +233,7 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
   
   const [searchCriteria, setSearchCriteria] = useState<VendorItemSearchParams>(initialCriteria || { limit: 100 });
   const [currentPage, setCurrentPage] = useState(1);
-  const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot<DocumentData> | undefined>(undefined);
+  const [lastVisibleDoc, setLastVisibleDoc] = useState<any | undefined>(undefined);
 
   const fetchData = useCallback(async (criteriaToFetch: VendorItemSearchParams, page: number, isLoadMore: boolean) => {
     setIsLoading(true);

@@ -4,25 +4,7 @@ import {
   UserSettings, UpdateUserSettingsPayload,
   Notification as UserNotification // Alias to avoid conflict if Notification is imported from elsewhere
 } from '../types/userTypes';
-// import { BackendUser } from '../types/auth'; // Assuming User type from auth.ts might be relevant for userId context
-import {
-  collection,
-  doc,
-  setDoc, // Added setDoc
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  serverTimestamp,
-  onSnapshot,
-  updateDoc,
-  writeBatch,
-  Timestamp,
-  FieldValue, // Added FieldValue
-} from '@firebase/firestore';
-import { firestore } from './firebaseConfig';
+import axiosInstance from './axiosInstance';
 
 
 
@@ -31,23 +13,22 @@ export const getUserProfile = async (isAuthenticated: boolean, userId: string): 
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Fetching profile for user ${userId} from Firestore...`);
+  console.log(`Service: Fetching profile for user ${userId} from backend...`);
   if (!userId) return null;
   try {
-    const userDocRef = doc(firestore, 'users', userId);
-    const docSnap = await getDoc(userDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
+    const response = await axiosInstance.get(`/users/${userId}`);
+    if (response.data.success && response.data.data) {
       return {
-        userId, // Ensure userId from doc id is used
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId: response.data.data.id || userId,
+        ...response.data.data,
       } as UserProfile;
     }
     console.log(`User profile for ${userId} not found.`);
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error("Error fetching user profile:", error);
     throw error;
   }
@@ -59,22 +40,16 @@ export const getAllUsersForPicker = async (isAuthenticated: boolean, limitNum: n
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Fetching up to ${limitNum} users for picker, ordered by displayName...`);
+  console.log(`Service: Fetching up to ${limitNum} users for picker from backend...`);
   try {
-    const usersColRef = collection(firestore, 'users');
-    const q = query(usersColRef, orderBy('displayName'), limit(limitNum));
-    const querySnapshot = await getDocs(q);
-    const users: UserProfile[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      users.push({
-        userId: docSnap.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      } as UserProfile);
-    });
-    return users;
+    const response = await axiosInstance.get(`/users?limit=${limitNum}&orderBy=displayName`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((user: any) => ({
+        userId: user.id || user.userId,
+        ...user,
+      })) as UserProfile[];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching all users for picker:", error);
     throw error;
@@ -86,29 +61,17 @@ export const searchUsersByName = async (isAuthenticated: boolean, nameQuery: str
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Searching users by name prefix: "${nameQuery}"`);
+  console.log(`Service: Searching users by name prefix: "${nameQuery}" from backend...`);
   if (!nameQuery.trim()) return [];
   try {
-    const usersColRef = collection(firestore, 'users');
-    const q = query(
-      usersColRef,
-      where('displayName', '>=', nameQuery),
-      where('displayName', '<=', nameQuery + '\uf8ff'),
-      orderBy('displayName'),
-      limit(limitNum)
-    );
-    const querySnapshot = await getDocs(q);
-    const users: UserProfile[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      users.push({
-        userId: docSnap.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      } as UserProfile);
-    });
-    return users;
+    const response = await axiosInstance.get(`/users/search?q=${encodeURIComponent(nameQuery)}&limit=${limitNum}`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((user: any) => ({
+        userId: user.id || user.userId,
+        ...user,
+      })) as UserProfile[];
+    }
+    return [];
   } catch (error) {
     console.error("Error searching users by name:", error);
     throw error;
@@ -119,23 +82,14 @@ export const updateUserProfile = async (isAuthenticated: boolean, userId: string
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Updating profile for user ${userId} in Firestore:`, payload);
+  console.log(`Service: Updating profile for user ${userId} in backend:`, payload);
   if (!userId) throw new Error("User ID is required to update profile.");
   try {
-    const userDocRef = doc(firestore, 'users', userId);
-    await updateDoc(userDocRef, {
-      ...payload,
-      updatedAt: serverTimestamp(),
-    });
-    // Fetch and return the updated profile
-    const updatedDoc = await getDoc(userDocRef);
-    if (updatedDoc.exists()) {
-      const data = updatedDoc.data();
+    const response = await axiosInstance.put(`/users/${userId}`, payload);
+    if (response.data.success && response.data.data) {
       return {
-        userId,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId: response.data.data.id || userId,
+        ...response.data.data,
       } as UserProfile;
     }
     return null;
@@ -147,31 +101,25 @@ export const updateUserProfile = async (isAuthenticated: boolean, userId: string
 
 export const getUserProfileByEmail = async (email: string): Promise<UserProfile | null> => {
   // This function can be called by other services; authentication should be handled by the calling service if necessary.
-  console.log(`Service: Fetching user profile by email: ${email}`);
+  console.log(`Service: Fetching user profile by email: ${email} from backend...`);
   if (!email || !email.trim()) {
     console.warn("getUserProfileByEmail: Email was not provided or is empty.");
     return null;
   }
   try {
-    const usersColRef = collection(firestore, 'users');
-    // Ensure email search is case-insensitive if emails are stored in mixed case,
-    // or enforce lowercase storage for emails. Assuming emails are stored consistently (e.g., lowercase).
-    const q = query(usersColRef, where('email', '==', email.toLowerCase()), limit(1));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      const data = userDoc.data();
+    const response = await axiosInstance.get(`/users/email/${encodeURIComponent(email.toLowerCase())}`);
+    if (response.data.success && response.data.data) {
       return {
-        userId: userDoc.id, // Use the document ID as the userId
-        ...data,
-        // Convert Firestore Timestamps to ISO strings
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId: response.data.data.id || response.data.data.userId,
+        ...response.data.data,
       } as UserProfile;
     }
     console.log(`User profile with email ${email} not found.`);
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching user profile by email ${email}:`, error);
     throw error;
   }
@@ -181,26 +129,23 @@ export const findUserByEmail = async (isAuthenticated: boolean, email: string): 
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Searching for user by email: ${email}`);
+  console.log(`Service: Searching for user by email: ${email} from backend...`);
   if (!email || !email.trim()) {
     return null;
   }
   try {
-    const usersColRef = collection(firestore, 'users');
-    const q = query(usersColRef, where('email', '==', email.toLowerCase()), limit(1));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      const data = userDoc.data();
+    const response = await axiosInstance.get(`/users/email/${encodeURIComponent(email.toLowerCase())}`);
+    if (response.data.success && response.data.data) {
       return {
-        userId: userDoc.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId: response.data.data.id || response.data.data.userId,
+        ...response.data.data,
       } as UserProfile;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error("Error finding user by email:", error);
     throw error;
   }
@@ -215,35 +160,27 @@ export const createUserProfile = async (isAuthenticated: boolean, userId: string
     // However, for strictness, we add the check.
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Creating Firestore profile for new user ${userId}`);
+  console.log(`Service: Creating backend profile for new user ${userId}`);
   if (!userId) throw new Error("User ID is required to create profile.");
   
-  const userDocRef = doc(firestore, 'users', userId);
   const newUserProfileData = {
-    userId, // Storing userId also in the document for potential queries
     email,
     displayName,
-    avatarUrl: avatarUrl || null, // Store as null if not provided
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    // Initialize other fields with defaults if necessary
+    avatarUrl: avatarUrl || null,
     firstName: '',
     lastName: '',
     bio: '',
   };
 
   try {
-    await setDoc(userDocRef, newUserProfileData); // Use setDoc to create or overwrite
-    // Fetch the created profile to get server timestamps resolved
-    const createdDoc = await getDoc(userDocRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created user profile.");
-    const data = createdDoc.data();
-    return {
-      userId,
-      ...data,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as UserProfile;
+    const response = await axiosInstance.post('/users', newUserProfileData);
+    if (response.data.success && response.data.data) {
+      return {
+        userId: response.data.data.id || userId,
+        ...response.data.data,
+      } as UserProfile;
+    }
+    throw new Error("Failed to create user profile.");
   } catch (error) {
     console.error("Error creating user profile:", error);
     throw error;
@@ -254,36 +191,25 @@ export const getUserProfileById = async (userId: string): Promise<UserProfile | 
   // This function is intended to be called by other services that have already handled authentication.
   // If it were to be called directly from UI components that don't guarantee prior auth checks,
   // an `isAuthenticated` flag and check would be advisable.
-  console.log(`Service: Fetching profile for user ${userId} by ID from Firestore...`);
+  console.log(`Service: Fetching profile for user ${userId} by ID from backend...`);
   if (!userId) {
     console.warn("getUserProfileById: userId was not provided.");
     return null;
   }
   try {
-    const userDocRef = doc(firestore, 'users', userId);
-    const docSnap = await getDoc(userDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      // Ensure all fields from UserProfile type are mapped, especially timestamps
+    const response = await axiosInstance.get(`/users/${userId}`);
+    if (response.data.success && response.data.data) {
       return {
-        userId, // The document ID is the userId
-        firstName: data.firstName,
-        lastName: data.lastName,
-        displayName: data.displayName,
-        email: data.email,
-        bio: data.bio,
-        avatarUrl: data.avatarUrl,
-        dateOfBirth: data.dateOfBirth,
-        phoneNumber: data.phoneNumber,
-        address: data.address,
-        fcmTokens: data.fcmTokens || [], // Default to empty array if not present
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId: response.data.data.id || userId,
+        ...response.data.data,
       } as UserProfile;
     }
     console.log(`User profile for ${userId} not found.`);
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching user profile by ID ${userId}:`, error);
     throw error;
   }
@@ -292,7 +218,7 @@ export const getUserProfileById = async (userId: string): Promise<UserProfile | 
 
 // === Notification Management ===
 
-// Listen to user notifications in real-time
+// Listen to user notifications (polling-based since REST API doesn't support real-time)
 export const listenToUserNotifications = (
   isAuthenticated: boolean,
   userId: string,
@@ -308,32 +234,29 @@ export const listenToUserNotifications = (
     console.error("listenToUserNotifications: User ID is required.");
     return () => {}; // Return an empty unsubscribe function
   }
-  const notificationsColRef = collection(firestore, 'users', userId, 'notifications');
-  let q;
-  if (unreadOnly) {
-    q = query(notificationsColRef, where('isRead', '==', false), orderBy('createdAt', 'desc'), limit(limitCount));
-  } else {
-    q = query(notificationsColRef, orderBy('createdAt', 'desc'), limit(limitCount));
-  }
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const notifications: UserNotification[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const createdAt = data.createdAt as Timestamp | null; // Firestore Timestamp
-      notifications.push({
-        id: docSnap.id,
-        userId, // Add userId as it's part of the type but not stored on individual notification docs
-        ...data,
-        createdAt: createdAt ? createdAt.toDate().toISOString() : new Date().toISOString(),
-      } as UserNotification);
-    });
-    callback(notifications);
-  }, (error) => {
-    console.error("Error listening to user notifications:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollNotifications = async () => {
+    try {
+      const notifications = await fetchUserNotificationsOnce(isAuthenticated, userId, limitCount, unreadOnly);
+      callback(notifications);
+    } catch (error) {
+      console.error("Error polling notifications:", error);
+    }
+  };
 
-  return unsubscribe;
+  // Initial fetch
+  pollNotifications();
+  
+  // Poll every 30 seconds
+  pollingInterval = setInterval(pollNotifications, 30000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const markNotificationAsRead = async (isAuthenticated: boolean, userId: string, notificationId: string): Promise<boolean> => {
@@ -346,8 +269,7 @@ export const markNotificationAsRead = async (isAuthenticated: boolean, userId: s
   }
   console.log(`Service: Marking notification ${notificationId} as read for user ${userId}...`);
   try {
-    const notificationDocRef = doc(firestore, 'users', userId, 'notifications', notificationId);
-    await updateDoc(notificationDocRef, { isRead: true });
+    await axiosInstance.patch(`/users/${userId}/notifications/${notificationId}`, { isRead: true });
     return true;
   } catch (error) {
     console.error("Error marking notification as read:", error);
@@ -365,19 +287,7 @@ export const markAllNotificationsAsRead = async (isAuthenticated: boolean, userI
   }
   console.log(`Service: Marking all notifications for user ${userId} as read...`);
   try {
-    const notificationsColRef = collection(firestore, 'users', userId, 'notifications');
-    const q = query(notificationsColRef, where('isRead', '==', false));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-      return true; // No unread notifications
-    }
-
-    const batch = writeBatch(firestore);
-    querySnapshot.forEach(docSnap => {
-      batch.update(docSnap.ref, { isRead: true });
-    });
-    await batch.commit();
+    await axiosInstance.patch(`/users/${userId}/notifications/mark-all-read`);
     return true;
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
@@ -400,29 +310,21 @@ export const fetchUserNotificationsOnce = async (
     console.error("fetchUserNotificationsOnce: User ID is required.");
     throw new Error("User ID is required to fetch notifications.");
   }
-  console.log(`Service: Fetching notifications once for user ${userId}, limit: ${limitCount}, unreadOnly: ${unreadOnly}`);
+  console.log(`Service: Fetching notifications once for user ${userId}, limit: ${limitCount}, unreadOnly: ${unreadOnly} from backend...`);
   try {
-    const notificationsColRef = collection(firestore, 'users', userId, 'notifications');
-    let q;
-    if (unreadOnly) {
-      q = query(notificationsColRef, where('isRead', '==', false), orderBy('createdAt', 'desc'), limit(limitCount));
-    } else {
-      q = query(notificationsColRef, orderBy('createdAt', 'desc'), limit(limitCount));
-    }
-
-    const querySnapshot = await getDocs(q);
-    const notifications: UserNotification[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const createdAt = data.createdAt as Timestamp | null; // Firestore Timestamp
-      notifications.push({
-        id: docSnap.id,
-        userId,
-        ...data,
-        createdAt: createdAt ? createdAt.toDate().toISOString() : new Date().toISOString(),
-      } as UserNotification);
+    const params = new URLSearchParams({
+      limit: limitCount.toString(),
+      ...(unreadOnly && { unreadOnly: 'true' }),
     });
-    return notifications;
+    const response = await axiosInstance.get(`/users/${userId}/notifications?${params.toString()}`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((notification: any) => ({
+        id: notification.id,
+        userId,
+        ...notification,
+      })) as UserNotification[];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching user notifications once:", error);
     throw error;
@@ -439,17 +341,16 @@ export const getAvailableSubscriptionPlans = async (isAuthenticated: boolean): P
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log('Service: Fetching available subscription plans from Firestore...');
+  console.log('Service: Fetching available subscription plans from backend...');
   try {
-    const plansColRef = collection(firestore, 'subscriptionPlans');
-    // Optionally order by price or some other attribute
-    const q = query(plansColRef, orderBy('price')); 
-    const querySnapshot = await getDocs(q);
-    const plans: SubscriptionPlan[] = [];
-    querySnapshot.forEach((docSnap) => {
-      plans.push({ id: docSnap.id, ...docSnap.data() } as SubscriptionPlan);
-    });
-    return plans;
+    const response = await axiosInstance.get('/subscription-plans');
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((plan: any) => ({
+        id: plan.id,
+        ...plan,
+      })) as SubscriptionPlan[];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching available subscription plans:", error);
     throw error;
@@ -461,31 +362,21 @@ export const getUserSubscription = async (isAuthenticated: boolean, userId: stri
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Fetching subscription for user ${userId} from Firestore...`);
+  console.log(`Service: Fetching subscription for user ${userId} from backend...`);
   if (!userId) return null;
   try {
-    // Assuming user's subscription is stored in a specific document, e.g., users/{userId}/subscription/current
-    // Or, if multiple subscriptions possible (history), query a subcollection.
-    // For simplicity, let's assume one 'active' or 'trialing' subscription document.
-    const subDocRef = doc(firestore, 'users', userId, 'subscription', 'current'); // Fixed ID for current subscription
-    const docSnap = await getDoc(subDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (data.status === 'active' || data.status === 'trialing') {
-        return {
-          userId, // Not stored in the doc, but part of the type
-          ...data,
-          startDate: (data.startDate as Timestamp)?.toDate().toISOString(),
-          endDate: (data.endDate as Timestamp)?.toDate().toISOString() || undefined,
-          trialEndDate: (data.trialEndDate as Timestamp)?.toDate().toISOString() || undefined,
-          nextBillingDate: (data.nextBillingDate as Timestamp)?.toDate().toISOString() || undefined,
-          createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
-          updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
-        } as UserSubscription;
-      }
+    const response = await axiosInstance.get(`/users/${userId}/subscription`);
+    if (response.data.success && response.data.data) {
+      return {
+        userId,
+        ...response.data.data,
+      } as UserSubscription;
     }
-    return null; // No active/trialing subscription found
-  } catch (error) {
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error("Error fetching user subscription:", error);
     throw error;
   }
@@ -498,69 +389,17 @@ export const changeUserSubscription = async (isAuthenticated: boolean, userId: s
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Changing subscription for user ${userId} to plan ${payload.newPlanId} in Firestore...`);
+  console.log(`Service: Changing subscription for user ${userId} to plan ${payload.newPlanId} in backend...`);
   if (!userId || !payload.newPlanId) throw new Error("User ID and New Plan ID are required.");
 
   try {
-    // Fetch details of the new plan
-    // Assuming getAvailableSubscriptionPlans now requires isAuthenticated
-    const plans = await getAvailableSubscriptionPlans(isAuthenticated);
-    const newPlan = plans.find(p => p.id === payload.newPlanId);
-    if (!newPlan) throw new Error(`Plan with ID ${payload.newPlanId} not found.`);
-
-    const subDocRef = doc(firestore, 'users', userId, 'subscription', 'current');
-
-    const startDate = serverTimestamp();
-    let trialEndDateFirestore: FieldValue | undefined = undefined;
-    if (newPlan.trialDays && newPlan.trialDays > 0) {
-      trialEndDateFirestore = serverTimestamp(); // Will be calculated by backend rule or set to a future fixed date
-      // For client-side calculation if needed for display before backend write:
-      // trialEndDate = Timestamp.fromDate(new Date(now.getTime() + newPlan.trialDays * 24 * 60 * 60 * 1000));
-    }
-    
-
-    // Data to be written to Firestore
-    const subscriptionDataForFirestore: any = {
-      planId: newPlan.id,
-      status: newPlan.trialDays ? 'trialing' : 'active',
-      startDate: startDate, // This is serverTimestamp()
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    if (trialEndDateFirestore) {
-      subscriptionDataForFirestore.trialEndDate = trialEndDateFirestore; 
-      // Note: Actual trial end date might be better calculated and set by a backend function 
-      // upon subscription creation to ensure accuracy, rather than relying on client-side calculation for Firestore.
-      // For now, we'll use a serverTimestamp placeholder or a client-calculated fixed date if needed.
-      // Let's use a client-calculated fixed date for the placeholder if trialDays exist.
-      if (newPlan.trialDays && newPlan.trialDays > 0) {
-        subscriptionDataForFirestore.trialEndDate = Timestamp.fromDate(new Date(new Date().getTime() + newPlan.trialDays * 24 * 60 * 60 * 1000));
-      }
-    }
-    // Set nextBillingDate based on interval
-    const currentMoment = new Date();
-    if (newPlan.interval === 'month') {
-        subscriptionDataForFirestore.nextBillingDate = Timestamp.fromDate(new Date(currentMoment.setMonth(currentMoment.getMonth() + 1)));
-    } else if (newPlan.interval === 'year') {
-        subscriptionDataForFirestore.nextBillingDate = Timestamp.fromDate(new Date(currentMoment.setFullYear(currentMoment.getFullYear() + 1)));
-    }
-
-
-    await setDoc(subDocRef, subscriptionDataForFirestore);
-
-    // Fetch and return the new subscription details
-    const updatedSubSnap = await getDoc(subDocRef);
-    if (updatedSubSnap.exists()) {
-      const data = updatedSubSnap.data();
+    const response = await axiosInstance.post(`/users/${userId}/subscription`, {
+      planId: payload.newPlanId,
+    });
+    if (response.data.success && response.data.data) {
       return {
         userId,
-        ...data,
-        startDate: (data.startDate as Timestamp)?.toDate().toISOString(),
-        endDate: (data.endDate as Timestamp)?.toDate().toISOString() || undefined,
-        trialEndDate: (data.trialEndDate as Timestamp)?.toDate().toISOString() || undefined,
-        nextBillingDate: (data.nextBillingDate as Timestamp)?.toDate().toISOString() || undefined,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
+        ...response.data.data,
       } as UserSubscription;
     }
     return null;
@@ -574,51 +413,24 @@ export const cancelUserSubscription = async (isAuthenticated: boolean, userId: s
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Canceling subscription for user ${userId} in Firestore...`);
+  console.log(`Service: Canceling subscription for user ${userId} in backend...`);
   if (!userId) throw new Error("User ID is required.");
   
-  const subDocRef = doc(firestore, 'users', userId, 'subscription', 'current');
   try {
-    const subSnap = await getDoc(subDocRef);
-    if (!subSnap.exists()) {
-      console.warn("No active subscription found to cancel.");
-      return null;
-    }
-    
-    const currentSubData = subSnap.data() as UserSubscription; // Already converted to UserSubscription type by previous fetches or type expectations
-
-    let endDateValue: FieldValue | Timestamp;
-    if (payload.cancelAtPeriodEnd && currentSubData.nextBillingDate) {
-      // currentSubData.nextBillingDate is an ISO string, convert to Date then to Firestore Timestamp
-      endDateValue = Timestamp.fromDate(new Date(currentSubData.nextBillingDate));
-    } else {
-      endDateValue = serverTimestamp(); // Cancel immediately
-    }
-
-    const dataToUpdate = {
-      status: 'canceled' as 'canceled', // Explicitly type
-      updatedAt: serverTimestamp(),
-      endDate: endDateValue,
-    };
-
-    await updateDoc(subDocRef, dataToUpdate);
-
-    const updatedSubSnap = await getDoc(subDocRef);
-    if (updatedSubSnap.exists()) {
-      const data = updatedSubSnap.data();
-       return {
+    const response = await axiosInstance.delete(`/users/${userId}/subscription`, {
+      data: { cancelAtPeriodEnd: payload.cancelAtPeriodEnd },
+    });
+    if (response.data.success && response.data.data) {
+      return {
         userId,
-        ...data,
-        startDate: (data.startDate as Timestamp)?.toDate().toISOString(),
-        endDate: (data.endDate as Timestamp)?.toDate().toISOString() || undefined,
-        trialEndDate: (data.trialEndDate as Timestamp)?.toDate().toISOString() || undefined,
-        nextBillingDate: (data.nextBillingDate as Timestamp)?.toDate().toISOString() || undefined,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
+        ...response.data.data,
       } as UserSubscription;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error("Error canceling user subscription:", error);
     throw error;
   }
@@ -630,38 +442,32 @@ export const getUserSettings = async (isAuthenticated: boolean, userId: string):
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Fetching settings for user ${userId} from Firestore...`);
+  console.log(`Service: Fetching settings for user ${userId} from backend...`);
   if (!userId) return null;
   try {
-    const settingsDocRef = doc(firestore, 'users', userId, 'settings', 'appSettings'); // Using a fixed ID for the settings doc
-    const docSnap = await getDoc(settingsDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      
-      // Migration: Add eventVisibility if it doesn't exist
-      if (!data.eventVisibility) {
-        console.log(`Migrating settings for user ${userId}: adding missing eventVisibility field`);
-        const migrationData = {
-          ...data,
-          eventVisibility: { showAllPublicEvents: false },
-          updatedAt: serverTimestamp(),
-        };
-        await setDoc(settingsDocRef, migrationData);
-        return {
-          userId,
-          ...migrationData,
-          updatedAt: new Date().toISOString(),
-        } as UserSettings;
-      }
-      
+    const response = await axiosInstance.get(`/users/${userId}/settings`);
+    if (response.data.success && response.data.data) {
       return {
-        userId, // userId is not part of the doc but part of the type
-        ...data,
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        userId,
+        ...response.data.data,
       } as UserSettings;
-    } else {
-      // If settings don't exist, create and return default settings
-      console.log(`Settings not found for user ${userId}, creating defaults.`);
+    }
+    // If settings don't exist, return default settings (backend should create them)
+    const defaultSettings: Omit<UserSettings, 'userId' | 'updatedAt'> = {
+      theme: 'system',
+      language: 'en',
+      emailNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, newsletter: false },
+      pushNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, taskAlerts: true },
+      eventVisibility: { showAllPublicEvents: false },
+    };
+    return { 
+      userId, 
+      ...defaultSettings, 
+      updatedAt: new Date().toISOString() 
+    } as UserSettings;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      // Return default settings if not found
       const defaultSettings: Omit<UserSettings, 'userId' | 'updatedAt'> = {
         theme: 'system',
         language: 'en',
@@ -669,14 +475,12 @@ export const getUserSettings = async (isAuthenticated: boolean, userId: string):
         pushNotifications: { eventInvites: true, eventUpdates: true, messageAlerts: true, taskAlerts: true },
         eventVisibility: { showAllPublicEvents: false },
       };
-      await setDoc(settingsDocRef, { ...defaultSettings, updatedAt: serverTimestamp() });
       return { 
         userId, 
         ...defaultSettings, 
         updatedAt: new Date().toISOString() 
       } as UserSettings;
     }
-  } catch (error) {
     console.error("Error fetching user settings:", error);
     throw error;
   }
@@ -686,26 +490,14 @@ export const updateUserSettings = async (isAuthenticated: boolean, userId: strin
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Updating settings for user ${userId} in Firestore:`, payload);
+  console.log(`Service: Updating settings for user ${userId} in backend:`, payload);
   if (!userId) throw new Error("User ID is required to update settings.");
   try {
-    const settingsDocRef = doc(firestore, 'users', userId, 'settings', 'appSettings');
-    // Firestore's updateDoc handles nested object updates correctly if you provide dot notation
-    // or if you provide the full nested object for the field being updated.
-    // For simplicity and to ensure deep merge behavior as intended by original mock,
-    // we can fetch, merge, then set, or use update with careful payload construction.
-    // Let's use updateDoc with the payload and add serverTimestamp for updatedAt.
-    
-    const updatePayload = { ...payload, updatedAt: serverTimestamp() };
-    await updateDoc(settingsDocRef, updatePayload);
-
-    const updatedDoc = await getDoc(settingsDocRef);
-    if (updatedDoc.exists()) {
-      const data = updatedDoc.data();
+    const response = await axiosInstance.put(`/users/${userId}/settings`, payload);
+    if (response.data.success && response.data.data) {
       return {
         userId,
-        ...data,
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        ...response.data.data,
       } as UserSettings;
     }
     return null;

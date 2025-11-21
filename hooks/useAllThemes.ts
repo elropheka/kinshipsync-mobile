@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, orderBy } from '@firebase/firestore';
-import { firestore } from '../services/firebaseConfig';
-import type { Theme } from '../types/themeTypes';
+import * as eventService from '../services/eventService';
+import type { Theme } from '../types/eventTypes';
+import { useAuth } from '../context/AuthContext';
 
 export const useAllThemes = () => {
+  const { isAuthenticated } = useAuth();
   const [allThemes, setAllThemes] = useState<Theme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -11,15 +12,7 @@ export const useAllThemes = () => {
   useEffect(() => {
     const fetchThemes = async () => {
       try {
-        const themesRef = collection(firestore, 'themes');
-        const themesQuery = query(themesRef, orderBy('name'));
-        const snapshot = await getDocs(themesQuery);
-        
-        const themes = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Theme[];
-
+        const themes = await eventService.getAvailableThemes(isAuthenticated, null);
         setAllThemes(themes);
         setError(null);
       } catch (err) {
@@ -31,7 +24,7 @@ export const useAllThemes = () => {
     };
 
     fetchThemes();
-  }, []);
+  }, [isAuthenticated]);
 
   return {
     allThemes,

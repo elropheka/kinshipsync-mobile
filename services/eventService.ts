@@ -1,24 +1,4 @@
-import {
-  collection,
-  doc,
-  addDoc,
-  setDoc,
-  getDoc,
-  getDocs,
-  deleteDoc,
-  query,
-  orderBy,
-  limit,
-  startAfter,
-  serverTimestamp,
-  onSnapshot,
-  updateDoc,
-  Timestamp,
-  arrayUnion,
-  arrayRemove,
-  writeBatch,
-} from '@firebase/firestore';
-import { firestore } from './firebaseConfig';
+import axiosInstance from './axiosInstance';
 import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
 import { getUserProfileById } from './userService';
 import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification } from '../services/notificationService';
@@ -57,71 +37,22 @@ export const getEventsPaginated = async (
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log('Service: Fetching paginated events from Firestore...');
-  const eventsColRef = collection(firestore, 'events');
-  let q;
-
-  if (lastFetchedEvent?.createdAt) {
-    const lastTimestamp = Timestamp.fromDate(new Date(lastFetchedEvent.createdAt));
-    q = query(
-      eventsColRef,
-      orderBy('createdAt', 'desc'),
-      startAfter(lastTimestamp),
-      limit(limitNum)
-    );
-  } else {
-    q = query(eventsColRef, orderBy('createdAt', 'desc'), limit(limitNum));
-  }
-
+  console.log('Service: Fetching paginated events from backend...');
   try {
-    const querySnapshot = await getDocs(q);
-    const eventsPromises = querySnapshot.docs.map(async (docSnap) => {
-      const data = docSnap.data();
-      let totalAttendees = 0;
-      let guestEmails: string[] = [];
-      try {
-        const guestsColRef = collection(firestore, 'events', docSnap.id, 'guests');
-        const guestsSnapshot = await getDocs(guestsColRef);
-        guestsSnapshot.forEach((guestDoc) => {
-          const guestData = guestDoc.data() as Guest;
-          totalAttendees += 1 + (guestData.plusOnes || 0);
-          if (guestData.email) {
-            guestEmails.push(guestData.email);
-          }
-        });
-      } catch (guestError) {
-        console.error(`Error fetching guests for event ${docSnap.id}:`, guestError);
-      }
-
-      const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
-      const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
-      
-      return {
-        id: docSnap.id,
-        name: data.name,
-        name_lowercase: data.name_lowercase,
-        description: data.description,
-        date: data.date,
-        time: data.time,
-        endDate: data.endDate,
-        endTime: data.endTime,
-        location: data.location,
-        organizerId: data.organizerId,
-        themeId: data.themeId,
-        visibility: data.visibility,
-        allowedUserIds,
-        status: data.status,
-        website: data.website,
-        searchableKeywords,
-        overallBudget: data.overallBudget,
-        totalAttendees,
-        guestEmails,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      } as Event;
+    const queryParams = new URLSearchParams({
+      limit: limitNum.toString(),
+      ...(lastFetchedEvent?.createdAt && { cursor: lastFetchedEvent.createdAt }),
     });
-    const events = await Promise.all(eventsPromises);
-    return events;
+    const response = await axiosInstance.get(`/events?${queryParams.toString()}`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data.events || []).map((data: any) => ({
+        id: data.id,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      })) as Event[];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching paginated events:", error);
     throw error;
@@ -132,30 +63,23 @@ export const getEventById = async (isAuthenticated: boolean, eventId: string): P
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  console.log(`Service: Fetching event with id ${eventId} from Firestore...`);
+  console.log(`Service: Fetching event with id ${eventId} from backend...`);
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    const docSnap = await getDoc(eventDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
-      const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
-      const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
-      
+    const response = await axiosInstance.get(`/events/${eventId}`);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
       return {
-        id: docSnap.id,
+        id: data.id || eventId,
         ...data,
-        allowedUserIds,
-        teamIds,
-        searchableKeywords,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
       } as Event;
-    } else {
-      console.log(`Event ${eventId} not found.`);
+    }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
       return null;
     }
-  } catch (error) {
     console.error(`Error fetching event ${eventId}:`, error);
     throw error;
   }
@@ -167,43 +91,20 @@ export const createEvent = async (isAuthenticated: boolean, payload: CreateEvent
   }
   console.log('Service: Creating event with payload:', payload);
   try {
-    const eventsColRef = collection(firestore, 'events');
-    const keywords = generateKeywords(payload.name, payload.description, payload.location);
-    const allowedUserIds = Array.isArray(payload.allowedUserIds) ? payload.allowedUserIds : [];
-    
-    const newEventData = {
+    const response = await axiosInstance.post('/events', {
       ...payload,
       organizerId,
-      visibility: payload.visibility,
-      allowedUserIds,
-      searchableKeywords: keywords,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(eventsColRef, newEventData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created event.");
-    const data = createdDoc.data();
-    const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
-    const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
-    
-    return {
-      id: createdDoc.id,
-      name: data.name,
-      date: data.date,
-      description: data.description,
-      time: data.time,
-      location: data.location,
-      organizerId: data.organizerId,
-      themeId: data.themeId,
-      teamIds,
-      overallBudget: data.overallBudget,
-      visibility: data.visibility,
-      allowedUserIds,
-      searchableKeywords,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as Event;
+    });
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      } as Event;
+    }
+    throw new Error("Failed to create event.");
   } catch (error) {
     console.error("Error creating event:", error);
     throw error;
@@ -217,52 +118,24 @@ export const updateEvent = async (isAuthenticated: boolean, eventId: string, pay
   console.log(`Service: Updating event ${eventId} with payload:`, payload);
   if (!eventId) throw new Error("Event ID is required for update.");
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    
-    // Check if user is the organizer before allowing update
-    if (currentUserId) {
-      const currentEventSnap = await getDoc(eventDocRef);
-      if (currentEventSnap.exists()) {
-        const currentEventData = currentEventSnap.data();
-        if (currentEventData.organizerId !== currentUserId) {
-          throw new Error("Only the event organizer can update this event.");
-        }
-      } else {
-        throw new Error("Event not found.");
-      }
+    const response = await axiosInstance.put(`/events/${eventId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || eventId,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      } as Event;
     }
-    
-    const updateData: any = { ...payload, updatedAt: serverTimestamp() };
-
-    if (payload.name || payload.description || payload.location) {
-      const currentEventSnap = await getDoc(eventDocRef);
-      if (currentEventSnap.exists()) {
-        const currentEventData = currentEventSnap.data();
-        const newName = payload.name ?? currentEventData.name;
-        const newDescription = payload.description ?? currentEventData.description;
-        const newLocation = payload.location ?? currentEventData.location;
-        updateData.searchableKeywords = generateKeywords(newName, newDescription, newLocation);
-      }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
     }
-
-    await updateDoc(eventDocRef, updateData);
-    const updatedDoc = await getDoc(eventDocRef);
-    if (!updatedDoc.exists()) return null;
-    const data = updatedDoc.data();
-    const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
-    const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
-    const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
-    
-    return {
-      id: updatedDoc.id,
-      ...data,
-      allowedUserIds,
-      teamIds,
-      searchableKeywords,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as Event;
-  } catch (error) {
+    if (error.response?.status === 403) {
+      throw new Error("Only the event organizer can update this event.");
+    }
     console.error(`Error updating event ${eventId}:`, error);
     throw error;
   }
@@ -275,9 +148,7 @@ export const deleteEvent = async (isAuthenticated: boolean, eventId: string): Pr
   console.log(`Service: Deleting event ${eventId}...`);
   if (!eventId) throw new Error("Event ID is required for deletion.");
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    await deleteDoc(eventDocRef);
-    console.log(`Event ${eventId} deleted successfully. Subcollections require server-side deletion (e.g., Cloud Function).`);
+    await axiosInstance.delete(`/events/${eventId}`);
     return true;
   } catch (error) {
     console.error(`Error deleting event ${eventId}:`, error);
@@ -292,10 +163,8 @@ export const updateEventOverallBudget = async (isAuthenticated: boolean, eventId
   if (!eventId) throw new Error("Event ID is required.");
   console.log(`Service: Updating overall budget for event ${eventId} to ${budgetAmount}`);
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    await updateDoc(eventDocRef, {
+    await axiosInstance.patch(`/events/${eventId}/budget`, {
       overallBudget: budgetAmount,
-      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error("Error updating event overall budget:", error);
@@ -316,36 +185,49 @@ export const listenToGuestsWithRsvp = (
     console.error("listenToGuestsWithRsvp: Event ID is required.");
     return () => {};
   }
-  const guestsColRef = collection(firestore, 'events', eventId, 'guests');
-  const q = query(guestsColRef, orderBy('name'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const guests: Guest[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const [firstName = '', lastName = ''] = (data.name || '').split(' ');
-      guests.push({
-        id: docSnap.id,
-        eventId,
-        name: data.name,
-        firstName: data.firstName || firstName,
-        lastName: data.lastName || lastName,
-        email: data.email,
-        phone: data.phone,
-        status: data.status,
-        plusOnes: data.plusOnes || 0,
-        notes: data.notes,
-        dietaryRestrictions: data.dietaryRestrictions,
-        addedAt: data.addedAt ? (data.addedAt as Timestamp).toDate().toISOString() : new Date().toISOString(),
-        rsvpUpdatedAt: data.rsvpUpdatedAt ? (data.rsvpUpdatedAt as Timestamp).toDate().toISOString() : undefined,
-      } as Guest);
-    });
-    callback(guests);
-  }, (error) => {
-    console.error("Error listening to guests:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollGuests = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/guests`);
+      if (response.data.success && response.data.data) {
+        const guests = (response.data.data.guests || []).map((data: any) => {
+          const [firstName = '', lastName = ''] = (data.name || '').split(' ');
+          return {
+            id: data.id,
+            eventId,
+            name: data.name,
+            firstName: data.firstName || firstName,
+            lastName: data.lastName || lastName,
+            email: data.email,
+            phone: data.phone,
+            status: data.status,
+            plusOnes: data.plusOnes || 0,
+            notes: data.notes,
+            dietaryRestrictions: data.dietaryRestrictions,
+            addedAt: data.addedAt || new Date().toISOString(),
+            rsvpUpdatedAt: data.rsvpUpdatedAt,
+          } as Guest;
+        });
+        callback(guests);
+      }
+    } catch (error) {
+      console.error("Error polling guests:", error);
+    }
+  };
 
-  return unsubscribe;
+  // Initial fetch
+  pollGuests();
+  
+  // Poll every 5 seconds
+  pollingInterval = setInterval(pollGuests, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const addGuestToEvent = async (isAuthenticated: boolean, eventId: string, payload: CreateGuestPayload): Promise<Guest> => {
@@ -353,84 +235,25 @@ export const addGuestToEvent = async (isAuthenticated: boolean, eventId: string,
     throw new Error("User not authenticated. Please sign in.");
   }
   if (!eventId) throw new Error("Event ID is required to add a guest.");
-  
-  let guestDocRef;
 
   try {
-    const guestsColRef = collection(firestore, 'events', eventId, 'guests');
-    const newGuestData = {
+    const response = await axiosInstance.post(`/events/${eventId}/guests`, {
       ...payload,
-      eventId,
-      addedAt: serverTimestamp(),
       status: payload.status || 'Invited',
-    };
-    guestDocRef = await addDoc(guestsColRef, newGuestData);
-    const createdGuestId = guestDocRef.id;
-
-    const event = await getEventById(isAuthenticated, eventId);
-    if (!event) {
-      console.error(`addGuestToEvent: Event ${eventId} not found. Cannot send notifications.`);
-      return { id: createdGuestId, ...newGuestData, addedAt: new Date().toISOString() } as Guest;
-    }
-
-    let organizerName = 'The Event Organizer';
-    if (event.organizerId) {
-      const organizerProfile = await getUserProfileById(event.organizerId);
-      if (organizerProfile?.displayName) {
-        organizerName = organizerProfile.displayName;
-      }
-    }
-
-    const batch = writeBatch(firestore);
-
-    if (payload.email) {
-      const emailTriggerColRef = collection(firestore, 'event_invitation_emails');
-      const emailDocRef = doc(emailTriggerColRef);
-      batch.set(emailDocRef, {
-        to: payload.email,
-        message: {
-          subject: `You're invited to ${event.name}!`,
-          templateData: {
-            guestName: payload.name,
-            eventName: event.name,
-            eventDate: event.date,
-            eventTime: event.time || 'Not specified',
-            eventLocation: event.location || 'Not specified',
-            organizerName: organizerName,
-          },
-        },
-        createdAt: serverTimestamp(),
-      });
-    }
-
-    const fcmTriggerColRef = collection(firestore, 'pending_event_invitations_fcm');
-    const fcmDocRef = doc(fcmTriggerColRef);
-    batch.set(fcmDocRef, {
-      invitedGuestEmail: payload.email || null,
-      invitedGuestName: payload.name,
-      organizerId: event.organizerId,
-      eventId: eventId,
-      eventName: event.name,
-      timestamp: serverTimestamp(),
     });
-
-    await batch.commit();
-
-    console.log(`Guest ${createdGuestId} added and notification triggers created for event ${eventId}.`);
-
-    return {
-      id: createdGuestId,
-      ...newGuestData,
-      addedAt: new Date().toISOString()
-    } as Guest;
-
-  } catch (error) {
-    console.error("Error adding guest to event and triggering notifications:", error);
-    if (guestDocRef) {
-      console.warn("Guest was created, but notification trigger failed. Guest ID:", guestDocRef.id);
-      const guestDataFallback = (await getDoc(guestDocRef)).data();
-      return { id: guestDocRef.id, ...guestDataFallback, addedAt: new Date().toISOString() } as Guest;
+    
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        eventId,
+        ...data,
+        addedAt: data.addedAt || new Date().toISOString(),
+      } as Guest;
     }
+    throw new Error("Failed to add guest.");
+  } catch (error) {
+    console.error("Error adding guest to event:", error);
     throw error;
   }
 };
@@ -446,69 +269,8 @@ export const sendRsvpReminderToGuest = async (isAuthenticated: boolean, eventId:
   console.log(`Service: Sending RSVP reminder to guest ${guestId} for event ${eventId}...`);
 
   try {
-    const event = await getEventById(isAuthenticated, eventId);
-    if (!event) {
-      console.error(`sendRsvpReminderToGuest: Event ${eventId} not found.`);
-      throw new Error(`Event ${eventId} not found.`);
-    }
-
-    const guestDocRef = doc(firestore, 'events', eventId, 'guests', guestId);
-    const guestSnap = await getDoc(guestDocRef);
-    if (!guestSnap.exists()) {
-      console.error(`sendRsvpReminderToGuest: Guest ${guestId} not found for event ${eventId}.`);
-      throw new Error(`Guest ${guestId} not found.`);
-    }
-    const guest = { id: guestSnap.id, ...guestSnap.data() } as Guest;
-
-    let organizerName = 'The Event Organizer';
-    if (event.organizerId) {
-      const organizerProfile = await getUserProfileById(event.organizerId);
-      if (organizerProfile?.displayName) {
-        organizerName = organizerProfile.displayName;
-      }
-    }
-
-    const batch = writeBatch(firestore);
-    const reminderTimestamp = serverTimestamp();
-
-    if (guest.email) {
-      const emailTriggerColRef = collection(firestore, 'event_invitation_emails');
-      const emailDocRef = doc(emailTriggerColRef);
-      batch.set(emailDocRef, {
-        to: guest.email,
-        message: {
-          subject: `Reminder: You're invited to ${event.name}!`,
-          templateData: {
-            guestName: guest.name,
-            eventName: event.name,
-            eventDate: event.date,
-            eventTime: event.time || 'Not specified',
-            eventLocation: event.location || 'Not specified',
-            organizerName: organizerName,
-            isReminder: true,
-          },
-        },
-        createdAt: reminderTimestamp,
-      });
-    }
-
-    const fcmTriggerColRef = collection(firestore, 'pending_event_invitations_fcm');
-    const fcmDocRef = doc(fcmTriggerColRef);
-    batch.set(fcmDocRef, {
-      invitedGuestEmail: guest.email || null,
-      invitedGuestName: guest.name,
-      organizerId: event.organizerId,
-      eventId: eventId,
-      eventName: event.name,
-      timestamp: reminderTimestamp,
-      type: 'reminder',
-      guestId: guest.id,
-    });
-
-    await batch.commit();
-    console.log(`RSVP reminder triggers created for guest ${guestId} for event ${eventId}.`);
+    await axiosInstance.post(`/events/${eventId}/guests/${guestId}/remind`);
     return true;
-
   } catch (error) {
     console.error(`Error sending RSVP reminder to guest ${guestId}:`, error);
     throw error;
@@ -521,51 +283,36 @@ export const updateGuestRsvp = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId || !guestId) throw new Error("Event ID and Guest ID are required.");
   try {
-    const guestDocRef = doc(firestore, 'events', eventId, 'guests', guestId);
-    const updateData = { ...payload };
-    if (payload.status) {
-      (updateData as any).rsvpUpdatedAt = serverTimestamp();
-    }
-    await updateDoc(guestDocRef, updateData);
+    const response = await axiosInstance.patch(`/events/${eventId}/guests/${guestId}`, payload);
     
-    const updatedDocSnap = await getDoc(guestDocRef);
-    if (!updatedDocSnap.exists()) return null;
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      const [defaultFirstName = '', defaultLastName = ''] = (data.name || '').split(' ');
+      
+      const event = await getEventById(isAuthenticated, eventId);
+      if (event && payload.status) {
+        createRsvpReceivedNotification(event.organizerId, data.name, payload.status, event.name, eventId);
+      }
+      if (event && payload.dietaryRestrictions) {
+        createDietaryPreferenceNotification(event.organizerId, data.name, event.name, eventId);
+      }
 
-    const firestoreData = updatedDocSnap.data();
-    const { name, status, email, phone, notes, plusOnes, addedAt: addedAtTimestamp, rsvpUpdatedAt: rsvpUpdatedAtTimestamp } = firestoreData as Omit<Guest, 'id' | 'eventId' | 'addedAt' | 'rsvpUpdatedAt'> & { addedAt?: Timestamp, rsvpUpdatedAt?: Timestamp };
-    
-    const event = await getEventById(isAuthenticated, eventId);
-    if (event && payload.status) {
-      createRsvpReceivedNotification(event.organizerId, name, payload.status, event.name, eventId);
+      return {
+        id: data.id || guestId,
+        eventId,
+        name: data.name,
+        firstName: data.firstName || defaultFirstName,
+        lastName: data.lastName || defaultLastName,
+        status: data.status,
+        email: data.email,
+        phone: data.phone,
+        notes: data.notes,
+        plusOnes: data.plusOnes || 0,
+        addedAt: data.addedAt || new Date().toISOString(),
+        rsvpUpdatedAt: data.rsvpUpdatedAt,
+      } as Guest;
     }
-
-    const guestsSnapshot = await getDocs(collection(firestore, 'events', eventId, 'guests'));
-    const confirmedGuests = guestsSnapshot.docs.filter(doc => {
-      const guestData = doc.data() as Guest;
-      return guestData.status === 'accepted';
-    }).length;
-    if (event && (confirmedGuests === 10 || confirmedGuests === 25 || confirmedGuests === 50)) {
-      createGuestMilestoneNotification(event.organizerId, event.name, confirmedGuests, eventId);
-    }
-    if (event && payload.dietaryRestrictions) {
-      createDietaryPreferenceNotification(event.organizerId, name, event.name, eventId);
-    }
-
-    const [defaultFirstName = '', defaultLastName = ''] = (name || '').split(' ');
-    return {
-      id: updatedDocSnap.id,
-      eventId,
-      name: name,
-      firstName: firestoreData.firstName || defaultFirstName,
-      lastName: firestoreData.lastName || defaultLastName,
-      status: status,
-      email: email,
-      phone: phone,
-      notes: notes,
-      plusOnes: plusOnes,
-      addedAt: addedAtTimestamp ? addedAtTimestamp.toDate().toISOString() : new Date().toISOString(),
-      rsvpUpdatedAt: rsvpUpdatedAtTimestamp ? rsvpUpdatedAtTimestamp.toDate().toISOString() : undefined
-    } as Guest;
+    return null;
   } catch (error) {
     console.error("Error updating guest/RSVP:", error);
     throw error;
@@ -578,8 +325,7 @@ export const removeGuestFromEvent = async (isAuthenticated: boolean, eventId: st
   }
   if (!eventId || !guestId) throw new Error("Event ID and Guest ID are required.");
   try {
-    const guestDocRef = doc(firestore, 'events', eventId, 'guests', guestId);
-    await deleteDoc(guestDocRef);
+    await axiosInstance.delete(`/events/${eventId}/guests/${guestId}`);
   } catch (error) {
     console.error("Error removing guest:", error);
     throw error;
@@ -595,24 +341,33 @@ export const listenToSchedule = (isAuthenticated: boolean, eventId: string, call
     console.error("listenToSchedule: Event ID is required.");
     return () => {};
   }
-  const scheduleColRef = collection(firestore, 'events', eventId, 'schedule');
-  const q = query(scheduleColRef, orderBy('startTime'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const scheduleItems: ScheduleItem[] = [];
-    querySnapshot.forEach((docSnap) => {
-      scheduleItems.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<ScheduleItem, 'id' | 'eventId'>),
-      });
-    });
-    callback(scheduleItems);
-  }, (error) => {
-    console.error("Error listening to schedule:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollSchedule = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/schedule`);
+      if (response.data.success && response.data.data) {
+        const scheduleItems = (response.data.data.scheduleItems || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as ScheduleItem[];
+        callback(scheduleItems);
+      }
+    } catch (error) {
+      console.error("Error polling schedule:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollSchedule();
+  pollingInterval = setInterval(pollSchedule, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const getEventTheme = async (isAuthenticated: boolean, eventId: string, userId?: string): Promise<Theme | null> => {
@@ -622,25 +377,15 @@ export const getEventTheme = async (isAuthenticated: boolean, eventId: string, u
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    const eventSnap = await getDoc(eventDocRef);
-    if (!eventSnap.exists()) {
-      console.log(`Event ${eventId} not found.`);
+    const response = await axiosInstance.get(`/events/${eventId}/theme`);
+    if (response.data.success && response.data.data) {
+      return response.data.data as Theme;
+    }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
       return null;
     }
-    
-    const themeId = eventSnap.data().themeId;
-    if (!themeId) return null;
-    
-    const themeDocRef = doc(firestore, 'themes', themeId);
-    const themeSnap = await getDoc(themeDocRef);
-    if (!themeSnap.exists()) return null;
-    
-    return {
-      id: themeSnap.id,
-      ...themeSnap.data()
-    } as Theme;
-  } catch (error) {
     console.error(`Error fetching theme for event ${eventId}:`, error);
     throw error;
   }
@@ -655,24 +400,33 @@ export const listenToEventTasks = (isAuthenticated: boolean, eventId: string, ca
     console.error("listenToEventTasks: Event ID is required.");
     return () => {};
   }
-  const tasksColRef = collection(firestore, 'events', eventId, 'tasks');
-  const q = query(tasksColRef, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const tasks: Task[] = [];
-    querySnapshot.forEach((docSnap) => {
-      tasks.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<Task, 'id' | 'eventId'>),
-      });
-    });
-    callback(tasks);
-  }, (error) => {
-    console.error("Error listening to tasks:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollTasks = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/tasks`);
+      if (response.data.success && response.data.data) {
+        const tasks = (response.data.data.tasks || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as Task[];
+        callback(tasks);
+      }
+    } catch (error) {
+      console.error("Error polling tasks:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollTasks();
+  pollingInterval = setInterval(pollTasks, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const listenToBudgetItems = (isAuthenticated: boolean, eventId: string, callback: (budgetItems: BudgetItem[]) => void) => {
@@ -684,24 +438,33 @@ export const listenToBudgetItems = (isAuthenticated: boolean, eventId: string, c
     console.error("listenToBudgetItems: Event ID is required.");
     return () => {};
   }
-  const budgetColRef = collection(firestore, 'events', eventId, 'budgetItems');
-  const q = query(budgetColRef, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const items: BudgetItem[] = [];
-    querySnapshot.forEach((docSnap) => {
-      items.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<BudgetItem, 'id' | 'eventId'>),
-      });
-    });
-    callback(items);
-  }, (error) => {
-    console.error("Error listening to budget items:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollBudgetItems = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/budget-items`);
+      if (response.data.success && response.data.data) {
+        const items = (response.data.data.budgetItems || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as BudgetItem[];
+        callback(items);
+      }
+    } catch (error) {
+      console.error("Error polling budget items:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollBudgetItems();
+  pollingInterval = setInterval(pollBudgetItems, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const listenToIdeas = (isAuthenticated: boolean, eventId: string, callback: (ideas: Idea[]) => void) => {
@@ -713,24 +476,33 @@ export const listenToIdeas = (isAuthenticated: boolean, eventId: string, callbac
     console.error("listenToIdeas: Event ID is required.");
     return () => {};
   }
-  const ideasColRef = collection(firestore, 'events', eventId, 'ideas');
-  const q = query(ideasColRef, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const ideas: Idea[] = [];
-    querySnapshot.forEach((docSnap) => {
-      ideas.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<Idea, 'id' | 'eventId'>),
-      });
-    });
-    callback(ideas);
-  }, (error) => {
-    console.error("Error listening to ideas:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollIdeas = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/ideas`);
+      if (response.data.success && response.data.data) {
+        const ideas = (response.data.data.ideas || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as Idea[];
+        callback(ideas);
+      }
+    } catch (error) {
+      console.error("Error polling ideas:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollIdeas();
+  pollingInterval = setInterval(pollIdeas, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const listenToEventTeams = (isAuthenticated: boolean, eventId: string, callback: (teams: EventTeam[]) => void) => {
@@ -742,24 +514,33 @@ export const listenToEventTeams = (isAuthenticated: boolean, eventId: string, ca
     console.error("listenToEventTeams: Event ID is required.");
     return () => {};
   }
-  const teamsColRef = collection(firestore, 'events', eventId, 'teams');
-  const q = query(teamsColRef, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const teams: EventTeam[] = [];
-    querySnapshot.forEach((docSnap) => {
-      teams.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<EventTeam, 'id' | 'eventId'>),
-      });
-    });
-    callback(teams);
-  }, (error) => {
-    console.error("Error listening to teams:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollTeams = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/teams`);
+      if (response.data.success && response.data.data) {
+        const teams = (response.data.data.teams || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as EventTeam[];
+        callback(teams);
+      }
+    } catch (error) {
+      console.error("Error polling teams:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollTeams();
+  pollingInterval = setInterval(pollTeams, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const listenToEventMessages = (isAuthenticated: boolean, eventId: string, callback: (messages: EventMessage[]) => void) => {
@@ -771,24 +552,33 @@ export const listenToEventMessages = (isAuthenticated: boolean, eventId: string,
     console.error("listenToEventMessages: Event ID is required.");
     return () => {};
   }
-  const messagesColRef = collection(firestore, 'events', eventId, 'messages');
-  const q = query(messagesColRef, orderBy('createdAt', 'desc'));
 
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const messages: EventMessage[] = [];
-    querySnapshot.forEach((docSnap) => {
-      messages.push({
-        id: docSnap.id,
-        eventId,
-        ...(docSnap.data() as Omit<EventMessage, 'id' | 'eventId'>),
-      });
-    });
-    callback(messages);
-  }, (error) => {
-    console.error("Error listening to messages:", error);
-  });
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollMessages = async () => {
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/messages`);
+      if (response.data.success && response.data.data) {
+        const messages = (response.data.data.messages || []).map((data: any) => ({
+          id: data.id,
+          eventId,
+          ...data,
+        })) as EventMessage[];
+        callback(messages);
+      }
+    } catch (error) {
+      console.error("Error polling messages:", error);
+    }
+  };
 
-  return unsubscribe;
+  pollMessages();
+  pollingInterval = setInterval(pollMessages, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const getAvailableThemes = async (isAuthenticated: boolean, userId: string | null): Promise<Theme[]> => {
@@ -824,68 +614,81 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
     }
     
     try {
-      console.log('Fetching themes from Firestore...');
-      const themesColRef = collection(firestore, 'themes');
-      const q = query(themesColRef, orderBy('name'));
-      const querySnapshot = await getDocs(q);
+      console.log('Fetching themes from backend...');
+      const response = await axiosInstance.get('/themes');
       
-      const themes: Theme[] = [];
-      querySnapshot.forEach((doc) => {
+      if (response.data.success && response.data.data) {
+        const themes = (response.data.data.themes || []).map((data: any) => ({
+          id: data.id,
+          name: data.name || '',
+          colors: {
+            primary: data.colors?.primary || '#000000',
+            secondary: data.colors?.secondary || '#FFFFFF',
+            background: data.colors?.background || '#FFFFFF',
+            text: data.colors?.text || '#000000',
+            accent: data.colors?.accent,
+            cardBackground: data.colors?.cardBackground,
+            borderColor: data.colors?.borderColor,
+          },
+          fonts: {
+            heading: {
+              fontFamily: data.fonts?.heading?.fontFamily || 'Poppins-Regular',
+              fontWeight: data.fonts?.heading?.fontWeight || '400',
+              fontStyle: data.fonts?.heading?.fontStyle,
+            },
+            body: {
+              fontFamily: data.fonts?.body?.fontFamily || 'Poppins-Regular',
+              fontWeight: data.fonts?.body?.fontWeight || '400',
+              fontStyle: data.fonts?.body?.fontStyle,
+            },
+          },
+          isPredefined: data.isPredefined || false,
+        })) as Theme[];
+        
+        // Also include predefined themes for authenticated users
         try {
-          const data = doc.data();
-          const theme: Theme = {
-            id: doc.id,
-            name: data.name || '',
-            colors: {
-              primary: data.colors?.primary || '#000000',
-              secondary: data.colors?.secondary || '#FFFFFF',
-              background: data.colors?.background || '#FFFFFF',
-              text: data.colors?.text || '#000000',
-              accent: data.colors?.accent,
-              cardBackground: data.colors?.cardBackground,
-              borderColor: data.colors?.borderColor,
-            },
-            fonts: {
-              heading: {
-                fontFamily: data.fonts?.heading?.fontFamily || 'Poppins-Regular',
-                fontWeight: data.fonts?.heading?.fontWeight || '400',
-                fontStyle: data.fonts?.heading?.fontStyle,
-              },
-              body: {
-                fontFamily: data.fonts?.body?.fontFamily || 'Poppins-Regular',
-                fontWeight: data.fonts?.body?.fontWeight || '400',
-                fontStyle: data.fonts?.body?.fontStyle,
-              },
-            },
-            isPredefined: data.isPredefined || false,
-          };
-          themes.push(theme);
-        } catch (themeError) {
-          console.error('Error processing theme from Firestore:', themeError, doc.id);
-          // Skip invalid themes
+          const { predefinedThemes } = await import('../constants/themes');
+          const result = [...predefinedThemes, ...themes];
+          console.log('Returning combined themes:', result.length);
+          return result;
+        } catch (importError) {
+          console.error('Error importing predefined themes for authenticated user:', importError);
+          return themes;
         }
-      });
-      
-      // Also include predefined themes for authenticated users
-      try {
-        const { predefinedThemes } = await import('../constants/themes');
-        const result = [...predefinedThemes, ...themes];
-        console.log('Returning combined themes:', result.length);
-        return result;
-      } catch (importError) {
-        console.error('Error importing predefined themes for authenticated user:', importError);
-        return themes; // Return just the Firestore themes
       }
-    } catch (firestoreError) {
-      console.error("Error fetching themes from Firestore:", firestoreError);
-      // Fallback to predefined themes on error
+      
+      // Fallback to predefined themes if backend returns no data
       try {
         const { predefinedThemes } = await import('../constants/themes');
-        console.log('Fallback to predefined themes due to Firestore error');
+        console.log('Fallback to predefined themes due to backend error');
         return predefinedThemes;
       } catch (importError) {
         console.error('Error importing predefined themes as fallback:', importError);
-        // Return a basic fallback theme
+        return [{
+          id: 'fallback-theme',
+          name: 'Default Theme',
+          isPredefined: true,
+          colors: {
+            primary: '#000000',
+            secondary: '#FFFFFF',
+            background: '#FFFFFF',
+            text: '#000000',
+          },
+          fonts: {
+            heading: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+            body: { fontFamily: 'Poppins-Regular', fontWeight: '400' },
+          },
+        }];
+      }
+    } catch (backendError) {
+      console.error("Error fetching themes from backend:", backendError);
+      // Fallback to predefined themes on error
+      try {
+        const { predefinedThemes } = await import('../constants/themes');
+        console.log('Fallback to predefined themes due to backend error');
+        return predefinedThemes;
+      } catch (importError) {
+        console.error('Error importing predefined themes as fallback:', importError);
         return [{
           id: 'fallback-theme',
           name: 'Default Theme',
@@ -931,11 +734,7 @@ export const setEventTheme = async (isAuthenticated: boolean, eventId: string, t
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const eventDocRef = doc(firestore, 'events', eventId);
-    await updateDoc(eventDocRef, {
-      themeId: themeId,
-      updatedAt: serverTimestamp()
-    });
+    await axiosInstance.patch(`/events/${eventId}/theme`, { themeId });
     return true;
   } catch (error) {
     console.error(`Error setting theme for event ${eventId}:`, error);
@@ -950,22 +749,25 @@ export const getEventWebsite = async (isAuthenticated: boolean, eventId: string)
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
-    const websiteSnap = await getDoc(websiteDocRef);
-    if (!websiteSnap.exists()) return null;
-    
-    const data = websiteSnap.data();
-    return {
-      id: websiteSnap.id,
-      published: data?.published ?? false,
-      title: data?.title,
-      headerImageUrl: data?.headerImageUrl,
-      welcomeMessage: data?.welcomeMessage,
-      sections: data?.sections ?? [],
-      websiteThemeId: data?.websiteThemeId,
-      updatedAt: data?.updatedAt ? (data.updatedAt as Timestamp).toDate().toISOString() : new Date().toISOString()
-    } as WebsitePayload;
-  } catch (error) {
+    const response = await axiosInstance.get(`/events/${eventId}/website`);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        published: data.published ?? false,
+        title: data.title,
+        headerImageUrl: data.headerImageUrl,
+        welcomeMessage: data.welcomeMessage,
+        sections: data.sections ?? [],
+        websiteThemeId: data.websiteThemeId,
+        updatedAt: data.updatedAt || new Date().toISOString()
+      } as WebsitePayload;
+    }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching website for event ${eventId}:`, error);
     throw error;
   }
@@ -978,26 +780,21 @@ export const updateEventWebsite = async (isAuthenticated: boolean, eventId: stri
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
-    await setDoc(websiteDocRef, {
-      ...payload,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
-
-    const updatedDoc = await getDoc(websiteDocRef);
-    if (!updatedDoc.exists()) return null;
-
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      published: data?.published ?? false,
-      title: data?.title,
-      headerImageUrl: data?.headerImageUrl,
-      welcomeMessage: data?.welcomeMessage,
-      sections: data?.sections ?? [],
-      websiteThemeId: data?.websiteThemeId,
-      updatedAt: data?.updatedAt ? (data.updatedAt as Timestamp).toDate().toISOString() : new Date().toISOString()
-    } as WebsitePayload;
+    const response = await axiosInstance.put(`/events/${eventId}/website`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        published: data.published ?? false,
+        title: data.title,
+        headerImageUrl: data.headerImageUrl,
+        welcomeMessage: data.welcomeMessage,
+        sections: data.sections ?? [],
+        websiteThemeId: data.websiteThemeId,
+        updatedAt: data.updatedAt || new Date().toISOString()
+      } as WebsitePayload;
+    }
+    return null;
   } catch (error) {
     console.error(`Error updating website for event ${eventId}:`, error);
     throw error;
@@ -1010,35 +807,21 @@ export const addTaskToEvent = async (isAuthenticated: boolean, eventId: string, 
   }
   if (!eventId) throw new Error("Event ID is required to add a task.");
   try {
-    const tasksColRef = collection(firestore, 'events', eventId, 'tasks');
-    const newTaskData = {
+    const response = await axiosInstance.post(`/events/${eventId}/tasks`, {
       ...payload,
-      eventId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
       status: payload.status || 'pending',
-      searchableKeywords: generateKeywords(payload.title, payload.description),
-    };
-    const docRef = await addDoc(tasksColRef, newTaskData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created task.");
-    
-    const data = createdDoc.data();
-    return {
-      id: createdDoc.id,
-      eventId,
-      title: data.title,
-      description: data.description,
-      dueDate: data.dueDate,
-      priority: data.priority,
-      status: data.status,
-      assignedToUserIds: data.assignedToUserIds,
-      completed: data.completed,
-      category: data.category,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      searchableKeywords: data.searchableKeywords,
-    } as Task;
+    });
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        eventId,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      } as Task;
+    }
+    throw new Error("Failed to create task.");
   } catch (error) {
     console.error("Error adding task:", error);
     throw error;
@@ -1051,38 +834,18 @@ export const updateEventTask = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId || !taskId) throw new Error("Event ID and Task ID are required.");
   try {
-    const taskDocRef = doc(firestore, 'events', eventId, 'tasks', taskId);
-    const updateData = {
-      ...payload,
-      updatedAt: serverTimestamp(),
-    };
-    if (payload.title || payload.description) {
-      updateData.searchableKeywords = generateKeywords(
-        payload.title || (await getDoc(taskDocRef)).data()?.title || '',
-        payload.description || (await getDoc(taskDocRef)).data()?.description || ''
-      );
+    const response = await axiosInstance.put(`/events/${eventId}/tasks/${taskId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || taskId,
+        eventId,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      } as Task;
     }
-    await updateDoc(taskDocRef, updateData);
-    
-    const updatedDoc = await getDoc(taskDocRef);
-    if (!updatedDoc.exists()) throw new Error("Task not found after update.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId,
-      title: data.title,
-      description: data.description,
-      dueDate: data.dueDate,
-      priority: data.priority,
-      status: data.status,
-      assignedToUserIds: data.assignedToUserIds,
-      completed: data.completed,
-      category: data.category,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      searchableKeywords: data.searchableKeywords,
-    } as Task;
+    throw new Error("Failed to update task.");
   } catch (error) {
     console.error("Error updating task:", error);
     throw error;
@@ -1095,8 +858,7 @@ export const deleteEventTask = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId || !taskId) throw new Error("Event ID and Task ID are required.");
   try {
-    const taskDocRef = doc(firestore, 'events', eventId, 'tasks', taskId);
-    await deleteDoc(taskDocRef);
+    await axiosInstance.delete(`/events/${eventId}/tasks/${taskId}`);
   } catch (error) {
     console.error("Error deleting task:", error);
     throw error;
@@ -1109,38 +871,24 @@ export const addIdeaToEvent = async (isAuthenticated: boolean, eventId: string, 
   }
   if (!eventId) throw new Error("Event ID is required to add an idea.");
   try {
-    const ideasColRef = collection(firestore, 'events', eventId, 'ideas');
-    const newIdeaData = {
+    const response = await axiosInstance.post(`/events/${eventId}/ideas`, {
       ...payload,
-      eventId,
       createdBy: userId,
-      createdAt: serverTimestamp(),
-      votes: 0,
-      status: 'pending',
-    };
-    const docRef = await addDoc(ideasColRef, newIdeaData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created idea.");
-    
-    const data = createdDoc.data();
-    const event = await getEventById(isAuthenticated, eventId);
-    if (event) {
-      createIdeaSubmittedNotification(event.organizerId, payload.title, event.name, eventId);
+    });
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      const event = await getEventById(isAuthenticated, eventId);
+      if (event) {
+        createIdeaSubmittedNotification(event.organizerId, payload.title, event.name, eventId);
+      }
+      return {
+        id: data.id,
+        eventId,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+      } as Idea;
     }
-
-    return {
-      id: createdDoc.id,
-      eventId,
-      title: data.title,
-      description: data.description,
-      imageUrl: data.imageUrl,
-      category: data.category,
-      status: data.status,
-      createdBy: data.createdBy,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      votes: data.votes,
-      submitterName: data.submitterName,
-    } as Idea;
+    throw new Error("Failed to create idea.");
   } catch (error) {
     console.error("Error adding idea:", error);
     throw error;
@@ -1153,26 +901,17 @@ export const updateIdea = async (isAuthenticated: boolean, eventId: string, idea
   }
   if (!eventId || !ideaId) throw new Error("Event ID and Idea ID are required.");
   try {
-    const ideaDocRef = doc(firestore, 'events', eventId, 'ideas', ideaId);
-    await updateDoc(ideaDocRef, payload);
-    
-    const updatedDoc = await getDoc(ideaDocRef);
-    if (!updatedDoc.exists()) throw new Error("Idea not found after update.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId,
-      title: data.title,
-      description: data.description,
-      imageUrl: data.imageUrl,
-      category: data.category,
-      status: data.status,
-      createdBy: data.createdBy,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      votes: data.votes,
-      submitterName: data.submitterName,
-    } as Idea;
+    const response = await axiosInstance.put(`/events/${eventId}/ideas/${ideaId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || ideaId,
+        eventId,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+      } as Idea;
+    }
+    throw new Error("Failed to update idea.");
   } catch (error) {
     console.error("Error updating idea:", error);
     throw error;
@@ -1185,8 +924,7 @@ export const deleteIdea = async (isAuthenticated: boolean, eventId: string, idea
   }
   if (!eventId || !ideaId) throw new Error("Event ID and Idea ID are required.");
   try {
-    const ideaDocRef = doc(firestore, 'events', eventId, 'ideas', ideaId);
-    await deleteDoc(ideaDocRef);
+    await axiosInstance.delete(`/events/${eventId}/ideas/${ideaId}`);
   } catch (error) {
     console.error("Error deleting idea:", error);
     throw error;
@@ -1199,18 +937,13 @@ export const voteForIdea = async (isAuthenticated: boolean, eventId: string, ide
   }
   if (!eventId || !ideaId) throw new Error("Event ID and Idea ID are required.");
   try {
-    const ideaDocRef = doc(firestore, 'events', eventId, 'ideas', ideaId);
-    const ideaSnap = await getDoc(ideaDocRef);
-    if (!ideaSnap.exists()) throw new Error("Idea not found.");
-    
-    const currentVotes = ideaSnap.data().votes || 0;
-    const newVotes = currentVotes + increment;
-    
-    await updateDoc(ideaDocRef, { votes: newVotes });
-    
-    const event = await getEventById(isAuthenticated, eventId);
-    if (event && newVotes >= 10) {
-      createIdeaPopularNotification(event.organizerId, ideaSnap.data().title, event.name, newVotes, eventId);
+    const response = await axiosInstance.post(`/events/${eventId}/ideas/${ideaId}/vote`, { increment });
+    if (response.data.success && response.data.data) {
+      const idea = response.data.data;
+      const event = await getEventById(isAuthenticated, eventId);
+      if (event && idea.votes >= 10) {
+        createIdeaPopularNotification(event.organizerId, idea.title, event.name, idea.votes, eventId);
+      }
     }
   } catch (error) {
     console.error("Error voting for idea:", error);
@@ -1225,18 +958,21 @@ export const getSeatingChartForEvent = async (isAuthenticated: boolean, eventId:
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const seatingChartDocRef = doc(firestore, 'events', eventId, 'seatingChart', 'current');
-    const seatingChartSnap = await getDoc(seatingChartDocRef);
-    if (!seatingChartSnap.exists()) return null;
-    
-    const data = seatingChartSnap.data();
-    return {
-      id: seatingChartSnap.id,
-      eventId,
-      tables: data.tables || [],
-      lastUpdated: (data.lastUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString()
-    } as SeatingChart;
-  } catch (error) {
+    const response = await axiosInstance.get(`/events/${eventId}/seating-chart`);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || 'current',
+        eventId,
+        tables: data.tables || [],
+        lastUpdated: data.lastUpdated || new Date().toISOString()
+      } as SeatingChart;
+    }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching seating chart for event ${eventId}:`, error);
     throw error;
   }
@@ -1249,22 +985,17 @@ export const updateSeatingChart = async (isAuthenticated: boolean, eventId: stri
   if (!eventId) throw new Error("Event ID is required.");
   
   try {
-    const seatingChartDocRef = doc(firestore, 'events', eventId, 'seatingChart', 'current');
-    await setDoc(seatingChartDocRef, {
-      tables: payload.tables,
-      lastUpdated: serverTimestamp()
-    }, { merge: true });
-
-    const updatedDoc = await getDoc(seatingChartDocRef);
-    if (!updatedDoc.exists()) throw new Error("Failed to retrieve updated seating chart.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId,
-      tables: data.tables || [],
-      lastUpdated: (data.lastUpdated as Timestamp)?.toDate().toISOString() || new Date().toISOString()
-    } as SeatingChart;
+    const response = await axiosInstance.put(`/events/${eventId}/seating-chart`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || 'current',
+        eventId,
+        tables: data.tables || [],
+        lastUpdated: data.lastUpdated || new Date().toISOString()
+      } as SeatingChart;
+    }
+    throw new Error("Failed to update seating chart.");
   } catch (error) {
     console.error(`Error updating seating chart for event ${eventId}:`, error);
     throw error;
@@ -1277,33 +1008,20 @@ export const addScheduleItem = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId) throw new Error("Event ID is required to add a schedule item.");
   try {
-    const scheduleColRef = collection(firestore, 'events', eventId, 'schedule');
-    const newScheduleData = {
-      ...payload,
-      eventId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(scheduleColRef, newScheduleData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created schedule item.");
-    
-    const data = createdDoc.data();
-    const event = await getEventById(isAuthenticated, eventId);
-    if (event) {
-      createScheduleAddedNotification(event.organizerId, payload.title, event.name, eventId);
+    const response = await axiosInstance.post(`/events/${eventId}/schedule`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      const event = await getEventById(isAuthenticated, eventId);
+      if (event) {
+        createScheduleAddedNotification(event.organizerId, payload.title, event.name, eventId);
+      }
+      return {
+        id: data.id,
+        eventId,
+        ...data,
+      } as ScheduleItem;
     }
-
-    return {
-      id: createdDoc.id,
-      eventId,
-      title: data.title,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      location: data.location,
-      description: data.description,
-      assignedTo: data.assignedTo,
-    } as ScheduleItem;
+    throw new Error("Failed to create schedule item.");
   } catch (error) {
     console.error("Error adding schedule item:", error);
     throw error;
@@ -1316,26 +1034,16 @@ export const updateScheduleItem = async (isAuthenticated: boolean, eventId: stri
   }
   if (!eventId || !itemId) throw new Error("Event ID and Item ID are required.");
   try {
-    const itemDocRef = doc(firestore, 'events', eventId, 'schedule', itemId);
-    await updateDoc(itemDocRef, {
-      ...payload,
-      updatedAt: serverTimestamp(),
-    });
-    
-    const updatedDoc = await getDoc(itemDocRef);
-    if (!updatedDoc.exists()) throw new Error("Schedule item not found after update.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId,
-      title: data.title,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      location: data.location,
-      description: data.description,
-      assignedTo: data.assignedTo,
-    } as ScheduleItem;
+    const response = await axiosInstance.put(`/events/${eventId}/schedule/${itemId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || itemId,
+        eventId,
+        ...data,
+      } as ScheduleItem;
+    }
+    throw new Error("Failed to update schedule item.");
   } catch (error) {
     console.error("Error updating schedule item:", error);
     throw error;
@@ -1348,8 +1056,7 @@ export const deleteScheduleItem = async (isAuthenticated: boolean, eventId: stri
   }
   if (!eventId || !itemId) throw new Error("Event ID and Item ID are required.");
   try {
-    const itemDocRef = doc(firestore, 'events', eventId, 'schedule', itemId);
-    await deleteDoc(itemDocRef);
+    await axiosInstance.delete(`/events/${eventId}/schedule/${itemId}`);
   } catch (error) {
     console.error("Error deleting schedule item:", error);
     throw error;
@@ -1362,25 +1069,16 @@ export const createEventTeam = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId) throw new Error("Event ID is required to create a team.");
   try {
-    const teamsColRef = collection(firestore, 'events', eventId, 'teams');
-    const newTeamData = {
-      ...payload,
-      eventId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    const docRef = await addDoc(teamsColRef, newTeamData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created team.");
-    
-    const data = createdDoc.data();
-    return {
-      id: createdDoc.id,
-      eventId,
-      name: data.name,
-      description: data.description,
-      members: data.members,
-    } as EventTeam;
+    const response = await axiosInstance.post(`/events/${eventId}/teams`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        eventId,
+        ...data,
+      } as EventTeam;
+    }
+    throw new Error("Failed to create team.");
   } catch (error) {
     console.error("Error creating event team:", error);
     throw error;
@@ -1393,23 +1091,16 @@ export const updateEventTeam = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId || !teamId) throw new Error("Event ID and Team ID are required.");
   try {
-    const teamDocRef = doc(firestore, 'events', eventId, 'teams', teamId);
-    await updateDoc(teamDocRef, {
-      ...payload,
-      updatedAt: serverTimestamp(),
-    });
-    
-    const updatedDoc = await getDoc(teamDocRef);
-    if (!updatedDoc.exists()) throw new Error("Team not found after update.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId,
-      name: data.name,
-      description: data.description,
-      members: data.members,
-    } as EventTeam;
+    const response = await axiosInstance.put(`/events/${eventId}/teams/${teamId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || teamId,
+        eventId,
+        ...data,
+      } as EventTeam;
+    }
+    throw new Error("Failed to update team.");
   } catch (error) {
     console.error("Error updating event team:", error);
     throw error;
@@ -1422,8 +1113,7 @@ export const deleteEventTeam = async (isAuthenticated: boolean, eventId: string,
   }
   if (!eventId || !teamId) throw new Error("Event ID and Team ID are required.");
   try {
-    const teamDocRef = doc(firestore, 'events', eventId, 'teams', teamId);
-    await deleteDoc(teamDocRef);
+    await axiosInstance.delete(`/events/${eventId}/teams/${teamId}`);
   } catch (error) {
     console.error("Error deleting event team:", error);
     throw error;
@@ -1436,20 +1126,11 @@ export const addTeamMemberToEventTeam = async (isAuthenticated: boolean, eventId
   }
   if (!eventId || !teamId) throw new Error("Event ID and Team ID are required.");
   try {
-    const teamDocRef = doc(firestore, 'events', eventId, 'teams', teamId);
-    const teamSnap = await getDoc(teamDocRef);
-    if (!teamSnap.exists()) throw new Error("Team not found.");
-    
-    const currentMembers = teamSnap.data().members || [];
-    if (currentMembers.some((m: TeamMember) => m.userId === memberPayload.userId)) {
+    await axiosInstance.post(`/events/${eventId}/teams/${teamId}/members`, memberPayload);
+  } catch (error: any) {
+    if (error.response?.status === 409) {
       throw new Error("Member already exists in team.");
     }
-    
-    await updateDoc(teamDocRef, {
-      members: arrayUnion(memberPayload),
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
     console.error("Error adding team member:", error);
     throw error;
   }
@@ -1461,22 +1142,7 @@ export const updateTeamMemberInEventTeam = async (isAuthenticated: boolean, even
   }
   if (!eventId || !teamId || !userId) throw new Error("Event ID, Team ID, and User ID are required.");
   try {
-    const teamDocRef = doc(firestore, 'events', eventId, 'teams', teamId);
-    const teamSnap = await getDoc(teamDocRef);
-    if (!teamSnap.exists()) throw new Error("Team not found.");
-    
-    const currentMembers = teamSnap.data().members || [];
-    const updatedMembers = currentMembers.map((member: TeamMember) => {
-      if (member.userId === userId) {
-        return { ...member, ...rolePayload };
-      }
-      return member;
-    });
-    
-    await updateDoc(teamDocRef, {
-      members: updatedMembers,
-      updatedAt: serverTimestamp(),
-    });
+    await axiosInstance.patch(`/events/${eventId}/teams/${teamId}/members/${userId}`, rolePayload);
   } catch (error) {
     console.error("Error updating team member:", error);
     throw error;
@@ -1489,18 +1155,7 @@ export const removeTeamMemberFromEventTeam = async (isAuthenticated: boolean, ev
   }
   if (!eventId || !teamId || !userId) throw new Error("Event ID, Team ID, and User ID are required.");
   try {
-    const teamDocRef = doc(firestore, 'events', eventId, 'teams', teamId);
-    const teamSnap = await getDoc(teamDocRef);
-    if (!teamSnap.exists()) throw new Error("Team not found.");
-    
-    const currentMembers = teamSnap.data().members || [];
-    const memberToRemove = currentMembers.find((m: TeamMember) => m.userId === userId);
-    if (memberToRemove) {
-      await updateDoc(teamDocRef, {
-        members: arrayRemove(memberToRemove),
-        updatedAt: serverTimestamp(),
-      });
-    }
+    await axiosInstance.delete(`/events/${eventId}/teams/${teamId}/members/${userId}`);
   } catch (error) {
     console.error("Error removing team member:", error);
     throw error;
@@ -1513,26 +1168,22 @@ export const sendEventMessage = async (isAuthenticated: boolean, eventId: string
   }
   if (!eventId) throw new Error("Event ID is required to send a message.");
   try {
-    const messagesColRef = collection(firestore, 'events', eventId, 'messages');
-    const newMessageData = {
+    const response = await axiosInstance.post(`/events/${eventId}/messages`, {
       ...payload,
-      eventId,
       sender: senderId,
-      timestamp: serverTimestamp(),
-    };
-    const docRef = await addDoc(messagesColRef, newMessageData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created message.");
-    
-    const data = createdDoc.data();
-    return {
-      id: createdDoc.id,
-      eventId,
-      sender: data.sender,
-      content: data.content,
-      timestamp: (data.timestamp as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      type: data.type,
-    } as EventMessage;
+    });
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        eventId,
+        sender: data.sender || senderId,
+        content: data.content,
+        timestamp: data.timestamp || new Date().toISOString(),
+        type: data.type,
+      } as EventMessage;
+    }
+    throw new Error("Failed to send message.");
   } catch (error) {
     console.error("Error sending event message:", error);
     throw error;
@@ -1545,29 +1196,16 @@ export const updateBudgetItem = async (isAuthenticated: boolean, eventId: string
   }
   if (!eventId || !itemId) throw new Error("Event ID and Item ID are required.");
   try {
-    const itemDocRef = doc(firestore, 'events', eventId, 'budgetItems', itemId);
-    await updateDoc(itemDocRef, {
-      ...payload,
-      updatedAt: serverTimestamp(),
-    });
-    
-    const updatedDoc = await getDoc(itemDocRef);
-    if (!updatedDoc.exists()) throw new Error("Budget item not found after update.");
-    
-    const data = updatedDoc.data();
-    return {
-      id: updatedDoc.id,
-      eventId: data.eventId,
-      itemName: data.itemName,
-      category: data.category,
-      estimatedCost: data.estimatedCost,
-      actualCost: data.actualCost,
-      paid: data.paid,
-      notes: data.notes,
-      linkedVendorId: data.linkedVendorId,
-      manualVendorName: data.manualVendorName,
-      linkedVendorItemId: data.linkedVendorItemId,
-    } as BudgetItem;
+    const response = await axiosInstance.put(`/events/${eventId}/budget-items/${itemId}`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id || itemId,
+        eventId: data.eventId || eventId,
+        ...data,
+      } as BudgetItem;
+    }
+    throw new Error("Failed to update budget item.");
   } catch (error) {
     console.error("Error updating budget item:", error);
     throw error;
@@ -1580,8 +1218,7 @@ export const deleteBudgetItem = async (isAuthenticated: boolean, eventId: string
   }
   if (!eventId || !itemId) throw new Error("Event ID and Item ID are required.");
   try {
-    const itemDocRef = doc(firestore, 'events', eventId, 'budgetItems', itemId);
-    await deleteDoc(itemDocRef);
+    await axiosInstance.delete(`/events/${eventId}/budget-items/${itemId}`);
   } catch (error) {
     console.error("Error deleting budget item:", error);
     throw error;
@@ -1594,12 +1231,7 @@ export const publishEventWebsite = async (isAuthenticated: boolean, eventId: str
   }
   if (!eventId) throw new Error("Event ID is required.");
   try {
-    const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
-    await updateDoc(websiteDocRef, {
-      published: true,
-      updatedAt: serverTimestamp(),
-    });
-
+    await axiosInstance.post(`/events/${eventId}/website/publish`);
     const event = await getEventById(isAuthenticated, eventId);
     if (event) {
       createWebsitePublishedNotification(event.organizerId, event.name, getEventWebsiteUrl(event.id), eventId);
@@ -1616,11 +1248,7 @@ export const unpublishEventWebsite = async (isAuthenticated: boolean, eventId: s
   }
   if (!eventId) throw new Error("Event ID is required.");
   try {
-    const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
-    await updateDoc(websiteDocRef, {
-      published: false,
-      updatedAt: serverTimestamp(),
-    });
+    await axiosInstance.post(`/events/${eventId}/website/unpublish`);
   } catch (error) {
     console.error(`Error unpublishing website for event ${eventId}:`, error);
     throw error;
@@ -1634,23 +1262,21 @@ export const getEventBySlug = async (isAuthenticated: boolean, slug: string): Pr
   if (!slug) throw new Error("Slug is required.");
   
   try {
-    const eventsRef = collection(firestore, 'events');
-    const eventsSnapshot = await getDocs(eventsRef);
-    const eventDoc = eventsSnapshot.docs.find((docSnapshot) => {
-      const data = docSnapshot.data();
-      return data.website?.customUrlSlug === slug;
-    });
-
-    if (!eventDoc) return null;
-
-    const data = eventDoc.data();
-    return {
-      id: eventDoc.id,
-      ...data,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as Event;
-  } catch (error) {
+    const response = await axiosInstance.get(`/events/slug/${slug}`);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      return {
+        id: data.id,
+        ...data,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
+      } as Event;
+    }
+    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching event by slug ${slug}:`, error);
     throw error;
   }
@@ -1662,75 +1288,40 @@ export const addBudgetItemToEvent = async (isAuthenticated: boolean, eventId: st
   }
   if (!eventId) throw new Error("Event ID is required to add a budget item.");
   try {
-    const budgetColRef = collection(firestore, 'events', eventId, 'budgetItems');
-    
-    const firestoreData: Record<string, any> = {
-      eventId,
-      itemName: payload.itemName,
-      estimatedCost: payload.estimatedCost,
-      paid: payload.paid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    if (payload.category !== undefined && payload.category !== null) firestoreData.category = payload.category;
-    if (payload.actualCost !== undefined) firestoreData.actualCost = payload.actualCost; else if (payload.hasOwnProperty('actualCost')) firestoreData.actualCost = null;
-    if (payload.notes !== undefined && payload.notes !== null) firestoreData.notes = payload.notes;
-    if (payload.linkedVendorId !== undefined) firestoreData.linkedVendorId = payload.linkedVendorId;
-    if (payload.manualVendorName !== undefined && payload.manualVendorName !== null) firestoreData.manualVendorName = payload.manualVendorName;
-    if (payload.linkedVendorItemId !== undefined) firestoreData.linkedVendorItemId = payload.linkedVendorItemId;
-
-    const docRef = await addDoc(budgetColRef, firestoreData);
-    const createdDoc = await getDoc(docRef);
-    if (!createdDoc.exists()) throw new Error("Failed to retrieve created budget item.");
-    
-    const dataFromDB = createdDoc.data();
-    if (!dataFromDB) throw new Error("Budget item data not found after creation.");
-
-    if (dataFromDB.linkedVendorId) {
-      try {
-        const vendorDocRef = doc(firestore, 'vendors', dataFromDB.linkedVendorId);
-        await updateDoc(vendorDocRef, {
-          associatedEventIds: arrayUnion(eventId)
-        });
-        console.log(`Associated event ${eventId} with vendor ${dataFromDB.linkedVendorId}`);
-      } catch (vendorUpdateError) {
-        console.error(`Failed to associate event with vendor ${dataFromDB.linkedVendorId}:`, vendorUpdateError);
+    const response = await axiosInstance.post(`/events/${eventId}/budget-items`, payload);
+    if (response.data.success && response.data.data) {
+      const data = response.data.data;
+      const event = await getEventById(isAuthenticated, eventId);
+      if (event) {
+        createBudgetItemAddedNotification(event.organizerId, payload.itemName, event.name, eventId);
+        
+        if (event.overallBudget && data.estimatedCost) {
+          const budgetResponse = await axiosInstance.get(`/events/${eventId}/budget-items`);
+          if (budgetResponse.data.success && budgetResponse.data.data) {
+            const budgetItems = budgetResponse.data.data.budgetItems || [];
+            const totalEstimatedCost = budgetItems.reduce((sum: number, item: BudgetItem) => sum + (item.estimatedCost || 0), 0);
+            if (totalEstimatedCost > 0) {
+              const percentageAllocated = Math.round((totalEstimatedCost / event.overallBudget) * 100);
+              if (percentageAllocated >= 25 && percentageAllocated < 30) {
+                createBudgetMilestoneNotification(event.organizerId, event.name, 25, eventId);
+              } else if (percentageAllocated >= 50 && percentageAllocated < 55) {
+                createBudgetMilestoneNotification(event.organizerId, event.name, 50, eventId);
+              } else if (percentageAllocated >= 75 && percentageAllocated < 80) {
+                createBudgetMilestoneNotification(event.organizerId, event.name, 75, eventId);
+              } else if (percentageAllocated >= 100 && percentageAllocated < 105) {
+                createBudgetMilestoneNotification(event.organizerId, event.name, 100, eventId);
+              }
+            }
+          }
+        }
       }
+      return {
+        id: data.id,
+        eventId: data.eventId || eventId,
+        ...data,
+      } as BudgetItem;
     }
-
-    const event = await getEventById(isAuthenticated, eventId);
-    if (event) {
-      createBudgetItemAddedNotification(event.organizerId, payload.itemName, event.name, eventId);
-    }
-
-    const budgetItems = await getDocs(collection(firestore, 'events', eventId, 'budgetItems'));
-    const totalEstimatedCost = budgetItems.docs.reduce((sum, doc) => sum + (doc.data() as BudgetItem).estimatedCost, 0);
-    if (event && event.overallBudget && totalEstimatedCost > 0) {
-      const percentageAllocated = Math.round((totalEstimatedCost / event.overallBudget) * 100);
-      if (percentageAllocated >= 25 && percentageAllocated < 30) {
-        createBudgetMilestoneNotification(event.organizerId, event.name, 25, eventId);
-      } else if (percentageAllocated >= 50 && percentageAllocated < 55) {
-        createBudgetMilestoneNotification(event.organizerId, event.name, 50, eventId);
-      } else if (percentageAllocated >= 75 && percentageAllocated < 80) {
-        createBudgetMilestoneNotification(event.organizerId, event.name, 75, eventId);
-      } else if (percentageAllocated >= 100 && percentageAllocated < 105) {
-        createBudgetMilestoneNotification(event.organizerId, event.name, 100, eventId);
-      }
-    }
-
-    return {
-      id: createdDoc.id,
-      eventId: dataFromDB.eventId,
-      itemName: dataFromDB.itemName,
-      category: dataFromDB.category,
-      estimatedCost: dataFromDB.estimatedCost,
-      actualCost: dataFromDB.actualCost,
-      paid: dataFromDB.paid,
-      notes: dataFromDB.notes,
-      linkedVendorId: dataFromDB.linkedVendorId,
-      manualVendorName: dataFromDB.manualVendorName,
-      linkedVendorItemId: dataFromDB.linkedVendorItemId,
-    } as BudgetItem;
+    throw new Error("Failed to create budget item.");
   } catch (error) {
     console.error("Error adding budget item:", error);
     throw error;

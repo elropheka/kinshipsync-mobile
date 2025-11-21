@@ -1,33 +1,13 @@
+import axiosInstance from './axiosInstance';
 import {
-  collection,
-  doc,
-  addDoc,
-  getDoc,
-  getDocs,
-  setDoc,
-  query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  serverTimestamp,
-  onSnapshot,
-  updateDoc,
-  Timestamp,
-  deleteDoc,
-  arrayUnion,
-  arrayRemove,
-} from '@firebase/firestore';
-import { firestore } from './firebaseConfig';
-import {
-  Conversation, ChatMessage, ParticipantInfo, MessageReaction,
+  Conversation, ChatMessage, ParticipantInfo,
   CreateDirectConversationPayload, CreateGroupConversationPayload,
   SendMessagePayload, GetMessagesParams, MarkConversationAsReadPayload
 } from '../types/chatTypes';
 import { UserProfile } from '../types/userTypes';
 import { getUserProfileById } from '../services/userService';
 import { sendNotification } from '../services/notificationService';
-import { NotificationType, NewNotificationPayload } from '../types/notificationTypes';
+import { NewNotificationPayload } from '../types/notificationTypes';
 
 const getSenderProfileDetails = async (userId: string): Promise<Pick<UserProfile, 'displayName' | 'avatarUrl'>> => {
   if (!userId) {
@@ -52,23 +32,16 @@ export const sendMessage = async (isAuthenticated: boolean, payload: SendMessage
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!payload.conversationId) throw new Error("Conversation ID is required.");
 
-  const conversationRef = doc(firestore, 'conversations', payload.conversationId);
-  const messagesColRef = collection(conversationRef, 'messages');
   const senderDetails = await getSenderProfileDetails(senderId);
 
-  const newMessageData = {
+  const messagePayload = {
     conversationId: payload.conversationId,
     senderId,
-    senderDisplayName: senderDetails.displayName,
-    senderAvatarUrl: senderDetails.avatarUrl || null,
     content: payload.content,
     contentType: payload.contentType || 'text',
     mediaUrl: payload.mediaUrl || null,
     fileName: payload.fileName || null,
     fileSize: payload.fileSize || null,
-    timestamp: serverTimestamp(),
-    status: 'sent',
-    reactions: [],
     ...(payload.contentType === 'eventInvitation' && {
       eventId: payload.eventId,
       guestId: payload.guestId,
@@ -78,52 +51,42 @@ export const sendMessage = async (isAuthenticated: boolean, payload: SendMessage
   };
 
   try {
-    const messageDocRef = await addDoc(messagesColRef, newMessageData);
-    await updateDoc(conversationRef, {
-      lastMessage: {
-        text: payload.content.substring(0, 100),
-        timestamp: serverTimestamp(),
-        senderId: senderId,
-      },
-      updatedAt: serverTimestamp(),
-    });
-
-    const conversationSnap = await getDoc(conversationRef);
-    if (conversationSnap.exists()) {
-      const conversationData = conversationSnap.data() as Conversation;
-      conversationData.participants.forEach(participant => {
-        if (participant.userId !== senderId) {
-          const notificationPayload: NewNotificationPayload = {
-            recipientId: participant.userId,
-            type: 'new_message',
-            title: `New message from ${senderDetails.displayName}`,
-            body: payload.content.substring(0, 100),
-            data: {
-              screen: 'Chat',
-              itemId: payload.conversationId,
-            },
-            senderId: senderId,
-          };
-          sendNotification(notificationPayload).catch(err => {
-            console.error(`Failed to send notification to participant ${participant.userId}:`, err);
+    const response = await axiosInstance.post(`/conversations/${payload.conversationId}/messages`, messagePayload);
+    
+    if (response.data.success && response.data.data) {
+      const message = response.data.data as ChatMessage;
+      
+      // Send notifications to other participants
+      try {
+        const convResponse = await axiosInstance.get(`/conversations/${payload.conversationId}`);
+        if (convResponse.data.success && convResponse.data.data) {
+          const conversation = convResponse.data.data as Conversation;
+          conversation.participants.forEach(participant => {
+            if (participant.userId !== senderId) {
+              const notificationPayload: NewNotificationPayload = {
+                recipientId: participant.userId,
+                type: 'new_message',
+                title: `New message from ${senderDetails.displayName}`,
+                body: payload.content.substring(0, 100),
+                data: {
+                  screen: 'Chat',
+                  itemId: payload.conversationId,
+                },
+                senderId: senderId,
+              };
+              sendNotification(notificationPayload).catch(err => {
+                console.error(`Failed to send notification to participant ${participant.userId}:`, err);
+              });
+            }
           });
         }
-      });
-    }
+      } catch (err) {
+        console.error('Error fetching conversation for notifications:', err);
+      }
 
-    return {
-      id: messageDocRef.id,
-      ...newMessageData,
-      timestamp: new Date().toISOString(),
-      mediaUrl: newMessageData.mediaUrl || undefined,
-      fileName: newMessageData.fileName || undefined,
-      fileSize: newMessageData.fileSize || undefined,
-      reactions: newMessageData.reactions || [],
-      eventId: newMessageData.eventId || undefined,
-      guestId: newMessageData.guestId || undefined,
-      eventName: newMessageData.eventName || undefined,
-      rsvpStatus: newMessageData.rsvpStatus || (payload.contentType === 'eventInvitation' ? 'pending' : undefined),
-    } as ChatMessage;
+      return message;
+    }
+    throw new Error("Failed to send message.");
   } catch (error) {
     console.error("Error sending message:", error);
     throw error;
@@ -139,22 +102,55 @@ export const listenToMessages = (
   if (!isAuthenticated) return () => console.warn("Attempted to listen while unauthenticated.");
   if (!conversationId) return () => console.error("Conversation ID required for listenToMessages.");
   
-  const messagesColRef = collection(firestore, 'conversations', conversationId, 'messages');
-  const q = query(messagesColRef, orderBy('timestamp', 'desc'), limit(limitCount));
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollMessages = async () => {
+    try {
+      const messages = await getMessages(isAuthenticated, { conversationId, limit: limitCount });
+      callback(messages);
+    } catch (error) {
+      console.error("Error polling messages:", error);
+    }
+  };
 
-  return onSnapshot(q, (querySnapshot) => {
-    const messages: ChatMessage[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const timestamp = data.timestamp as Timestamp | null;
-      messages.push({
-        id: docSnap.id,
-        ...data,
-        timestamp: timestamp ? timestamp.toDate().toISOString() : new Date().toISOString(),
-      } as ChatMessage);
+  // Initial fetch
+  pollMessages();
+  
+  // Poll every 5 seconds for real-time feel
+  pollingInterval = setInterval(pollMessages, 5000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
+};
+
+export const getMessages = async (
+  isAuthenticated: boolean,
+  params: GetMessagesParams
+): Promise<ChatMessage[]> => {
+  if (!isAuthenticated) throw new Error("User not authenticated.");
+  if (!params.conversationId) throw new Error("Conversation ID is required.");
+
+  try {
+    const queryParams = new URLSearchParams({
+      limit: (params.limit || 20).toString(),
+      ...((params as any).cursor && { cursor: (params as any).cursor }),
     });
-    callback(messages.reverse());
-  }, (error) => console.error("Error listening to messages:", error));
+    const response = await axiosInstance.get(`/conversations/${params.conversationId}/messages?${queryParams.toString()}`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((msg: any) => ({
+        id: msg.id,
+        ...msg,
+        timestamp: msg.timestamp || new Date().toISOString(),
+      })) as ChatMessage[];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    throw error;
+  }
 };
 
 export const getConversations = async (
@@ -166,30 +162,26 @@ export const getConversations = async (
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!userId) return [];
 
-  const conversationsColRef = collection(firestore, 'conversations');
-  let q;
-  if (lastFetchedConversation?.updatedAt) {
-    const lastTimestamp = Timestamp.fromDate(new Date(lastFetchedConversation.updatedAt));
-    q = query(conversationsColRef, where('participantIds', 'array-contains', userId), orderBy('updatedAt', 'desc'), startAfter(lastTimestamp), limit(limitNum));
-  } else {
-    q = query(conversationsColRef, where('participantIds', 'array-contains', userId), orderBy('updatedAt', 'desc'), limit(limitNum));
-  }
   try {
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(docSnap => {
-      const data = docSnap.data();
-      return {
-        id: docSnap.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
-        lastMessage: data.lastMessage ? {
-          content: data.lastMessage.text,
-          senderId: data.lastMessage.senderId,
-          timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-        } : undefined,
-      } as Conversation;
+    const params = new URLSearchParams({
+      limit: limitNum.toString(),
+      ...(lastFetchedConversation?.updatedAt && { cursor: lastFetchedConversation.updatedAt }),
     });
+    const response = await axiosInstance.get(`/conversations?${params.toString()}`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((conv: any) => ({
+        id: conv.id,
+        ...conv,
+        createdAt: conv.createdAt || '',
+        updatedAt: conv.updatedAt || '',
+        lastMessage: conv.lastMessage ? {
+          content: conv.lastMessage.content || conv.lastMessage.text,
+          senderId: conv.lastMessage.senderId,
+          timestamp: conv.lastMessage.timestamp || '',
+        } : undefined,
+      })) as Conversation[];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching conversations:", error);
     throw error;
@@ -201,27 +193,30 @@ export const getConversationById = async (isAuthenticated: boolean, conversation
   if (!conversationId || !currentUserId) return null;
 
   try {
-    const conversationRef = doc(firestore, 'conversations', conversationId);
-    const docSnap = await getDoc(conversationRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if ((data.participantIds as string[]).includes(currentUserId)) {
+    const response = await axiosInstance.get(`/conversations/${conversationId}`);
+    if (response.data.success && response.data.data) {
+      const conv = response.data.data;
+      // Check if user is a participant
+      if (conv.participantIds && conv.participantIds.includes(currentUserId)) {
         return {
-          id: docSnap.id,
-          ...data,
-          createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
-          updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
-          lastMessage: data.lastMessage ? {
-            content: data.lastMessage.text,
-            senderId: data.lastMessage.senderId,
-            timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
+          id: conv.id,
+          ...conv,
+          createdAt: conv.createdAt || '',
+          updatedAt: conv.updatedAt || '',
+          lastMessage: conv.lastMessage ? {
+            content: conv.lastMessage.content || conv.lastMessage.text,
+            senderId: conv.lastMessage.senderId,
+            timestamp: conv.lastMessage.timestamp || '',
           } : undefined,
         } as Conversation;
       }
       return null;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
     console.error(`Error fetching conversation ${conversationId}:`, error);
     throw error;
   }
@@ -231,61 +226,44 @@ export const createDirectConversation = async (isAuthenticated: boolean, current
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (currentUserId === payload.recipientId) throw new Error("Cannot create a direct conversation with oneself.");
 
-  const sortedUserIds = [currentUserId, payload.recipientId].sort();
-  const conversationId = sortedUserIds.join('_');
-  const conversationRef = doc(firestore, 'conversations', conversationId);
-
   try {
-    const docSnap = await getDoc(conversationRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return { 
-        id: docSnap.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
-        lastMessage: data.lastMessage ? {
-          content: data.lastMessage.text,
-          senderId: data.lastMessage.senderId,
-          timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-        } : undefined,
-       } as Conversation;
-    }
-
     const currentUserDetails = await getSenderProfileDetails(currentUserId);
     const recipientUserDetails = await getSenderProfileDetails(payload.recipientId);
     const participants: ParticipantInfo[] = [
-      { userId: currentUserId, displayName: currentUserDetails.displayName, avatarUrl: currentUserDetails.avatarUrl ?? null, role: 'member', lastReadTimestamp: new Date().toISOString() }, // Direct chats don't have admins, both are 'member'
+      { userId: currentUserId, displayName: currentUserDetails.displayName, avatarUrl: currentUserDetails.avatarUrl ?? null, role: 'member', lastReadTimestamp: new Date().toISOString() },
       { userId: payload.recipientId, displayName: recipientUserDetails.displayName, avatarUrl: recipientUserDetails.avatarUrl ?? null, role: 'member', lastReadTimestamp: new Date().toISOString() },
     ];
-    const newConversationData = {
-      type: 'direct' as 'direct',
+    
+    const response = await axiosInstance.post('/conversations', {
+      type: 'direct',
       participantIds: [currentUserId, payload.recipientId],
       participants,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      lastMessage: null,
-    };
-    await setDoc(conversationRef, newConversationData);
+      initialMessage: payload.initialMessage,
+    });
 
-    if (payload.initialMessage) {
-      await sendMessage(isAuthenticated, { conversationId, content: payload.initialMessage }, currentUserId);
+    if (response.data.success && response.data.data) {
+      const conv = response.data.data;
+      return {
+        id: conv.id,
+        ...conv,
+        createdAt: conv.createdAt || '',
+        updatedAt: conv.updatedAt || '',
+        lastMessage: conv.lastMessage ? {
+          content: conv.lastMessage.content || conv.lastMessage.text,
+          senderId: conv.lastMessage.senderId,
+          timestamp: conv.lastMessage.timestamp || '',
+        } : undefined,
+      } as Conversation;
     }
-    const finalDocSnap = await getDoc(conversationRef);
-    if (!finalDocSnap.exists()) throw new Error("Failed to retrieve conversation after creation.");
-    const finalData = finalDocSnap.data();
-    return { 
-      id: finalDocSnap.id,
-      ...finalData,
-      createdAt: (finalData.createdAt as Timestamp)?.toDate().toISOString() || '',
-      updatedAt: (finalData.updatedAt as Timestamp)?.toDate().toISOString() || '',
-      lastMessage: finalData.lastMessage ? {
-        content: finalData.lastMessage.text,
-        senderId: finalData.lastMessage.senderId,
-        timestamp: (finalData.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-      } : null,
-    } as Conversation;
-  } catch (error) {
+    throw new Error("Failed to create conversation.");
+  } catch (error: any) {
+    // If conversation already exists, fetch it
+    if (error.response?.status === 409) {
+      const sortedUserIds = [currentUserId, payload.recipientId].sort();
+      const conversationId = sortedUserIds.join('_');
+      const existingConv = await getConversationById(isAuthenticated, conversationId, currentUserId);
+      if (existingConv) return existingConv;
+    }
     console.error("Error creating direct conversation:", error);
     throw error;
   }
@@ -294,7 +272,6 @@ export const createDirectConversation = async (isAuthenticated: boolean, current
 export const createGroupConversation = async (isAuthenticated: boolean, currentUserId: string, payload: CreateGroupConversationPayload): Promise<Conversation> => {
   if (!isAuthenticated) throw new Error("User not authenticated.");
 
-  const conversationsColRef = collection(firestore, 'conversations');
   const uniqueParticipantUserIds = Array.from(new Set([currentUserId, ...payload.participantIds]));
   
   const participantPromises = uniqueParticipantUserIds.map(async (id) => {
@@ -303,43 +280,39 @@ export const createGroupConversation = async (isAuthenticated: boolean, currentU
       userId: id,
       displayName: details.displayName,
       avatarUrl: details.avatarUrl ?? null,
-      role: id === currentUserId ? 'admin' : 'member', // Creator is admin, others are members
-      lastReadTimestamp: new Date().toISOString(), // Initialize lastReadTimestamp
+      role: id === currentUserId ? 'admin' : 'member',
+      lastReadTimestamp: new Date().toISOString(),
     } as ParticipantInfo;
   });
   const participants = await Promise.all(participantPromises);
-  const participantIds = participants.map(p => p.userId); // Keep participantIds array for querying if needed
+  const participantIds = participants.map(p => p.userId);
 
-  const newConversationData = {
-    type: 'group' as 'group',
-    name: payload.name,
-    participantIds: participantIds, // Corrected variable name
-    participants,
-    creatorId: currentUserId,
-    avatarUrl: payload.avatarUrl || null,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    lastMessage: null,
-  };
   try {
-    const docRef = await addDoc(conversationsColRef, newConversationData);
-    if (payload.initialMessage) {
-      await sendMessage(isAuthenticated, { conversationId: docRef.id, content: payload.initialMessage }, currentUserId);
+    const response = await axiosInstance.post('/conversations', {
+      type: 'group',
+      name: payload.name,
+      participantIds: participantIds,
+      participants,
+      creatorId: currentUserId,
+      avatarUrl: payload.avatarUrl || null,
+      initialMessage: payload.initialMessage,
+    });
+
+    if (response.data.success && response.data.data) {
+      const conv = response.data.data;
+      return {
+        id: conv.id,
+        ...conv,
+        createdAt: conv.createdAt || '',
+        updatedAt: conv.updatedAt || '',
+        lastMessage: conv.lastMessage ? {
+          content: conv.lastMessage.content || conv.lastMessage.text,
+          senderId: conv.lastMessage.senderId,
+          timestamp: conv.lastMessage.timestamp || '',
+        } : undefined,
+      } as Conversation;
     }
-    const finalDocSnap = await getDoc(docRef);
-    if (!finalDocSnap.exists()) throw new Error("Failed to retrieve group conversation after creation.");
-    const finalData = finalDocSnap.data();
-    return { 
-      id: finalDocSnap.id,
-      ...finalData,
-      createdAt: (finalData.createdAt as Timestamp)?.toDate().toISOString() || '',
-      updatedAt: (finalData.updatedAt as Timestamp)?.toDate().toISOString() || '',
-      lastMessage: finalData.lastMessage ? {
-        content: finalData.lastMessage.text,
-        senderId: finalData.lastMessage.senderId,
-        timestamp: (finalData.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-      } : null,
-    } as Conversation;
+    throw new Error("Failed to create group conversation.");
   } catch (error) {
     console.error("Error creating group conversation:", error);
     throw error;
@@ -350,13 +323,11 @@ export const markConversationAsRead = async (isAuthenticated: boolean, payload: 
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!payload.conversationId || !userId) return false;
 
-  const conversationRef = doc(firestore, 'conversations', payload.conversationId);
   try {
-    const docSnap = await getDoc(conversationRef);
-    if (!docSnap.exists()) return false;
-    const conversationData = docSnap.data() as Conversation;
-    const participants = conversationData.participants.map(p => p.userId === userId ? { ...p, lastReadTimestamp: new Date().toISOString() } : p);
-    await updateDoc(conversationRef, { participants });
+    await axiosInstance.patch(`/conversations/${payload.conversationId}/read`, {
+      userId,
+      lastReadTimestamp: new Date().toISOString(),
+    });
     return true;
   } catch (error) {
     console.error("Error marking conversation as read:", error);
@@ -368,16 +339,11 @@ export const addReactionToMessage = async (isAuthenticated: boolean, conversatio
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!conversationId || !messageId || !userId || !emoji) throw new Error("Required params missing for addReaction.");
 
-  const messageRef = doc(firestore, 'conversations', conversationId, 'messages', messageId);
   try {
-    const messageSnap = await getDoc(messageRef);
-    if (!messageSnap.exists()) throw new Error("Message not found.");
-    const messageData = messageSnap.data() as ChatMessage;
-    const currentReactions = messageData.reactions || [];
-    const existingReactionIndex = currentReactions.findIndex(r => r.userId === userId && r.emoji === emoji);
-    if (existingReactionIndex > -1) return; 
-    const newReaction: MessageReaction = { userId, emoji };
-    await updateDoc(messageRef, { reactions: arrayUnion(newReaction) }); 
+    await axiosInstance.post(`/conversations/${conversationId}/messages/${messageId}/reactions`, {
+      userId,
+      emoji,
+    });
   } catch (error) {
     console.error("Error adding reaction:", error);
     throw error;
@@ -388,13 +354,12 @@ export const deleteMessage = async (isAuthenticated: boolean, conversationId: st
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!conversationId || !messageId || !userId) throw new Error("Required params missing for deleteMessage.");
 
-  const messageRef = doc(firestore, 'conversations', conversationId, 'messages', messageId);
   try {
-    const messageSnap = await getDoc(messageRef);
-    if (!messageSnap.exists()) throw new Error("Message not found.");
-    if ((messageSnap.data() as ChatMessage).senderId !== userId) throw new Error("Unauthorized to delete.");
-    await deleteDoc(messageRef);
-  } catch (error) {
+    await axiosInstance.delete(`/conversations/${conversationId}/messages/${messageId}`);
+  } catch (error: any) {
+    if (error.response?.status === 403) {
+      throw new Error("Unauthorized to delete.");
+    }
     console.error("Error deleting message:", error);
     throw error;
   }
@@ -405,15 +370,17 @@ export const editMessage = async (isAuthenticated: boolean, conversationId: stri
   if (!conversationId || !messageId || !userId || newContent === undefined) throw new Error("Required params missing for editMessage.");
   if (newContent.trim() === '') throw new Error("Message content cannot be empty.");
 
-  const messageRef = doc(firestore, 'conversations', conversationId, 'messages', messageId);
   try {
-    const messageSnap = await getDoc(messageRef);
-    if (!messageSnap.exists()) throw new Error("Message not found.");
-    const messageData = messageSnap.data() as ChatMessage;
-    if (messageData.senderId !== userId) throw new Error("Unauthorized to edit.");
-    if (messageData.contentType !== 'text') throw new Error("Only text messages can be edited.");
-    await updateDoc(messageRef, { content: newContent, editedAt: serverTimestamp() });
-  } catch (error) {
+    await axiosInstance.put(`/conversations/${conversationId}/messages/${messageId}`, {
+      content: newContent,
+    });
+  } catch (error: any) {
+    if (error.response?.status === 403) {
+      throw new Error("Unauthorized to edit.");
+    }
+    if (error.response?.status === 400) {
+      throw new Error("Only text messages can be edited.");
+    }
     console.error("Error editing message:", error);
     throw error;
   }
@@ -424,29 +391,20 @@ export const addParticipantToGroupConversation = async (isAuthenticated: boolean
   if (!conversationId || !currentUserId || !userIdToAdd) throw new Error("Required params missing.");
   if (currentUserId === userIdToAdd) throw new Error("User already in conversation.");
 
-  const conversationRef = doc(firestore, 'conversations', conversationId);
   try {
-    const conversationSnap = await getDoc(conversationRef);
-    if (!conversationSnap.exists()) throw new Error("Conversation not found.");
-    const conversationData = conversationSnap.data() as Conversation;
-    if (conversationData.type !== 'group') throw new Error("Cannot add to direct conversation.");
-    if (!conversationData.participants.some(p => p.userId === currentUserId)) throw new Error("Current user not authorized.");
-    if (conversationData.participants.some(p => p.userId === userIdToAdd)) return; 
-
-    const userToAddProfile = await getSenderProfileDetails(userIdToAdd);
-    const newParticipant: ParticipantInfo = {
+    await axiosInstance.post(`/conversations/${conversationId}/participants`, {
       userId: userIdToAdd,
-      displayName: userToAddProfile.displayName,
-      avatarUrl: userToAddProfile.avatarUrl ?? null,
-      role: 'member', // New participants are added as 'member' by default
-      lastReadTimestamp: new Date().toISOString(),
-    };
-    await updateDoc(conversationRef, {
-      participants: arrayUnion(newParticipant),
-      participantIds: arrayUnion(userIdToAdd),
-      updatedAt: serverTimestamp(),
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      throw new Error("Conversation not found.");
+    }
+    if (error.response?.status === 403) {
+      throw new Error("Current user not authorized.");
+    }
+    if (error.response?.status === 409) {
+      return; // User already in conversation
+    }
     console.error("Error adding participant:", error);
     throw error;
   }
@@ -461,30 +419,18 @@ export const removeParticipantFromGroupConversation = async (
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!conversationId || !currentUserId || !userIdToRemove) throw new Error("Required params missing.");
 
-  const conversationRef = doc(firestore, 'conversations', conversationId);
   try {
-    const conversationSnap = await getDoc(conversationRef);
-    if (!conversationSnap.exists()) throw new Error("Conversation not found.");
-    const conversationData = conversationSnap.data() as Conversation;
-    if (conversationData.type !== 'group') throw new Error("Cannot remove from direct conversation.");
-    
-    const isCreator = conversationData.creatorId === currentUserId;
-    const isSelfRemoval = currentUserId === userIdToRemove;
-    if (!isCreator && !isSelfRemoval) throw new Error("User not authorized.");
-
-    const participantToRemoveInfo = conversationData.participants.find(p => p.userId === userIdToRemove);
-    if (!participantToRemoveInfo) return; 
-
-    if (conversationData.participants.length === 1 && participantToRemoveInfo.userId === conversationData.participants[0].userId) {
-        console.warn(`Removing last participant from group ${conversationId}.`);
+    await axiosInstance.delete(`/conversations/${conversationId}/participants/${userIdToRemove}`);
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      throw new Error("Conversation not found.");
     }
-    
-    await updateDoc(conversationRef, {
-      participants: arrayRemove(participantToRemoveInfo), 
-      participantIds: arrayRemove(userIdToRemove),
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
+    if (error.response?.status === 403) {
+      throw new Error("User not authorized.");
+    }
+    if (error.response?.status === 400) {
+      throw new Error("Cannot remove from direct conversation.");
+    }
     console.error("Error removing participant:", error);
     throw error;
   }
@@ -506,36 +452,28 @@ export const listenToConversationDetails = (
     return () => {}; 
   }
 
-  const conversationRef = doc(firestore, 'conversations', conversationId);
-
-  return onSnapshot(conversationRef, (docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      if (data.participantIds && (data.participantIds as string[]).includes(currentUserId)) {
-        const conversationData = {
-          id: docSnap.id,
-          ...data,
-          createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          lastMessage: data.lastMessage ? {
-            content: data.lastMessage.text,
-            senderId: data.lastMessage.senderId,
-            timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          } : undefined,
-        } as Conversation;
-        callback(conversationData);
-      } else {
-        console.warn(`User ${currentUserId} is not a participant of conversation ${conversationId}. Access denied for real-time details.`);
-        callback(null); 
-      }
-    } else {
-      console.log(`Conversation ${conversationId} not found for real-time listening.`);
-      callback(null); 
+  let pollingInterval: NodeJS.Timeout | null = null;
+  
+  const pollConversation = async () => {
+    try {
+      const conversation = await getConversationById(isAuthenticated, conversationId, currentUserId);
+      callback(conversation);
+    } catch (error: any) {
+      onError(error instanceof Error ? error : new Error(String(error)));
     }
-  }, (error) => {
-    console.error(`Error listening to conversation details for ${conversationId}:`, error);
-    onError(error);
-  });
+  };
+
+  // Initial fetch
+  pollConversation();
+  
+  // Poll every 10 seconds
+  pollingInterval = setInterval(pollConversation, 10000);
+
+  return () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+  };
 };
 
 export const updateMessageRsvpStatus = async (
@@ -549,22 +487,15 @@ export const updateMessageRsvpStatus = async (
     throw new Error("Required parameters missing for updating message RSVP status.");
   }
 
-  const messageRef = doc(firestore, 'conversations', conversationId, 'messages', messageId);
   try {
-    const messageSnap = await getDoc(messageRef);
-    if (!messageSnap.exists()) throw new Error("Message not found.");
-    
-    const messageData = messageSnap.data() as ChatMessage;
-    if (messageData.contentType !== 'eventInvitation') {
-      throw new Error("This message is not an event invitation.");
-    }
-
-    await updateDoc(messageRef, { 
+    await axiosInstance.patch(`/conversations/${conversationId}/messages/${messageId}/rsvp`, {
       rsvpStatus: newRsvpStatus,
-      updatedAt: serverTimestamp()
     });
     console.log(`Message ${messageId} RSVP status updated to ${newRsvpStatus}`);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      throw new Error("This message is not an event invitation.");
+    }
     console.error("Error updating message RSVP status:", error);
     throw error;
   }
@@ -582,39 +513,21 @@ export const updateParticipantRole = async (
     throw new Error("Required parameters missing for updating participant role.");
   }
 
-  const conversationRef = doc(firestore, 'conversations', conversationId);
   try {
-    const conversationSnap = await getDoc(conversationRef);
-    if (!conversationSnap.exists()) throw new Error("Conversation not found.");
-
-    const conversationData = conversationSnap.data() as Conversation;
-    if (conversationData.type !== 'group') throw new Error("Roles can only be updated in group conversations.");
-
-    // Check if the current user is an admin of this group
-    const currentUserParticipant = conversationData.participants.find(p => p.userId === currentUserId);
-    if (!currentUserParticipant || currentUserParticipant.role !== 'admin') {
-      throw new Error("User not authorized to change roles in this group.");
-    }
-
-    // Find the target participant and update their role
-    const updatedParticipants = conversationData.participants.map(p => {
-      if (p.userId === targetUserId) {
-        return { ...p, role: newRole };
-      }
-      return p;
-    });
-
-    // Ensure there's at least one admin left (optional, based on app logic)
-    // For simplicity, this check is omitted here but might be important in a real app.
-    // e.g., if (newRole === 'member' && updatedParticipants.filter(p => p.role === 'admin').length === 0) { ... }
-
-    await updateDoc(conversationRef, {
-      participants: updatedParticipants,
-      updatedAt: serverTimestamp(),
+    await axiosInstance.patch(`/conversations/${conversationId}/participants/${targetUserId}/role`, {
+      newRole,
     });
     console.log(`Role of user ${targetUserId} in conversation ${conversationId} updated to ${newRole}.`);
-
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      throw new Error("Conversation not found.");
+    }
+    if (error.response?.status === 403) {
+      throw new Error("User not authorized to change roles in this group.");
+    }
+    if (error.response?.status === 400) {
+      throw new Error("Roles can only be updated in group conversations.");
+    }
     console.error("Error updating participant role:", error);
     throw error;
   }

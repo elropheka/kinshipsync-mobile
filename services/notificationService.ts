@@ -1,11 +1,10 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { doc, updateDoc, arrayUnion, arrayRemove, getDoc, collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, writeBatch, Timestamp } from '@firebase/firestore';
-import { firestore, app } from './firebaseConfig'; // Import 'app' for functions
+import { app } from './firebaseConfig'; // Import 'app' for functions
 import { getFunctions, httpsCallable } from 'firebase/functions'; // Import for callable functions
-import { UserProfile } from '../types/userTypes';
-import { InAppNotification, NewNotificationPayload, NotificationType } from '../types/notificationTypes';
+import axiosInstance from './axiosInstance';
+import { InAppNotification, NewNotificationPayload } from '../types/notificationTypes';
 import { isValidE164Format } from '../utils/phoneUtils';
 
 // --- Permission Handling ---
@@ -60,19 +59,7 @@ export const saveFcmTokenToProfile = async (isAuthenticated: boolean, userId: st
   }
   if (!userId || !token) return;
   try {
-    const userDocRef = doc(firestore, 'users', userId);
-    // Ensure token is not already present before adding
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
-      const userData = userDoc.data() as UserProfile;
-      if (userData.fcmTokens && userData.fcmTokens.includes(token)) {
-        console.log("Token already exists for user:", userId);
-        return;
-      }
-    }
-    await updateDoc(userDocRef, {
-      fcmTokens: arrayUnion(token),
-    });
+    await axiosInstance.post(`/users/${userId}/fcm-tokens`, { token });
     console.log('FCM token saved for user:', userId);
   } catch (error) {
     console.error('Error saving FCM token:', error);
@@ -85,10 +72,7 @@ export const removeFcmTokenFromProfile = async (isAuthenticated: boolean, userId
   }
   if (!userId || !token) return;
   try {
-    const userDocRef = doc(firestore, 'users', userId);
-    await updateDoc(userDocRef, {
-      fcmTokens: arrayRemove(token),
-    });
+    await axiosInstance.delete(`/users/${userId}/fcm-tokens`, { data: { token } });
     console.log('FCM token removed for user:', userId);
   } catch (error) {
     console.error('Error removing FCM token:', error);
@@ -112,9 +96,8 @@ export const initializeNotificationHandlers = () => {
   // Handles notifications that are tapped on by the user
   const subscription = Notifications.addNotificationResponseReceivedListener((response: Notifications.NotificationResponse) => {
     console.log('Notification tapped:', response.notification.request.content);
-    const data = response.notification.request.content.data;
     // Navigate based on notification data if needed
-    // e.g., if (data.screen) router.push(data.screen);
+    // e.g., if (response.notification.request.content.data?.screen) router.push(response.notification.request.content.data.screen);
   });
 
   return () => {
@@ -123,36 +106,39 @@ export const initializeNotificationHandlers = () => {
 };
 
 // --- In-App Notification Service Logic ---
-const IN_APP_NOTIFICATIONS_COLLECTION = 'inAppNotifications';
 
 /**
- * Sends an in-app notification and stores it in Firestore.
+ * Sends an in-app notification and stores it in backend.
  * Also automatically sends a push notification after successfully creating the in-app notification.
  */
 export const sendInAppNotificationInternal = async (notificationPayload: NewNotificationPayload): Promise<string | null> => {
   try {
-    const notificationDocRef = await addDoc(collection(firestore, IN_APP_NOTIFICATIONS_COLLECTION), {
+    const response = await axiosInstance.post('/notifications', {
       ...notificationPayload,
       isRead: false,
-      createdAt: serverTimestamp(), // Use server timestamp for consistency
     });
-    console.log('In-app notification sent and saved with ID:', notificationDocRef.id);
+    
+    if (response.data.success && response.data.data) {
+      const notificationId = response.data.data.id;
+      console.log('In-app notification sent and saved with ID:', notificationId);
 
     // Automatically send push notification after in-app notification is created
     const { recipientId, title, body, data } = notificationPayload;
     sendPushNotificationInternal(recipientId, title, body, data)
       .then(success => {
         if (success) {
-          console.log(`Push notification also sent for in-app notification ${notificationDocRef.id}`);
+            console.log(`Push notification also sent for in-app notification ${notificationId}`);
         } else {
-          console.warn(`Failed to send push notification for in-app notification ${notificationDocRef.id}`);
+            console.warn(`Failed to send push notification for in-app notification ${notificationId}`);
         }
       })
       .catch(error => {
-        console.error(`Error sending push notification for in-app notification ${notificationDocRef.id}:`, error);
+          console.error(`Error sending push notification for in-app notification ${notificationId}:`, error);
       });
 
-    return notificationDocRef.id;
+      return notificationId;
+    }
+    return null;
   } catch (error) {
     console.error('Error sending in-app notification:', error);
     return null;
@@ -168,23 +154,16 @@ export const getInAppNotifications = async (userId: string): Promise<InAppNotifi
     return [];
   }
   try {
-    const q = query(
-      collection(firestore, IN_APP_NOTIFICATIONS_COLLECTION),
-      where('recipientId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    const notifications = querySnapshot.docs.map(docSnapshot => {
-      const data = docSnapshot.data();
-      return {
-        id: docSnapshot.id,
-        ...data,
-        // Ensure createdAt is a number (milliseconds since epoch)
-        createdAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
-        updatedAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
-      } as InAppNotification;
-    });
-    return notifications;
+    const response = await axiosInstance.get(`/users/${userId}/notifications`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((notification: any) => ({
+        id: notification.id,
+        ...notification,
+        createdAt: notification.createdAt ? new Date(notification.createdAt).getTime() : Date.now(),
+        updatedAt: notification.updatedAt ? new Date(notification.updatedAt).getTime() : Date.now(),
+      })) as InAppNotification[];
+    }
+    return [];
   } catch (error) {
     console.error('Error fetching in-app notifications:', error);
     return [];
@@ -194,13 +173,11 @@ export const getInAppNotifications = async (userId: string): Promise<InAppNotifi
 /**
  * Marks a specific in-app notification as read.
  */
-export const markNotificationAsRead = async (notificationId: string): Promise<boolean> => {
-  if (!notificationId) return false;
+export const markNotificationAsRead = async (notificationId: string, userId: string): Promise<boolean> => {
+  if (!notificationId || !userId) return false;
   try {
-    const notificationDocRef = doc(firestore, IN_APP_NOTIFICATIONS_COLLECTION, notificationId);
-    await updateDoc(notificationDocRef, {
+    await axiosInstance.patch(`/users/${userId}/notifications/${notificationId}`, {
       isRead: true,
-      updatedAt: serverTimestamp(),
     });
     console.log('Notification marked as read:', notificationId);
     return true;
@@ -216,23 +193,8 @@ export const markNotificationAsRead = async (notificationId: string): Promise<bo
 export const markAllNotificationsAsRead = async (userId: string): Promise<boolean> => {
   if (!userId) return false;
   try {
-    const q = query(
-      collection(firestore, IN_APP_NOTIFICATIONS_COLLECTION),
-      where('recipientId', '==', userId),
-      where('isRead', '==', false)
-    );
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-      console.log('No unread notifications to mark as read for user:', userId);
-      return true;
-    }
-
-    const batch = writeBatch(firestore);
-    querySnapshot.docs.forEach(docSnapshot => {
-      batch.update(docSnapshot.ref, { isRead: true, updatedAt: serverTimestamp() });
-    });
-    await batch.commit();
-    console.log(`Marked ${querySnapshot.size} notifications as read for user:`, userId);
+    await axiosInstance.patch(`/users/${userId}/notifications/mark-all-read`);
+    console.log('All notifications marked as read for user:', userId);
     return true;
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
@@ -243,13 +205,11 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<boolea
 /**
  * Deletes a specific in-app notification.
  */
-export const deleteInAppNotification = async (notificationId: string): Promise<boolean> => {
-  if (!notificationId) return false;
+export const deleteInAppNotification = async (notificationId: string, userId: string): Promise<boolean> => {
+  if (!notificationId || !userId) return false;
   try {
-    const notificationDocRef = doc(firestore, IN_APP_NOTIFICATIONS_COLLECTION, notificationId);
-    await updateDoc(notificationDocRef, { isDeleted: true, updatedAt: serverTimestamp() }); // Soft delete
-    // Or hard delete: await deleteDoc(notificationDocRef);
-    console.log('Notification marked as deleted:', notificationId);
+    await axiosInstance.delete(`/users/${userId}/notifications/${notificationId}`);
+    console.log('Notification deleted:', notificationId);
     return true;
   } catch (error) {
     console.error('Error deleting notification:', error);
@@ -341,16 +301,18 @@ export const sendSMSNotificationInternal = async (
     // Fetch recipient's phone number from their user profile if not provided
     let toPhoneNumber = phoneNumber;
     if (!toPhoneNumber) {
-      const userDocRef = doc(firestore, 'users', recipientId);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (!userDocSnap.exists()) {
+      try {
+        const response = await axiosInstance.get(`/users/${recipientId}`);
+        if (response.data.success && response.data.data) {
+          toPhoneNumber = response.data.data.phoneNumber;
+        } else {
         console.error(`User with ID ${recipientId} not found. Cannot send SMS.`);
         return false;
       }
-
-      const userData = userDocSnap.data() as UserProfile;
-      toPhoneNumber = userData.phoneNumber;
+      } catch (error) {
+        console.error(`Error fetching user ${recipientId} for SMS:`, error);
+        return false;
+      }
     }
 
     if (!toPhoneNumber) {
@@ -412,17 +374,22 @@ export const sendEmailNotificationInternal = async (
 
   try {
     // Fetch recipient's email address from their user profile
-    const userDocRef = doc(firestore, 'users', recipientId);
-    const userDocSnap = await getDoc(userDocRef);
-
-    if (!userDocSnap.exists()) {
+    let toEmail: string | undefined;
+    let toName: string | undefined;
+    
+    try {
+      const response = await axiosInstance.get(`/users/${recipientId}`);
+      if (response.data.success && response.data.data) {
+        toEmail = response.data.data.email;
+        toName = response.data.data.displayName;
+      } else {
       console.error(`User with ID ${recipientId} not found. Cannot send email.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error fetching user ${recipientId} for email:`, error);
       return false;
     }
-
-    const userData = userDocSnap.data() as UserProfile;
-    const toEmail = userData.email;
-    const toName = userData.displayName;
 
     if (!toEmail) {
       console.error(`User ${recipientId} has no email address. Cannot send email.`);
@@ -462,7 +429,7 @@ export const sendEmailNotificationInternal = async (
  * Note: Push notifications are automatically sent by sendInAppNotificationInternal, so we don't call it separately here.
  */
 export const sendNotification = async (payload: NewNotificationPayload): Promise<void> => {
-  const { recipientId, title, body, data } = payload;
+  const { recipientId, title, body } = payload;
 
   // 1. Send In-App Notification (which now automatically sends push notification)
   // This is the primary notification channel and will trigger push notification automatically

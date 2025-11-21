@@ -23,9 +23,35 @@ export const sendPasswordReset = async (email: string): Promise<void> => {
   }
 };
 
+export const exchangeFirebaseTokenForBackendJWT = async (
+  firebaseToken: string,
+  userData: {
+    uid: string;
+    email: string;
+    displayName?: string;
+    emailVerified: boolean;
+  }
+) => {
+  try {
+    const response = await axiosInstance.post(`${API_URL}/firebase/exchange-token`, {
+      firebaseToken,
+      userData
+    });
+
+    return {
+      backendToken: response.data.data.token,
+      backendUser: response.data.data.user
+    };
+  } catch (error) {
+    console.error('Failed to exchange Firebase token:', error);
+    throw error;
+  }
+};
+
 const authService = {
   getUserProfile,
   sendPasswordReset,
+  exchangeFirebaseTokenForBackendJWT,
 };
 
 export default authService;

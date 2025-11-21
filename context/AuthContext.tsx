@@ -8,6 +8,7 @@ import { alertService } from '../services/alertService';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { LoginCredentials, SignupCredentials, BackendUser } from '../types/auth';
 import { getAuthErrorMessageWithContext } from '@/utils/authErrorUtils';
+import { exchangeFirebaseTokenForBackendJWT } from '../services/authService';
 import { 
   GoogleAuthProvider, 
   OAuthProvider,
@@ -140,24 +141,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('[AuthContext] ID token obtained:', idToken ? 'Exists (not logging full token)' : 'null');
         } catch (error) {
           console.error('[AuthContext] Error getting ID token:', error);
-       
+
         }
 
-      
+
         if (appUser && idToken) {
           try {
-            console.log('[AuthContext] Attempting to store token in SecureStore.');
-            await SecureStore.setItemAsync(TOKEN_KEY, idToken);
-            console.log('[AuthContext] Token stored in SecureStore.');
-            console.log('[AuthContext] Dispatching setAuthUserAndToken with user:', appUser, 'and token:', idToken ? 'Exists' : 'null');
-            dispatch(setAuthUserAndToken({ user: appUser, token: idToken }));
+            console.log('[AuthContext] Exchanging Firebase token for backend JWT.');
+
+            // Exchange Firebase token for backend JWT
+            const { backendToken, backendUser } = await exchangeFirebaseTokenForBackendJWT(
+              idToken,
+              {
+                uid: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                displayName: appUser.displayName,
+                emailVerified: firebaseUser.emailVerified
+              }
+            );
+
+            console.log('[AuthContext] Backend JWT obtained, storing token.');
+
+            // Store BACKEND token (not Firebase token)
+            await SecureStore.setItemAsync(TOKEN_KEY, backendToken);
+            console.log('[AuthContext] Backend token stored in SecureStore.');
+
+            // Update Redux with backend user data
+            dispatch(setAuthUserAndToken({
+              user: {
+                ...appUser,
+                id: backendUser.id, // Add backend user ID
+              },
+              token: backendToken
+            }));
+
+            console.log('[AuthContext] Dispatched backend user and token to Redux.');
           } catch (error) {
-            console.error('[AuthContext] Error storing token or dispatching setAuthUserAndToken:', error);
-            await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on error:', e));
-            dispatch(clearAuthData()); 
+            console.error('[AuthContext] Error exchanging token:', error);
+            // Fallback to Firebase token if backend is unavailable
+            console.warn('[AuthContext] Falling back to Firebase token.');
+            try {
+              await SecureStore.setItemAsync(TOKEN_KEY, idToken);
+              dispatch(setAuthUserAndToken({ user: appUser, token: idToken }));
+            } catch (fallbackError) {
+              console.error('[AuthContext] Fallback also failed:', fallbackError);
+              await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on error:', e));
+              dispatch(clearAuthData());
+            }
           }
         } else {
-         
+
           console.warn('[AuthContext] Critical failure: appUser could not be mapped or idToken is null. Clearing auth data.');
           console.log('[AuthContext] Details: appUser is null?', !appUser, 'idToken is null?', !idToken);
           await SecureStore.deleteItemAsync(TOKEN_KEY).catch(e => console.error('[AuthContext] Failed to clear token on critical failure:', e));

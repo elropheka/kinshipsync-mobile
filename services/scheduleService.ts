@@ -1,32 +1,17 @@
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  orderBy,
-  getDocs,
-  Timestamp,
-  updateDoc,
-  addDoc,
-  deleteDoc,
-  serverTimestamp,
-  where, // Import where if needed for more complex queries, though not used in this basic setup
-} from '@firebase/firestore';
-import { firestore } from './firebaseConfig';
+import axiosInstance from './axiosInstance';
 import { Schedule, ScheduleFormData } from '../types/scheduleTypes';
-import { UserProfile } from '../types/userTypes'; // If needed for assigning users, though not directly used in service params
 
-// Helper to convert Schedule Timestamps to ISO strings for client-side consistency
+// Helper to convert backend schedule data to client format
 const scheduleToClient = (scheduleData: any, id: string, teamId: string): Schedule => {
   return {
     ...scheduleData,
-    id,
-    teamId, // Ensure teamId is part of the returned object
-    startTime: (scheduleData.startTime as Timestamp)?.toDate(), // Keep as Date for client
-    endTime: (scheduleData.endTime as Timestamp)?.toDate(),     // Keep as Date for client
-    createdAt: (scheduleData.createdAt as Timestamp)?.toDate().toISOString(),
-    updatedAt: (scheduleData.updatedAt as Timestamp)?.toDate().toISOString(),
-  } as Schedule; // Cast, assuming data matches Schedule structure after conversion
+    id: scheduleData.id || id,
+    teamId: scheduleData.teamId || teamId,
+    startTime: scheduleData.startTime ? new Date(scheduleData.startTime) : new Date(),
+    endTime: scheduleData.endTime ? new Date(scheduleData.endTime) : new Date(),
+    createdAt: scheduleData.createdAt || new Date().toISOString(),
+    updatedAt: scheduleData.updatedAt || new Date().toISOString(),
+  } as Schedule;
 };
 
 
@@ -47,30 +32,19 @@ export const createSchedule = async (
   }
 
   try {
-    const schedulesColRef = collection(firestore, 'teams', teamId, 'schedules');
-    const newScheduleDocData = {
-      teamId, // Store teamId for potential denormalized queries if schedules were in a root collection
+    const response = await axiosInstance.post(`/teams/${teamId}/schedules`, {
       title: scheduleFormData.title,
       description: scheduleFormData.description || '',
-      startTime: Timestamp.fromDate(new Date(scheduleFormData.startTime)), // Convert Date to Firestore Timestamp
-      endTime: Timestamp.fromDate(new Date(scheduleFormData.endTime)),     // Convert Date to Firestore Timestamp
+      startTime: new Date(scheduleFormData.startTime).toISOString(),
+      endTime: new Date(scheduleFormData.endTime).toISOString(),
       assignedUserIds: scheduleFormData.assignedUserIds || [],
       createdBy: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
+    });
 
-    const docRef = await addDoc(schedulesColRef, newScheduleDocData);
-    
-    // Fetch the document to get server-generated timestamps
-    const newDocSnap = await getDoc(docRef);
-    if (!newDocSnap.exists()) {
-        throw new Error("Failed to retrieve created schedule from Firestore.");
+    if (response.data.success && response.data.data) {
+      return scheduleToClient(response.data.data, response.data.data.id, teamId);
     }
-    const createdData = newDocSnap.data();
-
-    return scheduleToClient(createdData, newDocSnap.id, teamId);
-
+    throw new Error("Failed to create schedule.");
   } catch (error) {
     console.error(`Error creating schedule for team ${teamId}:`, error);
     throw error;
@@ -93,15 +67,13 @@ export const getSchedulesForTeam = async (
   }
 
   try {
-    const schedulesColRef = collection(firestore, 'teams', teamId, 'schedules');
-    // Order by start time, ascending
-    const q = query(schedulesColRef, orderBy('startTime', 'asc'));
-    const querySnapshot = await getDocs(q);
-    const schedules: Schedule[] = [];
-    querySnapshot.forEach((docSnap) => {
-      schedules.push(scheduleToClient(docSnap.data(), docSnap.id, teamId));
-    });
-    return schedules;
+    const response = await axiosInstance.get(`/teams/${teamId}/schedules`);
+    if (response.data.success && response.data.data) {
+      return (response.data.data as any[]).map((schedule: any) =>
+        scheduleToClient(schedule, schedule.id, teamId)
+      );
+    }
+    return [];
   } catch (error) {
     console.error(`Error fetching schedules for team ${teamId}:`, error);
     throw error;
@@ -122,25 +94,19 @@ export const updateSchedule = async (
   }
 
   try {
-    const scheduleDocRef = doc(firestore, 'teams', teamId, 'schedules', scheduleId);
-    
-    // Convert Date objects to Timestamps if they are part of the update
     const updatePayload: any = { ...scheduleUpdateData };
     if (scheduleUpdateData.startTime) {
-      updatePayload.startTime = Timestamp.fromDate(new Date(scheduleUpdateData.startTime));
+      updatePayload.startTime = new Date(scheduleUpdateData.startTime).toISOString();
     }
     if (scheduleUpdateData.endTime) {
-      updatePayload.endTime = Timestamp.fromDate(new Date(scheduleUpdateData.endTime));
+      updatePayload.endTime = new Date(scheduleUpdateData.endTime).toISOString();
     }
-    updatePayload.updatedAt = serverTimestamp();
 
-    await updateDoc(scheduleDocRef, updatePayload);
-
-    const updatedDocSnap = await getDoc(scheduleDocRef);
-    if (updatedDocSnap.exists()) {
-      return scheduleToClient(updatedDocSnap.data(), updatedDocSnap.id, teamId);
+    const response = await axiosInstance.put(`/teams/${teamId}/schedules/${scheduleId}`, updatePayload);
+    if (response.data.success && response.data.data) {
+      return scheduleToClient(response.data.data, response.data.data.id, teamId);
     }
-    return null; // Should not happen if update was successful and doc existed
+    return null;
   } catch (error) {
     console.error(`Error updating schedule ${scheduleId} for team ${teamId}:`, error);
     throw error;
@@ -160,8 +126,7 @@ export const deleteSchedule = async (
   }
 
   try {
-    const scheduleDocRef = doc(firestore, 'teams', teamId, 'schedules', scheduleId);
-    await deleteDoc(scheduleDocRef);
+    await axiosInstance.delete(`/teams/${teamId}/schedules/${scheduleId}`);
     console.log(`Schedule ${scheduleId} deleted from team ${teamId}.`);
   } catch (error) {
     console.error(`Error deleting schedule ${scheduleId} for team ${teamId}:`, error);

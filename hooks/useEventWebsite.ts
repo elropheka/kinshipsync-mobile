@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc, updateDoc, collection, getDocs, QueryDocumentSnapshot, Timestamp } from '@firebase/firestore';
-import { firestore } from '../services/firebaseConfig';
+import * as eventService from '../services/eventService';
 import type { Event, WebsitePayload, UpdateEventWebsiteDetailsPayload } from '../types/eventTypes';
+import { useAuth } from '../context/AuthContext';
 
 export const useEventWebsite = (slug: string | undefined) => {
+  const { isAuthenticated } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [websiteDetails, setWebsiteDetails] = useState<WebsitePayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -16,44 +17,18 @@ export const useEventWebsite = (slug: string | undefined) => {
       setLoading(true);
       setError(null);
       try {
-        // First, find the event by slug
-        const eventsRef = collection(firestore, 'events');
-        const eventsSnapshot = await getDocs(eventsRef);
-        const eventDoc = eventsSnapshot.docs.find((docSnapshot: QueryDocumentSnapshot) => {
-          const data = docSnapshot.data();
-          return data.website?.customUrlSlug === slug;
-        });
-
-        if (!eventDoc) {
+        const eventData = await eventService.getEventBySlug(isAuthenticated, slug);
+        if (!eventData) {
           setError('Event not found');
           return;
         }
 
-        const eventData = eventDoc.data();
-        setEvent({
-          id: eventDoc.id,
-          ...eventData,
-          createdAt: eventData.createdAt instanceof Timestamp ? eventData.createdAt.toDate().toISOString() : new Date().toISOString(),
-          updatedAt: eventData.updatedAt instanceof Timestamp ? eventData.updatedAt.toDate().toISOString() : new Date().toISOString(),
-        } as Event);
+        setEvent(eventData);
 
-        // Then fetch website details
-        const websiteDocRef = doc(collection(firestore, 'events', eventDoc.id, 'website'), 'details');
-        const websiteDoc = await getDoc(websiteDocRef);
-
-        if (websiteDoc.exists()) {
-          const data = websiteDoc.data();
-          setWebsiteDetails({
-            title: data.title,
-            customUrlSlug: data.customUrlSlug,
-            headerImageUrl: data.headerImageUrl,
-            welcomeMessage: data.welcomeMessage,
-            sections: data.sections || [],
-            websiteThemeId: data.websiteThemeId,
-            published: data.published || false
-          });
+        const websiteData = await eventService.getEventWebsite(isAuthenticated, eventData.id);
+        if (websiteData) {
+          setWebsiteDetails(websiteData);
         } else {
-          // Initialize with default values if no website exists
           setWebsiteDetails({
             published: false,
             sections: []
@@ -68,35 +43,16 @@ export const useEventWebsite = (slug: string | undefined) => {
     };
 
     fetchEventAndWebsite();
-  }, [slug]);
+  }, [slug, isAuthenticated]);
 
   const updateWebsiteDetails = async (updates: UpdateEventWebsiteDetailsPayload): Promise<void> => {
     if (!event?.id) return;
 
     try {
-      const websiteDocRef = doc(collection(firestore, 'events', event.id, 'website'), 'details');
-      
-      // Update the website field in the event document as well
-      const eventDocRef = doc(firestore, 'events', event.id);
-      const eventWebsiteData = {
-        customUrlSlug: updates.customUrlSlug,
-        published: updates.published,
-      };
-      await updateDoc(eventDocRef, { website: eventWebsiteData });
-      const updatedData = {
-        ...updates,
-        lastUpdatedAt: new Date().toISOString()
-      };
-
-      await setDoc(websiteDocRef, updatedData, { merge: true });
-
-      // Update local state
-      setWebsiteDetails(prev => prev ? {
-        ...prev,
-        ...updates
-      } : null);
-
-      return;
+      const updatedWebsite = await eventService.updateEventWebsite(isAuthenticated, event.id, updates);
+      if (updatedWebsite) {
+        setWebsiteDetails(updatedWebsite);
+      }
     } catch (err) {
       console.error('Error updating website details:', err);
       throw new Error('Failed to update website details');
