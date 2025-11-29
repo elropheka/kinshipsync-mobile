@@ -2,7 +2,7 @@
   "expo": {
     "name": "kinshipSync",
     "slug": "kinshipSync",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -83,7 +83,8 @@
           "iosUrlScheme": "com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj"
         }
       ],
-      "./plugins/withAndroidEdgeToEdge"
+      "./plugins/withAndroidEdgeToEdge",
+      "./plugins/withAndroidProGuard"
     ],
     "experiments": {
       "typedRoutes": true
