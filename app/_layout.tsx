@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, StatusBar } from 'react-native';
+import { View, StatusBar, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from "@/context/AuthContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -80,24 +81,30 @@ const RootLayout: React.FC = () => {
   }
 
   return (
-    <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ErrorBoundary>
-        <ReduxProvider store={store}>
-          <AuthProvider>
-            <SidebarProvider>
-              <ThemeProvider>
-                {/* <ResponsiveContainer> */}
-                  <AppCoreNav />
-                {/* </ResponsiveContainer> */}
-              </ThemeProvider>
-            </SidebarProvider>
-          </AuthProvider>
-        </ReduxProvider>
-        </ErrorBoundary>
-      </GestureHandlerRootView>
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
+        <StatusBar 
+          barStyle="light-content" 
+          backgroundColor={Colors.light.accent}
+          translucent={Platform.OS === 'android'}
+        />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ErrorBoundary>
+          <ReduxProvider store={store}>
+            <AuthProvider>
+              <SidebarProvider>
+                <ThemeProvider>
+                  {/* <ResponsiveContainer> */}
+                    <AppCoreNav />
+                  {/* </ResponsiveContainer> */}
+                </ThemeProvider>
+              </SidebarProvider>
+            </AuthProvider>
+          </ReduxProvider>
+          </ErrorBoundary>
+        </GestureHandlerRootView>
+      </View>
+    </SafeAreaProvider>
   );
 };
 
