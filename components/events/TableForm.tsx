@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SeatingTable } from '../../types/eventTypes'; // Assuming SeatingTable is in eventTypes
 import { Colors } from '../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface TableFormProps {
   initialTable?: Partial<SeatingTable>; // For editing
@@ -15,17 +16,18 @@ const TableForm: React.FC<TableFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { showError } = useAlert();
   const [name, setName] = useState(initialTable?.name || '');
   const [capacity, setCapacity] = useState<string>(initialTable?.capacity?.toString() || '8'); // Default capacity
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      Alert.alert('Validation Error', 'Table name or number cannot be empty.');
+      showError('Validation Error', 'Table name or number cannot be empty.');
       return;
     }
     const capacityNum = parseInt(capacity, 10);
     if (isNaN(capacityNum) || capacityNum <= 0) {
-      Alert.alert('Validation Error', 'Capacity must be a positive number.');
+      showError('Validation Error', 'Capacity must be a positive number.');
       return;
     }
 

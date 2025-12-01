@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, Modal,  StatusBar, Image, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Modal,  StatusBar, Image, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,6 +11,7 @@ import { WebsitePayload, UpdateEventWebsiteDetailsPayload, EventWebsiteSection, 
 import { Colors } from '@/constants/Colors';
 import { useTheme } from '@/context/ThemeContext';
 import { generateSlug, isValidSlug, suggestEventSlug } from '../../utils/eventWebsiteUtils';
+import { useAlert } from '@/context/AlertContext';
 
 interface EventWebsiteFormProps {
   eventId?: string; 
@@ -25,6 +26,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { showError, showInfo } = useAlert();
   const [title, setTitle] = useState(initialWebsiteData?.title || '');
   const [customUrlSlug, setCustomUrlSlug] = useState(initialWebsiteData?.customUrlSlug || '');
   const [headerImageUrl, setHeaderImageUrl] = useState(initialWebsiteData?.headerImageUrl || '');
@@ -72,7 +74,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   const handlePickHeaderImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Alert.alert("Permission Required", "Permission to access camera roll is required.");
+      showError("Permission Required", "Permission to access camera roll is required.");
       return;
     }
 
@@ -93,10 +95,10 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
       try {
         const uploadResult = await uploadImage(imageUri, 'event_website_headers', eventId); 
         setHeaderImageUrl(uploadResult.imageUrl);
-        Alert.alert("Image Uploaded", "Header image has been updated.");
+        showInfo("Image Uploaded", "Header image has been updated.");
       } catch (uploadError: any) {
         console.error("Header image upload failed:", uploadError);
-        Alert.alert("Upload Failed", `Could not upload header image: ${uploadError.message}`);
+        showError("Upload Failed", `Could not upload header image: ${uploadError.message}`);
       } finally {
         setIsUploadingHeader(false);
       }
@@ -105,13 +107,13 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Website title cannot be empty.');
+      showError('Validation Error', 'Website title cannot be empty.');
       return;
     }
 
     const trimmedCustomUrlSlug = customUrlSlug.trim();
     if (trimmedCustomUrlSlug && !isValidSlug(trimmedCustomUrlSlug)) {
-      Alert.alert(
+      showError(
         'Invalid URL Slug',
         'URL slug can only contain lowercase letters, numbers, and hyphens. It cannot start or end with a hyphen.'
       );

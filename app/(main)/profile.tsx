@@ -10,7 +10,7 @@ import { Colors } from 'constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';
 import { useAppAuth } from '../../hooks/useAppAuth';
-import CustomAlert from '../../components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 
 type EditableProfileFields = {
@@ -30,6 +30,7 @@ const ProfileScreen = () => {
     error: userError 
   } = useCurrentUser();
   const { user: authUser } = useAppAuth();
+  const { showSuccess, showError, showInfo } = useAlert();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editableProfile, setEditableProfile] = useState<EditableProfileFields>({
@@ -40,26 +41,6 @@ const ProfileScreen = () => {
     avatarUrl: '',
   });
   const [isSaving, setIsSaving] = useState(false);
-
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: 'success' | 'error' | 'info';
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'info',
-    title: '',
-    message: '',
-  });
-
-  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    setAlertConfig({ visible: true, type, title, message });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
-  };
 
   useEffect(() => {
     if (currentUserProfile) {
@@ -103,10 +84,10 @@ const ProfileScreen = () => {
 
       await updateProfile(cleanedPayload);
       setIsEditing(false);
-      showAlert("success", "Success", "Profile updated successfully!");
+      showSuccess("Success", "Profile updated successfully!");
     } catch (error) {
       console.error("Failed to update profile:", error);
-      showAlert("error", "Error", "Failed to update profile.");
+      showError("Error", "Failed to update profile.");
     } finally {
       setIsSaving(false);
     }
@@ -114,13 +95,13 @@ const ProfileScreen = () => {
   
   const handleEditAvatar = async () => {
     if (!authUser?.uid) {
-      showAlert("error", "Error", "User not authenticated.");
+      showError("Error", "User not authenticated.");
       return;
     }
 
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      showAlert("info", "Permission Required", "Permission to access camera roll is required to change your avatar.");
+      showInfo("Permission Required", "Permission to access camera roll is required to change your avatar.");
       return;
     }
 
@@ -143,10 +124,10 @@ const ProfileScreen = () => {
           console.log(`Avatar Upload Progress: ${progress}%`); 
         });
         handleInputChange('avatarUrl', uploadResult.avatarUrl);
-        showAlert("success", "Avatar Selected", "New avatar image is ready. Click 'Save Changes' to apply.");
+        showInfo("Avatar Selected", "New avatar image is ready. Click 'Save Changes' to apply.");
       } catch (uploadError: any) {
         console.error("Avatar upload failed:", uploadError);
-        showAlert("error", "Upload Failed", `Could not upload image: ${uploadError.message}`);
+        showError("Upload Failed", `Could not upload image: ${uploadError.message}`);
       } finally {
         setIsSaving(false);
       }
@@ -294,17 +275,6 @@ const ProfileScreen = () => {
           )}
         </View>
       </ScrollView>
-      
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-        position="top"
-        showIcon={true}
-        closable={true}
-      />
     </SafeAreaView>
   );
 };

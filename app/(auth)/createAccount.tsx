@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
 import { styles } from '@/styles/app/(auth)/createAccount.styles';
-import CustomAlert, { AlertType } from '@/components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 import * as ImagePicker from 'expo-image-picker'; 
 import { Colors } from '@/constants/Colors'; 
 import { IconSizes } from '@/constants/dimensions';
@@ -45,44 +45,16 @@ const CreateAccountScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false); 
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); 
   const [isAppleLoading, setIsAppleLoading] = useState(false); 
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: AlertType;
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-  });
-    const { signUp, signInWithGoogle, signInWithApple } = useAuth();
-
-  const showAlert = (type: AlertType, title: string, message: string) => {
-    console.log('showAlert called:', { type, title, message });
-    setAlertConfig({
-      visible: true,
-      type,
-      title,
-      message,
-    });
-  };
-
-  const hideAlert = () => {
-    console.log('hideAlert called');
-    setAlertConfig({
-      ...alertConfig,
-      visible: false,
-    });
-  };
+  const { signUp, signInWithGoogle, signInWithApple } = useAuth();
+  const { showError } = useAlert();
 
   const handleSignUp = async () => {
     if (!formData.fullName || !formData.email || !formData.password) {
-      showAlert('error', 'Missing Fields', 'Please fill in all required fields.');
+      showError('Missing Fields', 'Please fill in all required fields.');
       return;
     }
     if (!formData.acceptTerms) {
-      showAlert('error', 'Terms Not Accepted', 'Please accept the terms and conditions.');
+      showError('Terms Not Accepted', 'Please accept the terms and conditions.');
       return;
     }
 
@@ -108,7 +80,7 @@ const CreateAccountScreen: React.FC = () => {
   const handlePickAvatar = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      showAlert('error', 'Permission Required', 'Permission to access camera roll is required to set your avatar.');
+      showError('Permission Required', 'Permission to access camera roll is required to set your avatar.');
       return;
     }
 
@@ -352,13 +324,6 @@ const CreateAccountScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-      />
     </SafeAreaView>
   );
 };

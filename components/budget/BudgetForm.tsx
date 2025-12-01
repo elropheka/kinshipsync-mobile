@@ -7,7 +7,7 @@ import { Vendor } from '../../types/vendorTypes';
 import { VendorItem } from '../../types/vendorItemTypes';
 import { useVendorSearch, useVendorItemsSearch } from '../../hooks/useVendors';
 import { Colors } from '../../constants/Colors';
-import CustomAlert from '../common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 interface BudgetFormProps {
   initialBudgetItem?: Partial<BudgetItem> & { id?: string };
@@ -55,26 +55,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     error: vendorItemsError,
     performItemSearch,
   } = useVendorItemsSearch({ vendorId: selectedVendorId });
-
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: 'error' | 'warning';
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-  });
-
-  const showAlert = (type: 'error' | 'warning', title: string, message: string) => {
-    setAlertConfig({ visible: true, type, title, message });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
-  };
+  const { showError, showWarning } = useAlert();
 
 
   useEffect(() => {
@@ -121,30 +102,30 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
 
   const handleSubmit = () => {
     if (!itemName.trim()) {
-      showAlert('error', 'Validation Error', 'Item Name cannot be empty.');
+      showError('Validation Error', 'Item Name cannot be empty.');
       return;
     }
     if (vendorEntryMode === 'manual' && !manualVendorNameInput.trim()) {
-      showAlert('error', 'Validation Error', 'Manual Vendor Name cannot be empty if "Enter Vendor Manually" is selected.');
+      showError('Validation Error', 'Manual Vendor Name cannot be empty if "Enter Vendor Manually" is selected.');
       return;
     }
     if (vendorEntryMode === 'select' && !selectedVendorId) {
-      showAlert('error', 'Validation Error', 'Please select a vendor or switch to manual vendor entry.');
+      showError('Validation Error', 'Please select a vendor or switch to manual vendor entry.');
       return;
     }
     if (vendorEntryMode === 'select' && itemEntryMode === 'select' && !selectedVendorItemId) {
-      showAlert('error', 'Validation Error', 'Please select a vendor item or switch to manual item entry.');
+      showError('Validation Error', 'Please select a vendor item or switch to manual item entry.');
       return;
     }
 
     const estimatedCostNum = parseFloat(estimatedCost);
     if (isNaN(estimatedCostNum) || estimatedCostNum < 0) {
-      showAlert('error', 'Validation Error', 'Please enter a valid estimated cost.');
+      showError('Validation Error', 'Please enter a valid estimated cost.');
       return;
     }
     const actualCostNum = actualCost ? parseFloat(actualCost) : undefined;
     if (actualCost && (isNaN(actualCostNum!) || actualCostNum! < 0)) {
-      showAlert('error', 'Validation Error', 'Please enter a valid actual cost or leave it empty.');
+      showError('Validation Error', 'Please enter a valid actual cost or leave it empty.');
       return;
     }
 
@@ -379,17 +360,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         </View>
 
               </ScrollView>
-        
-        <CustomAlert
-          visible={alertConfig.visible}
-          type={alertConfig.type}
-          title={alertConfig.title}
-          message={alertConfig.message}
-          onClose={hideAlert}
-          position="top"
-          showIcon={true}
-          closable={true}
-        />
       </SafeAreaView>
   );
 };

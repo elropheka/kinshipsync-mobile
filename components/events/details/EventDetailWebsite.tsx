@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Alert, Image, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Image, useWindowDimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RenderHtml from 'react-native-render-html';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Ad
 import { Colors } from '../../../constants/Colors';
 import { getEventWebsiteUrl } from '../../../utils/eventWebsiteUtils';
 import * as Linking from 'expo-linking'; // For opening URLs
+import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailWebsiteProps {
   eventWebsite: WebsitePayload | null | undefined;
@@ -24,6 +25,7 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
   console.log('EventDetailWebsite - eventWebsite:', eventWebsite);
   const { width } = useWindowDimensions();
   const [isWebsiteFormVisible, setIsWebsiteFormVisible] = useState(false);
+  const { showSuccess, showError, showInfo } = useAlert();
 
   const handleOpenWebsiteForm = () => {
     setIsWebsiteFormVisible(true);
@@ -42,11 +44,11 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
         published: websiteData.published ?? false
       };
       await onUpdateEventWebsite(dataToSubmit);
-      Alert.alert('Success', 'Event website updated.');
+      showSuccess('Success', 'Event website updated.');
       handleCloseWebsiteForm();
     } catch (e) {
       console.error("Failed to update event website:", e);
-      Alert.alert('Error', 'Failed to save website details.');
+      showError('Error', 'Failed to save website details.');
     }
   };
 
@@ -55,12 +57,12 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
       const url = getEventWebsiteUrl(eventWebsite.customUrlSlug);
       Linking.openURL(url).catch(err => {
         console.error("Failed to open URL:", err);
-        Alert.alert("Error", "Could not open the event website. Please ensure the URL is valid.");
+        showError("Error", "Could not open the event website. Please ensure the URL is valid.");
       });
     } else if (!eventWebsite?.published) {
-      Alert.alert("Website Not Published", "The event website is currently in draft mode and not visible to the public.");
+      showInfo("Website Not Published", "The event website is currently in draft mode and not visible to the public.");
     } else {
-      Alert.alert("URL Missing", "Custom URL slug is not set for this website.");
+      showInfo("URL Missing", "Custom URL slug is not set for this website.");
     }
   };
 

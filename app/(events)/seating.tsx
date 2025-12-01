@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,10 +7,12 @@ import { styles } from '../../styles/app/(events)/seating.styles'; // Styles wil
 import { useEventDetail } from '../../hooks/useEvents';
 import { SeatingTable } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
-import TableForm from '../../components/events/TableForm'; 
+import TableForm from '../../components/events/TableForm';
+import { useAlert } from '@/context/AlertContext'; 
 
-const SeatingChartScreen = () => {
+  const SeatingChartScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
+  const { showSuccess, showError, showConfirm, showInfo } = useAlert();
   
   const { 
     event, 
@@ -45,10 +47,10 @@ const SeatingChartScreen = () => {
     setIsLoading(true);
     try {
       await updateSeatingChart({ tables });
-      Alert.alert("Success", "Seating chart saved!");
+      showSuccess("Success", "Seating chart saved!");
     } catch (error) {
       console.error("Failed to save seating chart:", error);
-      Alert.alert("Error", "Could not save seating chart.");
+      showError("Error", "Could not save seating chart.");
     } finally {
       setIsLoading(false);
     }
@@ -89,12 +91,18 @@ const SeatingChartScreen = () => {
   };
 
   const handleDeleteTable = (tableId: string) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this table and unassign its guests?", [
-        {text: "Cancel", style: "cancel"},
-        {text: "Delete", style: "destructive", onPress: () => {
-            setTables(prev => prev.filter(t => t.id !== tableId));
-        }}
-    ]);
+    showConfirm(
+      'warning',
+      "Confirm Delete",
+      "Are you sure you want to delete this table and unassign its guests?",
+      () => {
+        setTables(prev => prev.filter(t => t.id !== tableId));
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
+    );
   };
 
   const handleAssignGuest = (tableId: string, chairIndex: number) => {
@@ -111,7 +119,7 @@ const SeatingChartScreen = () => {
         const newAssignedGuests = [...table.assignedGuests];
         const isGuestAlreadySeated = prevTables.some(t => t.assignedGuests.includes(guestId));
         if (isGuestAlreadySeated) {
-            Alert.alert("Already Seated", "This guest is already assigned to another seat.");
+            showInfo("Already Seated", "This guest is already assigned to another seat.");
             return table; // Return original table if guest is already seated
         }
         newAssignedGuests[assigningToChairIndex] = guestId;

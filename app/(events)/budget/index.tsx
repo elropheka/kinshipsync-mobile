@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, Alert, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, Modal } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/budget/index.styles'; // Will need new styles
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { useAllEvents, useEventDetail } from '../../../hooks/useEvents';
 import { Event as EventType, BudgetItem as BudgetItemType, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../../types/eventTypes';
 import BudgetForm from '../../../components/budget/BudgetForm'; // Re-use BudgetForm
@@ -14,6 +15,7 @@ import { Spacing } from 'constants/dimensions'; // Import Spacing
 const EventBudgetScreen = () => {
   const params = useLocalSearchParams<{ eventId?: string }>();
   const { user: currentUser } = useAppAuth();
+  const { showError, showSuccess, showConfirm } = useAlert();
   
   const { events: allEvents, isLoading: isLoadingAllEvents } = useAllEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(params.eventId || null);
@@ -54,20 +56,20 @@ const EventBudgetScreen = () => {
 
   const handleSaveOverallBudget = async () => {
     if (!selectedEventId || currentOverallBudgetInput.trim() === '') {
-      Alert.alert("Invalid Input", "Please enter a valid budget amount.");
+      showError("Invalid Input", "Please enter a valid budget amount.");
       return;
     }
     const budgetAmount = parseFloat(currentOverallBudgetInput);
     if (isNaN(budgetAmount) || budgetAmount < 0) {
-      Alert.alert("Invalid Input", "Budget amount must be a non-negative number.");
+      showError("Invalid Input", "Budget amount must be a non-negative number.");
       return;
     }
     setIsSavingOverallBudget(true);
     try {
       await updateEventOverallBudgetHook(budgetAmount);
-      Alert.alert("Success", "Overall budget updated.");
+      showSuccess("Success", "Overall budget updated.");
     } catch (error) {
-      Alert.alert("Error", "Failed to update overall budget.");
+      showError("Error", "Failed to update overall budget.");
       console.error("Error saving overall budget:", error);
     } finally {
       setIsSavingOverallBudget(false);
@@ -89,26 +91,35 @@ const EventBudgetScreen = () => {
     try {
       if (itemId) {
         await updateBudgetItem(itemId, itemData as UpdateBudgetItemPayload);
-        Alert.alert('Success', 'Expense item updated.');
+        showSuccess('Success', 'Expense item updated.');
       } else {
         await addBudgetItem(itemData as CreateBudgetItemPayload);
-        Alert.alert('Success', 'Expense item added.');
+        showSuccess('Success', 'Expense item added.');
       }
       handleCloseBudgetForm();
     } catch {
-      Alert.alert('Error', 'Failed to save expense item.');
+      showError('Error', 'Failed to save expense item.');
     }
   };
 
   const handleDeleteBudgetItem = (itemId: string) => {
     if (!selectedEventId) return;
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this expense item?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => {
-        try { await deleteBudgetItem(itemId); } 
-        catch { Alert.alert("Error", "Failed to delete expense item."); }
-      }}
-    ]);
+    showConfirm(
+      'warning',
+      "Confirm Delete",
+      "Are you sure you want to delete this expense item?",
+      async () => {
+        try { 
+          await deleteBudgetItem(itemId);
+        } catch { 
+          showError("Error", "Failed to delete expense item.");
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
+    );
   };
 
   const totalSpent = useMemo(() => {

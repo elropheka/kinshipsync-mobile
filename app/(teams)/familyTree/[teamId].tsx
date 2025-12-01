@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { FamilyMemberNode, Team } from '@/types/teamTypes';
 import { getTeamById, removeFamilyTreeNode } from '@/services/teamService';
 import { styles } from '@/styles/app/(teams)/familyTreeScreen.styles';
 import { Colors } from '@/constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 const findNodeById = (
   node: FamilyMemberNode | null | undefined, 
@@ -34,6 +35,7 @@ const FamilyTreeScreen = () => {
   const { teamId } = useLocalSearchParams();
   const router = useRouter();
   const navigation = useNavigation();
+  const { showError, showSuccess, showConfirm } = useAlert();
   const [teamName, setTeamName] = useState<string>('');
   const [familyTreeData, setFamilyTreeData] = useState<FamilyMemberNode | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -92,7 +94,7 @@ const FamilyTreeScreen = () => {
         router.push(`/(teams)/addFamilyMember/new?teamId=${teamId}`);
       }
     } else {
-      Alert.alert("Error", "Team ID is missing, cannot add member.");
+      showError("Error", "Team ID is missing, cannot add member.");
     }
   };
 
@@ -115,39 +117,37 @@ const FamilyTreeScreen = () => {
       router.push(`/(teams)/addFamilyMember/${memberNodeId}?teamId=${teamId}&relationshipType=${relationshipType}${parentNameParam}`);
     } else {
       console.error("Cannot navigate to add member: teamId is undefined or not a string");
-      Alert.alert("Error", "Cannot proceed without a valid team ID.");
+      showError("Error", "Cannot proceed without a valid team ID.");
     }
   };
 
   const handleRemoveMember = async (memberIdToRemove: string) => {
     if (!teamId || typeof teamId !== 'string') {
-      Alert.alert("Error", "Team ID is missing.");
+      showError("Error", "Team ID is missing.");
       return;
     }
 
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Removal",
       "Are you sure you want to remove this family member? This action will permanently delete them from the family tree.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            setIsLoading(true);
-            try {
-              await removeFamilyTreeNode(teamId, memberIdToRemove);
-              Alert.alert("Success", "Member removed successfully.");
-              loadFamilyTreeData();
-            } catch (error: any) {
-              console.error("Failed to remove member:", error);
-              Alert.alert("Error", error.message || "Failed to remove member.");
-              setIsLoading(false);
-            }
-            setIsLoading(false);
-          },
-        },
-      ]
+      async () => {
+        setIsLoading(true);
+        try {
+          await removeFamilyTreeNode(teamId, memberIdToRemove);
+          showSuccess("Success", "Member removed successfully.");
+          loadFamilyTreeData();
+        } catch (error: any) {
+          console.error("Failed to remove member:", error);
+          showError("Error", error.message || "Failed to remove member.");
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      {
+        confirmText: "Remove",
+        cancelText: "Cancel",
+      }
     );
   };
   

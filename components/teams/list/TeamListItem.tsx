@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +14,7 @@ import { doc, updateDoc } from '@firebase/firestore';
 import { firestore } from '../../../services/firebaseConfig';
 import { AuthContext } from '../../../context/AuthContext';
 import { BackendUser } from '../../../types/auth';
+import { useAlert } from '@/context/AlertContext';
 
 interface TeamListItemProps {
   team: Team;
@@ -25,12 +25,13 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
   const authContext = useContext(AuthContext);
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const { showError } = useAlert();
 
   const handleChatPress = async (e: any) => {
     e.stopPropagation(); // Prevent card press from firing
 
     if (!currentUser?.uid) {
-      Alert.alert("Error", "You must be logged in to start a chat.");
+      showError("Error", "You must be logged in to start a chat.");
       return;
     }
 
@@ -48,7 +49,7 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
         // Ensure memberIds are defined and not empty, include current user if not already
         const participantIds = Array.from(new Set([...(team.memberIds || []), currentUser.uid]));
         if (participantIds.length < 1) { // Technically should be at least 1 (creator)
-             Alert.alert("Error", "Cannot create chat without members.");
+             showError("Error", "Cannot create chat without members.");
              setIsCreatingChat(false);
              return;
         }
@@ -77,11 +78,11 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
             } 
           });
         } else {
-          Alert.alert("Error", "Failed to create chat for the team.");
+          showError("Error", "Failed to create chat for the team.");
         }
       } catch (error) {
         console.error("Error creating team chat:", error);
-        Alert.alert("Error", `Failed to create chat. ${error instanceof Error ? error.message : 'Please try again.'}`);
+        showError("Error", `Failed to create chat. ${error instanceof Error ? error.message : 'Please try again.'}`);
       } finally {
         setIsCreatingChat(false);
       }

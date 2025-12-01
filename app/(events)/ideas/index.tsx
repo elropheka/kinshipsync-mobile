@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
-  Alert,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../../../styles/app/(events)/ideas/index.styles';
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { 
   Idea as IdeaType, 
   CreateIdeaPayload,
@@ -41,6 +41,7 @@ const EventIdeasScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user: currentUser } = useAppAuth();
   const isAuthenticated = !!currentUser; // Correctly derive isAuthenticated
+  const { showError } = useAlert();
 
   const [ideas, setIdeas] = useState<IdeaType[]>([]);
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
@@ -100,7 +101,7 @@ const EventIdeasScreen = () => {
 
   const handlePostIdea = async () => {
     if (!newIdeaText.trim() || !eventId || !currentUser?.uid || !isAuthenticated) {
-      Alert.alert('Error', 'Cannot post idea. Ensure you are logged in, an event is selected, and the idea text is not empty.');
+      showError('Error', 'Cannot post idea. Ensure you are logged in, an event is selected, and the idea text is not empty.');
       return;
     }
     const payload: CreateIdeaPayload = { 
@@ -112,7 +113,7 @@ const EventIdeasScreen = () => {
       await addIdeaToEvent(isAuthenticated, eventId, payload, currentUser.uid);
       setNewIdeaText('');
     } catch (e: any) {
-      Alert.alert('Error', `Failed to post idea: ${e.message}`);
+      showError('Error', `Failed to post idea: ${e.message}`);
     }
   };
 
@@ -122,13 +123,13 @@ const EventIdeasScreen = () => {
         try {
             await voteForIdea(isAuthenticated, eventId, ideaId, 1);
         } catch (e: any) {
-            Alert.alert('Error', `Failed to vote: ${e.message}`);
+            showError('Error', `Failed to vote: ${e.message}`);
         }
     } else {
         try {
             await voteForIdea(isAuthenticated, eventId, ideaId, -1); 
         } catch (e: any) {
-            Alert.alert('Error', `Failed to downvote: ${e.message}`);
+            showError('Error', `Failed to downvote: ${e.message}`);
         }
     }
   };

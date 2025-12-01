@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams } from 'expo-router'; 
 import { styles } from '@/styles/app/(events)/rsvps.styles';
 import { useAppAuth } from '@/hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest } from '@/services/eventService';
 import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
@@ -18,6 +19,7 @@ const RsvpListScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { showError, showSuccess } = useAlert();
 
   const [fetchedGuests, setFetchedGuests] = useState<GuestType[]>([]);
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
@@ -89,7 +91,7 @@ const RsvpListScreen = () => {
 
   const handleSubmitPreferenceForm = async (formDataFromModal: any) => {
     if (!editingGuest || !eventId || !isAuthenticated) {
-      Alert.alert("Error", "Cannot update RSVP. Missing information.");
+      showError("Error", "Cannot update RSVP. Missing information.");
       return;
     }
     try {
@@ -107,26 +109,26 @@ const RsvpListScreen = () => {
       };
       
       await updateGuestRsvp(isAuthenticated, eventId, editingGuest.id, payload);
-      Alert.alert("RSVP Updated", `${editingGuest.name}'s RSVP has been updated.`);
+      showSuccess("RSVP Updated", `${editingGuest.name}'s RSVP has been updated.`);
       handleClosePreferenceModal();
     } catch (e: any) {
       console.error("Error updating RSVP:", e);
-      Alert.alert("Error", `Failed to update RSVP: ${e.message || 'Unknown error'}`);
+      showError("Error", `Failed to update RSVP: ${e.message || 'Unknown error'}`);
     }
   };
 
   const handleSendReminder = async (guest: GuestType) => {
     if (!eventId || !isAuthenticated) {
-      Alert.alert("Error", "Cannot send reminder. Missing event or authentication information.");
+      showError("Error", "Cannot send reminder. Missing event or authentication information.");
       return;
     }
     setRemindingGuestId(guest.id);
     try {
       await sendRsvpReminderToGuest(isAuthenticated, eventId, guest.id);
-      Alert.alert("Reminder Sent", `An RSVP reminder has been sent to ${guest.name}.`);
+      showSuccess("Reminder Sent", `An RSVP reminder has been sent to ${guest.name}.`);
     } catch (e: any) {
       console.error("Error sending reminder:", e);
-      Alert.alert("Error", `Failed to send reminder: ${e.message || 'Unknown error'}`);
+      showError("Error", `Failed to send reminder: ${e.message || 'Unknown error'}`);
     } finally {
       setRemindingGuestId(null);
     }

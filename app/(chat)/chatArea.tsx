@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Alert,
   Image,
   Linking, // Added for opening file links
   ScrollView, // Added for Emoji Picker
@@ -33,6 +32,7 @@ import { emojiCategories } from '../../constants/emojis'; // Added for emoji pic
 import { getUserProfileById } from '../../services/userService'; // Import userService function
 import { updateGuestRsvp } from '../../services/eventService'; // Added for RSVP actions
 import { updateMessageRsvpStatus } from '../../services/chatService'; // Added for updating message state
+import { useAlert } from '@/context/AlertContext';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -80,10 +80,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
       const guestStatusUpdate: GuestStatus = action === 'accepted' ? 'Attending' : 'declined';
       await updateGuestRsvp(isAuthenticated, message.eventId, message.guestId, { status: guestStatusUpdate });
       await updateMessageRsvpStatus(isAuthenticated, message.conversationId, message.id, action);
-      Alert.alert("RSVP Submitted", `You have ${action} the invitation.`);
+      showSuccess("RSVP Submitted", `You have ${action} the invitation.`);
     } catch (error: any) {
       console.error(`Error processing RSVP (${action}):`, error);
-      Alert.alert("Error", `Could not submit RSVP: ${error.message}`);
+      showError("Error", `Could not submit RSVP: ${error.message}`);
     } finally {
       setIsProcessingRsvp(false);
     }
@@ -196,6 +196,7 @@ const ChatAreaScreen: React.FC = () => {
   const router = useRouter();
   const { conversationId, chatTitle } = useLocalSearchParams<{ conversationId: string, chatTitle?: string }>();
   const { user: currentUser } = useAppAuth();
+  const { showError, showSuccess, showInfo } = useAlert();
 
   const { 
     messages, 
@@ -256,7 +257,7 @@ const ChatAreaScreen: React.FC = () => {
     if (Platform.OS !== 'web') {
       const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (mediaLibraryStatus !== 'granted') {
-        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
+        showError('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
         return false;
       }
     }
@@ -285,18 +286,18 @@ const ChatAreaScreen: React.FC = () => {
         const fileInfo = await FileSystem.getInfoAsync(asset.uri);
         if (fileInfo.exists) {
           if (fileInfo.size > MAX_FILE_SIZE_BYTES) {
-            Alert.alert('File Too Large', `The selected image exceeds the ${MAX_FILE_SIZE_MB}MB limit.`);
+            showError('File Too Large', `The selected image exceeds the ${MAX_FILE_SIZE_MB}MB limit.`);
             return;
           }
           setSelectedAttachment({ uri: asset.uri, type: 'image', name: asset.fileName || asset.uri.split('/').pop(), size: fileInfo.size });
         } else {
-          Alert.alert("Error", "Selected file does not exist.");
+          showError("Error", "Selected file does not exist.");
           return;
         }
         setShowEmojiPicker(false);
       } catch (error) {
         console.error("Error getting file info for image:", error);
-        Alert.alert("Error", "Could not get image details.");
+        showError("Error", "Could not get image details.");
       }
     }
   };
@@ -314,14 +315,14 @@ const ChatAreaScreen: React.FC = () => {
       const asset = result.assets[0];
 
       if (asset.size && asset.size > MAX_FILE_SIZE_BYTES) {
-        Alert.alert('File Too Large', `The selected document exceeds the ${MAX_FILE_SIZE_MB}MB limit.`);
+        showError('File Too Large', `The selected document exceeds the ${MAX_FILE_SIZE_MB}MB limit.`);
         return;
       }
       setSelectedAttachment({ uri: asset.uri, type: 'file', name: asset.name, size: asset.size });
       setShowEmojiPicker(false);
     } catch (err) {
       console.error('Error picking document:', err);
-      Alert.alert('Error', 'Could not pick document.');
+      showError('Error', 'Could not pick document.');
     }
   };
   
@@ -332,7 +333,7 @@ const ChatAreaScreen: React.FC = () => {
   const handleSendMessage = async () => {
     if (!selectedAttachment && inputText.trim() === '') return;
     if (!conversationId) {
-      Alert.alert("Error", "Conversation ID is missing.");
+      showError("Error", "Conversation ID is missing.");
       return;
     }
 
@@ -352,7 +353,7 @@ const ChatAreaScreen: React.FC = () => {
       setSelectedAttachment(null);
     } catch (e) {
       console.error("Failed to send message:", e);
-      Alert.alert("Error", `Could not send message. ${e instanceof Error ? e.message : String(e)}`);
+      showError("Error", `Could not send message. ${e instanceof Error ? e.message : String(e)}`);
     }
   };
   

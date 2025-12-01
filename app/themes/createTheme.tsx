@@ -6,13 +6,14 @@ import { Colors } from '../../constants/Colors';
 import Fonts from '../../constants/fonts';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import CustomAlert from '../../components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
 
 const CreateThemeScreen = () => {
   const { user, isAuthenticated } = useAuth();
   const { refreshAvailableThemes } = useTheme();
+  const { showSuccess, showError } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [themeName, setThemeName] = useState('');
   const [primaryColor, setPrimaryColor] = useState(Colors.light.primary);
@@ -22,26 +23,6 @@ const CreateThemeScreen = () => {
   const [textColor, setTextColor] = useState(Colors.light.text);
   const [cardBgColor, setCardBgColor] = useState(Colors.light.backgroundPaper);
   const [borderColor, setBorderColor] = useState(Colors.light.border);
-
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: 'success' | 'error';
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-  });
-
-  const showAlert = (type: 'success' | 'error', title: string, message: string) => {
-    setAlertConfig({ visible: true, type, title, message });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
-  };
 
   const [headingFont, setHeadingFont] = useState<FontSettings>({
     fontFamily: Fonts.headerMedium,
@@ -86,15 +67,18 @@ const CreateThemeScreen = () => {
     try {
       console.log('Theme would be saved:', newTheme);
       await refreshAvailableThemes();
-      showAlert('success', 'Theme Saved', `Theme "${newTheme.name}" has been saved successfully and added to your list.`);
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/(main)/home');
-      }
+      showSuccess('Theme Saved', `Theme "${newTheme.name}" has been saved successfully and added to your list.`, {
+        onConfirm: () => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace('/(main)/home');
+          }
+        },
+      });
     } catch (error) {
       console.error('Failed to save theme:', error);
-      showAlert('error', 'Error', 'Failed to save theme. Please try again.');
+      showError('Error', 'Failed to save theme. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -161,17 +145,6 @@ const CreateThemeScreen = () => {
           )}
         </View>
       </ScrollView>
-      
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-        position="top"
-        showIcon={true}
-        closable={true}
-      />
     </SafeAreaView>
   );
 };

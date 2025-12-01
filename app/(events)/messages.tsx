@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { EventMessage } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { getUserProfile } from '../../services/userService';
 import { Colors } from '../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface SenderDetails {
   name: string;
@@ -17,6 +18,7 @@ interface SenderDetails {
 const EventMessagesScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
+  const { showError } = useAlert();
   
   const { 
     event, 
@@ -102,7 +104,7 @@ const EventMessagesScreen = () => {
       setNewMessage('');
     } catch (error) {
       console.error("Failed to send message:", error);
-      Alert.alert("Error", "Could not send message.");
+      showError("Error", "Could not send message.");
     } finally {
       setIsSending(false);
     }

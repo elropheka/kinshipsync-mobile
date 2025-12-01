@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/guests.styles';
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { listenToGuestsWithRsvp, getEventById, addGuestToEvent, removeGuestFromEvent } from '../../../services/eventService';
 import { getUserProfileByEmail } from '../../../services/userService'; // Changed to getUserProfileByEmail
 import { createDirectConversation, sendMessage } from '../../../services/chatService'; // Import sendMessage
@@ -19,6 +20,7 @@ const SpecificEventGuestListScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { showError, showSuccess, showConfirm } = useAlert();
 
   const [fetchedGuests, setFetchedGuests] = useState<GuestType[]>([]);
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
@@ -86,12 +88,12 @@ const SpecificEventGuestListScreen = () => {
 
   const handleInviteGuestSubmit = async (guestData: CreateGuestPayload) => {
     if (!eventId || !isAuthenticated) {
-      Alert.alert("Error", "Cannot invite guest. Event ID or authentication missing.");
+      showError("Error", "Cannot invite guest. Event ID or authentication missing.");
       throw new Error("Event ID or auth missing"); // Throw error to be caught by modal
     }
     try {
       const invitedGuest = await addGuestToEvent(isAuthenticated, eventId, guestData);
-      Alert.alert("Success", `${invitedGuest.name} has been invited.`);
+      showSuccess("Success", `${invitedGuest.name} has been invited.`);
       setIsInviteModalVisible(false);
 
       if (guestData.email && user?.uid && eventId) {
@@ -128,31 +130,33 @@ const SpecificEventGuestListScreen = () => {
         }
       }
     } catch (e: any) {
-      Alert.alert("Error", `Failed to invite guest: ${e.message}`);
+      showError("Error", `Failed to invite guest: ${e.message}`);
       throw e;
     }
   };
 
   const handleRemoveGuest = async (guestId: string, guestName: string) => {
     if (!eventId || !isAuthenticated) {
-      Alert.alert("Error", "Cannot remove guest. Event ID or authentication missing.");
+      showError("Error", "Cannot remove guest. Event ID or authentication missing.");
       return;
     }
-    Alert.alert('Remove Guest', `Are you sure you want to remove ${guestName}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await removeGuestFromEvent(isAuthenticated, eventId, guestId);
-            Alert.alert("Success", `${guestName} has been removed.`);
-          } catch (e: any) {
-            Alert.alert("Error", `Failed to remove guest: ${e.message}`);
-          }
-        },
+    showConfirm(
+      'warning',
+      'Remove Guest',
+      `Are you sure you want to remove ${guestName}?`,
+      async () => {
+        try {
+          await removeGuestFromEvent(isAuthenticated, eventId, guestId);
+          showSuccess("Success", `${guestName} has been removed.`);
+        } catch (e: any) {
+          showError("Error", `Failed to remove guest: ${e.message}`);
+        }
       },
-    ]);
+      {
+        confirmText: 'Remove',
+        cancelText: 'Cancel',
+      }
+    );
   };
 
   const renderGuestItem = ({ item }: { item: GuestType }) => (
@@ -211,7 +215,7 @@ const SpecificEventGuestListScreen = () => {
                 setIsLoading(true); 
                 setError(null);
             } else {
-                Alert.alert("Cannot Retry", "Event ID or authentication is missing.");
+                showError("Cannot Retry", "Event ID or authentication is missing.");
             }
         }} style={{ marginTop: 10, padding: 10, backgroundColor: Colors.light.tint, borderRadius: 5}}>
            <Text style={{color: Colors.dark.text}}>Tap to Retry</Text>

@@ -22,7 +22,7 @@ import { TeamType } from '@/types/teamTypes';
 import { UserProfile } from '@/types/userTypes';
 import { BackendUser } from '@/types/auth';
 import MultiUserPicker from '@/components/common/MultiUserPicker';
-import CustomAlert from '@/components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 import { createTeam } from '@/services/teamService';
 import { getAllUsersForPicker } from '@/services/userService';
 import { AuthContext } from '@/context/AuthContext';
@@ -36,6 +36,7 @@ const CreateNewTeamScreen: React.FC = () => {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
+  const { showSuccess, showError } = useAlert();
 
   const [teamName, setTeamName] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
@@ -48,18 +49,6 @@ const CreateNewTeamScreen: React.FC = () => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    type: 'success' | 'error' | 'warning' | 'info';
-    title: string;
-    message: string;
-    onConfirm?: () => void;
-  }>({
-    type: 'info',
-    title: '',
-    message: '',
-  });
 
   const formSections = [
     { id: 'teamNameInput', type: 'teamNameInput' },
@@ -68,11 +57,6 @@ const CreateNewTeamScreen: React.FC = () => {
     { id: 'memberPicker', type: 'memberPicker' },
     { id: 'submitButton', type: 'submitButton' },
   ];
-
-  const showAlert = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string, onConfirm?: () => void) => {
-    setAlertConfig({ type, title, message, onConfirm });
-    setAlertVisible(true);
-  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -97,11 +81,11 @@ const CreateNewTeamScreen: React.FC = () => {
 
   const handleCreateTeam = async () => {
     if (teamName.trim() === '') {
-      showAlert('error', 'Validation Error', 'Please enter a team name.');
+      showError('Validation Error', 'Please enter a team name.');
       return;
     }
     if (!currentUser || !currentUser.uid) {
-      showAlert('error', 'Error', 'You must be logged in to create a team.');
+      showError('Error', 'You must be logged in to create a team.');
       return;
     }
 
@@ -117,17 +101,19 @@ const CreateNewTeamScreen: React.FC = () => {
         createdBy: currentUser.uid,
       };
       const newTeam = await createTeam(payload);
-      showAlert('success', 'Success', `Team "${newTeam.name}" created successfully!`, () => {
-        setTeamName('');
-        setSelectedMemberIds([]);
-        setTeamType(TeamType.OTHER);
-        setIconName(availableIcons[0]);
-        router.back();
+      showSuccess('Success', `Team "${newTeam.name}" created successfully!`, {
+        onConfirm: () => {
+          setTeamName('');
+          setSelectedMemberIds([]);
+          setTeamType(TeamType.OTHER);
+          setIconName(availableIcons[0]);
+          router.back();
+        },
       });
     } catch (err) {
       console.error('Failed to create team:', err);
       setError('Failed to create team. Please try again.');
-      showAlert('error', 'Error', 'Failed to create team. Please try again.');
+      showError('Error', 'Failed to create team. Please try again.');
     } finally {
       setIsCreatingTeam(false);
     }
@@ -280,20 +266,6 @@ const CreateNewTeamScreen: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      
-      <CustomAlert
-        visible={alertVisible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={() => setAlertVisible(false)}
-        onConfirm={alertConfig.onConfirm}
-        confirmText="OK"
-        showCancelButton={false}
-        autoHide={alertConfig.type === 'success'}
-        autoHideDuration={3000}
-        position="top"
-      />
     </SafeAreaView>
   );
 };

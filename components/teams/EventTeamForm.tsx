@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
@@ -7,6 +7,7 @@ import { Colors } from '../../constants/Colors';
 import MultiUserPicker from '../common/MultiUserPicker';
 import { getAllUsersForPicker, searchUsersByName } from '../../services/userService';
 import { useAppAuth } from '../../hooks/useAppAuth'; // Assuming useAppAuth provides auth status
+import { useAlert } from '@/context/AlertContext';
 
 interface EventTeamFormProps {
   initialTeam?: Partial<Omit<EventTeam, 'members'>> & { id?: string; members?: string[] }; // Added members to initialTeam
@@ -21,6 +22,7 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
 }) => {
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { showError } = useAlert();
   const [name, setName] = useState(initialTeam?.name || '');
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(initialTeam?.members || []);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
@@ -37,11 +39,11 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
       setDisplayedUsers(users.slice(0, 5));
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      Alert.alert('Error', 'Could not load users.');
+      showError('Error', 'Could not load users.');
     } finally {
       setIsLoadingUsers(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, showError]);
 
   useEffect(() => {
     fetchInitialUsers();
@@ -63,17 +65,17 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
     } catch (error)
 {
       console.error('Failed to search users:', error);
-      Alert.alert('Error', 'Could not search users.');
+      showError('Error', 'Could not search users.');
       setDisplayedUsers(allUsers.slice(0,5));
     } finally {
       setIsLoadingUsers(false);
     }
-  }, [isAuthenticated, allUsers]);
+  }, [isAuthenticated, allUsers, showError]);
 
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      Alert.alert('Validation Error', 'Team name cannot be empty.');
+      showError('Validation Error', 'Team name cannot be empty.');
       return;
     }
 

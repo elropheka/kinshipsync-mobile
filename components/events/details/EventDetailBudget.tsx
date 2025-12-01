@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../../types/eventTypes';
 import BudgetForm from '../../budget/BudgetForm'; // Path to existing BudgetForm
 import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
 import { Colors } from '../../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailBudgetProps {
   budgetItems: BudgetItem[];
@@ -21,6 +22,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
   onDeleteBudgetItem,
   isOrganizer = true
 }) => {
+  const { showSuccess, showError, showConfirm } = useAlert();
   const [isBudgetFormVisible, setIsBudgetFormVisible] = useState(false);
   const [editingBudgetItem, setEditingBudgetItem] = useState<Partial<BudgetItem> & { id?: string } | undefined>(undefined);
 
@@ -38,29 +40,37 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
     try {
       if (itemId) {
         await onUpdateBudgetItem(itemId, itemData as UpdateBudgetItemPayload);
-        Alert.alert('Success', 'Budget item updated.');
+        showSuccess('Success', 'Budget item updated.');
       } else {
         await onAddBudgetItem(itemData as CreateBudgetItemPayload);
-        Alert.alert('Success', 'Budget item added.');
+        showSuccess('Success', 'Budget item added.');
       }
       handleCloseBudgetForm();
     } catch (e) {
       console.error("Failed to submit budget item:", e);
-      Alert.alert('Error', 'Failed to save budget item.');
+      showError('Error', 'Failed to save budget item.');
     }
   };
 
   const handleDeletePress = (itemId: string) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this budget item?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => {
+    showConfirm(
+      'warning',
+      "Confirm Delete",
+      "Are you sure you want to delete this budget item?",
+      async () => {
         try { 
           await onDeleteBudgetItem(itemId); 
-          Alert.alert('Success', 'Budget item deleted.');
+          showSuccess('Success', 'Budget item deleted.');
         } 
-        catch { Alert.alert("Error", "Failed to delete budget item."); }
-      }}
-    ]);
+        catch { 
+          showError("Error", "Failed to delete budget item.");
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
+    );
   };
 
   const renderBudgetItem = ({ item }: { item: BudgetItem }) => (

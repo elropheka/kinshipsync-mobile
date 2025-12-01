@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'; 
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Platform, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,6 +21,7 @@ import * as userService from '@/services/userService';
 import EventWebsiteForm from '@/components/website/EventWebsiteForm';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getEventWebsiteUrl } from '@/utils/eventWebsiteUtils';
+import { useAlert } from '@/context/AlertContext';
 
 const CreateEventScreen = () => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const CreateEventScreen = () => {
     console.error('Error accessing useAppAuth:', error);
   } 
 
+  const { showSuccess, showError, showInfo } = useAlert();
   const [currentStep, setCurrentStep] = useState(1);
 
 
@@ -129,11 +131,11 @@ const CreateEventScreen = () => {
     try {
       if (currentStep === 1) {
         if (!name.trim()) {
-          Alert.alert('Error', 'Event name is required.');
+          showError('Error', 'Event name is required.');
           return;
         }
         if (!selectedDate) {
-          Alert.alert('Error', 'Event date is required.');
+          showError('Error', 'Event date is required.');
           return;
         }
         setCurrentStep(2);
@@ -142,7 +144,7 @@ const CreateEventScreen = () => {
       }
     } catch (error) {
       console.error('Error in handleNextStep:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      showError('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
@@ -154,11 +156,11 @@ const CreateEventScreen = () => {
   
   const handleFinalizeEventCreation = async () => {
     if (!currentUser?.uid) {
-      Alert.alert('Error', 'User not authenticated. Cannot create event.');
+      showError('Error', 'User not authenticated. Cannot create event.');
       return;
     }
     if (!selectedDate) {
-      Alert.alert('Error', 'Event date is required.');
+      showError('Error', 'Event date is required.');
       return;
     }
     
@@ -166,7 +168,7 @@ const CreateEventScreen = () => {
     if (selectedThemeId) {
       const selectedTheme = availableThemes.find(t => t.id === selectedThemeId);
       if (!selectedTheme) {
-        Alert.alert('Error', 'Selected theme is no longer available. Please select a different theme.');
+        showError('Error', 'Selected theme is no longer available. Please select a different theme.');
         return;
       }
     }
@@ -247,36 +249,37 @@ const CreateEventScreen = () => {
         
         // Show success alert with website URL if available
         if (websiteUrl) {
-          Alert.alert(
+          showSuccess(
             'Event Created Successfully!',
             `Your event website is ready!\n\nWebsite URL:\n${websiteUrl}`,
-            [
-              {
-                text: 'Copy URL',
-                onPress: async () => {
-                  try {
-                    await Clipboard.setStringAsync(websiteUrl!);
-                    Alert.alert('Copied!', 'Website URL copied to clipboard.');
-                  } catch (copyError) {
-                    console.error('Error copying to clipboard:', copyError);
-                    Alert.alert('Error', 'Could not copy URL to clipboard.');
-                  }
-                },
+            {
+              onConfirm: () => {
+                router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
               },
-              {
-                text: 'OK',
-                onPress: () => {
-                  router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
-                },
-              },
-            ]
+              confirmText: 'OK',
+            }
           );
+          // Copy URL option - show info alert
+          try {
+            await Clipboard.setStringAsync(websiteUrl!);
+            setTimeout(() => {
+              showInfo('Copied!', 'Website URL copied to clipboard.');
+            }, 500);
+          } catch (copyError) {
+            console.error('Error copying to clipboard:', copyError);
+            setTimeout(() => {
+              showError('Error', 'Could not copy URL to clipboard.');
+            }, 500);
+          }
         } else {
-          Alert.alert('Success', 'Event created successfully!');
-          router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
+          showSuccess('Success', 'Event created successfully!', {
+            onConfirm: () => {
+              router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
+            },
+          });
         }
       } else {
-        Alert.alert('Error', 'Failed to create event. Please try again.');
+        showError('Error', 'Failed to create event. Please try again.');
       }
     } catch (error) {
       console.error("Failed to create event:", error);
@@ -287,7 +290,7 @@ const CreateEventScreen = () => {
         selectedThemeId,
         availableThemes
       });
-      Alert.alert('Error', 'An unexpected error occurred during finalization.');
+      showError('Error', 'An unexpected error occurred during finalization.');
     }
   };
   
@@ -452,7 +455,7 @@ const CreateEventScreen = () => {
                       setAllUsersForPicker(users);
                     } catch (err) {
                       console.error("Failed to fetch users for picker:", err);
-                      Alert.alert("Error", "Could not load users to select from.");
+                      showError("Error", "Could not load users to select from.");
                     } finally {
                       setIsLoadingUsers(false);
                     }

@@ -14,7 +14,6 @@ import { Colors } from '@/constants/Colors';
 import Fonts from '@/constants/fonts';
 import {
   Spacing,
-  BorderRadius,
   ResponsiveFontSizes,
   moderateScale,
 } from '@/constants/dimensions';
@@ -52,37 +51,57 @@ const CustomAlert: React.FC<AlertProps> = ({
   showCancelButton = false,
   autoHide = false,
   autoHideDuration = 3000,
-  position = 'top',
+  position,
   showIcon = true,
   closable = true,
 }) => {
+  // Auto-position based on type: error -> top, success -> bottom, info -> center
+  const autoPosition = position || (type === 'error' ? 'top' : type === 'success' ? 'bottom' : 'center');
+  
   const slideAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
       slideAnim.setValue(0);
       opacityAnim.setValue(0);
       scaleAnim.setValue(0.8);
+      bounceAnim.setValue(0);
 
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
+      // Playful bounce animation sequence
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(slideAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            tension: 150,
+            friction: 7,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(bounceAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(bounceAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]),
       ]).start();
 
       if (autoHide) {
@@ -95,17 +114,22 @@ const CustomAlert: React.FC<AlertProps> = ({
       Animated.parallel([
         Animated.timing(slideAnim, {
           toValue: 0,
-          duration: 200,
+          duration: 250,
           useNativeDriver: true,
         }),
         Animated.timing(opacityAnim, {
           toValue: 0,
-          duration: 200,
+          duration: 250,
           useNativeDriver: true,
         }),
         Animated.timing(scaleAnim, {
           toValue: 0.8,
-          duration: 200,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
@@ -134,6 +158,7 @@ const CustomAlert: React.FC<AlertProps> = ({
           borderColor: Colors.light.success,
           iconColor: Colors.light.success,
           iconName: 'checkmark-circle' as const,
+          textColor: Colors.light.success,
         };
       case 'error':
         return {
@@ -141,6 +166,7 @@ const CustomAlert: React.FC<AlertProps> = ({
           borderColor: Colors.light.error,
           iconColor: Colors.light.error,
           iconName: 'close-circle' as const,
+          textColor: Colors.light.error,
         };
       case 'warning':
         return {
@@ -148,6 +174,7 @@ const CustomAlert: React.FC<AlertProps> = ({
           borderColor: Colors.light.warning,
           iconColor: Colors.light.warning,
           iconName: 'warning' as const,
+          textColor: Colors.light.warning,
         };
       case 'info':
         return {
@@ -155,27 +182,35 @@ const CustomAlert: React.FC<AlertProps> = ({
           borderColor: Colors.light.info,
           iconColor: Colors.light.info,
           iconName: 'information-circle' as const,
+          textColor: Colors.light.info,
         };
       default:
         return {
           backgroundColor: Colors.light.backgroundPaper,
-          borderColor: Colors.light.border,
-          iconColor: Colors.light.text,
+          borderColor: Colors.light.primary,
+          iconColor: Colors.light.primary,
           iconName: 'information-circle' as const,
+          textColor: Colors.light.primary,
         };
     }
   };
 
   const getPositionStyles = () => {
-    switch (position) {
+    switch (autoPosition) {
       case 'top':
         return {
-          top: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight || 0,
+          top: Platform.OS === 'ios' ? 50 : (StatusBar.currentHeight || 0) + 10,
           transform: [
             {
               translateY: slideAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [-100, 0],
+                outputRange: [-150, 0],
+              }),
+            },
+            {
+              translateY: bounceAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -8],
               }),
             },
           ],
@@ -190,6 +225,12 @@ const CustomAlert: React.FC<AlertProps> = ({
                 outputRange: [-50, -50],
               }),
             },
+            {
+              scale: bounceAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 1.05],
+              }),
+            },
           ],
         };
       case 'bottom':
@@ -199,7 +240,13 @@ const CustomAlert: React.FC<AlertProps> = ({
             {
               translateY: slideAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [100, 0],
+                outputRange: [150, 0],
+              }),
+            },
+            {
+              translateY: bounceAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 8],
               }),
             },
           ],
@@ -214,15 +261,25 @@ const CustomAlert: React.FC<AlertProps> = ({
 
   if (!visible) return null;
 
+  // Only show overlay for center alerts (modal-like)
+  const showOverlay = autoPosition === 'center';
+
   return (
-    <Animated.View
-      style={[
-        styles.overlay,
-        {
-          opacity: opacityAnim,
-        },
-      ]}
-    >
+    <>
+      {showOverlay && (
+        <Animated.View
+          style={[
+            styles.overlay,
+            {
+              opacity: opacityAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.15], // Lighter overlay for playful feel
+              }),
+            },
+          ]}
+          pointerEvents="auto"
+        />
+      )}
       <Animated.View
         style={[
           styles.alertContainer,
@@ -241,16 +298,31 @@ const CustomAlert: React.FC<AlertProps> = ({
         {/* Header */}
         <View style={styles.header}>
           {showIcon && (
-            <View style={[styles.iconContainer, { backgroundColor: alertStyles.backgroundColor }]}>
+            <Animated.View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor: alertStyles.iconColor,
+                  transform: [
+                    {
+                      scale: bounceAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 1.2],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
               <Ionicons
                 name={alertStyles.iconName}
-                size={moderateScale(24)}
-                color={alertStyles.iconColor}
+                size={moderateScale(28)}
+                color={Colors.light.textLight}
               />
-            </View>
+            </Animated.View>
           )}
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: Colors.light.text }]}>{title}</Text>
+            <Text style={[styles.title, { color: alertStyles.textColor }]}>{title}</Text>
             {message && (
               <Text style={[styles.message, { color: Colors.light.textSecondary }]}>
                 {message}
@@ -294,7 +366,7 @@ const CustomAlert: React.FC<AlertProps> = ({
           </View>
         )}
       </Animated.View>
-    </Animated.View>
+    </>
   );
 };
 
@@ -305,7 +377,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 128, 128, 0.15)', // Light teal overlay for playful feel
     justifyContent: 'flex-start',
     alignItems: 'center',
     zIndex: 9999,
@@ -314,17 +386,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: SCREEN_WIDTH - Spacing.l * 2,
     maxWidth: moderateScale(400),
-    borderRadius: BorderRadius.m,
-    borderWidth: 1,
+    borderRadius: moderateScale(20), // More rounded for playful feel
+    borderWidth: 2, // Thicker border for more playful look
     shadowColor: Colors.light.text,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 8, // Deeper shadow for playful depth
     },
-    shadowOpacity: 0.1,
-    shadowRadius: moderateScale(4),
-    elevation: 5,
-    padding: Spacing.m,
+    shadowOpacity: 0.2,
+    shadowRadius: moderateScale(12),
+    elevation: 8,
+    padding: Spacing.l,
+    paddingVertical: Spacing.m + Spacing.xs,
   },
   header: {
     flexDirection: 'row',
@@ -332,23 +405,31 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.s,
   },
   iconContainer: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: BorderRadius.round,
+    width: moderateScale(48),
+    height: moderateScale(48),
+    borderRadius: moderateScale(24), // Fully rounded
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.s,
+    marginRight: Spacing.m,
     marginTop: moderateScale(2),
+    shadowColor: Colors.light.text,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: moderateScale(6),
+    elevation: 4,
   },
   titleContainer: {
     flex: 1,
     marginRight: Spacing.s,
   },
   title: {
-    fontSize: ResponsiveFontSizes.subtitle,
+    fontSize: ResponsiveFontSizes.subtitle + 2,
     fontFamily: Fonts.titleSemiBold,
     marginBottom: Spacing.xs,
-    lineHeight: ResponsiveFontSizes.subtitle * 1.3,
+    lineHeight: ResponsiveFontSizes.subtitle * 1.4,
   },
   message: {
     fontSize: ResponsiveFontSizes.body,
@@ -358,6 +439,8 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: Spacing.xs,
     marginTop: moderateScale(2),
+    borderRadius: moderateScale(12),
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -366,11 +449,19 @@ const styles = StyleSheet.create({
     marginTop: Spacing.m,
   },
   button: {
-    paddingHorizontal: Spacing.m,
-    paddingVertical: Spacing.s,
-    borderRadius: BorderRadius.s,
+    paddingHorizontal: Spacing.l,
+    paddingVertical: Spacing.s + 2,
+    borderRadius: moderateScale(16), // More rounded buttons
     minWidth: moderateScale(80),
     alignItems: 'center',
+    shadowColor: Colors.light.text,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: moderateScale(4),
+    elevation: 3,
   },
   cancelButton: {
     backgroundColor: Colors.light.backgroundSecondary,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, Alert, ActionSheetIOS, StatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar, Platform } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -7,11 +7,13 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { getConversationById, updateParticipantRole, removeParticipantFromGroupConversation } from '../../services/chatService'; // Added removeParticipantFromGroupConversation
 import { Conversation, ParticipantInfo, ChatRole } from '../../types/chatTypes';
 import { Ionicons } from '@expo/vector-icons'; // For icons
+import { useAlert } from '@/context/AlertContext';
 
 const ConversationSettingsScreen = () => {
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
   const { user: currentUser, token } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token;
+  const { showError, showInfo, showSuccess, showConfirm } = useAlert();
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,21 +40,21 @@ const ConversationSettingsScreen = () => {
 
   const handleUpdateRole = async (targetUserId: string, newRole: ChatRole) => {
     if (!conversationId || !currentUser?.uid || !isAuthenticated) {
-      Alert.alert("Error", "Cannot update role: Missing critical information.");
+      showError("Error", "Cannot update role: Missing critical information.");
       return;
     }
     if (conversation?.type !== 'group') {
-      Alert.alert("Info", "Roles are only applicable to group chats.");
+      showInfo("Info", "Roles are only applicable to group chats.");
       return;
     }
 
     const admins = conversation?.participants.filter(p => p.role === 'admin');
     if (admins?.length === 1 && admins[0].userId === targetUserId && newRole === 'member') {
-      Alert.alert("Action Denied", "Cannot remove the last admin. Assign another admin first.");
+      showError("Action Denied", "Cannot remove the last admin. Assign another admin first.");
       return;
     }
     if (currentUser.uid === targetUserId && newRole === 'member' && admins?.length === 1 && admins[0].userId === currentUser.uid) {
-        Alert.alert("Action Denied", "You cannot demote yourself as the last admin.");
+        showError("Action Denied", "You cannot demote yourself as the last admin.");
         return;
     }
 
@@ -68,62 +70,59 @@ const ConversationSettingsScreen = () => {
           ),
         };
       });
-      Alert.alert("Success", "Participant role updated.");
+      showSuccess("Success", "Participant role updated.");
     } catch (e: any) {
       console.error("Error updating role:", e);
-      Alert.alert("Error", `Failed to update role: ${e.message}`);
+      showError("Error", `Failed to update role: ${e.message}`);
     }
   };
 
   const handleRemoveParticipant = async (targetUserId: string, targetUserName?: string) => {
     if (!conversationId || !currentUser?.uid || !isAuthenticated) {
-      Alert.alert("Error", "Cannot remove participant: Missing critical information.");
+      showError("Error", "Cannot remove participant: Missing critical information.");
       return;
     }
     if (conversation?.type !== 'group') {
-      Alert.alert("Info", "Participants can only be removed from group chats.");
+      showInfo("Info", "Participants can only be removed from group chats.");
       return;
     }
     if (targetUserId === currentUser?.uid) {
-      Alert.alert("Info", "To leave the group, use the 'Leave Group' option (if available)."); // Or implement leave group
+      showInfo("Info", "To leave the group, use the 'Leave Group' option (if available)."); // Or implement leave group
       return;
     }
     const targetParticipant = conversation?.participants.find(p => p.userId === targetUserId);
     if (targetParticipant?.role === 'admin') {
         const admins = conversation?.participants.filter(p => p.role === 'admin');
         if (admins?.length === 1) {
-            Alert.alert("Action Denied", "Cannot remove the last admin. Assign another admin first or demote them.");
+            showError("Action Denied", "Cannot remove the last admin. Assign another admin first or demote them.");
             return;
         }
     }
 
-
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Removal",
       `Are you sure you want to remove ${targetUserName || 'this participant'} from the group?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await removeParticipantFromGroupConversation(isAuthenticated, conversationId, currentUser.uid, targetUserId);
-              setConversation(prev => {
-                if (!prev) return null;
-                return {
-                  ...prev,
-                  participants: prev.participants.filter(p => p.userId !== targetUserId),
-                };
-              });
-              Alert.alert("Success", `${targetUserName || 'Participant'} removed successfully.`);
-            } catch (e: any) {
-              console.error("Error removing participant:", e);
-              Alert.alert("Error", `Failed to remove participant: ${e.message}`);
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await removeParticipantFromGroupConversation(isAuthenticated, conversationId, currentUser.uid, targetUserId);
+          setConversation(prev => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              participants: prev.participants.filter(p => p.userId !== targetUserId),
+            };
+          });
+          showSuccess("Success", `${targetUserName || 'Participant'} removed successfully.`);
+        } catch (e: any) {
+          console.error("Error removing participant:", e);
+          showError("Error", `Failed to remove participant: ${e.message}`);
+        }
+      },
+      {
+        confirmText: "Remove",
+        cancelText: "Cancel",
+      }
     );
   };
 

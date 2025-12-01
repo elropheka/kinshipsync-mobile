@@ -4,7 +4,6 @@ import {
   Text, 
   TouchableOpacity, 
   FlatList, 
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +17,7 @@ import NotificationListItem, { DisplayNotification } from '../../components/noti
 import NotificationSearchBar from '../../components/notifications/NotificationSearchBar';
 import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips';
 import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
+import { useAlert } from '@/context/AlertContext';
 
 type Filter = FilterChipType;
 
@@ -29,6 +29,7 @@ const NotificationsPage: React.FC = () => {
     markAllRead, 
     error 
   } = useCurrentUser();
+  const { showInfo } = useAlert();
 
   const [isSearchVisible] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<Filter['label']>('All'); 
@@ -118,19 +119,19 @@ const NotificationsPage: React.FC = () => {
           router.push({ pathname: '/(chat)/chatArea', params: { conversationId: item.relatedEntityId } });
           break;
         case 'task_assigned':
-          Alert.alert("Task Notification", `Navigate to task: ${item.message}`);
+          showInfo("Task Notification", `Navigate to task: ${item.message}`);
           break;
         case 'friend_request':
-          Alert.alert("Friend Request", `${item.message}`);
+          showInfo("Friend Request", `${item.message}`);
           break;
         case 'system_alert':
         case 'generic':
         default:
-          Alert.alert(item.sender, item.message);
+          showInfo(item.sender, item.message);
           break;
       }
     } else {
-      Alert.alert(item.sender, item.message);
+      showInfo(item.sender, item.message);
     }
   };
 

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  Alert,
   SafeAreaView,
   StatusBar,
   ScrollView,
@@ -17,6 +16,7 @@ import { UserProfile } from '../../../types/userTypes';
 import { Colors } from '../../../constants/Colors';
 import MultiUserPicker from '../../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useAlert } from '@/context/AlertContext';
 
 interface ScheduleFormProps {
   initialSchedule?: Partial<Schedule> & { id?: string };
@@ -33,6 +33,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   onCancel,
   formTitle = 'Schedule Details',
 }) => {
+  const { showError } = useAlert();
   const [title, setTitle] = useState(initialSchedule?.title || '');
   const [description, setDescription] = useState(initialSchedule?.description || '');
   
@@ -62,19 +63,19 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Schedule title cannot be empty.');
+      showError('Validation Error', 'Schedule title cannot be empty.');
       return;
     }
     if (!startTime) {
-      Alert.alert('Validation Error', 'Start time is required.');
+      showError('Validation Error', 'Start time is required.');
       return;
     }
     if (!endTime) {
-      Alert.alert('Validation Error', 'End time is required.');
+      showError('Validation Error', 'End time is required.');
       return;
     }
     if (endTime <= startTime) {
-      Alert.alert('Validation Error', 'End time must be after start time.');
+      showError('Validation Error', 'End time must be after start time.');
       return;
     }
 

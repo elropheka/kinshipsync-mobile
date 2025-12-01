@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
 import TaskForm from '@/components/tasks/TaskForm'; // Path to existing TaskForm
 import { styles } from '@/styles/app/(events)/details/[id].styles';
 import { Colors } from '@/constants/Colors';
-import CustomAlert from '@/components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailTasksProps {
   tasks: Task[];
@@ -25,33 +25,9 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
   onDeleteTask,
   isOrganizer = true
 }) => {
+  const { showSuccess, showError, showConfirm } = useAlert();
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Partial<Task> & { id?: string } | undefined>(undefined);
-
-  // Custom alert state
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: 'success' | 'error' | 'info';
-    title: string;
-    message: string;
-    showCancelButton?: boolean;
-    onConfirm?: () => void;
-    confirmText?: string;
-    cancelText?: string;
-  }>({
-    visible: false,
-    type: 'info',
-    title: '',
-    message: '',
-    showCancelButton: false,
-    onConfirm: undefined,
-    confirmText: 'OK',
-    cancelText: 'Cancel',
-  });
-
-  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    setAlertConfig({ visible: true, type, title, message, showCancelButton: false });
-  };
 
   // Helper function to get user display names from IDs
   const getUserDisplayNames = (userIds: string[]): string => {
@@ -83,38 +59,36 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     try {
       if (taskId) {
         await onUpdateTask(taskId, taskData as UpdateTaskPayload);
-        showAlert('success', 'Success', 'Task updated successfully.');
+        showSuccess('Success', 'Task updated successfully.');
       } else {
         await onAddTask(taskData as CreateTaskPayload);
-        showAlert('success', 'Success', 'Task created successfully.');
+        showSuccess('Success', 'Task created successfully.');
       }
       handleCloseTaskForm();
     } catch (e) {
       console.error("Failed to submit task:", e);
-      showAlert('error', 'Error', 'Failed to save task. Please try again.');
+      showError('Error', 'Failed to save task. Please try again.');
     }
   };
 
   const handleDeletePress = (taskId: string) => {
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Delete",
       "Are you sure you want to delete this task?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try { 
-              await onDeleteTask(taskId); 
-              Alert.alert('Success', 'Task deleted successfully.');
-            } 
-            catch { 
-              Alert.alert('Error', 'Failed to delete task.'); 
-            }
-          }
+      async () => {
+        try { 
+          await onDeleteTask(taskId); 
+          showSuccess('Success', 'Task deleted successfully.');
+        } 
+        catch { 
+          showError('Error', 'Failed to delete task.');
         }
-      ]
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
     );
   };
 
@@ -177,17 +151,6 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
           formTitle={editingTask ? 'Edit Task' : 'Create New Task'} 
         />
       </Modal>
-      
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={() => setAlertConfig(prev => ({ ...prev, visible: false }))}
-        onConfirm={alertConfig.onConfirm}
-        confirmText={alertConfig.confirmText}
-        cancelText={alertConfig.cancelText}
-      />
     </View>
   );
 };

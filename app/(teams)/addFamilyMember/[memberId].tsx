@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { styles } from '../../../styles/app/(teams)/addFamilyMemberScreen.styles
 import { UserProfile } from '../../../types/userTypes';
 import { FamilyMemberNode } from '../../../types/teamTypes'; 
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { searchUsersByName } from '../../../services/userService';
 import { addMemberToTeam, updateFamilyTreeRoot, getTeamById, addSpouseToFamilyMember } from '../../../services/teamService'; 
 import { uploadImage } from '../../../services/storageService'; // Import uploadImage
@@ -53,6 +54,7 @@ const AddFamilyMemberScreen = () => {
   const router = useRouter();
   const { user: currentUser, token, isInitialized } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token && isInitialized;
+  const { showError, showSuccess, showInfo } = useAlert();
 
   const [isLoading, setIsLoadingState] = useState(false);
 
@@ -85,17 +87,18 @@ const AddFamilyMemberScreen = () => {
   }, [isAddChildMode, isAddSpouseMode, memberId, teamId, initialTargetMemberName]);
 
   const handleCreateRootMember = async () => { /* ... same as before ... */ 
-    if (!newRootMemberName.trim()) { Alert.alert('Validation Error', 'Member name is required.'); return; }
-    if (!teamId) { Alert.alert('Error', 'Team ID is missing.'); return; }
-    if (!isAuthenticated) { Alert.alert("Authentication Error", "You must be logged in."); return; }
+    if (!newRootMemberName.trim()) { showError('Validation Error', 'Member name is required.'); return; }
+    if (!teamId) { showError('Error', 'Team ID is missing.'); return; }
+    if (!isAuthenticated) { showError("Authentication Error", "You must be logged in."); return; }
     setIsLoadingState(true);
     const newNodePayload: any = { id: generateNodeId(), name: newRootMemberName.trim(), parentIds: [], children: [] };
     if (newRootMemberImageUrl.trim()) newNodePayload.imageUrl = newRootMemberImageUrl.trim();
     try {
       await updateFamilyTreeRoot(teamId, newNodePayload as FamilyMemberNode);
-      Alert.alert('Success', `${newNodePayload.name} added as root.`);
-      router.back(); 
-    } catch (error: any) { Alert.alert('Error Creating Root', error.message || 'Failed to create root member.');
+      showSuccess('Success', `${newNodePayload.name} added as root.`, {
+        onConfirm: () => router.back(),
+      });
+    } catch (error: any) { showError('Error Creating Root', error.message || 'Failed to create root member.');
     } finally { setIsLoadingState(false); }
   };
 
@@ -105,7 +108,7 @@ const AddFamilyMemberScreen = () => {
   ) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Alert.alert("Permission Required", "Permission to access camera roll is required.");
+      showError("Permission Required", "Permission to access camera roll is required.");
       return;
     }
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -122,45 +125,46 @@ const AddFamilyMemberScreen = () => {
       try {
         const uploadResult = await uploadImage(imageUri, 'family_member_images', teamId);
         setImageUrlStateAction(uploadResult.imageUrl);
-        Alert.alert("Image Uploaded", "Image is ready. Save the member to apply.");
+        showInfo("Image Uploaded", "Image is ready. Save the member to apply.");
       } catch (uploadError: any) {
-        Alert.alert("Upload Failed", `Could not upload image: ${uploadError.message}`);
+        showError("Upload Failed", `Could not upload image: ${uploadError.message}`);
       } finally {
         setIsUploadingStateAction(false);
       }
     } else if (!teamId) {
-      Alert.alert("Error", "Team ID is missing, cannot upload image.");
+      showError("Error", "Team ID is missing, cannot upload image.");
     }
   };
 
   const handleAddChildMember = async () => { 
-    if (!newChildName.trim()) { Alert.alert('Validation Error', "Child's name is required."); return; }
+    if (!newChildName.trim()) { showError('Validation Error', "Child's name is required."); return; }
     const parentNodeId = memberId; 
-    if (!teamId || !parentNodeId) { Alert.alert('Error', 'Team ID or Parent ID is missing.'); return; }
-    if (!isAuthenticated) { Alert.alert("Authentication Error", "You must be logged in."); return; }
+    if (!teamId || !parentNodeId) { showError('Error', 'Team ID or Parent ID is missing.'); return; }
+    if (!isAuthenticated) { showError("Authentication Error", "You must be logged in."); return; }
     setIsLoadingState(true);
     const childNodePayload: any = { id: generateNodeId(), name: newChildName.trim(), parentIds: [parentNodeId], children: [] };
     if (newChildImageUrl.trim()) childNodePayload.imageUrl = newChildImageUrl.trim(); // Uses the state updated by image picker
     try {
       const teamData = await getTeamById(isAuthenticated, teamId);
       if (!teamData || !teamData.familyTreeRoot) {
-        Alert.alert('Error', 'Family tree not found.'); setIsLoadingState(false); return;
+        showError('Error', 'Family tree not found.'); setIsLoadingState(false); return;
       }
       const modifiedTree = addChildNodeToTree(JSON.parse(JSON.stringify(teamData.familyTreeRoot)), parentNodeId, childNodePayload as FamilyMemberNode);
       if (modifiedTree) {
         await updateFamilyTreeRoot(teamId, modifiedTree);
-        Alert.alert('Success', `${childNodePayload.name} added as a child.`);
-        router.back();
-      } else { Alert.alert('Error', `Could not find parent with ID ${parentNodeId}.`); }
-    } catch (error: any) { Alert.alert('Error Adding Child', error.message || 'Failed to add child.');
+        showSuccess('Success', `${childNodePayload.name} added as a child.`, {
+          onConfirm: () => router.back(),
+        });
+      } else { showError('Error', `Could not find parent with ID ${parentNodeId}.`); }
+    } catch (error: any) { showError('Error Adding Child', error.message || 'Failed to add child.');
     } finally { setIsLoadingState(false); }
   };
 
   const handleAddSpouseMember = async () => {
-    if (!newSpouseName.trim()) { Alert.alert('Validation Error', "Spouse's name is required."); return; }
+    if (!newSpouseName.trim()) { showError('Validation Error', "Spouse's name is required."); return; }
     const targetMemberId = memberId; // memberId from route is the person getting a spouse
-    if (!teamId || !targetMemberId) { Alert.alert('Error', 'Team ID or Member ID is missing.'); return; }
-    if (!isAuthenticated) { Alert.alert("Authentication Error", "You must be logged in."); return; }
+    if (!teamId || !targetMemberId) { showError('Error', 'Team ID or Member ID is missing.'); return; }
+    if (!isAuthenticated) { showError("Authentication Error", "You must be logged in."); return; }
 
     setIsLoadingState(true);
     const spouseDataPayload: Pick<FamilyMemberNode, 'id' | 'name' | 'imageUrl'> = {
@@ -173,10 +177,11 @@ const AddFamilyMemberScreen = () => {
 
     try {
       await addSpouseToFamilyMember(teamId, targetMemberId, spouseDataPayload);
-      Alert.alert('Success', `${spouseDataPayload.name} added as spouse to ${targetMemberName || 'the member'}.`);
-      router.back();
+      showSuccess('Success', `${spouseDataPayload.name} added as spouse to ${targetMemberName || 'the member'}.`, {
+        onConfirm: () => router.back(),
+      });
     } catch (error: any) {
-      Alert.alert('Error Adding Spouse', error.message || 'Failed to add spouse.');
+      showError('Error Adding Spouse', error.message || 'Failed to add spouse.');
     } finally {
       setIsLoadingState(false);
     }
@@ -184,23 +189,24 @@ const AddFamilyMemberScreen = () => {
 
   const handleSearch = async () => { /* ... same as before ... */ 
     if (!searchQuery.trim()) { setSearchResults([]); return; }
-    if (!isAuthenticated) { Alert.alert("Auth Error", "Please log in."); return; }
+    if (!isAuthenticated) { showError("Auth Error", "Please log in."); return; }
     setIsLoadingSearch(true);
     try {
       const users = await searchUsersByName(isAuthenticated, searchQuery.trim(), 10);
       setSearchResults(users.filter(u => u.userId !== currentUser?.uid));
-    } catch (error: any) { Alert.alert('Search Error', error.message); setSearchResults([]);
+    } catch (error: any) { showError('Search Error', error.message); setSearchResults([]);
     } finally { setIsLoadingSearch(false); }
   };
   const handleAddExistingUserToTeam = async () => { /* ... same as before ... */ 
-    if (!selectedUser || !teamId) { Alert.alert('Error', 'Select user and team.'); return; }
-    if (!isAuthenticated) { Alert.alert("Auth Error", "Please log in."); return; }
+    if (!selectedUser || !teamId) { showError('Error', 'Select user and team.'); return; }
+    if (!isAuthenticated) { showError("Auth Error", "Please log in."); return; }
     setIsLoadingState(true);
     try {
       await addMemberToTeam(isAuthenticated, teamId, selectedUser.userId, false);
-      Alert.alert('Success', `${selectedUser.displayName} added to team roster.`);
-      router.back(); 
-    } catch (error: any) { Alert.alert('Error Adding Member', error.message);
+      showSuccess('Success', `${selectedUser.displayName} added to team roster.`, {
+        onConfirm: () => router.back(),
+      });
+    } catch (error: any) { showError('Error Adding Member', error.message);
     } finally { setIsLoadingState(false); }
   };
   const renderUserItem = ({ item }: { item: UserProfile }) => ( /* ... same as before ... */ 

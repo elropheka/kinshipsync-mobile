@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, Alert, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,12 +10,14 @@ import { useConversations } from '../../hooks/useChat'; // To check existing and
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAuth } from '../../context/AuthContext'; // Added to get isAuthenticated
 import { Colors } from 'constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 const NewChatScreen = () => {
   const router = useRouter();
   const { user: currentUser } = useAppAuth();
   const { isAuthenticated } = useAuth();
   const { conversations, createDirectChat } = useConversations();
+  const { showError } = useAlert();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
@@ -88,11 +90,11 @@ const NewChatScreen = () => {
       if (newConversation) {
         router.push({ pathname: '/(chat)/chatArea', params: { conversationId: newConversation.id } });
       } else {
-        Alert.alert("Error", "Could not start a new chat. Please try again.");
+        showError("Error", "Could not start a new chat. Please try again.");
       }
     } catch (error) {
       console.error("Error creating direct conversation:", error);
-      Alert.alert("Error", "Failed to create chat.");
+      showError("Error", "Failed to create chat.");
     } finally {
       setIsCreatingChat(false);
     }

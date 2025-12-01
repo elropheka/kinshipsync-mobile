@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, TeamMember } from '../../../types/eventTypes';
 import { UserProfile } from '../../../types/userTypes';
@@ -7,6 +7,7 @@ import EventTeamForm from '../../teams/EventTeamForm'; // Path to existing Event
 import MultiUserPicker from '../../common/MultiUserPicker'; // Path to MultiUserPicker
 import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
 import { Colors } from '../../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailTeamsProps {
   eventTeams: EventTeam[];
@@ -29,6 +30,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   onRemoveTeamMember,
   isOrganizer = true
 }) => {
+  const { showSuccess, showError, showConfirm } = useAlert();
   const [isEventTeamFormVisible, setIsEventTeamFormVisible] = useState(false);
   const [editingEventTeam, setEditingEventTeam] = useState<Partial<Omit<EventTeam, 'members'>> & { id?: string; members?: string[] } | undefined>(undefined);
   const [managingTeamMembersFor, setManagingTeamMembersFor] = useState<EventTeam | null>(null);
@@ -57,29 +59,37 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
     try {
       if (teamId) {
         await onUpdateEventTeam(teamId, teamData as UpdateEventTeamPayload);
-        Alert.alert('Success', 'Team updated.');
+        showSuccess('Success', 'Team updated.');
       } else {
         await onCreateEventTeam(teamData as CreateEventTeamPayload);
-        Alert.alert('Success', 'Team created.');
+        showSuccess('Success', 'Team created.');
       }
       handleCloseEventTeamForm();
     } catch (e) {
       console.error("Failed to submit event team:", e);
-      Alert.alert('Error', 'Failed to save team.');
+      showError('Error', 'Failed to save team.');
     }
   };
 
   const handleDeleteTeamPress = (teamId: string) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this team and its members?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => {
+    showConfirm(
+      'warning',
+      "Confirm Delete",
+      "Are you sure you want to delete this team and its members?",
+      async () => {
         try { 
           await onDeleteEventTeam(teamId); 
-          Alert.alert('Success', 'Team deleted.');
+          showSuccess('Success', 'Team deleted.');
         } 
-        catch { Alert.alert("Error", "Failed to delete team."); }
-      }}
-    ]);
+        catch { 
+          showError("Error", "Failed to delete team.");
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
+    );
   };
 
   const handleOpenTeamMemberModal = (team: EventTeam) => {
@@ -91,7 +101,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
 
   const handleConfirmAddTeamMember = async () => {
     if (!managingTeamMembersFor || !selectedUserForTeam) {
-      Alert.alert("Error", "Please select a team and a user.");
+      showError("Error", "Please select a team and a user.");
       return;
     }
     try {
@@ -99,27 +109,33 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
         userId: selectedUserForTeam.userId, 
         role: selectedRoleForTeamMember 
       });
-      Alert.alert("Success", `${selectedUserForTeam.displayName} added to ${managingTeamMembersFor.name}.`);
+      showSuccess("Success", `${selectedUserForTeam.displayName} added to ${managingTeamMembersFor.name}.`);
       setIsTeamMemberPickerVisible(false);
       setManagingTeamMembersFor(null);
     } catch (e) {
       console.error("Error adding team member:", e);
-      Alert.alert("Error", "Failed to add team member.");
+      showError("Error", "Failed to add team member.");
     }
   };
   
   const handleRemoveMemberPress = async (teamId: string, memberUserId: string) => {
-    Alert.alert("Confirm Remove", "Are you sure you want to remove this member?", [
-      {text: "Cancel", style: "cancel"},
-      {text: "Remove", style: "destructive", onPress: async () => {
+    showConfirm(
+      'warning',
+      "Confirm Remove",
+      "Are you sure you want to remove this member?",
+      async () => {
         try {
           await onRemoveTeamMember(teamId, memberUserId);
-          Alert.alert("Success", "Member removed.");
+          showSuccess("Success", "Member removed.");
         } catch {
-          Alert.alert("Error", "Failed to remove member.");
+          showError("Error", "Failed to remove member.");
         }
-      }}
-    ]);
+      },
+      {
+        confirmText: "Remove",
+        cancelText: "Cancel",
+      }
+    );
   };
 
   const renderEventTeamItem = ({ item: team }: { item: EventTeam }) => (

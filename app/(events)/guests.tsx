@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Removed AntDesign as it's not used
 import { Stack, router } from 'expo-router'; // Removed useLocalSearchParams
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(events)/guests.styles'; // Assuming styles are somewhat reusable or will be adapted
 import { useAppAuth } from '../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { useAllEvents } from '../../hooks/useEvents'; // Use the filtered events hook
 import { Event as EventType } from '../../types/eventTypes'; // Only EventType needed here
 import { Colors } from '../../constants/Colors';
@@ -12,6 +13,7 @@ import { Colors } from '../../constants/Colors';
 const EventSelectionForGuestsScreen = () => {
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { showError } = useAlert();
   
   const { events, isLoading, error, fetchEvents: refreshEvents } = useAllEvents();
 
@@ -47,7 +49,7 @@ const EventSelectionForGuestsScreen = () => {
                 if (isAuthenticated && refreshEvents) {
                     refreshEvents();
                 } else {
-                    Alert.alert("Cannot Retry", "Please ensure you are signed in.");
+                    showError("Cannot Retry", "Please ensure you are signed in.");
                 }
             }} 
             style={{ padding: 10, backgroundColor: Colors.light.tint, borderRadius: 5}}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
@@ -9,6 +9,7 @@ import { useCurrentUser } from '@/hooks/useUser';
 import { UserSettings, UpdateUserSettingsPayload } from '@/types/userTypes';
 import { useAuth } from '@/context/AuthContext';
 import { setEventVisibility } from '../../store/slices/eventVisibilitySlice';
+import { useAlert } from '@/context/AlertContext';
 
 interface SettingOptionProps {
   title: string;
@@ -64,6 +65,7 @@ const SettingsScreen: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { signOut } = useAuth();
+  const { showSuccess, showError } = useAlert();
   const { 
     settings: currentSettings, 
     updateSettings, 
@@ -151,10 +153,10 @@ const SettingsScreen: React.FC = () => {
       console.log('Settings: Manual save settings payload:', payload);
       const updatedSettings = await updateSettings(payload);
       console.log('Settings: Settings manually saved successfully:', updatedSettings);
-      Alert.alert("Success", "Settings updated successfully.");
+      showSuccess("Success", "Settings updated successfully.");
     } catch (error) {
       console.error("Failed to update settings:", error);
-      Alert.alert("Error", "Failed to save settings.");
+      showError("Error", "Failed to save settings.");
     } finally {
       setIsSaving(false);
     }
@@ -165,7 +167,7 @@ const SettingsScreen: React.FC = () => {
       await signOut();
       router.replace('/(auth)/signIn'); 
     } catch {
-      Alert.alert("Logout Failed", "Could not log out. Please try again.");
+      showError("Logout Failed", "Could not log out. Please try again.");
     }
   };
   

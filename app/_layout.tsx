@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from "@/context/AuthContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AlertProvider } from "@/context/AlertContext";
 
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
@@ -90,9 +91,11 @@ const RootLayout: React.FC = () => {
             <AuthProvider>
               <SidebarProvider>
                 <ThemeProvider>
-                  {/* <ResponsiveContainer> */}
-                    <AppCoreNav />
-                  {/* </ResponsiveContainer> */}
+                  <AlertProvider>
+                    {/* <ResponsiveContainer> */}
+                      <AppCoreNav />
+                    {/* </ResponsiveContainer> */}
+                  </AlertProvider>
                 </ThemeProvider>
               </SidebarProvider>
             </AuthProvider>

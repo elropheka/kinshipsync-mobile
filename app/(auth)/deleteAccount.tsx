@@ -15,7 +15,7 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 import { deleteUserAccount, checkUserDataExists } from '@/services/accountDeletionService';
 import { styles } from '@/styles/app/(auth)/deleteAccount.styles';
-import CustomAlert, { AlertType } from '@/components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 interface DataCheckResult {
   hasEvents: boolean;
@@ -31,42 +31,7 @@ const DeleteAccountScreen: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [dataCheckResult, setDataCheckResult] = useState<DataCheckResult | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: AlertType;
-    title: string;
-    message: string;
-    onConfirm?: () => void;
-    confirmText?: string;
-    showCancelButton?: boolean;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-    onConfirm: undefined,
-    confirmText: 'OK',
-    showCancelButton: false,
-  });
-
-  const showAlert = (type: AlertType, title: string, message: string, onConfirm?: () => void, confirmText?: string, showCancelButton?: boolean) => {
-    setAlertConfig({
-      visible: true,
-      type,
-      title,
-      message,
-      onConfirm,
-      confirmText,
-      showCancelButton,
-    });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig({
-      ...alertConfig,
-      visible: false,
-    });
-  };
+  const { showError, showSuccess, showConfirm } = useAlert();
 
   useEffect(() => {
     checkUserData();
@@ -82,7 +47,7 @@ const DeleteAccountScreen: React.FC = () => {
       setDataCheckResult(result);
     } catch (error) {
       console.error('Error checking user data:', error);
-      showAlert('error', 'Error', 'Failed to check your data. Please try again.');
+      showError('Error', 'Failed to check your data. Please try again.');
     } finally {
       setIsCheckingData(false);
     }
@@ -91,13 +56,15 @@ const DeleteAccountScreen: React.FC = () => {
   const handleDeleteAccount = async () => {
     if (!user?.uid) return;
 
-    showAlert(
+    showConfirm(
       'warning',
       'Delete Account',
       'Are you absolutely sure? This action cannot be undone. All your data will be permanently deleted.',
       () => setShowConfirmation(true),
-      'Delete Forever',
-      true
+      {
+        confirmText: 'Delete Forever',
+        cancelText: 'Cancel',
+      }
     );
   };
 
@@ -109,26 +76,28 @@ const DeleteAccountScreen: React.FC = () => {
       const result = await deleteUserAccount(user.uid);
       
       if (result.success) {
-        showAlert(
-          'success',
+        showSuccess(
           'Account Deleted',
           'Your account and all associated data have been permanently deleted.',
-          async () => {
-            try {
-              await signOut();
-              router.replace('/(auth)/signIn');
-            } catch (error) {
-              console.error('Error signing out after deletion:', error);
-              router.replace('/(auth)/signIn');
-            }
+          {
+            onConfirm: async () => {
+              try {
+                await signOut();
+                router.replace('/(auth)/signIn');
+              } catch (error) {
+                console.error('Error signing out after deletion:', error);
+                router.replace('/(auth)/signIn');
+              }
+            },
+            showCancelButton: false,
           }
         );
       } else {
-        showAlert('error', 'Deletion Failed', result.error || 'Failed to delete account. Please try again.');
+        showError('Deletion Failed', result.error || 'Failed to delete account. Please try again.');
       }
     } catch (error) {
       console.error('Error during account deletion:', error);
-      showAlert('error', 'Error', 'An unexpected error occurred. Please try again.');
+      showError('Error', 'An unexpected error occurred. Please try again.');
     } finally {
       setIsDeleting(false);
       setShowConfirmation(false);
@@ -297,16 +266,6 @@ const DeleteAccountScreen: React.FC = () => {
           </View>
         </View>
       )}
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onConfirm={alertConfig.onConfirm}
-        confirmText={alertConfig.confirmText}
-        showCancelButton={alertConfig.showCancelButton}
-        onClose={hideAlert}
-      />
     </SafeAreaView>
   );
 };

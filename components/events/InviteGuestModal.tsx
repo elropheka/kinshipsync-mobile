@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors'; // Adjust path as needed
 // Styles imported from component-specific styles file
 import { CreateGuestPayload, GuestStatus } from '../../types/eventTypes'; // Adjust path
-import CustomAlert from '../common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 interface InviteGuestModalProps {
   visible: boolean;
@@ -25,34 +25,15 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
   const [plusOnes, setPlusOnes] = useState<number>(0);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: 'error';
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-  });
-
-  const showAlert = (title: string, message: string) => {
-    setAlertConfig({ visible: true, type: 'error', title, message });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig(prev => ({ ...prev, visible: false }));
-  };
+  const { showError } = useAlert();
 
   const handleFormSubmit = async () => {
     if (!name.trim()) {
-      showAlert('Validation Error', 'Guest name is required.');
+      showError('Validation Error', 'Guest name is required.');
       return;
     }
     if (email.trim() && !email.includes('@')) {
-        showAlert('Validation Error', 'Please enter a valid email address.');
+        showError('Validation Error', 'Please enter a valid email address.');
         return;
     }
 
@@ -204,18 +185,6 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
-      
-      {/* Custom Alert */}
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-        position="top"
-        showIcon={true}
-        closable={true}
-      />
     </Modal>
   );
 };

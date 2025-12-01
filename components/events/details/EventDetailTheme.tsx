@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Theme } from '../../../types/eventTypes';
 import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
 import { Colors } from '../../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailThemeProps {
   currentTheme: Theme | null | undefined;
@@ -18,6 +19,7 @@ const EventDetailTheme: React.FC<EventDetailThemeProps> = ({
   onSetEventTheme,
   isOrganizer = true
 }) => {
+  const { showSuccess, showError } = useAlert();
   const [isThemePickerVisible, setIsThemePickerVisible] = useState(false);
 
   const handleThemeSelection = async (themeId: string) => {
@@ -25,9 +27,9 @@ const EventDetailTheme: React.FC<EventDetailThemeProps> = ({
       await onSetEventTheme(themeId);
       setIsThemePickerVisible(false);
       const selectedTheme = availableThemes.find(t => t.id === themeId);
-      Alert.alert("Success", `Theme &quot;${selectedTheme?.name || ''}&quot; applied.`);
+      showSuccess("Success", `Theme "${selectedTheme?.name || ''}" applied.`);
     } catch {
-      Alert.alert("Error", "Failed to apply theme.");
+      showError("Error", "Failed to apply theme.");
     }
   };
 

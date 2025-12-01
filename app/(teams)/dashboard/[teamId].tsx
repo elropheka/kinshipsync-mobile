@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import ScheduleForm from '../../../components/schedules/form/ScheduleForm'; // A
 import ScheduleListItem from '../../../components/schedules/list/ScheduleListItem'; // Added ScheduleListItem
 import { Colors } from '../../../constants/Colors';
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, removeMemberFromTeam, deleteTaskForTeam } from '../../../services/teamService';
 import * as scheduleService from '../../../services/scheduleService'; // Added scheduleService
 import { getUserProfile } from '../../../services/userService';
@@ -23,6 +24,7 @@ const TeamDashboardScreen = () => {
   const { teamId, initialTab } = useLocalSearchParams<{ teamId: string; initialTab?: string }>();
   const { user: currentUser, token, isInitialized } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token && isInitialized;
+  const { showError, showSuccess, showConfirm } = useAlert();
 
   const [activeTab, setActiveTab] = useState(initialTab || 'Members');
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
@@ -82,63 +84,59 @@ const TeamDashboardScreen = () => {
 
   const handleDeleteTask = async (taskId: string, taskTitle: string) => {
     if (!teamId || !isAuthenticated || !currentUser?.uid) {
-      Alert.alert("Error", "Cannot delete task: Missing team ID, authentication, or user information.");
+      showError("Error", "Cannot delete task: Missing team ID, authentication, or user information.");
       return;
     }
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Deletion",
       `Are you sure you want to delete the task "${taskTitle}"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteTaskForTeam(isAuthenticated, teamId, taskId); // Assuming deleteTaskForTeam is imported from teamService
-              setTeamTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-              Alert.alert("Success", `Task "${taskTitle}" deleted successfully.`);
-            } catch (e: any) {
-              console.error("Failed to delete task:", e);
-              Alert.alert("Error", `Failed to delete task: ${e.message}`);
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await deleteTaskForTeam(isAuthenticated, teamId, taskId); // Assuming deleteTaskForTeam is imported from teamService
+          setTeamTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+          showSuccess("Success", `Task "${taskTitle}" deleted successfully.`);
+        } catch (e: any) {
+          console.error("Failed to delete task:", e);
+          showError("Error", `Failed to delete task: ${e.message}`);
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
     );
   };
 
   const handleRemoveMember = async (memberIdToRemove: string, memberName?: string) => {
     if (!teamId || !isAuthenticated) {
-      Alert.alert("Error", "Cannot remove member: Missing team ID or user authentication.");
+      showError("Error", "Cannot remove member: Missing team ID or user authentication.");
       return;
     }
     // Optional: Add a check to prevent removing the current user if they are the only admin/creator,
     // or prevent removing oneself if that's not allowed.
 
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Removal",
       `Are you sure you want to remove ${memberName || 'this member'} from the team?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await removeMemberFromTeam(isAuthenticated, teamId, memberIdToRemove);
-              setTeamMembers(prevMembers => prevMembers.filter(member => member.userId !== memberIdToRemove));
-              if (team) {
-                setTeam(prevTeam => prevTeam ? ({ ...prevTeam, memberIds: prevTeam.memberIds.filter(id => id !== memberIdToRemove) }) : null);
-              }
-              Alert.alert("Success", `${memberName || 'Member'} removed successfully.`);
-            } catch (e: any) {
-              console.error("Failed to remove member:", e);
-              Alert.alert("Error", `Failed to remove member: ${e.message}`);
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await removeMemberFromTeam(isAuthenticated, teamId, memberIdToRemove);
+          setTeamMembers(prevMembers => prevMembers.filter(member => member.userId !== memberIdToRemove));
+          if (team) {
+            setTeam(prevTeam => prevTeam ? ({ ...prevTeam, memberIds: prevTeam.memberIds.filter(id => id !== memberIdToRemove) }) : null);
+          }
+          showSuccess("Success", `${memberName || 'Member'} removed successfully.`);
+        } catch (e: any) {
+          console.error("Failed to remove member:", e);
+          showError("Error", `Failed to remove member: ${e.message}`);
+        }
+      },
+      {
+        confirmText: "Remove",
+        cancelText: "Cancel",
+      }
     );
   };
 
@@ -154,7 +152,7 @@ const TeamDashboardScreen = () => {
 
   const handleTaskSubmit = async (taskFormData: CreateTaskPayload | UpdateTaskPayload, taskIdFromForm?: string) => {
     if (!teamId || !currentUser?.uid || !isAuthenticated) {
-        Alert.alert("Error", "Cannot submit task: Missing team ID, user authentication, or auth status.");
+        showError("Error", "Cannot submit task: Missing team ID, user authentication, or auth status.");
         return;
     }
 
@@ -178,9 +176,9 @@ const TeamDashboardScreen = () => {
         const updatedTask = await updateTaskForTeam(isAuthenticated, teamId, editingTask.id, taskUpdatePayload);
         if (updatedTask) {
           setTeamTasks(prevTasks => prevTasks.map(t => t.id === editingTask.id ? updatedTask : t));
-          Alert.alert('Task Updated', `Task "${updatedTask.title}" has been updated.`);
+          showSuccess('Task Updated', `Task "${updatedTask.title}" has been updated.`);
         } else {
-          Alert.alert('Error', 'Failed to update task. Task not found or an error occurred.');
+          showError('Error', 'Failed to update task. Task not found or an error occurred.');
         }
       } else {
         const assignedToUserIds = taskFormData.assignedToUserIds && taskFormData.assignedToUserIds.length > 0 
@@ -197,12 +195,12 @@ const TeamDashboardScreen = () => {
         };
         const createdTask = await createTaskForTeam(isAuthenticated, teamId, newTaskPayload);
         setTeamTasks(prevTasks => [...prevTasks, createdTask]);
-        Alert.alert('Task Created', `Task "${createdTask.title}" has been created.`);
+        showSuccess('Task Created', `Task "${createdTask.title}" has been created.`);
       }
       handleCloseTaskForm();
     } catch (error: any) {
       console.error("Failed to submit task:", error);
-      Alert.alert("Error Submitting Task", error.message || "An unexpected error occurred.");
+      showError("Error Submitting Task", error.message || "An unexpected error occurred.");
     }
   };
   
@@ -211,7 +209,7 @@ const TeamDashboardScreen = () => {
       if (teamId) {
         router.push({ pathname: '/(teams)/addFamilyMember/[memberId]', params: { memberId: 'new', teamId: teamId } });
       } else {
-        Alert.alert("Error", "Team ID is not available to add a member.");
+        showError("Error", "Team ID is not available to add a member.");
       }
     } else if (activeTab === 'Tasks') {
       handleOpenTaskForm();
@@ -232,7 +230,7 @@ const TeamDashboardScreen = () => {
 
   const handleScheduleSubmit = async (formData: ScheduleFormData, scheduleIdToUpdate?: string) => {
     if (!teamId || !currentUser?.uid || !isAuthenticated) {
-      Alert.alert("Error", "Cannot submit schedule: Missing team ID, user authentication, or auth status.");
+      showError("Error", "Cannot submit schedule: Missing team ID, user authentication, or auth status.");
       return;
     }
     try {
@@ -240,47 +238,45 @@ const TeamDashboardScreen = () => {
         const updatedSchedule = await scheduleService.updateSchedule(isAuthenticated, teamId, editingSchedule.id, formData);
         if (updatedSchedule) {
           setTeamSchedules(prevSchedules => prevSchedules.map(s => s.id === editingSchedule.id ? updatedSchedule : s));
-          Alert.alert('Schedule Updated', `Schedule "${updatedSchedule.title}" has been updated.`);
+          showSuccess('Schedule Updated', `Schedule "${updatedSchedule.title}" has been updated.`);
         } else {
-          Alert.alert('Error', 'Failed to update schedule.');
+          showError('Error', 'Failed to update schedule.');
         }
       } else {
         const createdSchedule = await scheduleService.createSchedule(isAuthenticated, teamId, currentUser.uid, formData);
         setTeamSchedules(prevSchedules => [...prevSchedules, createdSchedule]);
-        Alert.alert('Schedule Created', `Schedule "${createdSchedule.title}" has been created.`);
+        showSuccess('Schedule Created', `Schedule "${createdSchedule.title}" has been created.`);
       }
       handleCloseScheduleForm();
     } catch (e: any) {
       console.error("Failed to submit schedule:", e);
-      Alert.alert("Error Submitting Schedule", e.message || "An unexpected error occurred.");
+      showError("Error Submitting Schedule", e.message || "An unexpected error occurred.");
     }
   };
 
   const handleDeleteSchedule = async (scheduleId: string, scheduleTitle: string) => {
     if (!teamId || !isAuthenticated || !currentUser?.uid) {
-      Alert.alert("Error", "Cannot delete schedule: Missing team ID, authentication, or user information.");
+      showError("Error", "Cannot delete schedule: Missing team ID, authentication, or user information.");
       return;
     }
-    Alert.alert(
+    showConfirm(
+      'warning',
       "Confirm Deletion",
       `Are you sure you want to delete the schedule "${scheduleTitle}"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await scheduleService.deleteSchedule(isAuthenticated, teamId, scheduleId);
-              setTeamSchedules(prevSchedules => prevSchedules.filter(s => s.id !== scheduleId));
-              Alert.alert("Success", `Schedule "${scheduleTitle}" deleted successfully.`);
-            } catch (e: any) {
-              console.error("Failed to delete schedule:", e);
-              Alert.alert("Error", `Failed to delete schedule: ${e.message}`);
-            }
-          },
-        },
-      ]
+      async () => {
+        try {
+          await scheduleService.deleteSchedule(isAuthenticated, teamId, scheduleId);
+          setTeamSchedules(prevSchedules => prevSchedules.filter(s => s.id !== scheduleId));
+          showSuccess("Success", `Schedule "${scheduleTitle}" deleted successfully.`);
+        } catch (e: any) {
+          console.error("Failed to delete schedule:", e);
+          showError("Error", `Failed to delete schedule: ${e.message}`);
+        }
+      },
+      {
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      }
     );
   };
   

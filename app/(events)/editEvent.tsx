@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, Alert, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Modal } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import { useAppAuth } from '@/hooks/useAppAuth';
 import { useTheme } from '@/context/ThemeContext'; 
 import MultiUserPicker from '@/components/common/MultiUserPicker';
 import * as userService from '@/services/userService';
+import { useAlert } from '@/context/AlertContext';
 
 const EventWebsiteFormFallback = ({ initialWebsiteData, onSubmit, onCancel }: any) => (
   <View style={{ padding: 20, alignItems: 'center' }}>
@@ -31,7 +32,7 @@ const EditEventScreen = () => {
   const router = useRouter();
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
-  
+  const { showSuccess, showError, showInfo } = useAlert();
   
   const { event, updateThisEvent, isLoading: isLoadingEvent, fetchEventDetails } = useEventDetail(eventId);
   
@@ -77,11 +78,11 @@ const EditEventScreen = () => {
 
   useEffect(() => {
     if (event && currentUser && event.organizerId !== currentUser.uid) {
-      Alert.alert('Access Denied', 'Only the event organizer can edit this event.', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      showError('Access Denied', 'Only the event organizer can edit this event.', {
+        onConfirm: () => router.back(),
+      });
     }
-  }, [event, currentUser, router]);
+  }, [event, currentUser, router, showError]);
 
   useEffect(() => {
     if (currentStep === 2) {
@@ -157,11 +158,11 @@ const EditEventScreen = () => {
       
       if (currentStep === 1) {
         if (!name.trim()) {
-          Alert.alert('Error', 'Event name is required.');
+          showError('Error', 'Event name is required.');
           return;
         }
         if (!selectedDate) {
-          Alert.alert('Error', 'Event date is required.');
+          showError('Error', 'Event date is required.');
           return;
         }
         
@@ -173,7 +174,7 @@ const EditEventScreen = () => {
       }
     } catch (error) {
       console.error('Error in handleNextStep:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      showError('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
@@ -185,22 +186,22 @@ const EditEventScreen = () => {
   
   const handleUpdateEvent = async () => {
     if (!currentUser?.uid) {
-      Alert.alert('Error', 'User not authenticated. Cannot update event.');
+      showError('Error', 'User not authenticated. Cannot update event.');
       return;
     }
     if (!event) {
-      Alert.alert('Error', 'Event not found.');
+      showError('Error', 'Event not found.');
       return;
     }
     if (!selectedDate) {
-      Alert.alert('Error', 'Event date is required.');
+      showError('Error', 'Event date is required.');
       return;
     }
     
     if (selectedThemeId) {
       const selectedTheme = availableThemes.find(t => t.id === selectedThemeId);
       if (!selectedTheme) {
-        Alert.alert('Error', 'Selected theme is no longer available. Please select a different theme.');
+        showError('Error', 'Selected theme is no longer available. Please select a different theme.');
         return;
       }
       console.log('Validating selected theme:', selectedTheme);
@@ -247,8 +248,9 @@ const EditEventScreen = () => {
         console.log('Event details refetched successfully');
       }
       
-      Alert.alert('Success', 'Event updated successfully!');
-      router.back();
+      showSuccess('Success', 'Event updated successfully!', {
+        onConfirm: () => router.back(),
+      });
     } catch (error) {
       console.error("Failed to update event:", error);
       console.error("Error details:", {
@@ -258,7 +260,7 @@ const EditEventScreen = () => {
         selectedThemeId,
         availableThemes
       });
-      Alert.alert('Error', 'An unexpected error occurred during update.');
+      showError('Error', 'An unexpected error occurred during update.');
     } finally {
       setIsUpdating(false);
     }
@@ -374,7 +376,7 @@ const EditEventScreen = () => {
                   setAllUsersForPicker(users);
                 } catch (err) {
                   console.error("Failed to fetch users for picker:", err);
-                  Alert.alert("Error", "Could not load users to select from.");
+                  showError("Error", "Could not load users to select from.");
                 } finally {
                   setIsLoadingUsers(false);
                 }

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, Alert, SafeAreaView, StatusBar, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, SafeAreaView, StatusBar, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
 import { Colors } from '../../constants/Colors';
 import MultiUserPicker from '../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useAlert } from '@/context/AlertContext';
 
 type FormStatus = 'todo' | 'in-progress' | 'completed';
 
@@ -24,6 +25,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   formTitle = 'Task Details',
 }) => {
+  const { showError } = useAlert();
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
   const [dueDate, setDueDate] = useState<Date | undefined>(
@@ -42,7 +44,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Task title cannot be empty.');
+      showError('Validation Error', 'Task title cannot be empty.');
       return;
     }
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/schedule/index.styles';
 import ScheduleItemForm from '@/components/events/ScheduleItemForm'; 
 import { useAppAuth } from '../../../hooks/useAppAuth';
+import { useAlert } from '@/context/AlertContext';
 import { 
     listenToSchedule, 
     addScheduleItem, 
@@ -26,6 +27,7 @@ const EventScheduleScreen = () => {
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { showError, showConfirm } = useAlert();
 
   const [scheduleItems, setScheduleItems] = useState<ScheduleItemType[]>([]);
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
@@ -101,23 +103,25 @@ const EventScheduleScreen = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     if (!eventId || !isAuthenticated) {
-        Alert.alert("Error", "Cannot delete item. Missing event ID or authentication.");
+        showError("Error", "Cannot delete item. Missing event ID or authentication.");
         return;
     }
-    Alert.alert('Delete Item', 'Are you sure you want to delete this schedule item?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteScheduleItem(isAuthenticated, eventId, itemId);
-          } catch (e: any) {
-            Alert.alert("Error", `Failed to delete item: ${e.message}`);
-          }
-        },
+    showConfirm(
+      'warning',
+      'Delete Item',
+      'Are you sure you want to delete this schedule item?',
+      async () => {
+        try {
+          await deleteScheduleItem(isAuthenticated, eventId, itemId);
+        } catch (e: any) {
+          showError("Error", `Failed to delete item: ${e.message}`);
+        }
       },
-    ]);
+      {
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      }
+    );
   };
 
   const handleSubmitForm = async (
@@ -132,7 +136,7 @@ const EventScheduleScreen = () => {
     }
   ) => {
     if (!eventId || !isAuthenticated) {
-        Alert.alert("Error", "Cannot save item. Missing event ID or authentication.");
+        showError("Error", "Cannot save item. Missing event ID or authentication.");
         return;
     }
 
@@ -153,7 +157,7 @@ const EventScheduleScreen = () => {
       setIsModalVisible(false);
       setEditingItem(null);
     } catch (e: any) {
-      Alert.alert("Error", `Failed to save schedule item: ${e.message}`);
+      showError("Error", `Failed to save schedule item: ${e.message}`);
     }
   };
   

@@ -17,7 +17,7 @@ import { IconSizes } from '@/constants/dimensions';
 import { styles } from '@/styles/app/(auth)/signIn.styles';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import GoogleIcon from '@/components/common/GoogleIcon';
-import CustomAlert, { AlertType } from '@/components/common/alert';
+import { useAlert } from '@/context/AlertContext';
 
 
 interface FormData {
@@ -34,38 +34,12 @@ const SignInScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false); // General loading state for email/password
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
   const [isAppleLoading, setIsAppleLoading] = useState(false); // For Apple loading state
-  const [alertConfig, setAlertConfig] = useState<{
-    visible: boolean;
-    type: AlertType;
-    title: string;
-    message: string;
-  }>({
-    visible: false,
-    type: 'error',
-    title: '',
-    message: '',
-  });
   const { signIn, signInWithGoogle, signInWithApple } = useAuth(); // Get signIn and signInWithGoogle from AuthContext
-
-  const showAlert = (type: AlertType, title: string, message: string) => {
-    setAlertConfig({
-      visible: true,
-      type,
-      title,
-      message,
-    });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig({
-      ...alertConfig,
-      visible: false,
-    });
-  };
+  const { showError } = useAlert();
 
   const handleSignIn = async () => {
     if (!formData.email || !formData.password) {
-      showAlert('error', 'Missing Fields', 'Please enter both email and password.');
+      showError('Missing Fields', 'Please enter both email and password.');
       return;
     }
     setIsLoading(true);
@@ -222,13 +196,6 @@ const SignInScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <CustomAlert
-        visible={alertConfig.visible}
-        type={alertConfig.type}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        onClose={hideAlert}
-      />
     </SafeAreaView>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Idea, CreateIdeaPayload, UpdateIdeaPayload } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
+import { useAlert } from '@/context/AlertContext';
 
 interface IdeaFormProps {
   initialIdea?: Partial<Idea> & { id?: string };
@@ -17,13 +18,14 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
   onCancel,
   formTitle = 'Event Idea',
 }) => {
+  const { showError } = useAlert();
   const [title, setTitle] = useState(initialIdea?.title || '');
   const [description, setDescription] = useState(initialIdea?.description || '');
   const [category, setCategory] = useState(initialIdea?.category || 'General');
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Idea title cannot be empty.');
+      showError('Validation Error', 'Idea title cannot be empty.');
       return;
     }
 
