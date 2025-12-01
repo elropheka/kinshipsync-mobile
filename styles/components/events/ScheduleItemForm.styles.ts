@@ -86,8 +86,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     color: Colors.light.primaryContrastText,
   },
-  // Styles from createEvent.tsx for iOS DateTimePicker Modal
-  iosPickerModalOverlay: { // Re-using modalOverlay style for consistency if possible, or keep specific
+  iosPickerModalOverlay: {
     flex: 1,
     backgroundColor: Colors.dark.background + '66', // Standard overlay with 40% opacity
     justifyContent: 'flex-end',

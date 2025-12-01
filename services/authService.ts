@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import {
   GetUserProfileResponse,
 } from '../types/auth';

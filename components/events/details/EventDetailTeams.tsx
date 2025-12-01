@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, Alert, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, Alert, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, TeamMember } from '../../../types/eventTypes';
 import { UserProfile } from '../../../types/userTypes';
@@ -17,7 +17,6 @@ interface EventDetailTeamsProps {
   onAddTeamMember: (teamId: string, memberData: AddTeamMemberPayload) => Promise<void>;
   onRemoveTeamMember: (teamId: string, memberUserId: string) => Promise<void>;
   isOrganizer?: boolean;
-  // onUpdateTeamMember: (teamId: string, memberUserId: string, data: UpdateTeamMemberPayload) => Promise<void>; // If role editing is needed directly here
 }
 
 const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
@@ -196,7 +195,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
 
       <Modal visible={isTeamMemberPickerVisible} animationType="slide" onRequestClose={() => setIsTeamMemberPickerVisible(false)}>
         <SafeAreaView style={{flex:1}}>
-          <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+          <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setIsTeamMemberPickerVisible(false)} style={styles.headerButton}>
               <Ionicons name="close-outline" size={28} color={Colors.light.text} />
@@ -214,7 +213,6 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
               const user = assignableUsers.find(u => u.userId === ids[0]);
               setSelectedUserForTeam(user || null);
             }}
-            // multiSelection={false} // Assuming single selection for adding one member at a time
           />
           <Text style={styles.modalSubtitle}>Select Role:</Text>
           <View style={styles.roleSelectorContainer}>

@@ -80,8 +80,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
       const guestStatusUpdate: GuestStatus = action === 'accepted' ? 'Attending' : 'declined';
       await updateGuestRsvp(isAuthenticated, message.eventId, message.guestId, { status: guestStatusUpdate });
       await updateMessageRsvpStatus(isAuthenticated, message.conversationId, message.id, action);
-      // No need to call setRsvpProcessed(true) here as the message listener will update the message.rsvpStatus prop,
-      // which in turn updates rsvpProcessed via the useEffect hook.
       Alert.alert("RSVP Submitted", `You have ${action} the invitation.`);
     } catch (error: any) {
       console.error(`Error processing RSVP (${action}):`, error);
@@ -211,12 +209,10 @@ const ChatAreaScreen: React.FC = () => {
   } = useChatMessages(conversationId);
 
   const [inputText, setInputText] = useState<string>('');
-  // const [isSending, setIsSending] = useState(false); // Replaced by isSendingMessage from hook
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedAttachment, setSelectedAttachment] = useState<{ uri: string; type: 'image' | 'file'; name?: string, size?: number } | null>(null);
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
 
-  // New state variables for menu and search
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -233,25 +229,23 @@ const ChatAreaScreen: React.FC = () => {
   }, [conversationDetails, currentUser]);
   
   const otherParticipantName = getOtherParticipant()?.displayName;
-
-  // Determine the title for the screen
   const screenTitle = chatTitle || (conversationDetails?.type === 'group' ? conversationDetails.name : otherParticipantName) || 'Chat';
 
   const handleOpenChatSettings = () => {
     if (conversationId) {
       router.push({
-        pathname: `/(chat)/conversationSettings`, // Path to the new settings screen
+        pathname: `/(chat)/conversationSettings`,
         params: { conversationId: conversationId }
       });
-      setIsMenuVisible(false); // Close menu after navigation
+      setIsMenuVisible(false);
     }
   };
 
   const handleToggleSearch = () => {
     setIsSearchBarVisible(!isSearchBarVisible);
-    setIsMenuVisible(false); // Close menu
-    if (isSearchBarVisible) { // if we are closing the search bar
-      setSearchQuery(''); // clear search query
+    setIsMenuVisible(false);
+    if (isSearchBarVisible) {
+      setSearchQuery('');
     }
   };
 
@@ -265,7 +259,6 @@ const ChatAreaScreen: React.FC = () => {
         Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to make this work!');
         return false;
       }
-      // For document picker, permissions are generally handled by the system picker itself.
     }
     return true;
   };
@@ -283,17 +276,15 @@ const ChatAreaScreen: React.FC = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.7, // Compress image a bit
+      quality: 0.7,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
-      // Check file size (expo-image-picker might not provide fileSize directly for all platforms consistently)
-      // It's better to rely on FileSystem.getInfoAsync for size
       try {
         const fileInfo = await FileSystem.getInfoAsync(asset.uri);
-        if (fileInfo.exists) { // Check if file exists first
-          if (fileInfo.size > MAX_FILE_SIZE_BYTES) { // Then check size
+        if (fileInfo.exists) {
+          if (fileInfo.size > MAX_FILE_SIZE_BYTES) {
             Alert.alert('File Too Large', `The selected image exceeds the ${MAX_FILE_SIZE_MB}MB limit.`);
             return;
           }
@@ -302,7 +293,7 @@ const ChatAreaScreen: React.FC = () => {
           Alert.alert("Error", "Selected file does not exist.");
           return;
         }
-        setShowEmojiPicker(false); // Hide emoji picker if open
+        setShowEmojiPicker(false);
       } catch (error) {
         console.error("Error getting file info for image:", error);
         Alert.alert("Error", "Could not get image details.");
@@ -313,13 +304,11 @@ const ChatAreaScreen: React.FC = () => {
   const handlePickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*', // Allow all file types initially
-        // multiple: false, // Depending on if you want to allow multiple file selection
+        type: '*/*',
       });
 
-      // According to Expo docs, result.canceled is the correct check for modern SDKs
       if (result.canceled === true || !result.assets || result.assets.length === 0) {
-        return; // User cancelled the picker or no assets selected
+        return;
       }
       
       const asset = result.assets[0];
@@ -329,7 +318,7 @@ const ChatAreaScreen: React.FC = () => {
         return;
       }
       setSelectedAttachment({ uri: asset.uri, type: 'file', name: asset.name, size: asset.size });
-      setShowEmojiPicker(false); // Hide emoji picker if open
+      setShowEmojiPicker(false);
     } catch (err) {
       console.error('Error picking document:', err);
       Alert.alert('Error', 'Could not pick document.');
@@ -341,41 +330,36 @@ const ChatAreaScreen: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!selectedAttachment && inputText.trim() === '') return; // Prevent sending empty messages or no attachment
+    if (!selectedAttachment && inputText.trim() === '') return;
     if (!conversationId) {
       Alert.alert("Error", "Conversation ID is missing.");
       return;
     }
-    // setIsSending(true); // This is now handled by the hook's isSendingMessage state
 
-    const messagePayload: any = { // Using 'any' temporarily, will define a proper type later
+    const messagePayload: any = {
       content: inputText.trim(),
     };
 
     if (selectedAttachment) {
       messagePayload.attachment = {
         uri: selectedAttachment.uri,
-        // type: selectedAttachment.type, // Type is inferred by storage service or not needed by hook's postMessage
       };
     }
 
     try {
       await postMessage(messagePayload);
       setInputText('');
-      setSelectedAttachment(null); // Clear selected attachment after sending
+      setSelectedAttachment(null);
     } catch (e) {
       console.error("Failed to send message:", e);
       Alert.alert("Error", `Could not send message. ${e instanceof Error ? e.message : String(e)}`);
-    } 
-    // finally {
-    //   setIsSending(false); // This is now handled by the hook's isSendingMessage state
-    // }
+    }
   };
   
-  if (isLoadingMessages && messages.length === 0) { // Corrected to isLoadingMessages
+  if (isLoadingMessages && messages.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -385,16 +369,15 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
-        {/* Retry mechanism can be added later if a manual refresh function is implemented in the hook */}
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen 
         options={{
           title: screenTitle,
@@ -493,8 +476,6 @@ const ChatAreaScreen: React.FC = () => {
                 <Text style={styles.emptyChatText}>No messages yet. Start the conversation!</Text>
             </View>
           }
-          // onEndReached={() => loadMoreMessages()} // For pagination
-          // onEndReachedThreshold={0.5}
         />
 
         <View style={styles.inputContainer}>
@@ -514,7 +495,7 @@ const ChatAreaScreen: React.FC = () => {
             placeholder="Type a message..."
             placeholderTextColor={Colors.light.textSecondary}
             multiline
-            onFocus={() => setShowEmojiPicker(false)} // Hide emoji picker when input is focused
+            onFocus={() => setShowEmojiPicker(false)}
           />
           <TouchableOpacity
             style={[styles.sendButton, ( (inputText.trim() === '' && !selectedAttachment) || isSendingMessage || isUploadingFile) && styles.disabledSendButton]}
@@ -581,13 +562,3 @@ const ChatAreaScreen: React.FC = () => {
 };
 
 export default ChatAreaScreen;
-
-// Helper to format file size (optional)
-// const formatFileSize = (bytes?: number): string => {
-//   if (!bytes) return '0 Bytes';
-//   if (bytes === 0) return '0 Bytes';
-//   const k = 1024;
-//   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-//   const i = Math.floor(Math.log(bytes) / Math.log(k));
-//   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-// };

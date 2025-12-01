@@ -5,7 +5,8 @@ import {
   TouchableOpacity, 
   ScrollView, 
   ActivityIndicator, 
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -155,7 +156,7 @@ const DeleteAccountScreen: React.FC = () => {
   if (isCheckingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
           <Text style={styles.loadingText}>Checking your data...</Text>
@@ -178,7 +179,7 @@ const DeleteAccountScreen: React.FC = () => {
           )
         }} 
       />
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Warning Header */}

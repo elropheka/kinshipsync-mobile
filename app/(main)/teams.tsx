@@ -1,6 +1,6 @@
 import React from 'react';
 import CommunicationPage from '../../components/common/Layout/teams';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButton from '@/components/common/Navigation/BackButton';
@@ -11,7 +11,7 @@ const TeamsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen
         options={{
           title: 'Teams',

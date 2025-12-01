@@ -5,12 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '@/styles/app/(main)/subscriptionPlans.styles';
 import { useCurrentUser } from '@/hooks/useUser';
-// import { SubscriptionPlan, UserSubscription } from '../../types/userTypes';
 import { Colors } from '@/constants/Colors';
 import CustomAlert from '@/components/common/alert';
 
 const SubscriptionPlansScreen = () => {
-  // const router = useRouter();
   const { 
     availablePlans, 
     subscription: currentUserSubscription, 

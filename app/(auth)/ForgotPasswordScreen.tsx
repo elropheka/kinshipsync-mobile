@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { sendPasswordReset } from '../../services/authService';
 import { styles } from '../../styles/app/(auth)/forgotPassword.styles';
@@ -58,7 +58,7 @@ const ForgotPasswordScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Forgot Password</Text>
       <Text style={styles.subtitle}>
-        Enter your email address below and we'll send you a link to reset your password.
+        Enter your email address below and we&apos;ll send you a link to reset your password.
       </Text>
       <TextInput
         style={styles.input}

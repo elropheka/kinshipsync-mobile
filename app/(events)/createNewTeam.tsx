@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Modal,
   TouchableWithoutFeedback,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,7 +49,6 @@ const CreateNewTeamScreen: React.FC = () => {
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Custom alert states
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
     type: 'success' | 'error' | 'warning' | 'info';
@@ -201,7 +201,7 @@ const CreateNewTeamScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       <Stack.Screen options={{ title: "Create New Team" }} />
       <FlatList
         data={formSections}

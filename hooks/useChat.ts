@@ -49,7 +49,7 @@ export const useConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, hasMoreConversations, lastConversation, conversationsLimit]);
+  }, [currentUserId, hasMoreConversations, lastConversation, conversationsLimit, isAuthenticated]);
 
   useEffect(() => {
     if (currentUserId) {
@@ -61,7 +61,7 @@ export const useConversations = () => {
       setLastConversation(undefined);
       setHasMoreConversations(true);
     }
-  }, [currentUserId]); 
+  }, [currentUserId, fetchConversations]); 
 
   const loadMoreConversations = () => {
     if (hasMoreConversations && !isLoading) {
@@ -88,7 +88,7 @@ export const useConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId]);
+  }, [currentUserId, isAuthenticated]);
 
   const createGroupChat = useCallback(async (payload: CreateGroupConversationPayload) => {
     if (!currentUserId) { setError(new Error("User not authenticated.")); return null; }
@@ -103,7 +103,7 @@ export const useConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId]);
+  }, [currentUserId, isAuthenticated]);
   
   const updateConversationInList = useCallback((updatedConv: Conversation) => {
     setConversations(prevConvs => {
@@ -159,12 +159,12 @@ export const useChatMessages = (conversationId?: string) => {
         conversationId,
         (newMessages) => {
           setMessages(newMessages);
-          setIsLoading(false); 
+          setIsLoading(false);
           if (newMessages.length > 0) {
             chatService.markConversationAsRead(isAuthenticated, { conversationId }, currentUserId);
           }
         },
-        30 
+        30
       );
 
       return () => {

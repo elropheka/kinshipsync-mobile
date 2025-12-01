@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { Theme } from '../types/eventTypes'; // Adjusted path
-import { getDefaultTheme, predefinedThemes as localPredefinedThemes } from '../constants/themes'; // Adjusted path
-import * as eventService from '../services/eventService'; // Added eventService
-import { useAuth } from './AuthContext'; // Added useAuth
+import { Theme } from '../types/eventTypes';
+import { getDefaultTheme, predefinedThemes as localPredefinedThemes } from '../constants/themes';
+import * as eventService from '../services/eventService';
+import { useAuth } from './AuthContext';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   loadThemeForEvent: (eventId: string | null) => Promise<void>; 
   availableThemes: Theme[]; 
-  refreshAvailableThemes: () => Promise<void>; // Function to explicitly refresh themes
+  refreshAvailableThemes: () => Promise<void>;
   isLoadingThemes: boolean;
 }
 
@@ -19,7 +19,7 @@ const ThemeContext = createContext<ThemeContextType>({
   theme: defaultTheme,
   setTheme: () => console.warn('setTheme function not yet implemented'),
   loadThemeForEvent: async () => console.warn('loadThemeForEvent not yet implemented'),
-  availableThemes: localPredefinedThemes, // Use local import initially
+  availableThemes: localPredefinedThemes,
   refreshAvailableThemes: async () => console.warn('refreshAvailableThemes not yet implemented'),
   isLoadingThemes: false,
 });
@@ -31,18 +31,15 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const { user, isAuthenticated } = useAuth(); // Get user and auth status
+  const { user, isAuthenticated } = useAuth();
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [availableThemes, setAvailableThemes] = useState<Theme[]>(localPredefinedThemes);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
 
-  // Function to update the current theme
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
   };
 
-  // Function to load a theme for a specific event
-  // This is a placeholder. Actual implementation would fetch from a service.
   const loadThemeForEvent = useCallback(async (eventId: string | null) => {
     if (!isAuthenticated) {
       setThemeState(defaultTheme);
@@ -58,11 +55,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       if (eventSpecificTheme) {
         setThemeState(eventSpecificTheme);
       } else {
-        setThemeState(defaultTheme); // Fallback to default if no specific theme found
+        setThemeState(defaultTheme);
       }
     } catch (error) {
       console.error(`Error loading theme for event ${eventId}:`, error);
-      setThemeState(defaultTheme); // Fallback on error
+      setThemeState(defaultTheme);
     } finally {
       setIsLoadingThemes(false);
     }
@@ -70,7 +67,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const refreshAvailableThemes = useCallback(async () => {
     try {
-      // Prevent multiple simultaneous fetches
       if (isLoadingThemes) {
         console.log('Theme fetch already in progress, skipping...');
         return;
@@ -79,7 +75,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       console.log('refreshAvailableThemes called', { isAuthenticated, userId: user?.uid, isLoadingThemes });
       
       if (!isAuthenticated) {
-        // For unauthenticated users, only predefined themes are available.
         console.log('User not authenticated, using predefined themes');
         setAvailableThemes(localPredefinedThemes);
         return;
@@ -88,12 +83,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       setIsLoadingThemes(true);
       
       try {
-        // Pass user.uid if available, otherwise null (service handles predefined if userId is null)
         console.log('Fetching themes from service...');
         const themesFromService = await eventService.getAvailableThemes(isAuthenticated, user?.uid || null);
         console.log('Themes fetched from service:', themesFromService.length);
         
-        // Validate themes before setting them
         if (Array.isArray(themesFromService)) {
           setAvailableThemes(themesFromService);
         } else {
@@ -102,26 +95,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Error refreshing available themes:', error);
-        setAvailableThemes(localPredefinedThemes); // Fallback to predefined on error
+        setAvailableThemes(localPredefinedThemes);
       } finally {
         setIsLoadingThemes(false);
       }
     } catch (error) {
       console.error('Unexpected error in refreshAvailableThemes:', error);
-      // Ensure we always have some themes available
       setAvailableThemes(localPredefinedThemes);
       setIsLoadingThemes(false);
     }
   }, [isAuthenticated, user?.uid, isLoadingThemes]);
   
-  // Load available themes when authentication status changes or user logs in
-  // Only load themes automatically when auth status changes, not on every render
   useEffect(() => {
-    // Only load themes if we don't have any yet or if auth status changed
     if (availableThemes.length === 0 || availableThemes === localPredefinedThemes) {
       refreshAvailableThemes();
     }
-  }, [isAuthenticated]); // Only depend on isAuthenticated, not refreshAvailableThemes
+  }, [isAuthenticated]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, loadThemeForEvent, availableThemes, refreshAvailableThemes, isLoadingThemes }}>

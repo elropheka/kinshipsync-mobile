@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StatusBar } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
@@ -71,9 +70,6 @@ const SettingsScreen: React.FC = () => {
     isLoading: isLoadingSettings, 
     error: settingsError 
   } = useCurrentUser();
-  
-  // Get current Redux state (for debugging)
-  // const reduxShowAllPublicEvents = useSelector((state: RootState) => state.eventVisibility.showAllPublicEvents);
 
   const [editableSettings, setEditableSettings] = useState<Partial<UpdateUserSettingsPayload>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -87,8 +83,7 @@ const SettingsScreen: React.FC = () => {
         pushNotifications: { ...currentSettings.pushNotifications },
         eventVisibility: { ...currentSettings.eventVisibility },
       });
-      
-      // Initialize Redux state with current settings
+
       if (currentSettings.eventVisibility) {
         console.log('Settings: Initializing Redux state with current settings:', currentSettings.eventVisibility.showAllPublicEvents);
         dispatch(setEventVisibility({ 
@@ -105,7 +100,6 @@ const SettingsScreen: React.FC = () => {
   ) => {
     console.log('Settings: Setting changed:', { category, key, value });
     
-    // Update local state first
     const newEditableSettings = (() => {
       if (key && (category === 'emailNotifications' || category === 'pushNotifications' || category === 'eventVisibility')) {
         return {
@@ -122,13 +116,11 @@ const SettingsScreen: React.FC = () => {
     setEditableSettings(newEditableSettings);
     console.log('Settings: New editable settings:', newEditableSettings);
 
-    // Dispatch Redux action for event visibility changes
     if (category === 'eventVisibility' && key === 'showAllPublicEvents') {
       console.log('Settings: Dispatching Redux action for event visibility change:', value);
       dispatch(setEventVisibility({ showAllPublicEvents: value }));
     }
 
-    // Auto-save to database
     try {
       const payload: UpdateUserSettingsPayload = {
         theme: newEditableSettings.theme,
@@ -142,7 +134,6 @@ const SettingsScreen: React.FC = () => {
       console.log('Settings: Settings auto-saved successfully:', updatedSettings);
     } catch (error) {
       console.error("Failed to auto-save settings:", error);
-      // Revert the local state on error
       setEditableSettings(editableSettings);
     }
   };
@@ -181,7 +172,7 @@ const SettingsScreen: React.FC = () => {
   if (isLoadingSettings && !currentSettings) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading Settings...</Text>
       </SafeAreaView>
@@ -191,7 +182,7 @@ const SettingsScreen: React.FC = () => {
   if (settingsError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
         <Text style={styles.errorText}>Error loading settings: {settingsError.message}</Text>
       </SafeAreaView>
     );
@@ -209,7 +200,7 @@ const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Settings" }} />
-     <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent}/>
+     <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
 
       <ScrollView>
         <View style={styles.sectionContainer}>
@@ -238,11 +229,6 @@ const SettingsScreen: React.FC = () => {
             value={!!displaySettings.emailNotifications?.messageAlerts}
             onToggle={(val) => handleSettingChange('emailNotifications', 'messageAlerts', val)}
           />
-          {/* <SettingOption
-            title="Newsletter"
-            value={!!displaySettings.emailNotifications?.newsletter}
-            onToggle={(val) => handleSettingChange('emailNotifications', 'newsletter', val)}
-          /> */}
         </View>
 
         <View style={styles.sectionContainer}>
@@ -278,13 +264,6 @@ const SettingsScreen: React.FC = () => {
             description="When enabled, you'll see all public events. When disabled, you'll only see events you're invited to or organizing."
           />
         </View>
-        
-        {/* <View style={styles.sectionContainer}>
-             <TouchableOpacity style={styles.linkOptionContainer} onPress={() => router.push('/(main)/subscriptionPlans')}>
-                <Text style={styles.optionText}>Subscription Plans</Text>
-                <Ionicons name="chevron-forward" size={22} color={Colors.light.icon} />
-            </TouchableOpacity>
-        </View> */}
 
         <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSaveSettings} disabled={isSaving}>
           {isSaving ? <ActivityIndicator color="#fff"/> : <Text style={styles.buttonText}>Settings Auto-Saved</Text>}

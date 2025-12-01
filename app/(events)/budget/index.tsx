@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, TextInput, FlatList, Alert, ActivityIndicator, Modal } from 'react-native';
-import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/budget/index.styles'; // Will need new styles
@@ -12,8 +12,7 @@ import { Colors } from 'constants/Colors';
 import { Spacing } from 'constants/dimensions'; // Import Spacing
 
 const EventBudgetScreen = () => {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ eventId?: string }>(); // Optional eventId from route
+  const params = useLocalSearchParams<{ eventId?: string }>();
   const { user: currentUser } = useAppAuth();
   
   const { events: allEvents, isLoading: isLoadingAllEvents } = useAllEvents();
@@ -126,14 +125,12 @@ const EventBudgetScreen = () => {
     return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading your events...</Text></SafeAreaView>;
   }
 
-  // Event Selection View
   if (!selectedEventId) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: "Select Event for Budget" }} />
-        {/* Custom header for event selection view removed */}
         {eventsOrganizedByUser.length === 0 && !isLoadingAllEvents && (
-            <View style={styles.centered}><Text style={styles.emptyText}>You haven't organized any events yet.</Text></View>
+            <View style={styles.centered}><Text style={styles.emptyText}>You haven&apos;t organized any events yet.</Text></View>
         )}
         <FlatList
           data={eventsOrganizedByUser}
@@ -150,7 +147,6 @@ const EventBudgetScreen = () => {
     );
   }
 
-  // Budget Management View
   if (isLoadingEventDetail && !selectedEvent) {
      return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading budget details...</Text></SafeAreaView>;
   }

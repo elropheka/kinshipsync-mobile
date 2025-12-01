@@ -2,10 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { router } from 'expo-router';
-import { store } from '../store/store'; // Uncommented store import
-import { clearAuthData } from '../store/slices/authSlice'; // Import clearAuthData
 
-const TOKEN_KEY = 'authToken'; // Define or import TOKEN_KEY
 const PROD_API_URL = 'https://kinshipsync.vercel.app/api/v1';
 const DEV_API_URL = 'http://localhost:5001/api/v1';
 
@@ -18,11 +15,9 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add the auth token
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // const token = store.getState().auth.token; // Get token from Redux store
-    const token = await SecureStore.getItemAsync('authToken'); // Or get from SecureStore initially
+    const token = await SecureStore.getItemAsync('authToken');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -34,7 +29,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response interceptor for global error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
@@ -44,7 +38,7 @@ axiosInstance.interceptors.response.use(
       const { data, status } = error.response;
       let errorMessage = 'An unexpected error occurred.';
 
-      if (status === 401 || status === 400) { // Consider if 400 always means logout
+      if (status === 401 || status === 400) {
         errorMessage = (data as any)?.message || 'Authentication failed. Please log in again.';
        router.replace('/(auth)/signIn'); 
       } else if (status === 403) {
@@ -59,7 +53,6 @@ axiosInstance.interceptors.response.use(
         errorMessage = data;
       }
 
-
       Toast.show({
         type: 'error',
         text1: `Error ${status || ''}`,
@@ -67,7 +60,6 @@ axiosInstance.interceptors.response.use(
         position: 'bottom',
       });
     } else if (error.request) {
-      // The request was made but no response was received
       Toast.show({
         type: 'error',
         text1: 'Network Error',
@@ -75,7 +67,6 @@ axiosInstance.interceptors.response.use(
         position: 'bottom',
       });
     } else {
-      // Something happened in setting up the request that triggered an Error
       Toast.show({
         type: 'error',
         text1: 'Error',

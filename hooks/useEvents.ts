@@ -22,38 +22,35 @@ export const useAllEvents = () => {
   const { settings } = useCurrentUser();
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   
-  // Get Redux state for event visibility
   const reduxShowAllPublicEvents = useSelector(selectShowAllPublicEvents);
   const refetchTrigger = useSelector(selectEventRefetchTrigger) as number;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [lastFetchedEvent, setLastFetchedEvent] = useState<Event | undefined>(undefined);
+  const [hasMoreEvents, setHasMoreEvents] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const eventsLimit = 1000; // Load all events at once
+  const eventsLimit = 100;
 
   const events = useMemo(() => {
     if (!user?.uid) {
       return [];
     }
 
-    // If no settings available, use conservative approach - only show events user has access to
     if (!settings?.eventVisibility) {
       const filtered = allEvents.filter(event => {
-        // User is the organizer
         if (event.organizerId === user.uid) {
           return true;
         }
         
-        // Event is public
         if (event.visibility === 'public') {
           return true;
         }
         
-        // User is in the allowed users list (invited)
         if (event.allowedUserIds && event.allowedUserIds.includes(user.uid)) {
           return true;
         }
         
-        // User is invited as a guest (by email)
         const userEmail = user.email;
         if (userEmail && event.guestEmails && event.guestEmails.includes(userEmail)) {
           return true;
@@ -67,24 +64,19 @@ export const useAllEvents = () => {
     const showAllPublicEvents = reduxShowAllPublicEvents;
     
     if (showAllPublicEvents) {
-      // Show all public events plus events where user is organizer or invited
       const filteredEvents = allEvents.filter(event => {
-        // Event is public
         if (event.visibility === 'public') {
           return true;
         }
         
-        // User is the organizer
         if (event.organizerId === user.uid) {
           return true;
         }
         
-        // User is in the allowed users list (invited)
         if (event.allowedUserIds && event.allowedUserIds.includes(user.uid)) {
           return true;
         }
         
-        // User is invited as a guest (by email)
         const userEmail = user.email;
         if (userEmail && event.guestEmails && event.guestEmails.includes(userEmail)) {
           return true;
@@ -92,23 +84,17 @@ export const useAllEvents = () => {
         
         return false;
       });
-      console.log('useEvents: showAllPublicEvents=true, filtered events:', filteredEvents.length);
       return filteredEvents;
     } else {
-      // Show only events where user is organizer or invited (no public events)
-      console.log('useEvents: showAllPublicEvents=false, filtering for user access only');
       const filteredEvents = allEvents.filter(event => {
-        // User is the organizer
         if (event.organizerId === user.uid) {
           return true;
         }
         
-        // User is in the allowed users list (invited)
         if (event.allowedUserIds && event.allowedUserIds.includes(user.uid)) {
           return true;
         }
         
-        // User is invited as a guest (by email)
         const userEmail = user.email;
         if (userEmail && event.guestEmails && event.guestEmails.includes(userEmail)) {
           return true;
@@ -116,10 +102,9 @@ export const useAllEvents = () => {
         
         return false;
       });
-      console.log('useEvents: showAllPublicEvents=false, filtered events:', filteredEvents.length);
       return filteredEvents;
     }
-  }, [allEvents, user?.uid, user?.email, reduxShowAllPublicEvents]);
+  }, [allEvents, user?.uid, user?.email, reduxShowAllPublicEvents, settings?.eventVisibility]);
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -127,6 +112,8 @@ export const useAllEvents = () => {
     try {
       const rawData = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, undefined);
       setAllEvents(rawData);
+      setLastFetchedEvent(rawData.length > 0 ? rawData[rawData.length - 1] : undefined);
+      setHasMoreEvents(rawData.length === eventsLimit);
     } catch (e) {
       setError(e as Error);
       console.error("Failed to fetch events:", e);
@@ -142,6 +129,8 @@ export const useAllEvents = () => {
       setAllEvents([]);
       setIsLoading(false);
       setError(null);
+      setLastFetchedEvent(undefined);
+      setHasMoreEvents(true);
     }
   }, [isAuthenticated, fetchEvents]);
 
@@ -164,8 +153,6 @@ export const useAllEvents = () => {
     try {
       const newEvent = await eventService.createEvent(isAuthenticated, payload, organizerId);
       setAllEvents(prev => [newEvent, ...prev.filter(e => e.id !== newEvent.id)]);
-      // Trigger global refetch so all components using useAllEvents get updated
-      console.log('useEvents: Event created, triggering global refetch via Redux');
       dispatch(triggerEventRefetch());
       return newEvent;
     } catch (e) {
@@ -178,9 +165,36 @@ export const useAllEvents = () => {
   }, [isAuthenticated, dispatch]);
   
   const triggerGlobalRefetch = useCallback(() => {
-    console.log('useEvents: Triggering global event refetch via Redux');
     dispatch(triggerEventRefetch());
   }, [dispatch]);
+
+  const loadMoreEvents = useCallback(async () => {
+    if (!isAuthenticated || isLoadingMore || !hasMoreEvents || !lastFetchedEvent) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    setError(null);
+    try {
+      const newEvents = await eventService.getEventsPaginated(isAuthenticated, eventsLimit, lastFetchedEvent);
+      if (newEvents.length > 0) {
+        setAllEvents(prev => {
+          const existingIds = new Set(prev.map(e => e.id));
+          const uniqueNewEvents = newEvents.filter(e => !existingIds.has(e.id));
+          return [...prev, ...uniqueNewEvents];
+        });
+        setLastFetchedEvent(newEvents[newEvents.length - 1]);
+        setHasMoreEvents(newEvents.length === eventsLimit);
+      } else {
+        setHasMoreEvents(false);
+      }
+    } catch (e) {
+      setError(e as Error);
+      console.error("Failed to load more events:", e);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isAuthenticated, eventsLimit, lastFetchedEvent, hasMoreEvents, isLoadingMore]);
 
   return { 
     events, 
@@ -188,7 +202,8 @@ export const useAllEvents = () => {
     error, 
     fetchEvents: refreshEvents, 
     addEvent,
-    triggerGlobalRefetch
+    triggerGlobalRefetch,
+    loadMoreEvents
   };
 };
 
@@ -231,7 +246,7 @@ export const useEventDetail = (eventId?: string) => {
     } finally {
       setIsLoadingEvent(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchMainEvent(eventId || '');
@@ -351,7 +366,7 @@ export const useEventDetail = (eventId?: string) => {
       if (unsubscribeEventTeams) unsubscribeEventTeams();
       if (unsubscribeEventMessages) unsubscribeEventMessages();
     };
-  }, [eventId, fetchMainEvent]);
+  }, [eventId, fetchMainEvent, isAuthenticated, user?.uid]);
 
   const updateThisEvent = useCallback(async (payload: UpdateEventPayload) => {
     if (!eventId) {
@@ -399,7 +414,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to delete event ${eventId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
 
   const addGuest = useCallback(async (payload: CreateGuestPayload) => {
@@ -415,7 +430,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to add guest to event ${eventId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateGuestAndRsvp = useCallback(async (guestId: string, payload: Partial<UpdateGuestPayload & UpdateRSVPPayload>) => {
     if (!eventId) {
@@ -430,7 +445,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to update guest/RSVP ${guestId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const removeGuest = useCallback(async (guestId: string) => {
     if (!eventId) {
@@ -445,7 +460,7 @@ export const useEventDetail = (eventId?: string) => {
       console.error(`Failed to remove guest ${guestId}:`, e);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addScheduleItemHook = useCallback(async (payload: CreateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -456,7 +471,7 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateScheduleItemHook = useCallback(async (itemId: string, payload: UpdateScheduleItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -467,7 +482,7 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteScheduleItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
@@ -478,43 +493,43 @@ export const useEventDetail = (eventId?: string) => {
       setError(e as Error);
       throw e;
     }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addEventTaskHook = useCallback(async (payload: CreateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.addTaskToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateEventTaskHook = useCallback(async (taskId: string, payload: UpdateTaskPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.updateEventTask(isAuthenticated, eventId, taskId, payload); }
     catch (e) { console.error("Error in updateEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteEventTaskHook = useCallback(async (taskId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { await eventService.deleteEventTask(isAuthenticated, eventId, taskId); }
     catch (e) { console.error("Error in deleteEventTaskHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const addBudgetItemHook = useCallback(async (payload: CreateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.addBudgetItemToEvent(isAuthenticated, eventId, payload); }
     catch (e) { console.error("Error in addBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const updateBudgetItemHook = useCallback(async (itemId: string, payload: UpdateBudgetItemPayload) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { return await eventService.updateBudgetItem(isAuthenticated, eventId, itemId, payload); }
     catch (e) { console.error("Error in updateBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   const deleteBudgetItemHook = useCallback(async (itemId: string) => {
     if (!eventId) throw new Error("Event ID is required.");
     try { await eventService.deleteBudgetItem(isAuthenticated, eventId, itemId); }
     catch (e) { console.error("Error in deleteBudgetItemHook", e); setError(e as Error); throw e; }
-  }, [eventId]);
+  }, [eventId, isAuthenticated]);
 
   return {
     event,
@@ -575,7 +590,7 @@ export const useEventDetail = (eventId?: string) => {
         return success;
       }
       catch (e) { console.error("Error in setEventThemeHook", e); setError(e as Error); throw e; }
-    }, [eventId, isAuthenticated]),
+    }, [eventId, isAuthenticated, user?.uid]),
     fetchAvailableThemes: useCallback(async () => {
         setIsLoadingThemes(true);
         try {
@@ -587,7 +602,7 @@ export const useEventDetail = (eventId?: string) => {
         } finally {
             setIsLoadingThemes(false);
         }
-    }, [isAuthenticated]),
+    }, [isAuthenticated, user?.uid]),
     eventWebsite,
     isLoadingWebsite,
     updateEventWebsite: useCallback(async (payload: WebsitePayload) => {

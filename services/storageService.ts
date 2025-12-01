@@ -1,10 +1,9 @@
-// storageService.ts
 import { ref, uploadBytesResumable, getDownloadURL, StorageError } from '@firebase/storage';
 import * as FileSystem from 'expo-file-system';
 import { storage } from './firebaseConfig';
 import { Platform } from 'react-native';
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 interface FileInfo {
   name: string;
@@ -29,23 +28,14 @@ interface UploadImageResult {
 
 type ContentType = 'image' | 'file' | 'other';
 
-// Verify storage is initialized
 const verifyStorageInitialized = (): void => {
   if (!storage) {
     throw new Error('Firebase Storage is not initialized. Check your Firebase configuration.');
   }
 };
 
-// Enhanced error handling
 const handleStorageError = (error: StorageError, details: Record<string, any>): string => {
-  console.error('=== STORAGE ERROR DEBUG ===');
-  console.error('Error Code:', error.code);
-  console.error('Error Message:', error.message);
-  console.error('Error Name:', error.name);
-  console.error('Server Response:', error.serverResponse);
-  console.error('Error Stack:', error.stack);
-  console.error('Operation Details:', JSON.stringify(details, null, 2));
-  console.error('=== END STORAGE ERROR DEBUG ===');
+  console.error('Storage error:', error.code, error.message);
 
   switch (error.code) {
     case 'storage/unauthorized':
@@ -68,7 +58,6 @@ const handleStorageError = (error: StorageError, details: Record<string, any>): 
   }
 };
 
-// Helper function to get file info
 const getFileInfo = async (localFileUri: string): Promise<FileInfo> => {
   try {
     const fileInfo = await FileSystem.getInfoAsync(localFileUri, { size: true });
@@ -85,7 +74,6 @@ const getFileInfo = async (localFileUri: string): Promise<FileInfo> => {
         const response = await fetch(localFileUri);
         const blob = await response.blob();
         mimeType = blob.type || undefined;
-        // Note: blob.name is not standard, using original name
       } catch (error: unknown) {
         console.warn("Could not fetch blob to determine MIME type:", error instanceof Error ? error.message : error);
       }
@@ -105,7 +93,6 @@ const getFileInfo = async (localFileUri: string): Promise<FileInfo> => {
   }
 };
 
-// Helper function to determine content type
 const determineContentType = (fileName: string, mimeType?: string): ContentType => {
   const extension = fileName.split('.').pop()?.toLowerCase();
   if (mimeType) {
@@ -116,8 +103,6 @@ const determineContentType = (fileName: string, mimeType?: string): ContentType 
   if (['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension || '')) return 'file';
   return 'other';
 };
-
-// MAIN UPLOAD FUNCTIONS
 
 export const uploadFile = async (
   localFileUri: string,
@@ -214,11 +199,8 @@ export const uploadUserAvatar = async (
 ): Promise<UploadAvatarResult> => {
   try {
     verifyStorageInitialized();
-    console.log(`=== AVATAR UPLOAD START ===`);
-    console.log(`Starting avatar upload for user ${userId} from URI: ${localFileUri}`);
     
     const { name: originalFileName, size: fileSize, mimeType } = await getFileInfo(localFileUri);
-    console.log('File Info:', { originalFileName, fileSize, mimeType });
 
     if (!fileSize) {
       throw new Error('Could not determine file size for avatar.');
@@ -228,7 +210,6 @@ export const uploadUserAvatar = async (
     }
 
     const contentType = determineContentType(originalFileName, mimeType);
-    console.log('Determined content type:', contentType);
     
     if (contentType !== 'image') {
       throw new Error('Invalid file type for avatar. Only images are allowed.');
@@ -236,10 +217,7 @@ export const uploadUserAvatar = async (
 
     const timestamp = new Date().getTime();
     const uniqueFileName = `${timestamp}_${originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const storagePath = `profile_avatar/${uniqueFileName}`; 
-    
-    console.log('Storage path:', storagePath);
-    console.log('Unique filename:', uniqueFileName);
+    const storagePath = `profile_avatar/${uniqueFileName}`;
     
     const metadata = {
       customMetadata: {
@@ -249,9 +227,6 @@ export const uploadUserAvatar = async (
       }
     };
     const fileRef = ref(storage, storagePath);
-    console.log('File reference created:', fileRef.fullPath);
-
-    console.log(`Uploading avatar to: ${storagePath}`);
 
     const response = await fetch(localFileUri);
     if (!response.ok) {
@@ -259,10 +234,6 @@ export const uploadUserAvatar = async (
     }
     
     const blob = await response.blob();
-    console.log('Blob created:', {
-      size: blob.size,
-      type: blob.type
-    });
 
     return new Promise((resolve, reject) => {
       const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
@@ -271,15 +242,11 @@ export const uploadUserAvatar = async (
         'state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Avatar upload progress: ${progress.toFixed(2)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
-          console.log('Upload state:', snapshot.state);
-          
           if (onProgress) {
             onProgress(progress);
           }
         },
         (error: StorageError) => {
-          console.error('=== AVATAR UPLOAD FAILED ===');
           const errorDetails = {
             storagePath,
             fileSize,
@@ -296,11 +263,7 @@ export const uploadUserAvatar = async (
         },
         async () => {
           try {
-            console.log('Avatar upload completed, getting download URL...');
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log('Avatar available at', downloadURL);
-            console.log('=== AVATAR UPLOAD SUCCESS ===');
-            
             resolve({ avatarUrl: downloadURL });
           } catch (error: unknown) {
             console.error('Failed to get avatar download URL:', error);
@@ -310,7 +273,6 @@ export const uploadUserAvatar = async (
       );
     });
   } catch (error) {
-    console.error('=== AVATAR UPLOAD ERROR ===');
     console.error('Error in uploadUserAvatar:', error);
     throw error;
   }
@@ -402,25 +364,16 @@ export const uploadImage = async (
   }
 };
 
-// Test functions for debugging
 export const testFirebaseConnection = async (): Promise<boolean> => {
   try {
-    console.log('=== FIREBASE CONNECTION TEST ===');
-    console.log('Storage instance exists:', !!storage);
-    console.log('Storage app:', storage?.app?.name);
-    
     const testRef = ref(storage, 'test/connection');
-    console.log('Test reference created:', testRef.fullPath);
-    console.log('=== CONNECTION TEST PASSED ===');
-    return true;
+    return !!testRef;
   } catch (error) {
-    console.error('=== CONNECTION TEST FAILED ===');
-    console.error('Error:', error);
+    console.error('Firebase connection test failed:', error);
     return false;
   }
 };
 
-// Default export (optional, for backward compatibility)
 export default {
   uploadFile,
   uploadUserAvatar,

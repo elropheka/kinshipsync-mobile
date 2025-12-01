@@ -11,8 +11,7 @@ import {
 } from 'constants/dimensions';
 
 const CARD_WIDTH = Layout.SCREEN_WIDTH * 0.7;
-const CARD_HEIGHT = CARD_WIDTH * 1; // Or moderateScale(280) or similar fixed but scaled value
-// const SPACING = Spacing.s; // Replaced with Spacing.s or Spacing.m as appropriate
+const CARD_HEIGHT = CARD_WIDTH * 1;
 export const ITEM_WIDTH = CARD_WIDTH + Spacing.m * 2;
 
 export const styles = StyleSheet.create({

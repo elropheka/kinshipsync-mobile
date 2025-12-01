@@ -1,33 +1,30 @@
 import { Stack } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native'; // Added Platform import
-import BackButton from '@/components/common/Navigation/BackButton'; // Import BackButton
-import { Colors } from '@/constants/Colors'; // Import Colors for styling
+import { Platform } from 'react-native';
+import BackButton from '@/components/common/Navigation/BackButton';
+import { Colors } from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
 
-
-// Inner component to handle auth and Stack setup
 function VendorsStack() {
-
-
   return (
     <>
     <StatusBar 
             backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
             style={Platform.OS === 'ios' ? 'light' : 'auto'}
-            translucent={Platform.OS === 'android' ? false : undefined} // On Android, false makes it a solid color bar
+            translucent={Platform.OS === 'android' ? false : undefined}
+            hidden={Platform.OS === 'android'}
           />
       <Stack
       screenOptions={{
-        headerShown: true, // Ensure header is shown by default
-        headerLeft: () => <BackButton />, // Use BackButton component
+        headerShown: true,
+        headerLeft: () => <BackButton />,
         headerTitleStyle: {
-          fontFamily: 'Poppins', // Ensure this font is loaded
+          fontFamily: 'Poppins',
         },
          headerStyle: {
-                  backgroundColor: Colors.dark.accent, // Updated to match StatusBar
+                  backgroundColor: Colors.dark.accent,
                 },
-        headerBackVisible: false, // We are using a custom back button
+        headerBackVisible: false,
         presentation: 'card',
       }}
     >
@@ -64,7 +61,6 @@ function VendorsStack() {
   );
 }
 
-// Default export is now simpler
 export default function VendorsLayout() {
   return <VendorsStack />;
 }

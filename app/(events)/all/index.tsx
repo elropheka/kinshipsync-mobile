@@ -81,12 +81,6 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
     };
   }, [processedEventsData]);
 
-  // useEffect(() => {
-  //   if (refreshEvents) {
-  //     refreshEvents();
-  //   }
-  // }, [refreshEvents]);
-
   const getEventIcon = (type: string): keyof typeof Ionicons.glyphMap => {
     switch (type.toLowerCase()) {
       case 'wedding': return 'heart-outline';

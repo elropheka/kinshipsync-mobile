@@ -2,13 +2,12 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { doc, updateDoc, arrayUnion, arrayRemove, getDoc, collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, writeBatch, Timestamp } from '@firebase/firestore';
-import { firestore, app } from './firebaseConfig'; // Import 'app' for functions
-import { getFunctions, httpsCallable } from 'firebase/functions'; // Import for callable functions
+import { firestore, app } from './firebaseConfig';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { UserProfile } from '../types/userTypes';
-import { InAppNotification, NewNotificationPayload, NotificationType } from '../types/notificationTypes';
+import { InAppNotification, NewNotificationPayload, } from '../types/notificationTypes';
 import { isValidE164Format } from '../utils/phoneUtils';
 
-// --- Permission Handling ---
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
@@ -28,7 +27,6 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
     }
     if (finalStatus !== 'granted') {
       console.log('Failed to get push token for push notification!');
-      // Optionally, inform the user that they will not receive notifications.
       return false;
     }
     return true;
@@ -38,18 +36,21 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   }
 };
 
-// --- FCM Token Management ---
 export const getPushToken = async (): Promise<string | null> => {
   try {
-    const token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log('Expo Push Token:', token);
-    // For Firebase, you might need the Firebase specific token if not using Expo's push service directly
-    // However, Expo's token can be used with FCM via Expo's servers or by mapping it.
-    // For simplicity, we'll use the Expo token for now.
-    // If direct FCM token is needed: await getFcmToken(); (from @react-native-firebase/messaging)
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: 'ad4bb59d-fd0d-4396-af25-8c32f9c8bb42',
+    });
+    const token = tokenData.data;
+    console.log('✅ Expo Push Token obtained:', token);
+    console.log('Token type: Expo Push Token');
     return token;
   } catch (error) {
-    console.error('Error getting push token:', error);
+    console.error('❌ Error getting push token:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return null;
   }
 };
@@ -58,24 +59,35 @@ export const saveFcmTokenToProfile = async (isAuthenticated: boolean, userId: st
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
   }
-  if (!userId || !token) return;
+  if (!userId || !token) {
+    console.warn('⚠️ Cannot save token: missing userId or token', { userId, hasToken: !!token });
+    return;
+  }
   try {
+    console.log(`💾 Saving push token for user ${userId}...`);
     const userDocRef = doc(firestore, 'users', userId);
-    // Ensure token is not already present before adding
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists()) {
       const userData = userDoc.data() as UserProfile;
       if (userData.fcmTokens && userData.fcmTokens.includes(token)) {
-        console.log("Token already exists for user:", userId);
+        console.log("✅ Token already exists for user:", userId);
         return;
       }
+      console.log(`📝 User currently has ${userData.fcmTokens?.length || 0} token(s)`);
+    } else {
+      console.warn(`⚠️ User document ${userId} does not exist yet`);
     }
     await updateDoc(userDocRef, {
       fcmTokens: arrayUnion(token),
     });
-    console.log('FCM token saved for user:', userId);
+    console.log('✅ Push token saved successfully for user:', userId);
+    console.log('Token preview:', token.substring(0, 30) + '...');
   } catch (error) {
-    console.error('Error saving FCM token:', error);
+    console.error('❌ Error saving push token:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
+    throw error;
   }
 };
 
@@ -95,26 +107,19 @@ export const removeFcmTokenFromProfile = async (isAuthenticated: boolean, userId
   }
 };
 
-// --- Message Handling (Placeholders for now) ---
-// To be called in App.tsx or a root component
 export const initializeNotificationHandlers = () => {
-  // Handles notifications that are received while the app is foregrounded
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
       shouldPlaySound: true,
-      shouldSetBadge: false, // Or true, depending on your app's logic
-      shouldShowBanner: true, // Added default
-      shouldShowList: true,   // Added default
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
     }),
   });
 
-  // Handles notifications that are tapped on by the user
   const subscription = Notifications.addNotificationResponseReceivedListener((response: Notifications.NotificationResponse) => {
     console.log('Notification tapped:', response.notification.request.content);
-    const data = response.notification.request.content.data;
-    // Navigate based on notification data if needed
-    // e.g., if (data.screen) router.push(data.screen);
   });
 
   return () => {
@@ -134,11 +139,10 @@ export const sendInAppNotificationInternal = async (notificationPayload: NewNoti
     const notificationDocRef = await addDoc(collection(firestore, IN_APP_NOTIFICATIONS_COLLECTION), {
       ...notificationPayload,
       isRead: false,
-      createdAt: serverTimestamp(), // Use server timestamp for consistency
+      createdAt: serverTimestamp(),
     });
     console.log('In-app notification sent and saved with ID:', notificationDocRef.id);
 
-    // Automatically send push notification after in-app notification is created
     const { recipientId, title, body, data } = notificationPayload;
     sendPushNotificationInternal(recipientId, title, body, data)
       .then(success => {
@@ -159,9 +163,6 @@ export const sendInAppNotificationInternal = async (notificationPayload: NewNoti
   }
 };
 
-/**
- * Fetches in-app notifications for a given user.
- */
 export const getInAppNotifications = async (userId: string): Promise<InAppNotification[]> => {
   if (!userId) {
     console.log('User ID is required to fetch notifications.');
@@ -179,7 +180,6 @@ export const getInAppNotifications = async (userId: string): Promise<InAppNotifi
       return {
         id: docSnapshot.id,
         ...data,
-        // Ensure createdAt is a number (milliseconds since epoch)
         createdAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
         updatedAt: (data.createdAt as Timestamp)?.toMillis() || Date.now(),
       } as InAppNotification;
@@ -191,9 +191,6 @@ export const getInAppNotifications = async (userId: string): Promise<InAppNotifi
   }
 };
 
-/**
- * Marks a specific in-app notification as read.
- */
 export const markNotificationAsRead = async (notificationId: string): Promise<boolean> => {
   if (!notificationId) return false;
   try {
@@ -210,9 +207,6 @@ export const markNotificationAsRead = async (notificationId: string): Promise<bo
   }
 };
 
-/**
- * Marks all unread in-app notifications for a user as read.
- */
 export const markAllNotificationsAsRead = async (userId: string): Promise<boolean> => {
   if (!userId) return false;
   try {
@@ -240,15 +234,11 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<boolea
   }
 };
 
-/**
- * Deletes a specific in-app notification.
- */
 export const deleteInAppNotification = async (notificationId: string): Promise<boolean> => {
   if (!notificationId) return false;
   try {
     const notificationDocRef = doc(firestore, IN_APP_NOTIFICATIONS_COLLECTION, notificationId);
-    await updateDoc(notificationDocRef, { isDeleted: true, updatedAt: serverTimestamp() }); // Soft delete
-    // Or hard delete: await deleteDoc(notificationDocRef);
+    await updateDoc(notificationDocRef, { isDeleted: true, updatedAt: serverTimestamp() });
     console.log('Notification marked as deleted:', notificationId);
     return true;
   } catch (error) {
@@ -257,22 +247,25 @@ export const deleteInAppNotification = async (notificationId: string): Promise<b
   }
 };
 
-
-// --- Push Notification Service Logic ---
-/**
- * Sends a push notification via Cloud Function.
- * Calls the 'sendPushNotification' callable Cloud Function which handles FCM token retrieval and sending.
- */
 export const sendPushNotificationInternal = async (
   recipientId: string,
   title: string,
   body: string,
   data?: Record<string, any>
 ): Promise<boolean> => {
-  console.log(`Attempting to send PUSH notification to ${recipientId}: Title: "${title}", Body: "${body}"`, data);
+  console.log(`📤 Attempting to send PUSH notification to ${recipientId}`);
+  console.log(`   Title: "${title}"`);
+  console.log(`   Body: "${body}"`);
+  if (data) {
+    console.log(`   Data:`, data);
+  }
   
   if (!recipientId || !title || !body) {
-    console.error('Missing required parameters for push notification:', { recipientId, title, body });
+    console.error('❌ Missing required parameters for push notification:', { 
+      hasRecipientId: !!recipientId, 
+      hasTitle: !!title, 
+      hasBody: !!body 
+    });
     return false;
   }
 
@@ -280,7 +273,6 @@ export const sendPushNotificationInternal = async (
     const functionsInstance = getFunctions(app);
     const callableSendPush = httpsCallable(functionsInstance, 'sendPushNotification');
 
-    // Convert data object to string key-value pairs for FCM (FCM data must be strings)
     const notificationData: { [key: string]: string } = {};
     if (data) {
       Object.keys(data).forEach(key => {
@@ -291,6 +283,7 @@ export const sendPushNotificationInternal = async (
       });
     }
 
+    console.log('📞 Calling Cloud Function "sendPushNotification"...');
     const result = await callableSendPush({
       recipientId,
       title,
@@ -301,29 +294,30 @@ export const sendPushNotificationInternal = async (
     const responseData = result.data as { success: boolean; message: string };
     
     if (responseData.success) {
-      console.log(`Push notification successfully sent for recipient: ${recipientId}`);
+      console.log(`✅ Push notification successfully sent for recipient: ${recipientId}`);
       return true;
     } else {
-      console.warn(`Failed to send push notification for recipient ${recipientId}:`, responseData.message);
+      console.warn(`⚠️ Failed to send push notification for recipient ${recipientId}:`, responseData.message);
       return false;
     }
   } catch (error: any) {
-    console.error('Error sending push notification via Cloud Function:', error);
+    console.error('❌ Error sending push notification via Cloud Function:', error);
     // Handle specific Firebase errors
     if (error.code === 'functions/not-found') {
-      console.error('Cloud Function "sendPushNotification" not found. Make sure it is deployed.');
+      console.error('❌ Cloud Function "sendPushNotification" not found. Make sure it is deployed.');
+      console.error('   Run: firebase deploy --only functions');
     } else if (error.code === 'functions/permission-denied') {
-      console.error('Permission denied when calling sendPushNotification. Check authentication.');
+      console.error('❌ Permission denied when calling sendPushNotification. Check authentication.');
+    } else if (error.code) {
+      console.error(`❌ Firebase error code: ${error.code}`);
+      console.error(`   Message: ${error.message}`);
+    } else {
+      console.error('   Full error:', JSON.stringify(error, null, 2));
     }
     return false;
   }
 };
 
-// --- SMS Notification Service Logic ---
-/**
- * Sends an SMS notification via Cloud Function using Twilio.
- * Calls the 'sendSMS' callable Cloud Function which handles SMS sending.
- */
 export const sendSMSNotificationInternal = async (
   recipientId: string,
   message: string,
@@ -338,8 +332,7 @@ export const sendSMSNotificationInternal = async (
   }
 
   try {
-    // Fetch recipient's phone number from their user profile if not provided
-    let toPhoneNumber = phoneNumber;
+    let toPhoneNumber : string | undefined | null = phoneNumber;
     if (!toPhoneNumber) {
       const userDocRef = doc(firestore, 'users', recipientId);
       const userDocSnap = await getDoc(userDocRef);
@@ -358,7 +351,6 @@ export const sendSMSNotificationInternal = async (
       return false;
     }
 
-    // Validate phone number format (E.164 format check)
     if (!isValidE164Format(toPhoneNumber)) {
       console.error(`Invalid phone number format: ${toPhoneNumber}. Must be in E.164 format (e.g., +1234567890).`);
       return false;
@@ -397,10 +389,6 @@ export const sendSMSNotificationInternal = async (
   }
 };
 
-// --- Email Notification Service Logic ---
-/**
- * Sends an email notification via Cloud Function.
- */
 export const sendEmailNotificationInternal = async (
   recipientId: string,
   subject: string,
@@ -411,7 +399,6 @@ export const sendEmailNotificationInternal = async (
   console.log(`Attempting to send EMAIL notification to ${recipientId}: Subject: "${subject}"`);
 
   try {
-    // Fetch recipient's email address from their user profile
     const userDocRef = doc(firestore, 'users', recipientId);
     const userDocSnap = await getDoc(userDocRef);
 
@@ -455,35 +442,22 @@ export const sendEmailNotificationInternal = async (
   }
 };
 
-// --- Unified Notification Sending Function ---
-/**
- * Orchestrates sending notifications through different channels.
- * Sends In-App notification first (which now automatically sends push), then Email notifications independently.
- * Note: Push notifications are automatically sent by sendInAppNotificationInternal, so we don't call it separately here.
- */
 export const sendNotification = async (payload: NewNotificationPayload): Promise<void> => {
-  const { recipientId, title, body, data } = payload;
+  const { recipientId, title, body } = payload;
 
-  // 1. Send In-App Notification (which now automatically sends push notification)
-  // This is the primary notification channel and will trigger push notification automatically
   try {
     const inAppNotificationId = await sendInAppNotificationInternal(payload);
     if (inAppNotificationId) {
       console.log(`In-app notification (with push) successfully sent for recipient: ${recipientId}`);
     } else {
       console.error(`Failed to send in-app notification for recipient: ${recipientId}`);
-      // Decide if you want to proceed if in-app fails. For now, we will.
     }
   } catch (error) {
     console.error(`Error in sendInAppNotificationInternal for ${recipientId}:`, error);
   }
 
-  // 3. Send Email Notification (independently)
-  // This should not block or depend on other notification results.
-  // You might want to fetch user preferences here to see if they want email notifications.
-  // For simplicity, we assume they do.
-  const emailSubject = title; // Or a more specific subject
-  const emailHtmlContent = `<p>${body}</p><p>View details in the app.</p>`; // Customize as needed, using HTML
+  const emailSubject = title;
+  const emailHtmlContent = `<p>${body}</p><p>View details in the app.</p>`;
 
   sendEmailNotificationInternal(recipientId, emailSubject, emailHtmlContent)
     .then(success => {
@@ -500,9 +474,6 @@ export const sendNotification = async (payload: NewNotificationPayload): Promise
   console.log(`All notification processes initiated for recipient: ${recipientId}`);
 };
 
-// Add new notification creation functions
-
-// Team-related notifications
 export const createTeamMemberAddedNotification = async (
   recipientId: string, 
   teamName: string, 
@@ -561,7 +532,6 @@ export const createTeamTaskUpdateNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Vendor-related notifications
 export const createVendorBookingNotification = async (
   recipientId: string,
   vendorName: string,
@@ -638,7 +608,6 @@ export const createVendorReviewNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Budget-related notifications
 export const createBudgetItemAddedNotification = async (
   recipientId: string,
   itemName: string,
@@ -697,7 +666,6 @@ export const createBudgetMilestoneNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Guest-related notifications
 export const createRsvpReceivedNotification = async (
   recipientId: string,
   guestName: string,
@@ -756,7 +724,6 @@ export const createDietaryPreferenceNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Schedule-related notifications
 export const createScheduleAddedNotification = async (
   recipientId: string,
   scheduleTitle: string,
@@ -816,7 +783,6 @@ export const createScheduleReminderNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Idea board activities
 export const createIdeaSubmittedNotification = async (
   recipientId: string,
   ideaTitle: string,
@@ -876,7 +842,6 @@ export const createIdeaCommentNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Website activities
 export const createWebsitePublishedNotification = async (
   recipientId: string,
   eventName: string,
@@ -935,7 +900,6 @@ export const createWebsiteStatsNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Milestone celebrations
 export const createEventCountdownNotification = async (
   recipientId: string,
   eventName: string,
@@ -974,7 +938,6 @@ export const createPlanningProgressNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
-// Personalized recommendations
 export const createVendorSuggestionNotification = async (
   recipientId: string,
   vendorName: string,

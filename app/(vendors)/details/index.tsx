@@ -20,7 +20,6 @@ import { styles } from '../../../styles/app/(vendors)/details/index.styles';
 
 const { width } = Dimensions.get('window');
 
-// Define interfaces for data structures
 interface Review {
   id: string;
   author: string;
@@ -112,7 +111,6 @@ const mockVendor: Vendor = {
   ],
 };
 
-// Component to render star ratings
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
@@ -136,9 +134,6 @@ export default function VendorDetailsScreen() {
   const params = useLocalSearchParams();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [expandedSection, setExpandedSection] = useState<string | null>('about');
-  
-  // In a real app, you would fetch the vendor data based on the ID
-  // const { id } = params;
   const vendor = mockVendor;
 
   const toggleSection = (section: string) => {
@@ -331,7 +326,6 @@ export default function VendorDetailsScreen() {
           <TouchableOpacity 
             style={styles.bookButton}
             onPress={() => {
-              // Navigate to booking screen or show booking modal
               console.log('Book now pressed');
             }}
           >

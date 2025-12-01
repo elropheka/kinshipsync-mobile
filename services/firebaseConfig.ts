@@ -5,12 +5,12 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDb-D_g5Nr75VCgyyrMrJ-LIxv-ve4S5B0", // Android API key from google-services.json
+  apiKey: "AIzaSyDb-D_g5Nr75VCgyyrMrJ-LIxv-ve4S5B0",
   authDomain: "kinshipsync-f2896.firebaseapp.com",
   projectId: "kinshipsync-f2896",
   storageBucket: "kinshipsync-f2896.firebasestorage.app",
   messagingSenderId: "433750501084",
-  appId: "1:433750501084:android:f06a69eed1511cde00b619", // Android app ID from google-services.json
+  appId: "1:433750501084:android:f06a69eed1511cde00b619",
 };
 
 let app: FirebaseApp;

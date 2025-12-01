@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator, Modal, FlatList, StatusBar } from 'react-native'; // Added FlatList
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native'; // Added FlatList
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -55,7 +55,6 @@ const SeatingChartScreen = () => {
     }
   };
   
-  // Table Form Handlers
   const handleOpenTableForm = (table?: Partial<SeatingTable> & { id?: string }) => {
     setEditingTable(table);
     setIsTableFormVisible(true);
@@ -82,15 +81,14 @@ const SeatingChartScreen = () => {
     handleCloseTableForm();
   };
   
-  const handleAddTable = () => { // This now just opens the form
+  const handleAddTable = () => {
     handleOpenTableForm(); 
   };
 
-  const handleEditTable = (table: SeatingTable) => { // This now opens the form with initial data
+  const handleEditTable = (table: SeatingTable) => {
     handleOpenTableForm(table);
   };
 
-  // Deleting a table
   const handleDeleteTable = (tableId: string) => {
     Alert.alert("Confirm Delete", "Are you sure you want to delete this table and unassign its guests?", [
         {text: "Cancel", style: "cancel"},
@@ -100,7 +98,6 @@ const SeatingChartScreen = () => {
     ]);
   };
 
-  // Guest Assignment Handlers
   const handleAssignGuest = (tableId: string, chairIndex: number) => {
     setAssigningToTableId(tableId);
     setAssigningToChairIndex(chairIndex);
@@ -113,7 +110,6 @@ const SeatingChartScreen = () => {
     setTables(prevTables => prevTables.map(table => {
       if (table.id === assigningToTableId) {
         const newAssignedGuests = [...table.assignedGuests];
-        // Ensure no duplicate assignment across all tables for this guest
         const isGuestAlreadySeated = prevTables.some(t => t.assignedGuests.includes(guestId));
         if (isGuestAlreadySeated) {
             Alert.alert("Already Seated", "This guest is already assigned to another seat.");
@@ -129,12 +125,11 @@ const SeatingChartScreen = () => {
     setAssigningToChairIndex(null);
   };
   
-  // Unassigning a guest
   const handleUnassignGuest = (tableId: string, chairIndex: number) => {
      setTables(prevTables => prevTables.map(table => {
         if (table.id === tableId) {
             const newAssignedGuests = [...table.assignedGuests];
-            newAssignedGuests[chairIndex] = ''; // or null, depending on how you mark empty
+            newAssignedGuests[chairIndex] = '';
             return {...table, assignedGuests: newAssignedGuests};
         }
         return table;
@@ -156,7 +151,7 @@ const SeatingChartScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       {/* Header */}
       <Stack.Screen options={{ title: `Seating - ${event.name}` }} />
       <View style={styles.headerControls}>
@@ -189,7 +184,6 @@ const SeatingChartScreen = () => {
             <View style={styles.chairsContainer}>
               {[...Array(table.capacity)].map((_, chairIndex) => {
                 const guestId = table.assignedGuests[chairIndex];
-                // Ensure guests array is available and not undefined before calling find
                 const guest = guestId && guests ? guests.find(g => g.id === guestId) : null;
                 return (
                   <TouchableOpacity 

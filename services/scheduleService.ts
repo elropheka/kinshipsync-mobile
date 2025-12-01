@@ -10,30 +10,28 @@ import {
   addDoc,
   deleteDoc,
   serverTimestamp,
-  where, // Import where if needed for more complex queries, though not used in this basic setup
+  where,
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { Schedule, ScheduleFormData } from '../types/scheduleTypes';
-import { UserProfile } from '../types/userTypes'; // If needed for assigning users, though not directly used in service params
 
-// Helper to convert Schedule Timestamps to ISO strings for client-side consistency
 const scheduleToClient = (scheduleData: any, id: string, teamId: string): Schedule => {
   return {
     ...scheduleData,
     id,
-    teamId, // Ensure teamId is part of the returned object
-    startTime: (scheduleData.startTime as Timestamp)?.toDate(), // Keep as Date for client
-    endTime: (scheduleData.endTime as Timestamp)?.toDate(),     // Keep as Date for client
+    teamId,
+    startTime: (scheduleData.startTime as Timestamp)?.toDate(),
+    endTime: (scheduleData.endTime as Timestamp)?.toDate(),
     createdAt: (scheduleData.createdAt as Timestamp)?.toDate().toISOString(),
     updatedAt: (scheduleData.updatedAt as Timestamp)?.toDate().toISOString(),
-  } as Schedule; // Cast, assuming data matches Schedule structure after conversion
+  } as Schedule;
 };
 
 
 export const createSchedule = async (
   isAuthenticated: boolean,
   teamId: string,
-  userId: string, // ID of the user creating the schedule
+  userId: string,
   scheduleFormData: ScheduleFormData
 ): Promise<Schedule> => {
   if (!isAuthenticated) {
@@ -49,11 +47,11 @@ export const createSchedule = async (
   try {
     const schedulesColRef = collection(firestore, 'teams', teamId, 'schedules');
     const newScheduleDocData = {
-      teamId, // Store teamId for potential denormalized queries if schedules were in a root collection
+      teamId,
       title: scheduleFormData.title,
       description: scheduleFormData.description || '',
-      startTime: Timestamp.fromDate(new Date(scheduleFormData.startTime)), // Convert Date to Firestore Timestamp
-      endTime: Timestamp.fromDate(new Date(scheduleFormData.endTime)),     // Convert Date to Firestore Timestamp
+      startTime: Timestamp.fromDate(new Date(scheduleFormData.startTime)),
+      endTime: Timestamp.fromDate(new Date(scheduleFormData.endTime)),
       assignedUserIds: scheduleFormData.assignedUserIds || [],
       createdBy: userId,
       createdAt: serverTimestamp(),
@@ -62,7 +60,6 @@ export const createSchedule = async (
 
     const docRef = await addDoc(schedulesColRef, newScheduleDocData);
     
-    // Fetch the document to get server-generated timestamps
     const newDocSnap = await getDoc(docRef);
     if (!newDocSnap.exists()) {
         throw new Error("Failed to retrieve created schedule from Firestore.");
@@ -82,10 +79,7 @@ export const getSchedulesForTeam = async (
   teamId: string
 ): Promise<Schedule[]> => {
   if (!isAuthenticated) {
-    // Depending on your app's privacy rules, you might allow unauthenticated access
-    // or throw an error. For now, proceeding but logging a warning.
     console.warn("getSchedulesForTeam: User not authenticated. Access might be restricted.");
-    // throw new Error("User not authenticated.");
   }
   if (!teamId) {
     console.error("getSchedulesForTeam: teamId is required.");
@@ -94,7 +88,6 @@ export const getSchedulesForTeam = async (
 
   try {
     const schedulesColRef = collection(firestore, 'teams', teamId, 'schedules');
-    // Order by start time, ascending
     const q = query(schedulesColRef, orderBy('startTime', 'asc'));
     const querySnapshot = await getDocs(q);
     const schedules: Schedule[] = [];
@@ -112,7 +105,7 @@ export const updateSchedule = async (
   isAuthenticated: boolean,
   teamId: string,
   scheduleId: string,
-  scheduleUpdateData: Partial<ScheduleFormData> // Allow partial updates based on form data
+  scheduleUpdateData: Partial<ScheduleFormData>
 ): Promise<Schedule | null> => {
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Cannot update schedule.");
@@ -124,7 +117,6 @@ export const updateSchedule = async (
   try {
     const scheduleDocRef = doc(firestore, 'teams', teamId, 'schedules', scheduleId);
     
-    // Convert Date objects to Timestamps if they are part of the update
     const updatePayload: any = { ...scheduleUpdateData };
     if (scheduleUpdateData.startTime) {
       updatePayload.startTime = Timestamp.fromDate(new Date(scheduleUpdateData.startTime));
@@ -140,7 +132,7 @@ export const updateSchedule = async (
     if (updatedDocSnap.exists()) {
       return scheduleToClient(updatedDocSnap.data(), updatedDocSnap.id, teamId);
     }
-    return null; // Should not happen if update was successful and doc existed
+    return null;
   } catch (error) {
     console.error(`Error updating schedule ${scheduleId} for team ${teamId}:`, error);
     throw error;

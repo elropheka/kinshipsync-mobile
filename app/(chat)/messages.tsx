@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, FlatList, StyleSheet, ActivityIndicator, Image, Alert, StatusBar } from 'react-native'; // Added Alert
+import { View, Text, TextInput, TouchableOpacity, ScrollView, FlatList, StyleSheet, ActivityIndicator, Image, Alert, StatusBar, Platform } from 'react-native'; // Added Alert
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,14 +8,13 @@ import { useConversations } from '../../hooks/useChat';
 import { Conversation, ParticipantInfo } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from 'constants/Colors';
-import { getUserProfileById } from '../../services/userService'; // Import userService function
-import { UserProfile } from '../../types/userTypes'; // Import UserProfile for typing
+import { getUserProfileById } from '../../services/userService';
+import { UserProfile } from '../../types/userTypes';
 
-// Define ConversationItemProps
 interface ConversationItemProps {
   item: Conversation;
-  currentUser: any; // Consider using a more specific type for currentUser if available from useAppAuth
-  router: any; // Type from useRouter
+  currentUser: any;
+  router: any;
   getOtherParticipant: (participants: ParticipantInfo[]) => ParticipantInfo | undefined;
   formatTimestamp: (timestamp?: string | number) => string;
 }
@@ -82,14 +81,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({ item, currentUser, 
 const ChatListScreen = () => {
   const router = useRouter();
   const { user: currentUser } = useAppAuth();
-  const { conversations, isLoading, error, fetchConversations } = useConversations(); // Assuming fetchConversations for refresh
+  const { conversations, isLoading, error, fetchConversations } = useConversations();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Filtered conversations based on search query
   const filteredConversations = conversations.filter(conv => {
     if (!searchQuery.trim()) {
-      return true; // Show all conversations if search query is empty
+      return true;
     }
     const lowercasedQuery = searchQuery.toLowerCase();
     if (conv.type === 'group') {
@@ -98,7 +96,7 @@ const ChatListScreen = () => {
         p => p.displayName?.toLowerCase().includes(lowercasedQuery)
       );
       return nameMatch || participantMatch;
-    } else { // direct chat
+    } else {
       const otherParticipant = conv.participants.find(p => p.userId !== currentUser?.uid);
       return otherParticipant?.displayName?.toLowerCase().includes(lowercasedQuery);
     }
@@ -111,7 +109,6 @@ const ChatListScreen = () => {
   const formatTimestamp = (timestamp?: string | number): string => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
-    // Simple time formatting, can be expanded (e.g., "Yesterday", "Mon")
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
@@ -126,7 +123,7 @@ const ChatListScreen = () => {
   if (isLoading && conversations.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading conversations...</Text>
       </SafeAreaView>
@@ -136,7 +133,7 @@ const ChatListScreen = () => {
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -147,7 +144,7 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 

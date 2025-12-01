@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Modal, ActivityIndicator, Image, StatusBar } from 'react-native'; // Added Image
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -36,11 +36,6 @@ const TeamDashboardScreen = () => {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | undefined>(undefined); // Added state for editing schedule
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Ensure teamService is imported if not already (it is in the provided file)
-  // import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, removeMemberFromTeam, deleteTaskForTeam } from '../../../services/teamService';
-  // Make sure deleteTaskForTeam is added to the import statement for teamService.
-  // Based on the provided file, it seems teamService functions are directly imported.
 
   useEffect(() => {
     if (!teamId || !isAuthenticated) {
@@ -133,7 +128,6 @@ const TeamDashboardScreen = () => {
             try {
               await removeMemberFromTeam(isAuthenticated, teamId, memberIdToRemove);
               setTeamMembers(prevMembers => prevMembers.filter(member => member.userId !== memberIdToRemove));
-              // Also update the main team object's memberIds if it's used directly elsewhere for member count etc.
               if (team) {
                 setTeam(prevTeam => prevTeam ? ({ ...prevTeam, memberIds: prevTeam.memberIds.filter(id => id !== memberIdToRemove) }) : null);
               }
@@ -188,8 +182,7 @@ const TeamDashboardScreen = () => {
         } else {
           Alert.alert('Error', 'Failed to update task. Task not found or an error occurred.');
         }
-      } else { // Creating new task
-        // Default assignee to creator if no assignees are selected
+      } else {
         const assignedToUserIds = taskFormData.assignedToUserIds && taskFormData.assignedToUserIds.length > 0 
           ? taskFormData.assignedToUserIds 
           : [currentUser.uid];
@@ -300,7 +293,7 @@ const TeamDashboardScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text style={{marginTop: 10}}>Loading team data...</Text>
       </SafeAreaView>
@@ -310,7 +303,7 @@ const TeamDashboardScreen = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <Text style={{color: 'red', marginBottom: 10}}>{error}</Text>
         {/* Optionally add a retry button here */}
       </SafeAreaView>
@@ -320,7 +313,7 @@ const TeamDashboardScreen = () => {
   if (!team) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: 'Team Not Found' }} />
         <Text>Team not found.</Text>
       </SafeAreaView>
@@ -390,7 +383,7 @@ const TeamDashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen
         options={{
           title: team.name || 'Team Dashboard',

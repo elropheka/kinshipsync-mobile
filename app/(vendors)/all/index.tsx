@@ -6,7 +6,8 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
-  // StyleSheet, // Styles are imported
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -76,6 +77,23 @@ const VendorsScreen: React.FC = () => {
   const handleNavigateToCategory = useCallback((categorySlug: string) => {
     router.push(`/(vendors)/category/${categorySlug}`);
   }, []);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (activeTab !== 'Find a Vendor') return;
+    
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 1000; // Trigger when 1000px from bottom
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    
+    if (
+      isCloseToBottom &&
+      !isLoadingItems && 
+      displayItems.length > 0 && 
+      displayItems.length < totalItems
+    ) {
+      loadMoreItems();
+    }
+  }, [activeTab, isLoadingItems, displayItems.length, totalItems, loadMoreItems]);
 
   const renderDisplayVendorItem = useCallback(({ item }: { item: DisplayVendorItem }): JSX.Element => {
     const vendorName = item.vendorProfile?.name || 'Unknown Vendor';
@@ -179,17 +197,24 @@ const VendorsScreen: React.FC = () => {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Products & Services</Text>
           </View>
-          {isLoadingItems && <ActivityIndicator color={Colors.light.tint} style={{ marginTop: 20 }} />}
+          {isLoadingItems && displayItems.length === 0 && (
+            <ActivityIndicator color={Colors.light.tint} style={{ marginTop: 20 }} />
+          )}
           {errorItems && <Text>Error loading items: {errorItems.message}</Text>}
           {!isLoadingItems && !errorItems && displayItems.length === 0 && (
             <Text style={{textAlign: 'center', marginVertical: 20}}>
               No items found {searchQuery ? `for "${searchQuery}"` : ''}
             </Text>
           )}
-          {!isLoadingItems && !errorItems && displayItems.length > 0 && (
+          {displayItems.length > 0 && (
              displayItems.map((item: DisplayVendorItem) => <View key={item.id}>{renderDisplayVendorItem({item: item})}</View>)
           )}
-          {/* TODO: Add Load More button using loadMoreItems and totalItems */}
+          {isLoadingItems && displayItems.length > 0 && (
+            <View style={styles.loadMoreContainer}>
+              <ActivityIndicator color={Colors.light.tint} size="small" />
+              <Text style={styles.loadingText}>Loading more items...</Text>
+            </View>
+          )}
         </View>
       </>
     );
@@ -201,7 +226,7 @@ const VendorsScreen: React.FC = () => {
     vendorCategories, 
     isLoadingItems, 
     errorItems, 
-    displayItems, 
+    displayItems,
     handleNavigateToCategory, 
     renderDisplayVendorItem
   ]);
@@ -237,7 +262,13 @@ const VendorsScreen: React.FC = () => {
         <View style={[styles.indicatorBase, activeTab === 'Your Vendor' ? styles.activeIndicatorLeft : styles.activeIndicatorRight]} />
       </View>
 
-      <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView 
+        style={styles.scrollView} 
+        keyboardShouldPersistTaps="handled" 
+        contentContainerStyle={{ flexGrow: 1 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+      >
         {renderTabContent()}
       </ScrollView>
 

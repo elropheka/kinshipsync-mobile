@@ -42,13 +42,11 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
   const [location, setLocation] = useState('');
   const [responsiblePerson, setResponsiblePerson] = useState('');
 
-  // Date/Time state
   const [formStartTime, setFormStartTime] = useState(new Date());
   const [formEndTime, setFormEndTime] = useState(new Date());
 
   const [pickerMode, setPickerMode] = useState<'date' | 'time' | 'none'>('none');
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end' | null>(null);
-  // currentPickerDate is the date object that DateTimePicker will directly manipulate
   const [currentPickerDate, setCurrentPickerDate] = useState(new Date());
 
   useEffect(() => {
@@ -60,7 +58,6 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
       setLocation(initialData.location || '');
       setResponsiblePerson(initialData.responsiblePerson || '');
     } else {
-      // Reset form for new item
       setTitle('');
       const now = new Date();
       const startOfHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
@@ -79,13 +76,11 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
     }
 
     if (event.type === 'dismissed' && Platform.OS === 'ios') {
-      // On iOS, if "Cancel" is hit, we don't change anything, just close
-      // setPickerMode('none'); // This will be handled by the Done/Cancel buttons in iOS modal
       return;
     }
     
     if (selectedValue) {
-        setCurrentPickerDate(selectedValue); // Keep currentPickerDate updated for iOS spinner
+        setCurrentPickerDate(selectedValue);
         if (pickerTarget === 'start') {
             if (pickerMode === 'date') {
                 const newStartTime = new Date(formStartTime);
@@ -108,17 +103,15 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
             }
         }
     }
-    // For Android, picker is already hidden. For iOS, it's handled by Done/Cancel.
   };
   
   const showDateTimePicker = (target: 'start' | 'end', mode: 'date' | 'time') => {
     setPickerTarget(target);
     setPickerMode(mode);
-    setCurrentPickerDate(target === 'start' ? new Date(formStartTime) : new Date(formEndTime)); // Ensure picker starts with current value
+    setCurrentPickerDate(target === 'start' ? new Date(formStartTime) : new Date(formEndTime));
   };
 
   const handleDoneIOS = () => {
-    // Apply the final value from currentPickerDate (which was updated by the spinner)
     if (pickerTarget === 'start') {
         setFormStartTime(new Date(currentPickerDate));
     } else if (pickerTarget === 'end') {

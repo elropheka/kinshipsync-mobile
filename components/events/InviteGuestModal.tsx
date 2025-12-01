@@ -26,7 +26,6 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Custom alert state
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
     type: 'error';
@@ -52,7 +51,6 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
       showAlert('Validation Error', 'Guest name is required.');
       return;
     }
-    // Basic email validation (optional, can be more robust)
     if (email.trim() && !email.includes('@')) {
         showAlert('Validation Error', 'Please enter a valid email address.');
         return;
@@ -68,21 +66,17 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
       notes: notes.trim() || '',
       status,
       plusOnes: Number(plusOnes) || 0,
-      // addedAt will be set by the service
     };
 
     try {
       await onSubmit(guestData);
-      // Reset form and close on successful submission (handled by parent)
       setName('');
       setEmail('');
       setPhone('');
       setNotes('');
       setStatus('Invited');
       setPlusOnes(0);
-      // onClose(); // Parent should call onClose after successful submission
     } catch (error) {
-      // Error is usually handled by the onSubmit prop's implementation (e.g., showing an Alert)
       console.error("Error submitting guest invite form:", error);
     } finally {
       setIsSubmitting(false);

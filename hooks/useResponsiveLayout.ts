@@ -36,21 +36,17 @@ export const useResponsiveLayout = (): ResponsiveLayout => {
     };
   }, []);
 
-  // Handle device type detection safely
   const isTablet = Device.deviceType === Device.DeviceType.TABLET;
   const isPortrait = !isLandscape;
   
-  // Determine size classes based on screen dimensions
   const getSizeClass = (): SizeClass => {
     const { width, height } = dimensions;
     
-    // Horizontal size class
     let horizontal: 'compact' | 'regular' | 'large';
     if (width < 375) horizontal = 'compact';
     else if (width < 768) horizontal = 'regular';
     else horizontal = 'large';
     
-    // Vertical size class
     let vertical: 'compact' | 'regular' | 'large';
     if (height < 667) vertical = 'compact';
     else if (height < 1024) vertical = 'regular';
@@ -61,7 +57,6 @@ export const useResponsiveLayout = (): ResponsiveLayout => {
 
   const sizeClass = getSizeClass();
   
-  // Screen size categories
   const isLargeScreen = dimensions.width >= 768;
   const isMediumScreen = dimensions.width >= 375 && dimensions.width < 768;
   const isSmallScreen = dimensions.width < 375;

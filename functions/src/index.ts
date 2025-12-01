@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { Expo } from "expo-server-sdk";
 
 // Initialize Firebase Admin SDK
 // This needs to be done only once per deployment.
@@ -9,6 +10,7 @@ if (admin.apps.length === 0) {
 
 const db = admin.firestore();
 const messaging = admin.messaging();
+const expo = new Expo();
 
 interface PendingInvitationData {
   invitedGuestEmail?: string;
@@ -61,6 +63,84 @@ interface Team {
   name: string;
   memberIds: string[];
   // other team fields
+}
+
+/**
+ * Checks if a token is an Expo push token.
+ * Expo tokens typically start with "ExponentPushToken[" or "ExpoPushToken["
+ */
+function isExpoPushToken(token: string): boolean {
+  return (
+    token.startsWith("ExponentPushToken[") ||
+    token.startsWith("ExpoPushToken[") ||
+    token.startsWith("Expo-")
+  );
+}
+
+/**
+ * Sends a push notification via Expo Push API.
+ * @param {string[]} tokens - Array of Expo push tokens.
+ * @param {string} title - Notification title.
+ * @param {string} body - Notification body.
+ * @param {object} data - Additional data to send with the notification.
+ */
+async function sendExpoNotification(
+  tokens: string[],
+  title: string,
+  body: string,
+  data?: { [key: string]: string }
+): Promise<void> {
+  if (tokens.length === 0) {
+    functions.logger.warn("No Expo push tokens provided for notification.");
+    return;
+  }
+
+  // Filter out invalid tokens
+  const validTokens = tokens.filter((token) => Expo.isExpoPushToken(token));
+  
+  if (validTokens.length === 0) {
+    functions.logger.warn("No valid Expo push tokens found.");
+    return;
+  }
+
+  // Create messages for each token
+  const messages = validTokens.map((token) => ({
+    to: token,
+    sound: "default" as const,
+    title: title,
+    body: body,
+    data: data || {},
+    badge: 1,
+  }));
+
+  try {
+    const chunks = expo.chunkPushNotifications(messages);
+    const tickets = [];
+    
+    for (const chunk of chunks) {
+      try {
+        const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        tickets.push(...ticketChunk);
+      } catch (error) {
+        functions.logger.error("Error sending Expo notification chunk:", error);
+      }
+    }
+
+    // Check ticket errors
+    for (let i = 0; i < tickets.length; i++) {
+      const ticket = tickets[i];
+      if (ticket.status === "error") {
+        functions.logger.error(
+          `Failed to send Expo notification to token ${validTokens[i]}:`,
+          ticket.message
+        );
+      }
+    }
+
+    functions.logger.info(`Successfully sent ${validTokens.length} Expo notification(s)`);
+  } catch (error) {
+    functions.logger.error("Error sending Expo notifications:", error);
+  }
 }
 
 /**
@@ -128,6 +208,52 @@ async function sendFcmNotification(
   }
 }
 
+/**
+ * Sends push notifications, automatically detecting whether tokens are Expo or FCM.
+ * @param {string[]} tokens - Array of push tokens (can be Expo or FCM).
+ * @param {string} title - Notification title.
+ * @param {string} body - Notification body.
+ * @param {object} data - Additional data to send with the notification.
+ */
+async function sendPushNotificationToTokens(
+  tokens: string[],
+  title: string,
+  body: string,
+  data?: { [key: string]: string }
+): Promise<void> {
+  if (tokens.length === 0) {
+    functions.logger.warn("No push tokens provided for notification.");
+    return;
+  }
+
+  // Separate Expo and FCM tokens
+  const expoTokens: string[] = [];
+  const fcmTokens: string[] = [];
+
+  tokens.forEach((token) => {
+    if (isExpoPushToken(token)) {
+      expoTokens.push(token);
+    } else {
+      fcmTokens.push(token);
+    }
+  });
+
+  // Send notifications through appropriate channels
+  const promises: Promise<void>[] = [];
+
+  if (expoTokens.length > 0) {
+    functions.logger.info(`Sending ${expoTokens.length} notification(s) via Expo Push API`);
+    promises.push(sendExpoNotification(expoTokens, title, body, data));
+  }
+
+  if (fcmTokens.length > 0) {
+    functions.logger.info(`Sending ${fcmTokens.length} notification(s) via FCM`);
+    promises.push(sendFcmNotification(fcmTokens, title, body, data));
+  }
+
+  await Promise.all(promises);
+}
+
 export const processEventInvitationFCM = functions.firestore
   .document("pending_event_invitations_fcm/{invitationId}")
   .onCreate(async (
@@ -182,7 +308,7 @@ export const processEventInvitationFCM = functions.firestore
             // Optional: Add data for deep linking
             const fcmType = invitationData.type === "reminder" ? "event_reminder" : "event_invitation";
             const fcmData = { eventId: eventId, type: fcmType };
-            await sendFcmNotification(invitedUserData.fcmTokens, title, body, fcmData);
+            await sendPushNotificationToTokens(invitedUserData.fcmTokens, title, body, fcmData);
             functions.logger.info(
               `Sent FCM ${fcmType} to guest: ${invitedUserData.displayName} (${invitedGuestEmail})`
             );
@@ -234,7 +360,7 @@ export const processEventInvitationFCM = functions.firestore
               guestName: invitedGuestName,
               type: "guest_invited_confirmation",
             };
-            await sendFcmNotification(
+            await sendPushNotificationToTokens(
               organizerData.fcmTokens,
               organizerNotificationTitle,
               organizerNotificationBody,
@@ -276,7 +402,7 @@ interface ChatMessageData {
 
 interface ConversationData {
   participantIds: string[]; // Assuming this structure based on client-side chatService
-  participants: Array<{ userId: string; displayName?: string; avatarUrl?: string | null}>; // More robust
+  participants: { userId: string; displayName?: string; avatarUrl?: string | null}[]; // More robust
   // other fields from your Conversation type
 }
 
@@ -343,7 +469,7 @@ export const sendChatMessageNotification = functions.firestore
               type: "new_message",
               navigateTo: `/(chat)/chatArea?conversationId=${conversationId}`, // Example deep link
             };
-            await sendFcmNotification(userData.fcmTokens, title, body, notificationData);
+            await sendPushNotificationToTokens(userData.fcmTokens, title, body, notificationData);
             functions.logger.info(`Sent chat push notification to user ${userId}.`);
           } else {
             functions.logger.warn(`User ${userId} has no FCM tokens.`);
@@ -432,10 +558,10 @@ export const sendUpcomingEventReminders = functions.pubsub
 
             // Send Push Notification
             if (userProfile.fcmTokens && userProfile.fcmTokens.length > 0) {
-              await sendFcmNotification(userProfile.fcmTokens, title, body, notificationData);
+              await sendPushNotificationToTokens(userProfile.fcmTokens, title, body, notificationData);
               functions.logger.info(`Sent event reminder push to user ${userId} for event ${eventName}.`);
             } else {
-              functions.logger.warn(`User ${userId} (guest: ${guest.email}) has no FCM tokens for event ${eventName}.`);
+              functions.logger.warn(`User ${userId} (guest: ${guest.email}) has no push tokens for event ${eventName}.`);
             }
 
             // Create In-App Notification
@@ -499,7 +625,7 @@ export const dailyEventCountdowns = functions.pubsub.schedule("every 24 hours").
               type: "event_countdown",
               navigateTo: `/(events)/details/${event.id}`,
             };
-            await sendFcmNotification(organizerData.fcmTokens, title, body, notificationData);
+            await sendPushNotificationToTokens(organizerData.fcmTokens, title, body, notificationData);
             functions.logger.info(`Sent event countdown push to organizer 
               ${organizerData.displayName} for event ${event.name}.`);
           }
@@ -524,7 +650,7 @@ export const dailyEventCountdowns = functions.pubsub.schedule("every 24 hours").
                         type: "event_countdown",
                         navigateTo: `/(events)/details/${event.id}`,
                       };
-                      await sendFcmNotification(memberData.fcmTokens, title, body, notificationData);
+                      await sendPushNotificationToTokens(memberData.fcmTokens, title, body, notificationData);
                       functions.logger.info(`Sent event countdown push to team member ${memberData.displayName} 
                         for event ${event.name}.`);
                     }
@@ -577,7 +703,7 @@ export const sendPushNotification = functions.https.onCall(async (request, _cont
       return { success: false, message: "Recipient has no FCM tokens." };
     }
 
-    await sendFcmNotification(userData.fcmTokens, title, body, notificationData);
+    await sendPushNotificationToTokens(userData.fcmTokens, title, body, notificationData);
     functions.logger.info(`Successfully sent push notification to ${recipientId}.`);
     return { success: true, message: "Push notification sent successfully." };
   } catch (error: any) {

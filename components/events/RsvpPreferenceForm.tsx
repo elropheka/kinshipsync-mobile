@@ -14,7 +14,6 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../../styles/components/events/RsvpPreferenceForm.styles';
 
-// Define RsvpPreferences and RsvpItem interfaces (can be moved to a types file later)
 interface RsvpPreferences {
   dietaryRestrictions?: string[];
   plusOne?: boolean;
@@ -62,7 +61,6 @@ const RsvpPreferenceForm: React.FC<RsvpPreferenceFormProps> = ({
       setPlusOneName(initialRsvpData.preferences?.plusOneName || '');
       setOtherNotes(initialRsvpData.preferences?.otherNotes || '');
     } else {
-      // Reset form for new (though this form is primarily for editing existing)
       setStatus('Pending');
       setSelectedDietary([]);
       setPlusOne(false);
@@ -87,7 +85,6 @@ const RsvpPreferenceForm: React.FC<RsvpPreferenceFormProps> = ({
       otherNotes: otherNotes.trim() ? otherNotes.trim() : undefined,
     };
     
-    // Remove undefined fields from preferences for cleaner data
     Object.keys(updatedPreferences).forEach(key => {
         const K = key as keyof RsvpPreferences;
         if (updatedPreferences[K] === undefined || (Array.isArray(updatedPreferences[K]) && (updatedPreferences[K] as string[]).length === 0)) {

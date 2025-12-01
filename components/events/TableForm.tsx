@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SeatingTable } from '../../types/eventTypes'; // Assuming SeatingTable is in eventTypes
 import { Colors } from '../../constants/Colors';
@@ -39,7 +39,7 @@ const TableForm: React.FC<TableFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
           <Ionicons name="close-outline" size={28} color={Colors.light.text} />
@@ -78,7 +78,6 @@ const TableForm: React.FC<TableFormProps> = ({
   );
 };
 
-// Reusing similar styles from other forms
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

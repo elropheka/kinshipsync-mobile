@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, Alert, StatusBar } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, Alert, StatusBar, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(chat)/newChat.styles'; // To be created
+import { styles } from '../../styles/app/(chat)/newChat.styles';
 import { UserProfile } from '../../types/userTypes';
-// import { Conversation } from '../../types/chatTypes'; // Conversation type not directly used in this file for now
-import * as userService from '../../services/userService'; // For searching users
+import * as userService from '../../services/userService';
 import { useConversations } from '../../hooks/useChat'; // To check existing and create new
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAuth } from '../../context/AuthContext'; // Added to get isAuthenticated
@@ -15,7 +14,7 @@ import { Colors } from 'constants/Colors';
 const NewChatScreen = () => {
   const router = useRouter();
   const { user: currentUser } = useAppAuth();
-  const { isAuthenticated } = useAuth(); // Get isAuthenticated
+  const { isAuthenticated } = useAuth();
   const { conversations, createDirectChat } = useConversations();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,17 +24,15 @@ const NewChatScreen = () => {
   const [isLoadingInitialList, setIsLoadingInitialList] = useState(false);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
 
-  // Fetch initial list of users
   useEffect(() => {
     const fetchInitialUsers = async () => {
-      if (!isAuthenticated || !currentUser?.uid) return; // Ensure user is authenticated and UID is available
+      if (!isAuthenticated || !currentUser?.uid) return;
       setIsLoadingInitialList(true);
       try {
-        const users = await userService.getAllUsersForPicker(isAuthenticated, 20); // Pass limit
+        const users = await userService.getAllUsersForPicker(isAuthenticated, 20);
         setInitialUserList(users.filter(u => u.userId !== currentUser?.uid));
       } catch (error) {
         console.error("Error fetching initial users:", error);
-        // Optionally, set an error state to display to the user
         setInitialUserList([]);
       } finally {
         setIsLoadingInitialList(false);
@@ -45,14 +42,13 @@ const NewChatScreen = () => {
     fetchInitialUsers();
   }, [currentUser?.uid, isAuthenticated]);
 
-  // Debounced search effect
   useEffect(() => {
     const handler = setTimeout(async () => {
       if (searchQuery.trim().length > 1) {
         setIsLoadingSearch(true);
-        setInitialUserList([]); // Clear initial list when searching
+        setInitialUserList([]);
         try {
-          const users = await userService.searchUsersByName(isAuthenticated, searchQuery.trim(), 10); // Corrected argument order
+          const users = await userService.searchUsersByName(isAuthenticated, searchQuery.trim(), 10);
           setSearchResults(users.filter(u => u.userId !== currentUser?.uid));
         } catch (error) {
           console.error("Error searching users:", error);
@@ -62,8 +58,6 @@ const NewChatScreen = () => {
         }
       } else {
         setSearchResults([]);
-        // Optionally, re-fetch or re-show initial list if search query is cleared
-        // For now, clearing search results is enough, initial list will show if data source logic is correct
       }
     }, 500);
 
@@ -76,7 +70,6 @@ const NewChatScreen = () => {
     if (!currentUser?.uid || !selectedUser.userId) return;
     setIsCreatingChat(true);
 
-    // Check if a conversation already exists
     const existingConversation = conversations.find(conv => 
       conv.type === 'direct' && 
       conv.participants.length === 2 &&
@@ -90,9 +83,7 @@ const NewChatScreen = () => {
       return;
     }
 
-    // If no existing conversation, create a new one
     try {
-      // createDirectChat expects a CreateDirectConversationPayload
       const newConversation = await createDirectChat({ recipientId: selectedUser.userId });
       if (newConversation) {
         router.push({ pathname: '/(chat)/chatArea', params: { conversationId: newConversation.id } });
@@ -126,7 +117,7 @@ const NewChatScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen options={{ title: "New Chat" }} />
       {/* Custom header View removed */}
 

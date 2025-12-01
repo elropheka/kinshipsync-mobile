@@ -11,8 +11,7 @@ import {
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: Colors.dark.background + 'BF', // Dark background with 75% opacity (BF in hex)
-                                                    // Consider adding a specific overlay color to Colors.ts
+    backgroundColor: Colors.dark.background + 'BF',
     justifyContent: 'center',
     alignItems: 'center',
   },

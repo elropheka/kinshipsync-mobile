@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
-  // Button, // Can use TouchableOpacity for custom button
 } from 'react-native';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,15 +23,12 @@ export default function VendorCategoryScreen() {
     error,
     loadMoreItems,
     totalItems,
-    // updateItemSearchCriteria, // Could be used for further filtering within category
   } = useVendorItemsSearch(vendorCategorySlug ? { vendorCategorySlug, limit: 10 } : {} as VendorItemSearchParams);
 
   const handleNavigateToVendorDetails = useCallback((vendorId: string) => {
     router.push(`/(vendors)/details/${vendorId}`);
   }, []);
 
-  // Re-using a similar item rendering logic from all/index.tsx
-  // This could be extracted into a shared component
   const renderDisplayVendorItem = useCallback(({ item }: { item: DisplayVendorItem }): JSX.Element => {
     const vendorName = item.vendorProfile?.name || 'Unknown Vendor';
     const vendorRating = item.vendorProfile?.averageRating;

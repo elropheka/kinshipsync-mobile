@@ -12,6 +12,7 @@ import {
   Animated,
   StatusBar,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
@@ -150,7 +151,7 @@ const VendorScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.background} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.background} hidden={Platform.OS === 'android'} />
       <View style={styles.header}>
         <Text style={styles.heading}>Local vendors & services</Text>
         <Text style={styles.subheading}>

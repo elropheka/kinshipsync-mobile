@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { MaterialIcons as Icon, Ionicons as SecondaryIcon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from 'constants/Colors'; 
@@ -29,7 +29,6 @@ const DashboardScreen: React.FC = () => {
   } = useAllEvents();
   const { 
     notifications, 
-
     isLoading: isLoadingUserContext, 
     error: userContextError 
   } = useCurrentUser();
@@ -39,62 +38,41 @@ const DashboardScreen: React.FC = () => {
     'event_update',
     'rsvp_update',
     'task_assigned',
-    
-   
     'team_member_added',
     'family_tree_update',
     'team_task_update',
-    
-    
     'vendor_booking',
     'vendor_confirmation',
     'vendor_quote',
     'vendor_review',
-    
-    
     'budget_item_added',
     'payment_made',
     'budget_milestone',
-    
-    
     'rsvp_received',
     'guest_milestone',
     'dietary_preference',
-    
-  
     'schedule_added',
     'schedule_conflict',
     'schedule_reminder',
-    
-
     'idea_submitted',
     'idea_popular',
     'idea_comment',
-    
-  
     'website_published',
     'website_updated',
     'website_stats',
-    
-   
     'event_countdown',
     'planning_progress',
-    
-    
     'vendor_suggestion',
     'theme_recommendation',
     'task_reminder'
   ];
 
-  
   const activities = notifications
     .filter(notification => activityRelatedNotificationTypes.includes(notification.type))
     .slice(0, 5);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
- 
-  
   const { handleScroll } = useScrollHandler();
 
   const handleActivityItemPress = (notificationId: string) => {
@@ -106,21 +84,17 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
-
-  
   const welcomeName = authUser?.displayName || authUser?.email || "User";
 
   return (
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundLight} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundLight} hidden={Platform.OS === 'android'} />
       <ResponsiveContainer>
-        
         <View style={styles.header}>
           <TouchableOpacity onPress={globalToggleSidebar}>
             <Text style={[styles.kinshipText, { fontSize: isTablet ? 28 : 24 }]}>Kinship</Text>
           </TouchableOpacity>
-          
-          <View style={{ flex: 1 }} /> 
+          <View style={{ flex: 1 }} />
           <View style={styles.headerIcons}>
             <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} style={styles.headerIcon}>
               <Icon name="search" size={isTablet ? 28 : 25} color={Colors.light.tint} />
@@ -146,9 +120,8 @@ const DashboardScreen: React.FC = () => {
           </View>
         </View>
 
-      
       {isSearchVisible && (
-        <View style={styles.searchContainer}> 
+        <View style={styles.searchContainer}>
           <Icon name="search" size={20} color={Colors.light.icon} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
@@ -161,16 +134,15 @@ const DashboardScreen: React.FC = () => {
           <TouchableOpacity 
             onPress={() => {
               setIsSearchVisible(false);
-              setSearchQuery(''); 
+              setSearchQuery('');
             }} 
-            style={{ padding: 5 }} 
+            style={{ padding: 5 }}
           >
             <SecondaryIcon name="close" size={22} color={Colors.light.icon} />
           </TouchableOpacity>
         </View>
       )}
 
-        
         <Text style={[styles.dashboardTitle, { fontSize: isTablet ? 32 : 28, textAlign: isTablet ? 'left' : 'center' }]}>
           Welcome, {welcomeName}!
         </Text>
@@ -180,7 +152,6 @@ const DashboardScreen: React.FC = () => {
           onScroll={handleScroll} 
           scrollEventThrottle={16}
         >
-
         {isLoadingEvents && allEvents.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="large" color={Colors.light.primary}/>}
         {eventsError && <Text style={styles.errorText}>Could not load events.</Text>}
         <UpcomingEvents
@@ -197,14 +168,8 @@ const DashboardScreen: React.FC = () => {
             onActivityPress={handleActivityItemPress} 
           />
         )}
-
-
         </ScrollView>
-
-        
       </ResponsiveContainer>
-
-     
     </SafeAreaView>
   );
 };

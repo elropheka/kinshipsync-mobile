@@ -16,7 +16,6 @@ export const useEventWebsite = (slug: string | undefined) => {
       setLoading(true);
       setError(null);
       try {
-        // First, find the event by slug
         const eventsRef = collection(firestore, 'events');
         const eventsSnapshot = await getDocs(eventsRef);
         const eventDoc = eventsSnapshot.docs.find((docSnapshot: QueryDocumentSnapshot) => {
@@ -37,7 +36,6 @@ export const useEventWebsite = (slug: string | undefined) => {
           updatedAt: eventData.updatedAt instanceof Timestamp ? eventData.updatedAt.toDate().toISOString() : new Date().toISOString(),
         } as Event);
 
-        // Then fetch website details
         const websiteDocRef = doc(collection(firestore, 'events', eventDoc.id, 'website'), 'details');
         const websiteDoc = await getDoc(websiteDocRef);
 
@@ -53,7 +51,6 @@ export const useEventWebsite = (slug: string | undefined) => {
             published: data.published || false
           });
         } else {
-          // Initialize with default values if no website exists
           setWebsiteDetails({
             published: false,
             sections: []
@@ -76,7 +73,6 @@ export const useEventWebsite = (slug: string | undefined) => {
     try {
       const websiteDocRef = doc(collection(firestore, 'events', event.id, 'website'), 'details');
       
-      // Update the website field in the event document as well
       const eventDocRef = doc(firestore, 'events', event.id);
       const eventWebsiteData = {
         customUrlSlug: updates.customUrlSlug,
@@ -90,7 +86,6 @@ export const useEventWebsite = (slug: string | undefined) => {
 
       await setDoc(websiteDocRef, updatedData, { merge: true });
 
-      // Update local state
       setWebsiteDetails(prev => prev ? {
         ...prev,
         ...updates

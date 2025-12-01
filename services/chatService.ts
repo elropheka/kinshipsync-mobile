@@ -22,12 +22,12 @@ import { firestore } from './firebaseConfig';
 import {
   Conversation, ChatMessage, ParticipantInfo, MessageReaction,
   CreateDirectConversationPayload, CreateGroupConversationPayload,
-  SendMessagePayload, GetMessagesParams, MarkConversationAsReadPayload
+  SendMessagePayload, MarkConversationAsReadPayload
 } from '../types/chatTypes';
 import { UserProfile } from '../types/userTypes';
 import { getUserProfileById } from '../services/userService';
 import { sendNotification } from '../services/notificationService';
-import { NotificationType, NewNotificationPayload } from '../types/notificationTypes';
+import { NewNotificationPayload } from '../types/notificationTypes';
 
 const getSenderProfileDetails = async (userId: string): Promise<Pick<UserProfile, 'displayName' | 'avatarUrl'>> => {
   if (!userId) {
@@ -590,23 +590,17 @@ export const updateParticipantRole = async (
     const conversationData = conversationSnap.data() as Conversation;
     if (conversationData.type !== 'group') throw new Error("Roles can only be updated in group conversations.");
 
-    // Check if the current user is an admin of this group
     const currentUserParticipant = conversationData.participants.find(p => p.userId === currentUserId);
     if (!currentUserParticipant || currentUserParticipant.role !== 'admin') {
       throw new Error("User not authorized to change roles in this group.");
     }
 
-    // Find the target participant and update their role
     const updatedParticipants = conversationData.participants.map(p => {
       if (p.userId === targetUserId) {
         return { ...p, role: newRole };
       }
       return p;
     });
-
-    // Ensure there's at least one admin left (optional, based on app logic)
-    // For simplicity, this check is omitted here but might be important in a real app.
-    // e.g., if (newRole === 'member' && updatedParticipants.filter(p => p.role === 'admin').length === 0) { ... }
 
     await updateDoc(conversationRef, {
       participants: updatedParticipants,
@@ -619,5 +613,3 @@ export const updateParticipantRole = async (
     throw error;
   }
 };
-
-// TODO: Add functions for updating participant roles in groups (if roles are implemented), etc.

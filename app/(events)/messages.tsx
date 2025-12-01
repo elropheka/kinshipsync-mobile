@@ -13,7 +13,6 @@ import { Colors } from '../../constants/Colors';
 
 interface SenderDetails {
   name: string;
-  // avatarUrl?: string; // Could add avatar later
 }
 
 const EventMessagesScreen = () => {
@@ -42,14 +41,14 @@ const EventMessagesScreen = () => {
       const fetchMissingSenderDetails = async () => {
         if (!currentUser?.uid || !guests) return; // Ensure guests is also available
 
-        const currentCache = { ...senderDetailsCache }; // Work with a copy
+        const currentCache = { ...senderDetailsCache };
         let newDetailsFetched = false;
 
         for (const message of eventMessages) {
           const senderId = message.sender;
 
-          if (senderId === currentUser.uid) continue; // Skip self
-          if (currentCache[senderId]) continue;    // Skip already cached
+          if (senderId === currentUser.uid) continue;
+          if (currentCache[senderId]) continue;
 
           const guestSender = guests.find(g => g.id === senderId);
           if (guestSender && guestSender.name) {
@@ -58,20 +57,18 @@ const EventMessagesScreen = () => {
             continue;
           }
           
-          // If not in guests (by userId) and not in cache, fetch profile
           try {
-            // console.log(`Fetching profile for senderId: ${senderId}`);
             const profile = await getUserProfile(!!currentUser, senderId);
             if (profile && profile.displayName) {
               currentCache[senderId] = { name: profile.displayName };
             } else {
-              currentCache[senderId] = { name: 'Unknown User' }; // Cache as unknown
+              currentCache[senderId] = { name: 'Unknown User' };
             }
             newDetailsFetched = true;
           } catch (error) {
             console.error(`Failed to fetch profile for sender ${senderId}:`, error);
             if (!currentCache[senderId]) {
-              currentCache[senderId] = { name: 'Unknown User' }; // Cache error case
+              currentCache[senderId] = { name: 'Unknown User' };
               newDetailsFetched = true;
             }
           }
@@ -84,16 +81,14 @@ const EventMessagesScreen = () => {
 
       fetchMissingSenderDetails();
     }
-  }, [eventMessages, guests, currentUser]); // Removed senderDetailsCache, it's updated internally
+  }, [eventMessages, guests, currentUser]);
 
   const getSenderName = (senderId: string): string => {
     if (currentUser && senderId === currentUser.uid) return "You";
     
-    // Check guests list first (using userId)
     const guestSender = guests.find(g => g.id === senderId);
     if (guestSender && guestSender.name) return guestSender.name;
 
-    // Check cache
     if (senderDetailsCache[senderId] && senderDetailsCache[senderId].name) {
       return senderDetailsCache[senderId].name;
     }
@@ -141,7 +136,7 @@ const EventMessagesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       <Stack.Screen options={{ title: event ? `${event.name} - Messages` : 'Event Messages' }} />
       
       <FlatList

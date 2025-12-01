@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, Alert, ActionSheetIOS, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, Alert, ActionSheetIOS, StatusBar, Platform } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -12,7 +12,6 @@ const ConversationSettingsScreen = () => {
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
   const { user: currentUser, token } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token;
-  // const router = useRouter(); // Not used
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +46,6 @@ const ConversationSettingsScreen = () => {
       return;
     }
 
-    // Prevent demoting the last admin
     const admins = conversation?.participants.filter(p => p.role === 'admin');
     if (admins?.length === 1 && admins[0].userId === targetUserId && newRole === 'member') {
       Alert.alert("Action Denied", "Cannot remove the last admin. Assign another admin first.");
@@ -61,7 +59,6 @@ const ConversationSettingsScreen = () => {
 
     try {
       await updateParticipantRole(isAuthenticated, conversationId, currentUser.uid, targetUserId, newRole);
-      // Optimistically update local state or refetch
       setConversation(prev => {
         if (!prev) return null;
         return {
@@ -91,7 +88,6 @@ const ConversationSettingsScreen = () => {
       Alert.alert("Info", "To leave the group, use the 'Leave Group' option (if available)."); // Or implement leave group
       return;
     }
-     // Prevent removing the last admin if the target is an admin
     const targetParticipant = conversation?.participants.find(p => p.userId === targetUserId);
     if (targetParticipant?.role === 'admin') {
         const admins = conversation?.participants.filter(p => p.role === 'admin');
@@ -134,7 +130,7 @@ const ConversationSettingsScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: 'Loading Settings...' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -146,7 +142,7 @@ const ConversationSettingsScreen = () => {
   if (error || !conversation) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: 'Error' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={{ color: Colors.light.error }}>{error || "Could not load conversation details."}</Text>
@@ -160,8 +156,6 @@ const ConversationSettingsScreen = () => {
 
   const showRoleManagementOptions = (participant: ParticipantInfo) => {
     if (!isCurrentUserAdmin || participant.userId === currentUser?.uid) {
-      // Only admins can manage roles, and they can't change their own role this way
-      // (to prevent last admin demoting themselves without assigning new admin)
       return;
     }
 
@@ -173,7 +167,6 @@ const ConversationSettingsScreen = () => {
     } else {
       options.unshift('Make Member');
     }
-    // Add "Remove Participant" as the first option (potentially destructive)
     options.unshift('Remove Participant');
     destructiveButtonIndex.push(0);
 
@@ -222,7 +215,7 @@ const ConversationSettingsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen options={{ title: conversation.name || 'Chat Settings' }} />
       <View style={styles.content}>
         <Text style={styles.title}>{conversation.name || 'Group Chat'} Settings</Text>
@@ -294,7 +287,6 @@ const styles = StyleSheet.create({
   manageRoleButton: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    // Add more styling if needed, e.g., for a button appearance
   },
   loadingContainer: {
     flex: 1,

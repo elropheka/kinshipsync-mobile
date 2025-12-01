@@ -7,18 +7,12 @@ import { styles } from '../../styles/app/(events)/website.styles';
 
 const WebsitePreviewPage: React.FC = () => {
   const handleDone = () => {
-    router.push('/(main)/home'); // Corrected to a likely main screen
+    router.push('/(main)/home');
   };
-
-  // handleBack is no longer needed as the header will provide it.
-  // const handleBack = () => {
-  //   router.back(); 
-  // };
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: "Website Preview" }} /> {/* Changed title for clarity */}
-      {/* Custom header View removed */}
+      <Stack.Screen options={{ title: "Website Preview" }} />
 
       <View style={styles.tabContainer}>
         <View style={[styles.tabItem, styles.activeTab]}>

@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendPushNotification = exports.dailyEventCountdowns = exports.sendUpcomingEventReminders = exports.sendChatMessageNotification = exports.processEventInvitationFCM = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
+const expo_server_sdk_1 = require("expo-server-sdk");
 // Initialize Firebase Admin SDK
 // This needs to be done only once per deployment.
 if (admin.apps.length === 0) {
@@ -46,6 +47,68 @@ if (admin.apps.length === 0) {
 }
 const db = admin.firestore();
 const messaging = admin.messaging();
+const expo = new expo_server_sdk_1.Expo();
+/**
+ * Checks if a token is an Expo push token.
+ * Expo tokens typically start with "ExponentPushToken[" or "ExpoPushToken["
+ */
+function isExpoPushToken(token) {
+    return (token.startsWith("ExponentPushToken[") ||
+        token.startsWith("ExpoPushToken[") ||
+        token.startsWith("Expo-"));
+}
+/**
+ * Sends a push notification via Expo Push API.
+ * @param {string[]} tokens - Array of Expo push tokens.
+ * @param {string} title - Notification title.
+ * @param {string} body - Notification body.
+ * @param {object} data - Additional data to send with the notification.
+ */
+async function sendExpoNotification(tokens, title, body, data) {
+    if (tokens.length === 0) {
+        functions.logger.warn("No Expo push tokens provided for notification.");
+        return;
+    }
+    // Filter out invalid tokens
+    const validTokens = tokens.filter((token) => expo_server_sdk_1.Expo.isExpoPushToken(token));
+    if (validTokens.length === 0) {
+        functions.logger.warn("No valid Expo push tokens found.");
+        return;
+    }
+    // Create messages for each token
+    const messages = validTokens.map((token) => ({
+        to: token,
+        sound: "default",
+        title: title,
+        body: body,
+        data: data || {},
+        badge: 1,
+    }));
+    try {
+        const chunks = expo.chunkPushNotifications(messages);
+        const tickets = [];
+        for (const chunk of chunks) {
+            try {
+                const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+                tickets.push(...ticketChunk);
+            }
+            catch (error) {
+                functions.logger.error("Error sending Expo notification chunk:", error);
+            }
+        }
+        // Check ticket errors
+        for (let i = 0; i < tickets.length; i++) {
+            const ticket = tickets[i];
+            if (ticket.status === "error") {
+                functions.logger.error(`Failed to send Expo notification to token ${validTokens[i]}:`, ticket.message);
+            }
+        }
+        functions.logger.info(`Successfully sent ${validTokens.length} Expo notification(s)`);
+    }
+    catch (error) {
+        functions.logger.error("Error sending Expo notifications:", error);
+    }
+}
 /**
  * Sends an FCM notification.
  * @param {string[]} tokens - Array of FCM registration tokens.
@@ -101,6 +164,41 @@ async function sendFcmNotification(tokens, title, body, data) {
         functions.logger.error("Error sending FCM message:", error);
     }
 }
+/**
+ * Sends push notifications, automatically detecting whether tokens are Expo or FCM.
+ * @param {string[]} tokens - Array of push tokens (can be Expo or FCM).
+ * @param {string} title - Notification title.
+ * @param {string} body - Notification body.
+ * @param {object} data - Additional data to send with the notification.
+ */
+async function sendPushNotificationToTokens(tokens, title, body, data) {
+    if (tokens.length === 0) {
+        functions.logger.warn("No push tokens provided for notification.");
+        return;
+    }
+    // Separate Expo and FCM tokens
+    const expoTokens = [];
+    const fcmTokens = [];
+    tokens.forEach((token) => {
+        if (isExpoPushToken(token)) {
+            expoTokens.push(token);
+        }
+        else {
+            fcmTokens.push(token);
+        }
+    });
+    // Send notifications through appropriate channels
+    const promises = [];
+    if (expoTokens.length > 0) {
+        functions.logger.info(`Sending ${expoTokens.length} notification(s) via Expo Push API`);
+        promises.push(sendExpoNotification(expoTokens, title, body, data));
+    }
+    if (fcmTokens.length > 0) {
+        functions.logger.info(`Sending ${fcmTokens.length} notification(s) via FCM`);
+        promises.push(sendFcmNotification(fcmTokens, title, body, data));
+    }
+    await Promise.all(promises);
+}
 exports.processEventInvitationFCM = functions.firestore
     .document("pending_event_invitations_fcm/{invitationId}")
     .onCreate(async (snapshot) => {
@@ -139,7 +237,7 @@ exports.processEventInvitationFCM = functions.firestore
                     // Optional: Add data for deep linking
                     const fcmType = invitationData.type === "reminder" ? "event_reminder" : "event_invitation";
                     const fcmData = { eventId: eventId, type: fcmType };
-                    await sendFcmNotification(invitedUserData.fcmTokens, title, body, fcmData);
+                    await sendPushNotificationToTokens(invitedUserData.fcmTokens, title, body, fcmData);
                     functions.logger.info(`Sent FCM ${fcmType} to guest: ${invitedUserData.displayName} (${invitedGuestEmail})`);
                     // Also create an in-app notification for the invited user
                     const inAppNotificationPayload = {
@@ -184,7 +282,7 @@ exports.processEventInvitationFCM = functions.firestore
                         guestName: invitedGuestName,
                         type: "guest_invited_confirmation",
                     };
-                    await sendFcmNotification(organizerData.fcmTokens, organizerNotificationTitle, organizerNotificationBody, organizerFcmData);
+                    await sendPushNotificationToTokens(organizerData.fcmTokens, organizerNotificationTitle, organizerNotificationBody, organizerFcmData);
                     functions.logger.info(`Sent FCM confirmation to organizer: ${organizerData.displayName} (ID: ${organizerId})`);
                 }
                 else {
@@ -259,7 +357,7 @@ exports.sendChatMessageNotification = functions.firestore
                         type: "new_message",
                         navigateTo: `/(chat)/chatArea?conversationId=${conversationId}`, // Example deep link
                     };
-                    await sendFcmNotification(userData.fcmTokens, title, body, notificationData);
+                    await sendPushNotificationToTokens(userData.fcmTokens, title, body, notificationData);
                     functions.logger.info(`Sent chat push notification to user ${userId}.`);
                 }
                 else {
@@ -333,11 +431,11 @@ exports.sendUpcomingEventReminders = functions.pubsub
                     };
                     // Send Push Notification
                     if (userProfile.fcmTokens && userProfile.fcmTokens.length > 0) {
-                        await sendFcmNotification(userProfile.fcmTokens, title, body, notificationData);
+                        await sendPushNotificationToTokens(userProfile.fcmTokens, title, body, notificationData);
                         functions.logger.info(`Sent event reminder push to user ${userId} for event ${eventName}.`);
                     }
                     else {
-                        functions.logger.warn(`User ${userId} (guest: ${guest.email}) has no FCM tokens for event ${eventName}.`);
+                        functions.logger.warn(`User ${userId} (guest: ${guest.email}) has no push tokens for event ${eventName}.`);
                     }
                     // Create In-App Notification
                     const inAppPayload = {
@@ -395,7 +493,7 @@ exports.dailyEventCountdowns = functions.pubsub.schedule("every 24 hours").onRun
                             type: "event_countdown",
                             navigateTo: `/(events)/details/${event.id}`,
                         };
-                        await sendFcmNotification(organizerData.fcmTokens, title, body, notificationData);
+                        await sendPushNotificationToTokens(organizerData.fcmTokens, title, body, notificationData);
                         functions.logger.info(`Sent event countdown push to organizer 
               ${organizerData.displayName} for event ${event.name}.`);
                     }
@@ -419,7 +517,7 @@ exports.dailyEventCountdowns = functions.pubsub.schedule("every 24 hours").onRun
                                                 type: "event_countdown",
                                                 navigateTo: `/(events)/details/${event.id}`,
                                             };
-                                            await sendFcmNotification(memberData.fcmTokens, title, body, notificationData);
+                                            await sendPushNotificationToTokens(memberData.fcmTokens, title, body, notificationData);
                                             functions.logger.info(`Sent event countdown push to team member ${memberData.displayName} 
                         for event ${event.name}.`);
                                         }
@@ -465,7 +563,7 @@ exports.sendPushNotification = functions.https.onCall(async (request, _context) 
             functions.logger.warn(`Recipient user ${recipientId} has no FCM tokens.`);
             return { success: false, message: "Recipient has no FCM tokens." };
         }
-        await sendFcmNotification(userData.fcmTokens, title, body, notificationData);
+        await sendPushNotificationToTokens(userData.fcmTokens, title, body, notificationData);
         functions.logger.info(`Successfully sent push notification to ${recipientId}.`);
         return { success: true, message: "Push notification sent successfully." };
     }
@@ -475,4 +573,5 @@ exports.sendPushNotification = functions.https.onCall(async (request, _context) 
     }
 });
 __exportStar(require("./mailjet"), exports);
+__exportStar(require("./twilio"), exports);
 //# sourceMappingURL=index.js.map

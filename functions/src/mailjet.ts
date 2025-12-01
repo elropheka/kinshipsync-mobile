@@ -1,13 +1,21 @@
 import * as functions from "firebase-functions/v1"; // Use v1 for consistency
 import Mailjet from "node-mailjet"; // Corrected import for node-mailjet
 
-// Initialize Mailjet client with API keys from environment variables
-// IMPORTANT: These environment variables must be set using Firebase CLI:
+// Initialize Mailjet client lazily to ensure config is available
+// IMPORTANT: Config must be set using Firebase CLI:
 // firebase functions:config:set mailjet.api_key="YOUR_MAILJET_API_KEY" mailjet.api_secret="YOUR_MAILJET_API_SECRET"
-const mailjet = Mailjet.apiConnect(
-  functions.config().mailjet?.api_key,
-  functions.config().mailjet?.api_secret
-);
+function getMailjetClient() {
+  // eslint-disable-next-line import/namespace
+  const apiKey = functions.config().mailjet?.api_key;
+  // eslint-disable-next-line import/namespace
+  const apiSecret = functions.config().mailjet?.api_secret;
+  
+  if (!apiKey || !apiSecret) {
+    throw new Error("Mailjet API credentials are not configured. Please set them using firebase functions:config:set");
+  }
+  
+  return Mailjet.apiConnect(apiKey, apiSecret);
+}
 
 // Define the interface for the data payload expected by the sendEmail function
 interface SendEmailData {
@@ -46,14 +54,8 @@ export const sendEmail = functions.https.onCall(async (data: SendEmailData, _con
     );
   }
 
-  if (!functions.config().mailjet?.api_key || !functions.config().mailjet?.api_secret) {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "Mailjet API keys are not configured. Please set them using firebase functions:config:set."
-    );
-  }
-
   try {
+    const mailjet = getMailjetClient();
     const request = mailjet
       .post("send", { version: "v3.1" })
       .request({

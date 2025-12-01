@@ -6,7 +6,6 @@ import {
 } from '../types/vendorTypes';
 import { VendorItem, VendorItemSearchParams } from '../types/vendorItemTypes';
 import { useAppAuth } from './useAppAuth';
-import { useAuth } from '../context/AuthContext';
 
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
@@ -69,11 +68,11 @@ export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [lastVisibleDoc]);
 
   useEffect(() => {
     performSearch(searchParams, false);
-  }, [searchParams.categorySlug, searchParams.keyword, searchParams.minRating, searchParams.sortBy, searchParams.limit]);
+  }, [searchParams, performSearch]);
 
 
   const updateSearchCriteria = useCallback((newCriteria: Partial<VendorSearchParams>) => {
@@ -90,8 +89,6 @@ export const useVendorSearch = (initialSearchParams?: VendorSearchParams) => {
   return { vendors, totalVendors, isLoading, error, searchParams, performSearch: (params: VendorSearchParams) => performSearch(params, false), updateSearchCriteria, loadMore };
 };
 
-
-// Hook for managing a single vendor's details and reviews
 export const useVendorDetail = (vendorId?: string) => {
   const { user: authUser } = useAppAuth();
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -277,21 +274,13 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [lastVisibleDoc]);
 
   useEffect(() => {
     setLastVisibleDoc(undefined);
     fetchData(searchCriteria, 1, false); 
   }, [
-    searchCriteria.vendorId, 
-    searchCriteria.category, 
-    searchCriteria.keyword, 
-    searchCriteria.minPrice, 
-    searchCriteria.maxPrice, 
-    searchCriteria.location, 
-    searchCriteria.sortBy, 
-    searchCriteria.limit,
-    searchCriteria.vendorCategorySlug,
+    searchCriteria, 
     fetchData
   ]);
 
@@ -307,7 +296,7 @@ export const useVendorItemsSearch = (initialCriteria?: VendorItemSearchParams) =
         setTotalItems(0);
     }
     setSearchCriteria(prev => ({ ...(prev || {}), ...(newCriteria || {}), limit: prev?.limit || 100, page: 1 }));
-  }, []);
+  }, [searchCriteria.keyword, searchCriteria.category, searchCriteria.vendorId, searchCriteria.vendorCategorySlug]);
 
 
   const loadMore = useCallback(() => {

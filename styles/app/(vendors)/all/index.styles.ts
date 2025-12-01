@@ -278,4 +278,15 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     color: Colors.light.primaryContrastText,
   },
+  loadMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: Spacing.m,
+    gap: Spacing.s,
+  },
+  loadingText: {
+    fontSize: ResponsiveFontSizes.caption,
+    color: Colors.light.textSecondary,
+  },
 });

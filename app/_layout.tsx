@@ -10,7 +10,6 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';
 import AppCoreNav from "@/components/common/Navigation/AppCoreNav";
-// import { ResponsiveContainer } from "@/components/common/Layout/ResponsiveContainer";
 import * as SplashScreen from 'expo-splash-screen'; 
 import { useFonts } from 'expo-font'; 
 import { Colors } from "@/constants/Colors";
@@ -47,14 +46,10 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     async function prepare() {
       try {
-        // Check for updates in production
         if (!__DEV__) {
           const update = await Updates.checkForUpdateAsync();
           if (update.isAvailable) {
             await Updates.fetchUpdateAsync();
-            // Optionally reload the app to use the new update
-            // Uncomment the next line if you want automatic reload
-            // await Updates.reloadAsync();
           }
         }
         
@@ -87,6 +82,7 @@ const RootLayout: React.FC = () => {
           barStyle="light-content" 
           backgroundColor={Colors.light.accent}
           translucent={Platform.OS === 'android'}
+          hidden={Platform.OS === 'android'}
         />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ErrorBoundary>

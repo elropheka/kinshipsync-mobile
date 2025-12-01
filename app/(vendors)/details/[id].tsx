@@ -41,16 +41,11 @@ export default function VendorDetailsScreen() {
     totalItems: totalVendorItems,
   } = useVendorItemsSearch(vendorIdFromRoute ? { vendorId: vendorIdFromRoute, limit: 5 } : {} as VendorItemSearchParams);
 
-  // Navigate to a specific item's detail page (if one exists) or handle item click
   const handleNavigateToItemDetails = (itemId: string) => {
-    // Assuming an item detail page route like /item/[itemId]
-    // router.push(`/(vendors)/item/${itemId}`); 
     console.log("Navigate to item details for item ID:", itemId);
   };
 
   const renderVendorItemCard = useCallback(({ item }: { item: DisplayVendorItem }) => {
-    // This is a compact card for listing items under a vendor's profile
-    // It can be simpler than the one in all/index.tsx
     const itemImage = item.imageUrl;
     const iconName: keyof typeof Ionicons.glyphMap = itemImage ? 'image-outline' : 'cube-outline';
 
@@ -187,8 +182,6 @@ export default function VendorDetailsScreen() {
             // Could add a "View All Items" button if list is paginated/limited
           />
         )}
-        {/* TODO: Add Load More button for vendor items if applicable */}
-
 
         <Text style={styles.sectionTitle}>Reviews ({totalReviews})</Text>
         {isLoadingReviews && reviews.length === 0 && <ActivityIndicator color={Colors.light.tint} style={{ marginVertical: 10 }} />}

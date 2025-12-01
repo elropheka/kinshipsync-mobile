@@ -219,7 +219,6 @@ export const updateEvent = async (isAuthenticated: boolean, eventId: string, pay
   try {
     const eventDocRef = doc(firestore, 'events', eventId);
     
-    // Check if user is the organizer before allowing update
     if (currentUserId) {
       const currentEventSnap = await getDoc(eventDocRef);
       if (currentEventSnap.exists()) {
@@ -795,16 +794,13 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
   try {
     console.log('getAvailableThemes called', { isAuthenticated, userId });
     
-    // For unauthenticated users, return predefined themes
     if (!isAuthenticated) {
       try {
-        // Import predefined themes dynamically to avoid circular dependencies
         const { predefinedThemes } = await import('../constants/themes');
         console.log('Returning predefined themes for unauthenticated user:', predefinedThemes.length);
         return predefinedThemes;
       } catch (importError) {
         console.error('Error importing predefined themes:', importError);
-        // Return a basic fallback theme
         return [{
           id: 'fallback-theme',
           name: 'Default Theme',
@@ -862,11 +858,9 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
           themes.push(theme);
         } catch (themeError) {
           console.error('Error processing theme from Firestore:', themeError, doc.id);
-          // Skip invalid themes
         }
       });
       
-      // Also include predefined themes for authenticated users
       try {
         const { predefinedThemes } = await import('../constants/themes');
         const result = [...predefinedThemes, ...themes];
@@ -874,18 +868,16 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
         return result;
       } catch (importError) {
         console.error('Error importing predefined themes for authenticated user:', importError);
-        return themes; // Return just the Firestore themes
+        return themes;
       }
     } catch (firestoreError) {
       console.error("Error fetching themes from Firestore:", firestoreError);
-      // Fallback to predefined themes on error
       try {
         const { predefinedThemes } = await import('../constants/themes');
         console.log('Fallback to predefined themes due to Firestore error');
         return predefinedThemes;
       } catch (importError) {
         console.error('Error importing predefined themes as fallback:', importError);
-        // Return a basic fallback theme
         return [{
           id: 'fallback-theme',
           name: 'Default Theme',
@@ -905,7 +897,6 @@ export const getAvailableThemes = async (isAuthenticated: boolean, userId: strin
     }
   } catch (error) {
     console.error("Unexpected error in getAvailableThemes:", error);
-    // Return a basic fallback theme
     return [{
       id: 'fallback-theme',
       name: 'Default Theme',

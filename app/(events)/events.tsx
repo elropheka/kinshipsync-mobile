@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Stack, router, useFocusEffect } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,13 +18,11 @@ const EventListScreen = () => {
   const { events, isLoading, error, fetchEvents: refreshEvents, loadMoreEvents } = useAllEvents();
   const lastRefetchRef = useRef<number>(0);
 
-  // Refresh events list when screen comes into focus (e.g., returning from create/edit screens)
   useFocusEffect(
     React.useCallback(() => {
       const now = Date.now();
       const timeSinceLastRefetch = now - lastRefetchRef.current;
       
-      // Only refetch if it's been more than 2 seconds since last refetch
       if (refreshEvents && timeSinceLastRefetch > 2000) {
         console.log('Events list screen focused, refreshing events...');
         lastRefetchRef.current = now;
@@ -114,7 +112,7 @@ const EventListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       <Stack.Screen 
         options={{ 
           title: "Events",

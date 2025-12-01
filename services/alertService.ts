@@ -15,7 +15,6 @@ class AlertService {
 
   subscribe(listener: AlertListener) {
     this.listeners.push(listener);
-    // If there's a current alert, show it immediately to the new subscriber
     if (this.currentAlert) {
       listener(this.currentAlert);
     }

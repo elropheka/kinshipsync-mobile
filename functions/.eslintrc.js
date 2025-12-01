@@ -4,6 +4,10 @@ module.exports = {
     es6: true,
     node: true,
   },
+  globals: {
+    __dirname: "readonly",
+    Buffer: "readonly",
+  },
   extends: [
     "eslint:recommended",
     "plugin:import/errors",
@@ -19,7 +23,8 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   ignorePatterns: [
-    "/lib/**/*", // Ignore built files.
+    "lib/**/*", // Ignore built files.
+    ".eslintrc.js", // Ignore this config file itself
     // We will control JS/TS parsing via overrides instead
   ],
   plugins: [
@@ -42,6 +47,16 @@ module.exports = {
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
         // Add any other TypeScript-specific rules here
+      },
+    },
+    {
+      files: ["*.js"], // Apply to JavaScript files including .eslintrc.js
+      env: {
+        node: true,
+      },
+      globals: {
+        __dirname: "readonly",
+        Buffer: "readonly",
       },
     },
   ],

@@ -73,7 +73,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
         setDueDate(currentDate);
       }
     } else if (Platform.OS === 'ios') {
-      // On iOS, the picker updates live, so we update the state immediately
       if (currentDate) {
         setDueDate(currentDate);
       }
@@ -244,7 +243,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       {/* Custom Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>

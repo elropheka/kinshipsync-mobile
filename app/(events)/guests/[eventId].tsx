@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -94,17 +94,14 @@ const SpecificEventGuestListScreen = () => {
       Alert.alert("Success", `${invitedGuest.name} has been invited.`);
       setIsInviteModalVisible(false);
 
-      // Attempt to send a direct message if email is provided and user exists
-      if (guestData.email && user?.uid && eventId) { // Ensure eventId is available
+      if (guestData.email && user?.uid && eventId) {
         try {
-          const invitedAppUser = await getUserProfileByEmail(guestData.email); // Use the new function
+          const invitedAppUser = await getUserProfileByEmail(guestData.email);
           if (invitedAppUser && invitedAppUser.userId !== user.uid) {
-            // TODO: Implement guest-user linking functionality
             console.log('Guest would be linked to user:', invitedAppUser.userId);
 
             const conversation = await createDirectConversation(isAuthenticated, user.uid, {
               recipientId: invitedAppUser.userId,
-              // No initial message here, will be sent as eventInvitation type
             });
 
             if (conversation) {
@@ -128,7 +125,6 @@ const SpecificEventGuestListScreen = () => {
           }
         } catch (dmError: any) {
           console.error("Failed to send direct message or find user:", dmError.message);
-          // Non-critical error, guest is already invited. Maybe log this.
         }
       }
     } catch (e: any) {
@@ -226,7 +222,7 @@ const SpecificEventGuestListScreen = () => {
   
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       <Stack.Screen 
         options={{ 
           title: eventDetails ? `Guests: ${eventDetails.name}` : (eventId ? `Guests (ID: ${eventId.substring(0,6)}...)` : 'Guest List'),

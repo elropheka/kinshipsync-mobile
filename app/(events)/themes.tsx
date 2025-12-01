@@ -20,8 +20,6 @@ const ChooseThemePage: React.FC = () => {
   const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
   const [selectedFontStyle, setSelectedFontStyle] = useState('Modern');
 
-  // Hardcoded themes removed, will be fetched
-
   const colorPalette = [
     { id: 'red', color: '#FF3B30' }, { id: 'yellow', color: '#FFCC00' }, { id: 'cyan', color: '#00FFFF' },
     { id: 'blue', color: '#0000FF' }, { id: 'magenta', color: '#FF00FF' }, { id: 'purple', color: '#6B6B8E' }
@@ -36,8 +34,6 @@ const ChooseThemePage: React.FC = () => {
   };
 
   const handleNext = () => {
-    // Pass selected theme information if needed
-    // Example: router.push({ pathname: '/(events)/website', params: { themeId: selectedTheme?.id } });
     router.push('/(events)/website');
   };
 
@@ -49,10 +45,6 @@ const ChooseThemePage: React.FC = () => {
         try {
           const fetchedThemes = await getAvailableThemes(isAuthenticated, user.uid);
           setUserThemes(fetchedThemes);
-          if (fetchedThemes.length > 0 && !selectedTheme) {
-            // Optionally pre-select the first theme
-            // setSelectedTheme(fetchedThemes[0]); 
-          }
         } catch (err) {
           console.error("Failed to fetch themes:", err);
           setError(err instanceof Error ? err.message : 'Failed to load themes.');
@@ -60,8 +52,6 @@ const ChooseThemePage: React.FC = () => {
           setIsLoading(false);
         }
       } else if (!isAuthenticated) {
-        // Handle case where user is not authenticated but we still want to show predefined themes
-        // Or clear themes if auth is strictly required for any theme display
         setIsLoading(true);
         setError(null);
         try {

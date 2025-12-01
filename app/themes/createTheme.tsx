@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
@@ -103,7 +103,7 @@ const CreateThemeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen options={{ title: 'Create New Theme' }} />
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.label}>Theme Name</Text>

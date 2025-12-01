@@ -60,39 +60,30 @@ export default function EventDetailsScreen() {
     fetchEventDetails
   } = useEventDetail(eventId);
 
-  // Determine if current user is the organizer
   const isOrganizer = currentUser?.uid === event?.organizerId;
 
-  // Check if user has access to view this event
   const hasAccessToEvent = useMemo(() => {
-    // Must be authenticated to view any event
     if (!currentUser?.uid) return false;
     
     if (!event) return false;
     
-    // User is the organizer
     if (event.organizerId === currentUser.uid) return true;
     
-    // Event is public
     if (event.visibility === 'public') return true;
     
-    // User is in the allowed users list (invited)
     if (event.allowedUserIds && event.allowedUserIds.includes(currentUser.uid)) return true;
     
-    // Check if user is invited as a guest (by email)
     const userEmail = currentUser.email;
     if (userEmail && guests.some(guest => guest.email === userEmail)) return true;
     
     return false;
   }, [event, currentUser?.uid, currentUser?.email, guests]);
 
-  // Refetch event details when screen comes into focus (e.g., returning from edit screen)
   useFocusEffect(
     React.useCallback(() => {
       const now = Date.now();
       const timeSinceLastRefetch = now - lastRefetchRef.current;
       
-      // Only refetch if it's been more than 2 seconds since last refetch
       if (fetchEventDetails && eventId && timeSinceLastRefetch > 2000) {
         console.log('Event details screen focused, refetching event data...');
         lastRefetchRef.current = now;
@@ -101,7 +92,6 @@ export default function EventDetailsScreen() {
     }, [fetchEventDetails, eventId])
   );
 
-  // Fetch team member profiles when eventTeams change
   useEffect(() => {
     const fetchTeamMemberProfiles = async () => {
       if (!eventTeams || eventTeams.length === 0) {
@@ -110,7 +100,6 @@ export default function EventDetailsScreen() {
       }
 
       try {
-        // Get all unique user IDs from all teams
         const allUserIds = new Set<string>();
         eventTeams.forEach(team => {
           team.members.forEach(member => {
@@ -118,7 +107,6 @@ export default function EventDetailsScreen() {
           });
         });
 
-        // Fetch profiles for all team members
         const profilePromises = Array.from(allUserIds).map(userId => 
           getUserProfileById(userId)
         );
@@ -146,13 +134,11 @@ export default function EventDetailsScreen() {
     avatarUrl: undefined, 
   }));
 
-  // Create a comprehensive user list that includes both guests and team members
   const allAssignableUsers: UserProfile[] = [
     ...assignableUsers,
     ...teamMemberProfiles
   ];
 
-  // Remove duplicates based on userId
   const uniqueAssignableUsers = allAssignableUsers.filter((user, index, self) => 
     index === self.findIndex(u => u.userId === user.userId)
   );
@@ -191,7 +177,6 @@ export default function EventDetailsScreen() {
         style: styles.deadlineTextPassed
       };
     } else if (daysUntilEvent === 0) {
-      // Event is today
       if (pendingGuests > 0) {
         return {
           text: `Event is today! ${pendingGuests} guests still pending RSVP`,
@@ -204,7 +189,6 @@ export default function EventDetailsScreen() {
         };
       }
     } else if (daysUntilEvent <= 3) {
-      // Event is very soon
       if (pendingGuests > 0) {
         return {
           text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! ${pendingGuests} guests pending`,
@@ -217,7 +201,6 @@ export default function EventDetailsScreen() {
         };
       }
     } else if (daysUntilEvent <= 7) {
-      // Event is within a week
       if (pendingGuests > 0) {
         return {
           text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
@@ -230,7 +213,6 @@ export default function EventDetailsScreen() {
         };
       }
     } else {
-      // Event is more than a week away
       if (totalGuests === 0) {
         return {
           text: `Event in ${daysUntilEvent} days. No guests invited yet`,
@@ -270,7 +252,6 @@ export default function EventDetailsScreen() {
     );
   }
 
-  // Check access control
   if (!hasAccessToEvent) {
     return (
       <View style={[styles.container, styles.centerContent]}>

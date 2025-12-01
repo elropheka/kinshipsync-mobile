@@ -39,10 +39,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const functions = __importStar(require("firebase-functions/v1")); // Use v1 for consistency
 const node_mailjet_1 = __importDefault(require("node-mailjet")); // Corrected import for node-mailjet
-// Initialize Mailjet client with API keys from environment variables
-// IMPORTANT: These environment variables must be set using Firebase CLI:
+// Initialize Mailjet client lazily to ensure config is available
+// IMPORTANT: Config must be set using Firebase CLI:
 // firebase functions:config:set mailjet.api_key="YOUR_MAILJET_API_KEY" mailjet.api_secret="YOUR_MAILJET_API_SECRET"
-const mailjet = node_mailjet_1.default.apiConnect(functions.config().mailjet?.api_key, functions.config().mailjet?.api_secret);
+function getMailjetClient() {
+    // eslint-disable-next-line import/namespace
+    const apiKey = functions.config().mailjet?.api_key;
+    // eslint-disable-next-line import/namespace
+    const apiSecret = functions.config().mailjet?.api_secret;
+    if (!apiKey || !apiSecret) {
+        throw new Error("Mailjet API credentials are not configured. Please set them using firebase functions:config:set");
+    }
+    return node_mailjet_1.default.apiConnect(apiKey, apiSecret);
+}
 /**
  * Callable Cloud Function to send emails via Mailjet.
  * This function should be called from the mobile client.
@@ -64,10 +73,8 @@ exports.sendEmail = functions.https.onCall(async (data, _context) => {
     if (!toEmail || !subject || !htmlContent) {
         throw new functions.https.HttpsError("invalid-argument", "The function must be called with \"toEmail\", \"subject\", and \"htmlContent\".");
     }
-    if (!functions.config().mailjet?.api_key || !functions.config().mailjet?.api_secret) {
-        throw new functions.https.HttpsError("failed-precondition", "Mailjet API keys are not configured. Please set them using firebase functions:config:set.");
-    }
     try {
+        const mailjet = getMailjetClient();
         const request = mailjet
             .post("send", { version: "v3.1" })
             .request({

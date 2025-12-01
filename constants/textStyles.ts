@@ -3,9 +3,7 @@ import { Colors } from './Colors';
 import Fonts from './fonts';
 import { FontSizes, LineHeights } from './fonts';
 
-// Base text styles that can be extended
 export const BaseTextStyles = {
-  // Headers
   header1: {
     fontFamily: Fonts.headerBold,
     fontSize: FontSizes.header1,
@@ -27,7 +25,6 @@ export const BaseTextStyles = {
     color: Colors.light.text,
   } as TextStyle,
 
-  // Titles
   title: {
     fontFamily: Fonts.titleSemiBold,
     fontSize: FontSizes.title,
@@ -36,13 +33,12 @@ export const BaseTextStyles = {
   } as TextStyle,
   
   subtitle: {
-    fontFamily: Fonts.titleMedium,
+    fontFamily: Fonts.titleRegular,
     fontSize: FontSizes.subtitle,
     lineHeight: FontSizes.subtitle * LineHeights.header,
     color: Colors.light.text,
   } as TextStyle,
 
-  // Body text
   body: {
     fontFamily: Fonts.bodyRegular,
     fontSize: FontSizes.body,
@@ -64,7 +60,6 @@ export const BaseTextStyles = {
     color: Colors.light.text,
   } as TextStyle,
 
-  // Captions
   caption: {
     fontFamily: Fonts.captionRegular,
     fontSize: FontSizes.caption,
@@ -79,7 +74,6 @@ export const BaseTextStyles = {
     color: Colors.light.textSecondary,
   } as TextStyle,
 
-  // Buttons
   button: {
     fontFamily: Fonts.buttonMedium,
     fontSize: FontSizes.body,
@@ -94,7 +88,6 @@ export const BaseTextStyles = {
     color: Colors.light.textLight,
   } as TextStyle,
 
-  // Display text
   display: {
     fontFamily: Fonts.displayBold,
     fontSize: FontSizes.display,
@@ -110,7 +103,6 @@ export const BaseTextStyles = {
   } as TextStyle,
 };
 
-// Text color variants
 export const TextColors = {
   primary: { color: Colors.light.text },
   secondary: { color: Colors.light.textSecondary },
@@ -124,7 +116,6 @@ export const TextColors = {
   accent: { color: Colors.light.accent },
 } as const;
 
-// Text alignment variants
 export const TextAlign = {
   left: { textAlign: 'left' as const },
   center: { textAlign: 'center' as const },
@@ -132,7 +123,6 @@ export const TextAlign = {
   justify: { textAlign: 'justify' as const },
 } as const;
 
-// Text weight variants
 export const TextWeight = {
   light: { fontWeight: Fonts.weights.light as any },
   regular: { fontWeight: Fonts.weights.regular as any },
@@ -141,44 +131,26 @@ export const TextWeight = {
   bold: { fontWeight: Fonts.weights.bold as any },
 } as const;
 
-// Utility function to combine text styles
 export const combineTextStyles = (...styles: (TextStyle | undefined)[]): TextStyle => {
   return styles.reduce((combined, style) => {
     if (style) {
       return { ...combined, ...style };
     }
     return combined;
-  }, {} as TextStyle);
+  }, {} as TextStyle) as TextStyle;
 };
 
-// Predefined combinations for common use cases
 export const CommonTextStyles = {
-  // Section headers
   sectionHeader: combineTextStyles(BaseTextStyles.subtitle, TextWeight.semiBold),
-  
-  // Form labels
   formLabel: combineTextStyles(BaseTextStyles.bodyMedium, TextWeight.medium),
-  
-  // Input text
   inputText: combineTextStyles(BaseTextStyles.body, TextWeight.regular),
-  
-  // Button text
   buttonText: combineTextStyles(BaseTextStyles.button, TextWeight.medium),
-  
-  // Error text
   errorText: combineTextStyles(BaseTextStyles.body, TextColors.error),
-  
-  // Success text
   successText: combineTextStyles(BaseTextStyles.body, TextColors.success),
-  
-  // Caption text
   captionText: combineTextStyles(BaseTextStyles.caption, TextColors.secondary),
-  
-  // Navigation title
   navTitle: combineTextStyles(BaseTextStyles.title, TextWeight.semiBold, TextAlign.center),
 } as const;
 
-// Export everything for easy access
 export default {
   BaseTextStyles,
   TextColors,

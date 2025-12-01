@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Image, StatusBar } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Image, StatusBar, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -81,8 +81,6 @@ const AddFamilyMemberScreen = () => {
 
   useEffect(() => {
     if ((isAddChildMode || isAddSpouseMode) && !initialTargetMemberName) {
-      // If target member's name wasn't passed, could fetch it using memberId (target node ID)
-      // For now, title will be generic if name not passed.
     }
   }, [isAddChildMode, isAddSpouseMode, memberId, teamId, initialTargetMemberName]);
 
@@ -174,7 +172,6 @@ const AddFamilyMemberScreen = () => {
     }
 
     try {
-      // Note: addSpouseToFamilyMember service function handles fetching and updating the tree
       await addSpouseToFamilyMember(teamId, targetMemberId, spouseDataPayload);
       Alert.alert('Success', `${spouseDataPayload.name} added as spouse to ${targetMemberName || 'the member'}.`);
       router.back();
@@ -215,11 +212,10 @@ const AddFamilyMemberScreen = () => {
     </TouchableOpacity>
   );
 
-  // --- Conditional UI Rendering ---
   if (isAddRootMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: 'Add Root Family Member' }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Root Family Member</Text>
@@ -240,7 +236,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddChildMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: `Add Child ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Child</Text>
@@ -262,7 +258,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddSpouseMode) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
         <Stack.Screen options={{ title: `Add Spouse ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Spouse</Text>
@@ -281,10 +277,9 @@ const AddFamilyMemberScreen = () => {
     );
   }
 
-  // Fallback UI
   return ( /* ... same as before ... */ 
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <Stack.Screen options={{ title: 'Add to Team Roster' }} />
       <View style={styles.container}>
         <Text style={styles.title}>Add Existing User to Team Roster</Text>

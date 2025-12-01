@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Idea, CreateIdeaPayload, UpdateIdeaPayload } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
@@ -20,7 +20,6 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
   const [title, setTitle] = useState(initialIdea?.title || '');
   const [description, setDescription] = useState(initialIdea?.description || '');
   const [category, setCategory] = useState(initialIdea?.category || 'General');
-  // Votes are typically handled by a separate action, not directly in the form for creation/update of title/desc
 
   const handleSubmit = () => {
     if (!title.trim()) {
@@ -35,11 +34,9 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
     };
 
     if (initialIdea?.id) {
-      // For updating, we only send title and description. Votes are updated separately.
       const updatePayload: UpdateIdeaPayload = commonData;
       onSubmit(updatePayload, initialIdea.id);
     } else {
-      // For creating, submittedBy and initial votes are handled by the service/hook.
       const createPayload: CreateIdeaPayload = commonData;
       onSubmit(createPayload);
     }
@@ -47,7 +44,7 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
           <Ionicons name="close-outline" size={28} color={Colors.light.text} />
@@ -98,7 +95,6 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
   );
 };
 
-// Reusing similar styles
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

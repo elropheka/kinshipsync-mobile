@@ -14,19 +14,14 @@ import {
   deleteDoc, // For later CRUD operations
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
-import { Team, TeamTask, TeamType, CreateTeamPayload, FamilyMemberNode } from '../types/teamTypes'; // Import FamilyMemberNode
+import { Team, TeamTask, TeamType, CreateTeamPayload, FamilyMemberNode } from '../types/teamTypes';
 import { UserProfile } from '../types/userTypes';
-import { createTeamMemberAddedNotification, createFamilyTreeUpdateNotification, createTeamTaskUpdateNotification } from '../services/notificationService'; // Import new notification functions
-import { getUserProfileById as getUserById } from '../services/userService'; // Import getUserById
-
-// import { UpdateTeamPayload } from '../types/teamTypes'; // For later
+import { createTeamMemberAddedNotification, createFamilyTreeUpdateNotification, createTeamTaskUpdateNotification } from '../services/notificationService';
+import { getUserProfileById as getUserById } from '../services/userService';
 
 export const getTeamById = async (isAuthenticated: boolean, teamId: string): Promise<Team | null> => {
   if (!isAuthenticated) {
-    // Depending on team visibility rules, you might allow unauthenticated access or throw error
     console.warn("getTeamById: User not authenticated. Access to team data might be restricted.");
-    // For now, let's proceed but this should be reviewed based on security requirements.
-    // throw new Error("User not authenticated."); 
   }
   if (!teamId) {
     console.error("getTeamById: teamId is required.");
@@ -39,14 +34,11 @@ export const getTeamById = async (isAuthenticated: boolean, teamId: string): Pro
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      // Explicitly map fields to ensure type safety and handle missing optional fields
-      // Aligning with Team interface from types/teamTypes.ts
       const teamData: Team = {
         id: docSnap.id,
         name: data.name || 'Unnamed Team',
         memberIds: Array.isArray(data.memberIds) ? data.memberIds : [],
-        // Ensure iconName is a valid keyof typeof Ionicons.glyphMap or provide a default
-        iconName: data.iconName || 'people-outline', // Default icon
+        iconName: data.iconName || 'people-outline',
         type: data.type || TeamType.OTHER,
         taskIds: Array.isArray(data.taskIds) ? data.taskIds : [], // Optional field
         familyTreeRoot: data.familyTreeRoot || undefined, // Add this
@@ -62,12 +54,9 @@ export const getTeamById = async (isAuthenticated: boolean, teamId: string): Pro
   }
 };
 
-// Placeholder for fetching tasks for a team.
-// This assumes tasks are in a subcollection 'tasks' under each team document.
 export const getTasksForTeam = async (isAuthenticated: boolean, teamId: string): Promise<TeamTask[]> => {
   if (!isAuthenticated) {
     console.warn("getTasksForTeam: User not authenticated.");
-    // throw new Error("User not authenticated.");
   }
    if (!teamId) {
     console.error("getTasksForTeam: teamId is required.");
@@ -75,7 +64,6 @@ export const getTasksForTeam = async (isAuthenticated: boolean, teamId: string):
   }
   try {
     const tasksColRef = collection(firestore, 'teams', teamId, 'tasks');
-    // Add orderBy if needed, e.g., orderBy('createdAt', 'desc')
     const q = query(tasksColRef); 
     const querySnapshot = await getDocs(q);
     const tasks: TeamTask[] = [];
@@ -102,7 +90,6 @@ export const getTasksForTeam = async (isAuthenticated: boolean, teamId: string):
   }
 };
 
-// Future functions:
 export const addMemberToTeam = async (isAuthenticated: boolean, teamId: string, userId: string, isAdmin: boolean = false): Promise<void> => {
   if (!isAuthenticated) {
     console.warn("addMemberToTeam: User not authenticated.");
@@ -115,31 +102,24 @@ export const addMemberToTeam = async (isAuthenticated: boolean, teamId: string, 
   try {
     const teamDocRef = doc(firestore, 'teams', teamId);
     
-    const updates: { memberIds: any; adminIds?: any; updatedAt: any } = { // Use 'any' for FieldValue types
+    const updates: { memberIds: any; adminIds?: any; updatedAt: any } = {
       memberIds: arrayUnion(userId),
-      updatedAt: serverTimestamp() // Using client-side timestamp for updatedAt, or use serverTimestamp()
-      // serverTimestamp() needs to be imported: import { serverTimestamp } from '@firebase/firestore';
-      // For simplicity, using Timestamp.now() for now.
+      updatedAt: serverTimestamp()
     };
 
     if (isAdmin) {
-      // The Team type in types/teamTypes.ts does not currently have adminIds.
-      // If it should, it needs to be added there first.
-      // For now, this part will be commented out or removed if adminIds is not a field.
-      // updates.adminIds = arrayUnion(userId); 
       console.warn(`Team type does not currently support distinct adminIds array. User ${userId} added as member.`);
     }
 
     await updateDoc(teamDocRef, updates);
     console.log(`User ${userId} added to team ${teamId}. Admin status (if supported by type): ${isAdmin}`);
 
-    // Create notification for all existing team members
-    const team = await getTeamById(true, teamId); // Assuming getTeamById can be called with true for auth
-    const user = await getUserById(userId); // Assuming getUserById exists and fetches UserProfile
+    const team = await getTeamById(true, teamId);
+    const user = await getUserById(userId);
     
     if (team && user) {
       team.memberIds.forEach(memberId => {
-        if (memberId !== userId) { // Don't notify the new member
+        if (memberId !== userId) {
           createTeamMemberAddedNotification(memberId, team.name, user.displayName, team.id);
         }
       });
@@ -154,10 +134,9 @@ export const addMemberToTeam = async (isAuthenticated: boolean, teamId: string, 
 export const createTaskForTeam = async (
   isAuthenticated: boolean, 
   teamId: string, 
-  taskData: Omit<TeamTask, 'id' | 'teamId' | 'createdAt' | 'updatedAt'> & { title: string } // Ensure title is present
+  taskData: Omit<TeamTask, 'id' | 'teamId' | 'createdAt' | 'updatedAt'> & { title: string }
 ): Promise<TeamTask> => {
   if (!isAuthenticated) {
-    // Handle authentication based on your app's requirements
     throw new Error("User not authenticated.");
   }
   if (!teamId) {
@@ -174,17 +153,12 @@ export const createTaskForTeam = async (
     };
     const docRef = await addDoc(tasksColRef, newTaskDoc);
     
-    // To return the full task with resolved timestamps, we'd ideally fetch it.
-    // For now, constructing with assumption client can handle pending timestamps or re-fetch.
-    // Or, return the ID and a partial object.
-    // The calling function (TeamDashboardScreen) will likely re-fetch or update state based on this.
-    const createdTaskSnapshot = await getDoc(docRef); // Fetch to get server-generated timestamps
+    const createdTaskSnapshot = await getDoc(docRef);
     if (!createdTaskSnapshot.exists()) {
       throw new Error("Failed to retrieve created task.");
     }
     const createdTaskData = createdTaskSnapshot.data();
 
-    // Send notification for task creation
     const team = await getTeamById(true, teamId);
     if (team) {
       team.memberIds.forEach(memberId => {
@@ -236,7 +210,6 @@ export const updateTaskForTeam = async (
     if (updatedDocSnap.exists()) {
       const data = updatedDocSnap.data();
 
-      // Send notification for task update
       const team = await getTeamById(true, teamId);
       if (team && data.title && data.status) {
         team.memberIds.forEach(memberId => {
@@ -269,23 +242,17 @@ export const createTeam = async (payload: CreateTeamPayload): Promise<Team> => {
     const teamCollectionRef = collection(firestore, 'teams');
     const newTeamDoc = {
       ...payload,
-      createdAt: serverTimestamp(), // Use server-side timestamp
+      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      taskIds: [], // Initialize with empty taskIds
-      // conversationId can be added later if needed
+      taskIds: [],
     };
     const docRef = await addDoc(teamCollectionRef, newTeamDoc);
 
-    // To return the full Team object, we might need to fetch it again or construct it
-    // For now, constructing it based on payload and new ID.
-    // Firestore timestamps will be null until server processes, so we can't return them directly from client.
-    // The calling function should be aware of this or re-fetch if exact timestamps are immediately needed.
     return {
       id: docRef.id,
       ...payload,
       taskIds: [],
-      // createdAt and updatedAt will be Timestamps once fetched from server
-    } as Team; // Casting as Team, acknowledging timestamps are pending
+    } as Team;
   } catch (error) {
     console.error("Error creating team:", error);
     throw error;
@@ -311,9 +278,7 @@ export const getTeamsForUser = async (userId: string): Promise<Team[]> => {
         iconName: data.iconName || 'people-outline',
         type: data.type || TeamType.OTHER,
         taskIds: data.taskIds || [],
-        conversationId: data.conversationId, // Optional
-        // createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(), // Example if needed
-        // updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(), // Example if needed
+        conversationId: data.conversationId,
       } as Team);
     });
     return teams;
@@ -323,27 +288,19 @@ export const getTeamsForUser = async (userId: string): Promise<Team[]> => {
   }
 };
 
-// export const updateTeam = async (teamId: string, payload: UpdateTeamPayload): Promise<Team | null> => { ... };
-// export const deleteTeam = async (teamId: string): Promise<void> => { ... };
-
 export const updateFamilyTreeRoot = async (teamId: string, rootNode: Team['familyTreeRoot']): Promise<void> => {
   if (!teamId) {
     throw new Error("Team ID is required to update family tree root.");
   }
-  // rootNode can be FamilyMemberNode | undefined as per Team['familyTreeRoot']
-  // If undefined is passed, it effectively clears the tree root.
-  // If null is desired for clearing, the type Team['familyTreeRoot'] might need to be FamilyMemberNode | null | undefined
-  // For now, we assume undefined or a valid node is passed. Firestore handles 'undefined' by removing the field.
 
   try {
     const teamDocRef = doc(firestore, 'teams', teamId);
     await updateDoc(teamDocRef, {
-      familyTreeRoot: rootNode, // This will set or overwrite the familyTreeRoot field
+      familyTreeRoot: rootNode,
       updatedAt: serverTimestamp(),
     });
     console.log(`Family tree root updated for team ${teamId}.`);
 
-    // Send notification for family tree update
     const team = await getTeamById(true, teamId);
     if (team && rootNode) { // Assuming rootNode implies an update
       team.memberIds.forEach(memberId => {
@@ -357,24 +314,20 @@ export const updateFamilyTreeRoot = async (teamId: string, rootNode: Team['famil
   }
 };
 
-// Recursive helper to remove a node (and its descendants) or a spouse from the tree
 const removeNodeRecursivelyFromData = (
   currentNode: FamilyMemberNode | undefined, 
   idToRemove: string
 ): FamilyMemberNode | undefined => {
   if (!currentNode) return undefined;
 
-  // Case 1: Current node is the one to remove (main node, not spouse)
   if (currentNode.id === idToRemove) {
-    return undefined; // This node and its entire branch are removed
+    return undefined;
   }
 
-  // Case 2: Spouse of the current node is the one to remove
   if (currentNode.spouse?.id === idToRemove) {
     return { ...currentNode, spouse: undefined };
   }
 
-  // Case 3: Recursively process children
   let childrenModified = false;
   let newChildren: FamilyMemberNode[] | undefined = currentNode.children;
 
@@ -396,17 +349,13 @@ const removeNodeRecursivelyFromData = (
     newChildren = processedChildren.length > 0 ? processedChildren : undefined;
   }
   
-  // If nothing in the current node's branch (self, spouse, children) was modified, return original node
-  if (!childrenModified && currentNode.spouse?.id !== idToRemove) { // Check spouse again in case it was the only change
-      // If only children were modified, but the current node itself or its spouse wasn't the target
+  if (!childrenModified && currentNode.spouse?.id !== idToRemove) {
       if (childrenModified) {
          return { ...currentNode, children: newChildren };
       }
-      // If no modifications happened in this branch at all
       return currentNode; 
   }
   
-  // If current node itself wasn't removed, but its spouse or children might have been
   return { ...currentNode, children: newChildren };
 };
 
@@ -435,12 +384,9 @@ export const removeFamilyTreeNode = async (teamId: string, memberIdToRemove: str
     
     const modifiedTreeRoot = removeNodeRecursivelyFromData(currentTreeRoot, memberIdToRemove);
 
-    // If modifiedTreeRoot is undefined, it means the root itself was removed.
-    // updateFamilyTreeRoot handles setting it to undefined/null in Firestore.
     await updateFamilyTreeRoot(teamId, modifiedTreeRoot); 
     console.log(`Member ${memberIdToRemove} processed for removal from family tree for team ${teamId}.`);
 
-    // Send notification for family tree update
     const team = await getTeamById(true, teamId);
     if (team) {
       team.memberIds.forEach(memberId => {
@@ -454,21 +400,19 @@ export const removeFamilyTreeNode = async (teamId: string, memberIdToRemove: str
   }
 };
 
-// Recursive helper to add or update a spouse for a given node ID
 const updateSpouseInTree = (
   currentNode: FamilyMemberNode, 
   targetNodeId: string, 
   spouseData: Pick<FamilyMemberNode, 'id' | 'name' | 'imageUrl'>
-): FamilyMemberNode | null => { // Return modified node or null if not found/modified
+): FamilyMemberNode | null => {
   if (currentNode.id === targetNodeId) {
-    // Add/update spouse. If spouseData is null/undefined, it can clear the spouse.
     return { ...currentNode, spouse: spouseData };
   }
 
   if (currentNode.children) {
     for (let i = 0; i < currentNode.children.length; i++) {
       const result = updateSpouseInTree(currentNode.children[i], targetNodeId, spouseData);
-      if (result) { // If a child branch was modified
+      if (result) {
         const updatedNode = { ...currentNode };
         updatedNode.children = [...(updatedNode.children || [])];
         updatedNode.children[i] = result;
@@ -476,8 +420,7 @@ const updateSpouseInTree = (
       }
     }
   }
-  // Spouse is a Pick<>, so no recursion into currentNode.spouse for finding targetNodeId
-  return null; // Target node not found in this branch
+  return null;
 };
 
 export const addSpouseToFamilyMember = async (
@@ -505,7 +448,6 @@ export const addSpouseToFamilyMember = async (
       throw new Error(`Family tree not found for team ${teamId}. Cannot add spouse.`);
     }
     
-    // Deep clone to avoid issues if helper mutates
     const currentTreeRoot = JSON.parse(JSON.stringify(teamData.familyTreeRoot));
 
     const modifiedTreeRoot = updateSpouseInTree(currentTreeRoot, memberId, spouseData);
@@ -514,7 +456,6 @@ export const addSpouseToFamilyMember = async (
       await updateFamilyTreeRoot(teamId, modifiedTreeRoot);
       console.log(`Spouse added/updated for member ${memberId} in team ${teamId}.`);
 
-      // Send notification for family tree update
       const team = await getTeamById(true, teamId);
       if (team) {
         createFamilyTreeUpdateNotification(memberId, team.name, `spouse added/updated for ${spouseData.name}`, team.id);
@@ -543,9 +484,7 @@ export const removeMemberFromTeam = async (isAuthenticated: boolean, teamId: str
     const teamDocRef = doc(firestore, 'teams', teamId);
     await updateDoc(teamDocRef, {
       memberIds: arrayRemove(userIdToRemove),
-      // If you have an adminIds array, consider removing from there as well if applicable
-      // adminIds: arrayRemove(userIdToRemove), 
-      updatedAt: serverTimestamp(), // Update the team's last modified timestamp
+      updatedAt: serverTimestamp(),
     });
     console.log(`User ${userIdToRemove} removed from team ${teamId}.`);
   } catch (error) {

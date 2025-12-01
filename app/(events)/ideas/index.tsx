@@ -33,9 +33,8 @@ import {
 } from '../../../services/eventService';
 import { Colors } from '../../../constants/Colors';
 import { UserProfile } from '../../../types/userTypes';
-import { getUserProfile } from '../../../services/userService'; // Import getUserProfile
+import { getUserProfile } from '../../../services/userService';
 
-// Helper to format date string
 const formatDate = (isoString: string) => {
   if (!isoString) return 'Unknown date';
   return new Date(isoString).toLocaleDateString();
@@ -65,7 +64,6 @@ const EventIdeasScreen = () => {
   const [userDetailsCache, setUserDetailsCache] = useState<Record<string, Pick<UserProfile, 'displayName' | 'avatarUrl'>>>({});
   const [commentUnsubscribers, setCommentUnsubscribers] = useState<Record<string, () => void>>({});
 
-  // Fetch Event Details
   useEffect(() => {
     if (eventId && isAuthenticated) {
       getEventById(isAuthenticated, eventId)
@@ -74,7 +72,6 @@ const EventIdeasScreen = () => {
     }
   }, [eventId, isAuthenticated]);
 
-  // Fetch Ideas
   useEffect(() => {
     if (!eventId || !isAuthenticated) {
       setIsLoadingIdeas(false);
@@ -88,7 +85,6 @@ const EventIdeasScreen = () => {
       setIsLoadingIdeas(false);
       setError(null);
 
-      // Fetch author details for ideas
       if (isAuthenticated) {
         const authorIds = [...new Set(sortedIdeas.map(idea => idea.createdBy))];
         const newCache = { ...userDetailsCache };
@@ -108,7 +104,7 @@ const EventIdeasScreen = () => {
       }
     });
     return () => unsubscribe();
-  }, [eventId, isAuthenticated]); // userDetailsCache removed from deps to avoid loop, it's updated internally
+  }, [eventId, isAuthenticated]);
 
 
 
@@ -136,21 +132,14 @@ const EventIdeasScreen = () => {
 
   const handleVote = async (ideaId: string, voteType: 'up' | 'down') => {
     if (!eventId || !isAuthenticated) return;
-    const increment = voteType === 'up' ? 1 : -1; // Assuming voteForIdea handles decrement for downvotes
-                                                // Or, if it only increments, we might need separate logic or service update.
-                                                // For now, let's assume it increments 'votes' field.
-                                                // The current service `voteForIdea` increments. A downvote needs to be handled.
-                                                // This example will just call voteForIdea for an upvote.
     if (voteType === 'up') {
         try {
             await voteForIdea(isAuthenticated, eventId, ideaId, 1);
         } catch (e: any) {
             Alert.alert('Error', `Failed to vote: ${e.message}`);
         }
-    } else { // voteType === 'down'
+    } else {
         try {
-            // Assuming voteForIdea can handle decrementing if increment is -1
-            // and that the service/backend prevents votes from going below a certain threshold (e.g., 0) if desired.
             await voteForIdea(isAuthenticated, eventId, ideaId, -1); 
         } catch (e: any) {
             Alert.alert('Error', `Failed to downvote: ${e.message}`);
@@ -203,7 +192,7 @@ const EventIdeasScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent}/>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
       <Stack.Screen options={{ title: `Ideas: ${eventDetails?.name || 'Event'}` }} /> {/* Update title dynamically if needed */}
       {/* Custom header View removed - this diff just corrects the import location */}
 

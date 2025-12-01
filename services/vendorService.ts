@@ -5,7 +5,6 @@ import {
   getDoc,
   addDoc,
   updateDoc,
-  deleteDoc,
   setDoc, // Added setDoc
   query,
   where,
@@ -29,23 +28,20 @@ import {
 import {
   VendorItem,
   VendorItemSearchParams,
-  // CreateVendorItemPayload, // For creating items, not used in this read-focused refactor
-  // UpdateVendorItemPayload, // For updating items, not used in this read-focused refactor
-} from '../types/vendorItemTypes'; // Import new types
-import { createVendorBookingNotification, createVendorConfirmationNotification, createVendorQuoteNotification, createVendorReviewNotification } from '../services/notificationService'; // Import new notification functions
-import { getEventById } from './eventService'; // Import getEventById to fetch event details for notifications
+} from '../types/vendorItemTypes';
+import { createVendorBookingNotification, createVendorReviewNotification } from '../services/notificationService';
+import { getEventById } from './eventService';
 
 const VENDOR_CATEGORIES_COLLECTION = 'vendor_categories';
-const VENDORS_COLLECTION = 'vendors'; // Changed 'vendors' to 'profiles'
-const VENDOR_ITEMS_COLLECTION = 'vendorItems'; // Added for vendor items
-const USER_VENDOR_LISTS_COLLECTION = 'user_vendor_lists'; // For "Your Vendors"
+const VENDORS_COLLECTION = 'vendors';
+const VENDOR_ITEMS_COLLECTION = 'vendorItems';
+const USER_VENDOR_LISTS_COLLECTION = 'user_vendor_lists';
 
-// Helper to convert Firestore Timestamps to ISO strings
 const timestampToISO = (timestamp?: Timestamp | Date | string): string | undefined => {
   if (!timestamp) return undefined;
   if (timestamp instanceof Timestamp) return timestamp.toDate().toISOString();
   if (timestamp instanceof Date) return timestamp.toISOString();
-  return timestamp as string; // Assume it's already an ISO string if not Timestamp or Date
+  return timestamp as string;
 };
 
 const docToVendorCategory = (docSnap: QueryDocumentSnapshot<DocumentData>): VendorCategory => {
@@ -57,7 +53,6 @@ const docToVendorCategory = (docSnap: QueryDocumentSnapshot<DocumentData>): Vend
     description: data.description,
     iconUrl: data.iconUrl,
     parentCategoryId: data.parentCategoryId,
-    // Assuming createdAt and updatedAt are stored as Timestamps and are optional in the type
     createdAt: timestampToISO(data.createdAt),
     updatedAt: timestampToISO(data.updatedAt),
     isActive: data.isActive,
@@ -69,10 +64,6 @@ const docToVendor = async (docSnap: QueryDocumentSnapshot<DocumentData>): Promis
   const data = docSnap.data();
   let categories: VendorCategory[] = [];
   if (data.categoryIds && Array.isArray(data.categoryIds)) {
-    // Fetch full category objects if needed, or store basic info
-    // For simplicity, let's assume categoryIds are stored and we might fetch them separately if full objects are needed everywhere
-    // Or, if categories are denormalized (e.g., as an array of objects with id, name, slug)
-    // For now, let's assume categoryIds are just strings and we'll fetch full objects if needed by the UI
      categories = await Promise.all(
       (data.categoryIds as string[]).map(async (catId) => {
         const catDoc = await getDoc(doc(firestore, VENDOR_CATEGORIES_COLLECTION, catId));
@@ -119,8 +110,6 @@ const docToReview = (docSnap: QueryDocumentSnapshot<DocumentData>): VendorReview
   };
 };
 
-
-// === Vendor Category Management ===
 export const getVendorCategories = async (parentId?: string): Promise<VendorCategory[]> => {
   console.log('Service: Fetching vendor categories from Firestore...');
   try {
@@ -128,7 +117,6 @@ export const getVendorCategories = async (parentId?: string): Promise<VendorCate
     if (parentId) {
       qConstraints.push(where('parentCategoryId', '==', parentId));
     } else {
-      // Fetch top-level categories if no parentId is provided
       qConstraints.push(where('parentCategoryId', '==', null));
     }
     const q = query(collection(firestore, VENDOR_CATEGORIES_COLLECTION), ...qConstraints);
@@ -153,7 +141,6 @@ export const getVendorCategoryBySlug = async (slug: string): Promise<VendorCateg
   }
 };
 
-// Admin function - not for client direct use without proper auth checks via backend/functions
 export const createVendorCategory = async (payload: Omit<VendorCategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<VendorCategory> => {
   try {
     const docRef = await addDoc(collection(firestore, VENDOR_CATEGORIES_COLLECTION), {
@@ -169,8 +156,6 @@ export const createVendorCategory = async (payload: Omit<VendorCategory, 'id' | 
   }
 };
 
-
-// === Vendor Management ===
 export const searchVendors = async (
   params: VendorSearchParams,
   lastVisible?: QueryDocumentSnapshot<DocumentData> // For pagination
@@ -181,27 +166,18 @@ export const searchVendors = async (
     let qConstraints: QueryConstraint[] = [];
 
     if (params.categorySlug) {
-      // First, get the category ID for the given slug
       const category = await getVendorCategoryBySlug(params.categorySlug);
       if (category) {
         qConstraints.push(where('categoryIds', 'array-contains', category.id));
       } else {
-        // Category not found, return no vendors
         return { vendors: [], total: 0 };
       }
     }
-    // Keyword search would be more complex with Firestore and might require a dedicated search service like Algolia/Typesense
-    // For a basic Firestore keyword search (not very efficient for large datasets):
-    // This is a simplified example and won't scale well.
-    // Firestore doesn't support native text search across multiple fields like SQL LIKE or dedicated search engines.
-    // A common workaround is to have a 'keywords' array field in your documents.
-    // For now, we'll filter client-side after a broader fetch if a keyword is present, or implement a more robust solution later.
 
     if (params.minRating) {
       qConstraints.push(where('averageRating', '>=', params.minRating));
     }
 
-    // Sorting
     if (params.sortBy) {
       switch (params.sortBy) {
         case 'rating':
@@ -235,15 +211,9 @@ export const searchVendors = async (
     const querySnapshot = await getDocs(q);
     const vendors = await Promise.all(querySnapshot.docs.map(docToVendor));
 
-    // For total count, it's better to run a separate count query without pagination for accuracy,
-    // or if the dataset is small, rely on the length of a broader query.
-    // Firestore's getCountFromServer is efficient for this.
-    // We need to build the count query without pagination constraints (limit, startAfter)
     let countQueryConstraints = qConstraints.filter(
         c => !c.type.endsWith('limit') && !c.type.endsWith('startAfter')
     );
-    // If keyword search is done client-side, total count here would be for the pre-filtered set.
-    // This is a simplification. A proper search solution would handle this better.
     const countSnapshot = await getCountFromServer(query(vendorsRef, ...countQueryConstraints));
     const total = countSnapshot.data().count;
     
@@ -270,11 +240,9 @@ export const getVendorById = async (vendorId: string): Promise<Vendor | null> =>
   }
 };
 
-// For admin/internal use, not typically by end-users directly without backend mediation
 export const createVendor = async (payload: CreateVendorPayload): Promise<Vendor> => {
   console.log('Service: Creating vendor in Firestore:', payload);
   try {
-    // Convert category objects/slugs in payload to categoryIds if necessary
     const categoryIds = await Promise.all(
       payload.categories.map(async (catInput) => {
         if (typeof catInput === 'string') return catInput; // Already an ID
@@ -290,9 +258,9 @@ export const createVendor = async (payload: CreateVendorPayload): Promise<Vendor
 
     const docRef = await addDoc(collection(firestore, VENDORS_COLLECTION), {
       ...payload,
-      name_lowercase: payload.name.toLowerCase(), // Added
-      categories: undefined, // Remove original categories field
-      categoryIds: categoryIds, // Add the processed categoryIds
+      name_lowercase: payload.name.toLowerCase(),
+      categories: undefined,
+      categoryIds: categoryIds,
       averageRating: 0,
       numberOfReviews: 0,
       createdAt: serverTimestamp(),
@@ -313,9 +281,9 @@ export const updateVendor = async (vendorId: string, payload: UpdateVendorPayloa
     
     let updateData: any = { ...payload, updatedAt: serverTimestamp() };
 
-    if (payload.name) { // Added
-      updateData.name_lowercase = payload.name.toLowerCase(); // Added
-    } // Added
+    if (payload.name) {
+      updateData.name_lowercase = payload.name.toLowerCase();
+    }
 
     if (payload.categories) {
       const categoryIds = await Promise.all(
@@ -330,7 +298,7 @@ export const updateVendor = async (vendorId: string, payload: UpdateVendorPayloa
         })
       ).then(ids => ids.filter(id => id !== null) as string[]);
       updateData.categoryIds = categoryIds;
-      delete updateData.categories; // Remove original categories field from update payload
+      delete updateData.categories;
     }
 
     await updateDoc(docRef, updateData);
@@ -342,7 +310,6 @@ export const updateVendor = async (vendorId: string, payload: UpdateVendorPayloa
   }
 };
 
-// === Vendor Review Management ===
 export const getReviewsForVendor = async (
   vendorId: string,
   pageSize: number = 10,
@@ -364,7 +331,6 @@ export const getReviewsForVendor = async (
     const querySnapshot = await getDocs(q);
     const reviews = querySnapshot.docs.map(docToReview);
 
-    // Get total count for this vendor's reviews
     const countQuery = query(collection(firestore, VENDORS_COLLECTION, vendorId, 'reviews'));
     const countSnapshot = await getCountFromServer(countQuery);
     const total = countSnapshot.data().count;
@@ -392,9 +358,6 @@ export const addReviewForVendor = async (vendorId: string, userId: string, paylo
       reviewDate: serverTimestamp(),
     });
 
-    // Atomically update vendor's average rating and review count
-    // This is a common pattern but can be complex. For simplicity, can also be handled by a Cloud Function trigger.
-    // Here's a simplified client-side update (less robust against race conditions than a transaction/function)
     const vendorSnap = await getDoc(vendorRef);
     if (vendorSnap.exists()) {
       const vendorData = vendorSnap.data();
@@ -411,10 +374,8 @@ export const addReviewForVendor = async (vendorId: string, userId: string, paylo
     await batch.commit();
     const newReviewSnap = await getDoc(reviewRef);
 
-    // Send notification for new vendor review
     const vendor = await getVendorById(vendorId);
     if (vendor && vendor.associatedEventIds && vendor.associatedEventIds.length > 0) {
-      // Assuming the organizer of the first associated event should be notified
       const firstAssociatedEventId = vendor.associatedEventIds[0];
       const event = await getEventById(true, firstAssociatedEventId); // Assuming auth is true for this internal call
       if (event) {
@@ -429,10 +390,6 @@ export const addReviewForVendor = async (vendorId: string, userId: string, paylo
   }
 };
 
-
-// === User's Vendor List Management ("Your Vendors") ===
-
-// Get a user's list of vendor IDs
 export const getUserVendorIds = async (userId: string): Promise<string[]> => {
   try {
     const docRef = doc(firestore, USER_VENDOR_LISTS_COLLECTION, userId);
@@ -447,15 +404,12 @@ export const getUserVendorIds = async (userId: string): Promise<string[]> => {
   }
 };
 
-// Get full vendor objects for a user's list
 export const getUserVendors = async (userId: string): Promise<Vendor[]> => {
   try {
     const vendorIds = await getUserVendorIds(userId);
     if (vendorIds.length === 0) return [];
 
-    // Firestore 'in' query supports up to 30 elements in the array.
-    // If more, need to batch queries.
-    const MAX_IN_QUERIES = 30; // Firestore 'in' query limit
+    const MAX_IN_QUERIES = 30;
     const vendorPromises: Promise<Vendor | null>[] = [];
 
     for (let i = 0; i < vendorIds.length; i += MAX_IN_QUERIES) {
@@ -475,8 +429,6 @@ export const getUserVendors = async (userId: string): Promise<Vendor[]> => {
   }
 };
 
-
-// Add a vendor to a user's list
 export const addVendorToUserList = async (userId: string, vendorId: string): Promise<void> => {
   try {
     const listRef = doc(firestore, USER_VENDOR_LISTS_COLLECTION, userId);
@@ -486,20 +438,14 @@ export const addVendorToUserList = async (userId: string, vendorId: string): Pro
       currentVendorIds = listSnap.data().vendorIds;
     }
     if (!currentVendorIds.includes(vendorId)) {
-      // Use setDoc with merge: true to create the document if it doesn't exist,
-      // or update it if it does.
       await setDoc(listRef, {
         vendorIds: [...currentVendorIds, vendorId],
         lastUpdated: serverTimestamp(),
       }, { merge: true });
 
-      // Send notification for vendor booking/addition to list
       const vendor = await getVendorById(vendorId);
       if (vendor) {
-        // Assuming this is triggered when a user "books" or "adds" a vendor to an event
-        // For simplicity, we'll notify the user who added it.
-        // In a real scenario, you might need eventId context here.
-        createVendorBookingNotification(userId, vendor.name, 'your event', vendorId); // 'your event' is a placeholder
+        createVendorBookingNotification(userId, vendor.name, 'your event', vendorId);
       }
     }
   } catch (error) {
@@ -508,7 +454,6 @@ export const addVendorToUserList = async (userId: string, vendorId: string): Pro
   }
 };
 
-// Remove a vendor from a user's list
 export const removeVendorFromUserList = async (userId: string, vendorId: string): Promise<void> => {
   try {
     const listRef = doc(firestore, USER_VENDOR_LISTS_COLLECTION, userId);
@@ -526,10 +471,6 @@ export const removeVendorFromUserList = async (userId: string, vendorId: string)
     throw error;
   }
 };
-// Note: Deleting/updating reviews might have specific business logic (e.g., only by admin or original user within a time window)
-// Admin functions for creating/updating vendors and categories should ideally be in Cloud Functions for security.
-
-// === Vendor Item Management ===
 
 const docToVendorItem = (docSnap: QueryDocumentSnapshot<DocumentData>): VendorItem => {
   const data = docSnap.data();
@@ -561,18 +502,9 @@ export const searchVendorItems = async (
       qConstraints.push(where('vendorId', '==', params.vendorId));
     }
     if (params.category) {
-      qConstraints.push(where('category', '==', params.category)); // Assuming item category is a direct string match
+      qConstraints.push(where('category', '==', params.category));
     }
     if (params.keyword) {
-      // Firestore basic keyword search is limited. For robust search, consider Algolia/Typesense.
-      // This example might search 'name' or 'description'. For simplicity, let's assume 'name' for now.
-      // A common pattern is to have a 'keywords' array in your document.
-      // This is a placeholder for a more complex keyword search logic.
-      // qConstraints.push(where('name_lowercase', '>=', params.keyword.toLowerCase()));
-      // qConstraints.push(where('name_lowercase', '<=', params.keyword.toLowerCase() + '\uf8ff'));
-      // For now, we'll rely on client-side filtering or a very simple query if possible.
-      // Or, if keywords are stored in an array:
-      // qConstraints.push(where('keywords', 'array-contains', params.keyword.toLowerCase()));
     }
     if (params.minPrice !== undefined) {
       qConstraints.push(where('price', '>=', params.minPrice));
@@ -584,8 +516,6 @@ export const searchVendorItems = async (
         qConstraints.push(where('location', '==', params.location));
     }
 
-
-    // Sorting
     if (params.sortBy) {
       switch (params.sortBy) {
         case 'price_asc':
@@ -600,13 +530,11 @@ export const searchVendorItems = async (
         case 'newest':
           qConstraints.push(orderBy('createdAt', 'desc'));
           break;
-        // 'rating' sort would require denormalizing vendor's averageRating onto the item or complex joins not native to Firestore client SDK.
-        // For now, if 'rating' is chosen, we might sort client-side after fetching vendor details, or omit this sort option.
         default:
           qConstraints.push(orderBy('createdAt', 'desc')); // Default sort
       }
     } else {
-      qConstraints.push(orderBy('createdAt', 'desc')); // Default sort
+      qConstraints.push(orderBy('createdAt', 'desc'));
     }
 
     const pageLimit = params.limit || 10;
@@ -619,7 +547,6 @@ export const searchVendorItems = async (
     const querySnapshot = await getDocs(q);
     const items = querySnapshot.docs.map(docToVendorItem);
 
-    // Total count for pagination
     const countQueryConstraints = qConstraints.filter(
       c => !c.type.endsWith('limit') && !c.type.endsWith('startAfter')
     );

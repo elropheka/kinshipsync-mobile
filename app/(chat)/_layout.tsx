@@ -1,15 +1,15 @@
 import { Stack } from 'expo-router';
 import React from 'react';
-import BackButton from '@/components/common/Navigation/BackButton'; // Import BackButton
-import { Colors } from '@/constants/Colors'; // Import Colors for styling
+import BackButton from '@/components/common/Navigation/BackButton';
+import { Colors } from '@/constants/Colors';
 
 export default function ChatLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true, // Show header by default
-        headerLeft: () => <BackButton />, // Use BackButton component
-        headerBackVisible: false, // We are using a custom back button
+        headerShown: true,
+        headerLeft: () => <BackButton />,
+        headerBackVisible: false,
          headerStyle: {
                   backgroundColor: Colors.light.backgroundPrimary,
                 },
@@ -19,16 +19,12 @@ export default function ChatLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          // You might want to show the header for the messages list
-          // headerShown: true, // Inherits true from screenOptions
         }}
       />
       <Stack.Screen
         name="chatArea"
         options={{
           title: 'Chat',
-          // Header for chatArea could be dynamic (e.g., contact name)
-          // headerShown: true, // Inherits true from screenOptions
         }}
       />
     </Stack>
