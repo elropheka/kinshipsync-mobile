@@ -4,7 +4,6 @@ import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import BackButton from '@/components/common/Navigation/BackButton';
 import { Colors } from '@/constants/Colors';
-import  fonts  from '@/constants/fonts';
 
 function EventsStack() {
 

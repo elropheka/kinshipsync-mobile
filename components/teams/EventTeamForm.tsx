@@ -125,7 +125,7 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
           />
           {isLoadingUsers && <ActivityIndicator size="small" color={Colors.light.primary} style={{ marginTop: 10 }} />}
           {!isLoadingUsers && displayedUsers.length === 0 && searchTerm.length > 0 && (
-            <Text style={styles.noResultsText}>No users found for "{searchTerm}".</Text>
+            <Text style={styles.noResultsText}>No users found for &quot;{searchTerm}&quot;.</Text>
           )}
           {!isLoadingUsers && (
             <MultiUserPicker

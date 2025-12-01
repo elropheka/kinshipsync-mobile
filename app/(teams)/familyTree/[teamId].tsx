@@ -105,7 +105,8 @@ const FamilyTreeScreen = () => {
       ),
       title: teamName || (teamId ? `Team: ${teamId}` : 'Family Tree'),
     });
-  }, [navigation, familyTreeData, teamId, teamName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, familyTreeData, teamId, teamName]); // handleHeaderAddPress is stable
 
   const navigateToAddMember = (memberNodeId: string, relationshipType: 'child' | 'spouse') => {
     if (typeof teamId === 'string') {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, FlatList, StyleSheet, ActivityIndicator, Image, Alert, StatusBar, Platform } from 'react-native'; // Added Alert
+import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,6 @@ import { Conversation, ParticipantInfo } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from 'constants/Colors';
 import { getUserProfileById } from '../../services/userService';
-import { UserProfile } from '../../types/userTypes';
 
 interface ConversationItemProps {
   item: Conversation;

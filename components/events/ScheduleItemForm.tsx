@@ -7,7 +7,6 @@ import {
   Modal,
   ScrollView,
   Platform,
-  StyleSheet,
   KeyboardAvoidingView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -70,7 +69,6 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
   }, [initialData, visible]); // Re-run if initialData or visibility changes
 
   const handlePickerChange = (event: DateTimePickerEvent, selectedValue?: Date) => {
-    const currentDateValue = selectedValue || (pickerTarget === 'start' ? formStartTime : formEndTime);
     if (Platform.OS === 'android') {
       setPickerMode('none'); // Hide picker immediately on Android
     }

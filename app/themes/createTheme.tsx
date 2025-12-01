@@ -6,7 +6,6 @@ import { Colors } from '../../constants/Colors';
 import Fonts from '../../constants/fonts';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import * as eventService from '../../services/eventService';
 import CustomAlert from '../../components/common/alert';
 
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;

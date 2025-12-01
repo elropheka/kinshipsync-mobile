@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
-import { Layout, Spacing } from '@/constants/dimensions';
+import { Spacing } from '@/constants/dimensions';
 
 interface SliderProps {
   children: React.ReactNode[];
@@ -115,7 +115,8 @@ const Slider: React.FC<SliderProps> = ({
     return () => {
       stopAutoPlay();
     };
-  }, [currentIndex, autoPlay, isPaused]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, autoPlay, isPaused]); // startAutoPlay and stopAutoPlay are stable functions
 
   useEffect(() => {
     return () => {

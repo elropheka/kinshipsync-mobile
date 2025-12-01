@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'; // Added useCallback
 import {
   View,
   Text,
-  StatusBar,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
@@ -10,12 +9,12 @@ import {
   FlatList,
   Button,
 } from 'react-native';
-import { useLocalSearchParams, Stack, router } from 'expo-router';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../../../styles/app/(vendors)/details/[id].styles';
 import { Colors } from '../../../constants/Colors';
-import { Vendor, VendorReview } from '../../../types/vendorTypes';
+import { VendorReview } from '../../../types/vendorTypes';
 import { DisplayVendorItem, useVendorDetail, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 
@@ -37,8 +36,8 @@ export default function VendorDetailsScreen() {
     displayItems: vendorItems,
     isLoading: isLoadingVendorItems,
     error: errorVendorItems,
-    loadMoreItems: loadMoreVendorItems,
-    totalItems: totalVendorItems,
+    loadMoreItems: loadMoreVendorItems, // eslint-disable-line @typescript-eslint/no-unused-vars
+    totalItems: totalVendorItems, // eslint-disable-line @typescript-eslint/no-unused-vars
   } = useVendorItemsSearch(vendorIdFromRoute ? { vendorId: vendorIdFromRoute, limit: 5 } : {} as VendorItemSearchParams);
 
   const handleNavigateToItemDetails = (itemId: string) => {

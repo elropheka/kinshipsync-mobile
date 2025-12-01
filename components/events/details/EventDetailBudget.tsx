@@ -58,7 +58,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
           await onDeleteBudgetItem(itemId); 
           Alert.alert('Success', 'Budget item deleted.');
         } 
-        catch (e) { Alert.alert("Error", "Failed to delete budget item."); }
+        catch { Alert.alert("Error", "Failed to delete budget item."); }
       }}
     ]);
   };

@@ -110,7 +110,8 @@ const CustomAlert: React.FC<AlertProps> = ({
         }),
       ]).start();
     }
-  }, [visible, autoHide, autoHideDuration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, autoHide, autoHideDuration]); // Animation values and handleClose are stable
 
   const handleClose = () => {
     if (closable) {

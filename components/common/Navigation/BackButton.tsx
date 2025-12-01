@@ -6,7 +6,7 @@ import { useTheme } from '@/context/ThemeContext'; // Assuming you have a ThemeC
 
 const BackButton: React.FC = () => {
   const router = useRouter();
-  const { theme } = useTheme(); // Get current theme
+  useTheme(); // Theme not used but may be needed for future styling
 
   if (!router.canGoBack()) {
     return null; // Don't render if there's no screen to go back to

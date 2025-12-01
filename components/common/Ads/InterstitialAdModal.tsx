@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../../../styles/components/common/Ads/InterstitialAdModal.styles';
 

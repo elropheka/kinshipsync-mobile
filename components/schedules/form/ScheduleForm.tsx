@@ -92,7 +92,11 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   const onTimeChange = (event: DateTimePickerEvent, selectedDate: Date | undefined, type: 'start' | 'end') => {
     const currentDate = selectedDate;
     if (Platform.OS === 'android') {
-      type === 'start' ? setShowStartTimePicker(false) : setShowEndTimePicker(false);
+      if (type === 'start') {
+        setShowStartTimePicker(false);
+      } else {
+        setShowEndTimePicker(false);
+      }
     }
 
     if (event.type === 'set' && currentDate) {

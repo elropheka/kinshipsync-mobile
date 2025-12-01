@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors'; // Adjust path as needed
-import { styles as globalStyles } from '../../styles/app/(events)/guests.styles'; // Reuse some global styles if applicable, or create new ones
+// Styles imported from component-specific styles file
 import { CreateGuestPayload, GuestStatus } from '../../types/eventTypes'; // Adjust path
 import CustomAlert from '../common/alert';
 

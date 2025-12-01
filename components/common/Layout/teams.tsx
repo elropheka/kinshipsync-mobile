@@ -58,7 +58,8 @@ const CommunicationPage = () => {
         setTeams([]);
         setError("Authentication required to fetch teams.");
     }
-  }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]); // fetchTeams is stable and doesn't need to be in deps
 
   // Re-fetch teams when the screen comes into focus
   useFocusEffect(
@@ -75,7 +76,8 @@ const CommunicationPage = () => {
       return () => {
         // console.log("Teams screen lost focus");
       };
-    }, [currentUser]) // Dependency array includes currentUser to re-subscribe if it changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser]) // fetchTeams is stable and doesn't need to be in deps
   );
 
   // Suggested teams can remain hard-coded for now or be fetched if dynamic

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Image, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, Alert, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,7 +68,7 @@ const AddFamilyMemberScreen = () => {
   const [newSpouseImageUrl, setNewSpouseImageUrl] = useState('');
   const [isUploadingSpouseImage, setIsUploadingSpouseImage] = useState(false);
 
-  const [targetMemberName, setTargetMemberName] = useState(initialTargetMemberName || '');
+  const [targetMemberName] = useState(initialTargetMemberName || '');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserProfile[]>([]);

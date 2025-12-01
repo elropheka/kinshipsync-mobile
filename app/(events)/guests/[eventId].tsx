@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/guests.styles';
 import { useAppAuth } from '../../../hooks/useAppAuth';
-import { listenToGuestsWithRsvp, getEventById, addGuestToEvent, removeGuestFromEvent, updateGuestRsvp } from '../../../services/eventService'; // Added updateGuestRsvp
+import { listenToGuestsWithRsvp, getEventById, addGuestToEvent, removeGuestFromEvent } from '../../../services/eventService';
 import { getUserProfileByEmail } from '../../../services/userService'; // Changed to getUserProfileByEmail
 import { createDirectConversation, sendMessage } from '../../../services/chatService'; // Import sendMessage
-import { Guest as GuestType, Event as EventType, CreateGuestPayload, GuestStatus } from '../../../types/eventTypes';
+import { Guest as GuestType, Event as EventType, CreateGuestPayload } from '../../../types/eventTypes';
 import { Colors } from '../../../constants/Colors';
 import InviteGuestModal from '../../../components/events/InviteGuestModal';
 

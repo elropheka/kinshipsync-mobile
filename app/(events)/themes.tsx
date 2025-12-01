@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 // Icon import removed as it's not used in the provided snippet and might not be needed for this change.
 // If Icon is used elsewhere in the actual file for other purposes, it should be kept.
 import { Stack, router } from 'expo-router';

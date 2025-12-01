@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Stack, router } from 'expo-router'; // Stack import moved here
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(events)/website.styles';

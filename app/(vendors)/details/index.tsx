@@ -4,17 +4,13 @@ import {
   Text,
   ScrollView,
   Image,
-  StyleSheet,
   TouchableOpacity,
   Dimensions,
   Linking,
-  StatusBar,
 } from 'react-native';
-import { Colors } from '../../../constants/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, router } from 'expo-router';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import BottomNavigation from '../../../components/common/Navigation/bottomNavigation';
+import { useLocalSearchParams } from 'expo-router';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import ErrorBoundary from '../../../components/common/ErrorBoundary';
 import { styles } from '../../../styles/app/(vendors)/details/index.styles';
 
@@ -131,7 +127,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 export default function VendorDetailsScreen() {
-  const params = useLocalSearchParams();
+  useLocalSearchParams(); // params not used
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [expandedSection, setExpandedSection] = useState<string | null>('about');
   const vendor = mockVendor;

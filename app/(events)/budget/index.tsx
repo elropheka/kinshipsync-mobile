@@ -95,7 +95,7 @@ const EventBudgetScreen = () => {
         Alert.alert('Success', 'Expense item added.');
       }
       handleCloseBudgetForm();
-    } catch (e) {
+    } catch {
       Alert.alert('Error', 'Failed to save expense item.');
     }
   };
@@ -106,7 +106,7 @@ const EventBudgetScreen = () => {
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: async () => {
         try { await deleteBudgetItem(itemId); } 
-        catch (e) { Alert.alert("Error", "Failed to delete expense item."); }
+        catch { Alert.alert("Error", "Failed to delete expense item."); }
       }}
     ]);
   };

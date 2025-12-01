@@ -86,7 +86,7 @@ const VendorManagementScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You haven't added any vendors yet.</Text>
+          <Text style={styles.emptyText}>You haven&apos;t added any vendors yet.</Text>
           <TouchableOpacity onPress={() => router.push('/(vendors)/all')} style={styles.browseButton}>
             <Text style={styles.browseButtonText}>Browse All Vendors</Text>
           </TouchableOpacity>

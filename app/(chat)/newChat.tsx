@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, Alert, StatusBar, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -147,7 +147,7 @@ const NewChatScreen = () => {
               if (isLoadingSearch) return null; // Loading indicator handled above
               return (
                 <View style={styles.emptyListContainer}>
-                  <Text style={styles.emptyListText}>No users found matching "{searchQuery}".</Text>
+                  <Text style={styles.emptyListText}>No users found matching &quot;{searchQuery}&quot;.</Text>
                 </View>
               );
             } else { // Initial list view

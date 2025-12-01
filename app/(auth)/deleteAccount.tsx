@@ -70,6 +70,7 @@ const DeleteAccountScreen: React.FC = () => {
 
   useEffect(() => {
     checkUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkUserData = async () => {
@@ -227,7 +228,7 @@ const DeleteAccountScreen: React.FC = () => {
           </View>
           <View style={styles.whatHappensItem}>
             <Ionicons name="log-out-outline" size={20} color={Colors.light.error} />
-            <Text style={styles.whatHappensText}>You'll be logged out immediately</Text>
+            <Text style={styles.whatHappensText}>You&apos;ll be logged out immediately</Text>
           </View>
           <View style={styles.whatHappensItem}>
             <Ionicons name="information-circle-outline" size={20} color={Colors.light.warning} />

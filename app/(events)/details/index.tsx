@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../../styles/app/(events)/details/index.styles';
 
 const WeddingDetailsPage: React.FC = () => {
-  const params = useLocalSearchParams();
+  useLocalSearchParams(); // params not used in this component
   const [activeTab, setActiveTab] = useState('Details');
   const [popoverVisible, setPopoverVisible] = useState(false);
   
@@ -26,7 +26,7 @@ const WeddingDetailsPage: React.FC = () => {
       </View>
 
       <ScrollView style={styles.contentContainer}>
-        <Text style={styles.eventTitle}>Sarah & Michael's Wedding</Text>
+        <Text style={styles.eventTitle}>Sarah &amp; Michael&apos;s Wedding</Text>
         <View style={styles.extraButtonsContainer}>
           <TouchableOpacity style={styles.extraButton}
             onPress={() => setPopoverVisible(true)}
@@ -125,7 +125,7 @@ const WeddingDetailsPage: React.FC = () => {
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>Description</Text>
               <Text style={styles.sectionText}>
-                Join us as we celebrate the union of Sarah and Michael. We're excited to share this special day with family and friends.
+                Join us as we celebrate the union of Sarah and Michael. We&apos;re excited to share this special day with family and friends.
               </Text>
             </View>
             

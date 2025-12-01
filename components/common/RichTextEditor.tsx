@@ -110,6 +110,8 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
   );
 });
 
+RichTextEditor.displayName = 'RichTextEditor';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

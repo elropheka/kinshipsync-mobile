@@ -114,7 +114,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
         await onDeleteIdea(ideaId); 
         showAlert('success', 'Success', 'Idea deleted.');
       } 
-      catch (e) { showAlert("error", "Error", "Failed to delete idea."); }
+      catch { showAlert("error", "Error", "Failed to delete idea."); }
     };
 
     showConfirmAlert(

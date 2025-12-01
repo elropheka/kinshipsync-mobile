@@ -16,13 +16,10 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 // Constants (These can remain as they are related to UI layout)
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const MENU_ESTIMATED_HEIGHT = 150;
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const NAVBAR_BOTTOM_OFFSET = 15;
-const MENU_GAP = 5;
-// MENU_VISIBLE_BOTTOM is relative to the screen bottom
-const MENU_VISIBLE_BOTTOM = NAVBAR_BOTTOM_OFFSET + NAVBAR_HEIGHT + MENU_GAP;
+// MENU_GAP and MENU_VISIBLE_BOTTOM are calculated but not used in current implementation
 // MENU_START_TRANSLATE_Y and MENU_END_TRANSLATE_Y are relative to the menu's natural position when the navbar is visible
 // Let's redefine these to be relative to the bottom of the screen for clarity with Animated
 const MENU_OFFSET_FROM_BOTTOM = 15; // The distance the menu appears above the navbar
@@ -36,7 +33,7 @@ interface CustomBottomNavigationProps extends BottomTabBarProps {
 
 const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
   // Destructure isVisible from props
-  const { isVisible, ...restProps } = props;
+  const { isVisible } = props;
 
   // Safely get the current route name, providing a fallback
   const routeName = props.state?.routes?.[props.state?.index]?.name || 'defaultRouteName';
@@ -122,7 +119,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
     if (!isVisible) {
       setIsAddMenuVisible(false);
     }
-  }, [isVisible, navBarAnim, NAVBAR_HEIGHT, NAVBAR_BOTTOM_OFFSET]); // Add dependencies used in the effect
+  }, [isVisible, navBarAnim]); // NAVBAR_HEIGHT and NAVBAR_BOTTOM_OFFSET are constants
 
   // Hide the navigation bar completely on settings and subscriptionPlans pages
   // This takes precedence over the scroll animation

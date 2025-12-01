@@ -5,23 +5,19 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  ScrollView,
   Platform,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, router, useLocalSearchParams } from 'expo-router'; // Added Stack import here
+import { Stack, useLocalSearchParams } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../../../styles/app/(events)/ideas/index.styles';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { 
   Idea as IdeaType, 
-  IdeaComment as IdeaCommentType,
   CreateIdeaPayload,
-  CreateIdeaCommentPayload,
   Event as EventType,
 } from '../../../types/eventTypes';
 import { 
@@ -39,10 +35,6 @@ const formatDate = (isoString: string) => {
   if (!isoString) return 'Unknown date';
   return new Date(isoString).toLocaleDateString();
 };
-const formatTime = (isoString: string) => {
-  if (!isoString) return '';
-  return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
 
 
 const EventIdeasScreen = () => {
@@ -51,18 +43,12 @@ const EventIdeasScreen = () => {
   const isAuthenticated = !!currentUser; // Correctly derive isAuthenticated
 
   const [ideas, setIdeas] = useState<IdeaType[]>([]);
-  const [commentsByIdeaId, setCommentsByIdeaId] = useState<{ [ideaId: string]: IdeaCommentType[] }>({});
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
   const [isLoadingIdeas, setIsLoadingIdeas] = useState(true);
-  const [isLoadingComments, setIsLoadingComments] = useState<{ [ideaId: string]: boolean }>({});
   const [error, setError] = useState<string | null>(null);
   
   const [newIdeaText, setNewIdeaText] = useState('');
-  const [commentInput, setCommentInput] = useState<{ [key: string]: string }>({});
-  const [replyingTo, setReplyingTo] = useState<{ type: 'idea' | 'comment', id: string, ideaId: string } | null>(null);
-  const [expandedComments, setExpandedComments] = useState<{ [ideaId: string]: boolean }>({});
   const [userDetailsCache, setUserDetailsCache] = useState<Record<string, Pick<UserProfile, 'displayName' | 'avatarUrl'>>>({});
-  const [commentUnsubscribers, setCommentUnsubscribers] = useState<Record<string, () => void>>({});
 
   useEffect(() => {
     if (eventId && isAuthenticated) {
@@ -104,7 +90,7 @@ const EventIdeasScreen = () => {
       }
     });
     return () => unsubscribe();
-  }, [eventId, isAuthenticated]);
+  }, [eventId, isAuthenticated, userDetailsCache]);
 
 
 
@@ -147,10 +133,6 @@ const EventIdeasScreen = () => {
     }
   };
 
-  const toggleComments = (ideaId: string) => {
-    setExpandedComments(prev => ({ ...prev, [ideaId]: !prev[ideaId] }));
-    setReplyingTo(null); 
-  };
   
 
 

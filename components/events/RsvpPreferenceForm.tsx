@@ -7,7 +7,6 @@ import {
   Modal,
   ScrollView,
   Platform,
-  StyleSheet,
   KeyboardAvoidingView,
   Switch,
 } from 'react-native';

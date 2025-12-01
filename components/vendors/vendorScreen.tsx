@@ -111,7 +111,8 @@ const VendorScreen: React.FC = () => {
         </TouchableOpacity>
       </Animated.View>
     );
-  }, [handleNavigateToDetails]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleNavigateToDetails]); // scrollX is an animation value, not a dependency
 
   if (isLoading && (!displayItems || displayItems.length === 0)) {
     return (

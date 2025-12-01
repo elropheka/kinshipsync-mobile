@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native'; // Added FlatList
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(events)/seating.styles'; // Styles will need to be adapted
 import { useEventDetail } from '../../hooks/useEvents';
-import { SeatingTable, Guest, Event } from '../../types/eventTypes'; // Omit<SeatingTable, 'id' | 'assignedGuestIds'> for payload
+import { SeatingTable } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
 import TableForm from '../../components/events/TableForm'; 
 
 const SeatingChartScreen = () => {
-  const router = useRouter();
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   
   const { 
@@ -198,7 +197,7 @@ const SeatingChartScreen = () => {
             </View>
           </View>
         ))}
-        {tables.length === 0 && <Text style={styles.emptyText}>No tables added yet. Click "Add Table" to start.</Text>}
+        {tables.length === 0 && <Text style={styles.emptyText}>No tables added yet. Click &quot;Add Table&quot; to start.</Text>}
       </ScrollView>
       
       <Modal

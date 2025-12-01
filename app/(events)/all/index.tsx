@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,7 +22,7 @@ interface Summary {
   completed: number;
 }
 
-interface EventsScreenProps {}
+type EventsScreenProps = Record<string, never>;
 
 const EventsScreen: React.FC<EventsScreenProps> = () => {
   const { events: fetchedEvents, isLoading, error, fetchEvents: refreshEvents } = useAllEvents();

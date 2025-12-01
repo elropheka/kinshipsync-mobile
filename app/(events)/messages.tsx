@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../../styles/app/(events)/messages.styles';
 import { useEventDetail } from '../../hooks/useEvents';
-import { EventMessage, Guest } from '../../types/eventTypes';
-import { UserProfile } from '../../types/userTypes';
+import { EventMessage } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { getUserProfile } from '../../services/userService';
 import { Colors } from '../../constants/Colors';
@@ -16,7 +15,6 @@ interface SenderDetails {
 }
 
 const EventMessagesScreen = () => {
-  const router = useRouter();
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
   
@@ -81,7 +79,7 @@ const EventMessagesScreen = () => {
 
       fetchMissingSenderDetails();
     }
-  }, [eventMessages, guests, currentUser]);
+  }, [eventMessages, guests, currentUser, senderDetailsCache]);
 
   const getSenderName = (senderId: string): string => {
     if (currentUser && senderId === currentUser.uid) return "You";

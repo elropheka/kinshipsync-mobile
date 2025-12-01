@@ -271,7 +271,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
               onPress={() => setItemEntryMode('select')}
               disabled={!selectedVendorId}
             >
-              <Text style={[styles.entryModeText, itemEntryMode === 'select' && styles.entryModeTextActive, !selectedVendorId && styles.disabledText]}>Select Vendor's Item</Text>
+              <Text style={[styles.entryModeText, itemEntryMode === 'select' && styles.entryModeTextActive, !selectedVendorId && styles.disabledText]}>Select Vendor&apos;s Item</Text>
             </TouchableOpacity>
           </View>
         )}

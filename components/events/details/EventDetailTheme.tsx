@@ -25,8 +25,8 @@ const EventDetailTheme: React.FC<EventDetailThemeProps> = ({
       await onSetEventTheme(themeId);
       setIsThemePickerVisible(false);
       const selectedTheme = availableThemes.find(t => t.id === themeId);
-      Alert.alert("Success", `Theme "${selectedTheme?.name || ''}" applied.`);
-    } catch (error) {
+      Alert.alert("Success", `Theme &quot;${selectedTheme?.name || ''}&quot; applied.`);
+    } catch {
       Alert.alert("Error", "Failed to apply theme.");
     }
   };

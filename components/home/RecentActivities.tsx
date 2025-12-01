@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialIcons as Icon, Ionicons as IconSecondary, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons as Icon, Ionicons as IconSecondary } from '@expo/vector-icons';
 import { Notification as NotificationType } from '../../types/userTypes';
 import { styles } from '../../styles/app/(main)/home.styles';
 import { Colors } from 'constants/Colors'; 

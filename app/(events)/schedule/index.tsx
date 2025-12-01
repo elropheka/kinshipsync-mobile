@@ -35,7 +35,7 @@ const EventScheduleScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ScheduleItemType | null>(null);
   
-  const [isPlannerMode, setIsPlannerMode] = useState(true);
+  const [isPlannerMode] = useState(true);
 
   const parseTimeStringToDate = (timeString: string): Date => {
     const [hours, minutes] = timeString.split(':').map(Number);

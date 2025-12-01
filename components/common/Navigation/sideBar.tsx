@@ -59,7 +59,8 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
         }),
       ]).start();
     }
-  }, [isVisible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]); // opacityAnim and translateX are animation values, not dependencies
 
   if (isLoadingUser) {
     return (

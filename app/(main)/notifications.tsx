@@ -30,7 +30,7 @@ const NotificationsPage: React.FC = () => {
     error 
   } = useCurrentUser();
 
-  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
+  const [isSearchVisible] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<Filter['label']>('All'); 
   const [showOnlyUnread, setShowOnlyUnread] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
