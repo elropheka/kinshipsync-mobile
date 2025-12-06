@@ -9,72 +9,60 @@ import {
   Easing,
 } from 'react-native';
 import { AntDesign as SpecialIcon, Ionicons as SecondaryIcon, Feather, Entypo } from '@expo/vector-icons';
-import { Colors } from 'constants/Colors'; // Assuming Colors is correctly imported
+import { Colors } from 'constants/Colors';
 import { router } from 'expo-router';
-import { styles } from '../../../styles/components/common/Navigation/bottomNavigation.styles'; // Assuming styles are correct
+import { styles } from '../../../styles/components/common/Navigation/bottomNavigation.styles';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-// Constants (These can remain as they are related to UI layout)
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const MENU_ESTIMATED_HEIGHT = 150;
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const NAVBAR_BOTTOM_OFFSET = 15;
-// MENU_GAP and MENU_VISIBLE_BOTTOM are calculated but not used in current implementation
-// MENU_START_TRANSLATE_Y and MENU_END_TRANSLATE_Y are relative to the menu's natural position when the navbar is visible
-// Let's redefine these to be relative to the bottom of the screen for clarity with Animated
-const MENU_OFFSET_FROM_BOTTOM = 15; // The distance the menu appears above the navbar
-const MENU_START_TRANSLATE_Y = MENU_ESTIMATED_HEIGHT + MENU_OFFSET_FROM_BOTTOM; // Start off screen below
-const MENU_END_TRANSLATE_Y = -MENU_OFFSET_FROM_BOTTOM; // End above the navbar (negative translation moves it up)
+const MENU_OFFSET_FROM_BOTTOM = 15;
+const MENU_START_TRANSLATE_Y = MENU_ESTIMATED_HEIGHT + MENU_OFFSET_FROM_BOTTOM;
+const MENU_END_TRANSLATE_Y = -MENU_OFFSET_FROM_BOTTOM;
 
-// Define the expected props including the new isVisible prop
 interface CustomBottomNavigationProps extends BottomTabBarProps {
-  isVisible: boolean; // Add the new prop to control visibility
+  isVisible: boolean;
 }
 
 const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
-  // Destructure isVisible from props
   const { isVisible } = props;
 
-  // Safely get the current route name, providing a fallback
   const routeName = props.state?.routes?.[props.state?.index]?.name || 'defaultRouteName';
 
   const [isAddMenuVisible, setIsAddMenuVisible] = useState(false);
-  // Animated value for the add menu translation
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const menuAnim = useRef(new Animated.Value(MENU_START_TRANSLATE_Y)).current;
 
-  // *** NEW: Animated value for the main navigation bar translation ***
-  const navBarAnim = useRef(new Animated.Value(0)).current; // Start visible (translateY: 0)
+  const navBarAnim = useRef(new Animated.Value(0)).current;
 
-  // Define routes using the paths router.push expects
+  const isLandscape = dimensions.width > dimensions.height;
+
    const routes = {
     home: '/home',
     events: '/all',
-    // teams: '/(main)/teams', // Teams route will be handled in the add menu
     guests: '/guests',
     budget: '/budget',
     chat: '/chatArea',
     vendors: '(vendors)/all',
     messages: '/messages',
     newEvent: '/createEvent',
-    teams: '/(main)/teams', // Added teams route for the add menu
+    teams: '/(main)/teams',
   } as const;
 
   type RouteKeys = keyof typeof routes;
   type RouteNames = (typeof routes)[RouteKeys];
 
-  // Check if the current route is active based on props.state
   const isActiveRoute = (targetRouteName: RouteNames) => {
-    // Safely access routeName
     return routeName === targetRouteName;
   };
 
   const getIconColor = (targetRouteName: RouteNames) => {
-    // Use Colors object if defined and accessible, otherwise use hardcoded
     return isActiveRoute(targetRouteName) ? Colors.light.background : Colors.light.text;
   };
 
   const getLabelColor = (targetRouteName: RouteNames) => {
-    // Use Colors object if defined and accessible, otherwise use hardcoded
     return isActiveRoute(targetRouteName) ? Colors.light.background : Colors.light.text;
   };
 
@@ -82,19 +70,24 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
     return isActiveRoute(targetRouteName) ? styles.activeTabButton : styles.tabButton;
   };
 
-  // Use router.push for tab presses
   const handleTabPress = (targetRouteName: RouteNames) => {
-     router.push(targetRouteName as any); // Cast might be needed depending on TS config
-     setIsAddMenuVisible(false); // Close add menu on tab press
+     router.push(targetRouteName as any);
+     setIsAddMenuVisible(false);
   };
 
-  // Use router.push for navigation within the add menu
   const handleNavigation = (path: string) => {
-     router.push(path as any); // router.push works with file-based paths
-     setIsAddMenuVisible(false); // Close add menu after navigation
+     router.push(path as any);
+     setIsAddMenuVisible(false);
   };
 
-  // Effect to animate the add menu visibility
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setDimensions(window);
+    });
+
+    return () => subscription?.remove();
+  }, []);
+
   useEffect(() => {
     Animated.timing(menuAnim, {
       toValue: isAddMenuVisible ? MENU_END_TRANSLATE_Y : MENU_START_TRANSLATE_Y,
@@ -104,38 +97,41 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
     }).start();
   }, [isAddMenuVisible, menuAnim]);
 
-  // *** NEW: Effect to animate the main navigation bar visibility based on isVisible prop ***
   useEffect(() => {
     Animated.timing(navBarAnim, {
-      // Target 0 (visible) when isVisible is true
-      // Target its full height + bottom offset when isVisible is false (slide down)
       toValue: isVisible ? 0 : NAVBAR_HEIGHT + NAVBAR_BOTTOM_OFFSET,
-      duration: 300, // Match add menu duration for consistency
+      duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
 
-    // If the bar is becoming hidden, ensure the add menu is closed
     if (!isVisible) {
       setIsAddMenuVisible(false);
     }
-  }, [isVisible, navBarAnim]); // NAVBAR_HEIGHT and NAVBAR_BOTTOM_OFFSET are constants
+  }, [isVisible, navBarAnim]);
 
-  // Hide the navigation bar completely on settings and subscriptionPlans pages
-  // This takes precedence over the scroll animation
    const routesToHideTabBar = ['settings'];
-   // Safely access routeName
    if (routesToHideTabBar.includes(routeName)) {
      return null;
    }
 
 
+  const containerStyle = isLandscape
+    ? [
+        styles.container,
+        {
+          left: 0,
+          right: 0,
+          width: undefined,
+          marginHorizontal: 15,
+        },
+        { transform: [{ translateY: navBarAnim }] },
+      ]
+    : [styles.container, { transform: [{ translateY: navBarAnim }] }];
+
   return (
     <>
-      {/* Wrap the main navigation bar in an Animated.View */}
-      {/* Apply the translateY animation */}
-      <Animated.View style={[styles.container, { transform: [{ translateY: navBarAnim }] }]}>
-        {/* ... Your TouchableOpacity buttons using handleTabPress ... */}
+      <Animated.View style={containerStyle}>
          <TouchableOpacity
           style={getTabButtonStyle(routes.home)}
           onPress={() => handleTabPress(routes.home)}
@@ -152,10 +148,8 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
           <Text style={[styles.tabLabel, { color: getLabelColor(routes.events) }]}>My Event</Text>
         </TouchableOpacity>
 
-        {/* Add Button */}
         <TouchableOpacity
           style={styles.addButton}
-          // Only allow opening the add menu if the main bar is visible
           onPress={() => isVisible && setIsAddMenuVisible(!isAddMenuVisible)}
         >
           <SecondaryIcon name={isAddMenuVisible ? "close-outline" : "add-outline"} size={40} color={Colors.light.neutralBg} />
@@ -178,8 +172,6 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Your existing UI for the add menu */}
-      {/* Only render the add menu UI if it's visible AND the main bar is visible */}
       {isAddMenuVisible && isVisible && (
         <>
           <Pressable
@@ -187,7 +179,6 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
             onPress={() => setIsAddMenuVisible(false)}
           />
           <Animated.View style={[styles.addMenuContainer, { transform: [{ translateY: menuAnim }] }]}>
-            {/* ... Your add menu items using handleNavigation (router.push) ... */}
              <TouchableOpacity
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/createEvent')}
@@ -222,7 +213,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
             <View style={styles.menuDivider} />
             <TouchableOpacity
               style={styles.addMenuItem}
-              onPress={() => handleNavigation('/themes/createTheme')} // Placeholder route
+              onPress={() => handleNavigation('/themes/createTheme')}
             >
               <SecondaryIcon name="color-palette-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Create Theme</Text>

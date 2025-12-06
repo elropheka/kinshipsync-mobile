@@ -48,6 +48,9 @@ const withAndroidEdgeToEdge = (config) => {
       mainActivity.$['android:windowSoftInputMode'] = 'adjustResize';
     }
 
+    // Remove window title bar (removes the "kinshipSync" bar at the top)
+    mainActivity.$['android:windowNoTitle'] = 'true';
+
     // Ensure proper configuration for edge-to-edge
     if (!mainActivity.$['android:configChanges']) {
       mainActivity.$['android:configChanges'] =
@@ -61,10 +64,7 @@ const withAndroidEdgeToEdge = (config) => {
   config = withMainActivity(config, (config) => {
     let mainActivity = config.modResults.contents;
 
-    // Check if edge-to-edge is already enabled
-    if (mainActivity.includes('enableEdgeToEdge') || mainActivity.includes('EdgeToEdge.enable')) {
-      return config;
-    }
+    // Note: We'll check for existing edge-to-edge code but still add navigation bar visibility if needed
 
     // Expo SDK 53 uses Kotlin by default
     const isKotlin = mainActivity.includes('fun ') || mainActivity.includes('class MainActivity') && !mainActivity.includes('public class MainActivity');
@@ -89,13 +89,35 @@ const withAndroidEdgeToEdge = (config) => {
         }
       }
 
+      // Add imports for immersive mode
+      if (!mainActivity.includes('import androidx.core.view.WindowCompat')) {
+        const importMatch = mainActivity.match(/(import .+\n)+/);
+        if (importMatch) {
+          mainActivity = mainActivity.replace(
+            importMatch[0],
+            importMatch[0] + 'import androidx.core.view.WindowCompat\nimport androidx.core.view.WindowInsetsControllerCompat\n'
+          );
+        } else {
+          mainActivity = mainActivity.replace(
+            /(package .+\n)/,
+            `$1import androidx.core.view.WindowCompat\nimport androidx.core.view.WindowInsetsControllerCompat\n`
+          );
+        }
+      }
+
       // Add enableEdgeToEdge() call in onCreate, before super.onCreate()
       if (mainActivity.includes('override fun onCreate')) {
         if (!mainActivity.includes('enableEdgeToEdge()')) {
-          // Find onCreate and add enableEdgeToEdge() as first line
+          // Find onCreate and add enableEdgeToEdge() with immersive mode
           mainActivity = mainActivity.replace(
             /(override fun onCreate\([^)]*\)\s*\{)\s*/,
-            `$1\n        enableEdgeToEdge()\n`
+            `$1\n        enableEdgeToEdge()\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(window, false)\n        val insetsController = WindowCompat.getInsetsController(window, window.decorView)\n        insetsController?.apply {\n            hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars())\n            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE\n        }\n`
+          );
+        } else if (!mainActivity.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) {
+          // Add immersive mode setup if enableEdgeToEdge already exists
+          mainActivity = mainActivity.replace(
+            /(enableEdgeToEdge\(\))\s*/,
+            `$1\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(window, false)\n        val insetsController = WindowCompat.getInsetsController(window, window.decorView)\n        insetsController?.apply {\n            hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars())\n            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE\n        }\n`
           );
         }
       } else if (mainActivity.includes('fun onCreate')) {
@@ -103,7 +125,12 @@ const withAndroidEdgeToEdge = (config) => {
         if (!mainActivity.includes('enableEdgeToEdge()')) {
           mainActivity = mainActivity.replace(
             /(fun onCreate\([^)]*\)\s*\{)\s*/,
-            `$1\n        enableEdgeToEdge()\n`
+            `$1\n        enableEdgeToEdge()\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(window, false)\n        val insetsController = WindowCompat.getInsetsController(window, window.decorView)\n        insetsController?.apply {\n            hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars())\n            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE\n        }\n`
+          );
+        } else if (!mainActivity.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) {
+          mainActivity = mainActivity.replace(
+            /(enableEdgeToEdge\(\))\s*/,
+            `$1\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(window, false)\n        val insetsController = WindowCompat.getInsetsController(window, window.decorView)\n        insetsController?.apply {\n            hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars())\n            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE\n        }\n`
           );
         }
       }
@@ -125,12 +152,34 @@ const withAndroidEdgeToEdge = (config) => {
         }
       }
 
+      // Add imports for immersive mode
+      if (!mainActivity.includes('import androidx.core.view.WindowCompat')) {
+        const importMatch = mainActivity.match(/(import .+;\n)+/);
+        if (importMatch) {
+          mainActivity = mainActivity.replace(
+            importMatch[0],
+            importMatch[0] + 'import androidx.core.view.WindowCompat;\nimport androidx.core.view.WindowInsetsControllerCompat;\n'
+          );
+        } else {
+          mainActivity = mainActivity.replace(
+            /(package .+;\n)/,
+            `$1import androidx.core.view.WindowCompat;\nimport androidx.core.view.WindowInsetsControllerCompat;\n`
+          );
+        }
+      }
+
       // Add EdgeToEdge.enable() call in onCreate
       if (mainActivity.includes('protected void onCreate')) {
         if (!mainActivity.includes('EdgeToEdge.enable')) {
           mainActivity = mainActivity.replace(
             /(protected void onCreate\([^)]*\)\s*\{)\s*/,
-            `$1\n        EdgeToEdge.enable(this);\n`
+            `$1\n        EdgeToEdge.enable(this);\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);\n        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());\n        if (insetsController != null) {\n            insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars());\n            insetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);\n        }\n`
+          );
+        } else if (!mainActivity.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) {
+          // Add immersive mode setup if EdgeToEdge.enable already exists
+          mainActivity = mainActivity.replace(
+            /(EdgeToEdge\.enable\(this\);)\s*/,
+            `$1\n        // Enable immersive mode - navigation bar hidden, appears only on swipe from bottom\n        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);\n        WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());\n        if (insetsController != null) {\n            insetsController.hide(androidx.core.view.WindowInsetsCompat.Type.navigationBars());\n            insetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);\n        }\n`
           );
         }
       }

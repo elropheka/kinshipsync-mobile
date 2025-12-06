@@ -104,6 +104,53 @@ const determineContentType = (fileName: string, mimeType?: string): ContentType 
   return 'other';
 };
 
+const uriToBlob = async (uri: string, mimeType?: string): Promise<Blob> => {
+  // On web, use fetch for blob/data URIs
+  if (Platform.OS === 'web') {
+    if (uri.startsWith('blob:') || uri.startsWith('data:')) {
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+      }
+      return await response.blob();
+    }
+  }
+
+  // On React Native, read file as base64 and convert to blob
+  // This is necessary because fetch() doesn't work reliably with file:// URIs on React Native
+  try {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Convert base64 to blob using atob (available in React Native)
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    
+    // Use the provided mimeType or default to image/jpeg
+    const blobType = mimeType || 'image/jpeg';
+    return new Blob([byteArray], { type: blobType });
+  } catch (error) {
+    // Fallback: try fetch if base64 conversion fails (for web or other edge cases)
+    console.warn('Failed to read file as base64, trying fetch as fallback:', error);
+    try {
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+      }
+      return await response.blob();
+    } catch (fetchError) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown error';
+      throw new Error(`Failed to convert file to blob. Base64 conversion failed: ${errorMessage}. Fetch fallback also failed: ${fetchErrorMessage}`);
+    }
+  }
+};
+
 export const uploadFile = async (
   localFileUri: string,
   conversationId: string,
@@ -144,8 +191,8 @@ export const uploadFile = async (
 
     console.log(`Uploading to: ${storagePath}`, { fileSize, contentType });
 
-    const response = await fetch(localFileUri);
-    const blob = await response.blob();
+    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
+    const blob = await uriToBlob(localFileUri, mimeType);
 
     return await new Promise((resolve, reject) => {
       const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
@@ -228,12 +275,8 @@ export const uploadUserAvatar = async (
     };
     const fileRef = ref(storage, storagePath);
 
-    const response = await fetch(localFileUri);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-    }
-    
-    const blob = await response.blob();
+    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
+    const blob = await uriToBlob(localFileUri, mimeType);
 
     return new Promise((resolve, reject) => {
       const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
@@ -318,8 +361,8 @@ export const uploadImage = async (
 
     console.log(`Uploading image to: ${storagePath}`);
 
-    const response = await fetch(localFileUri);
-    const blob = await response.blob();
+    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
+    const blob = await uriToBlob(localFileUri, mimeType);
 
     return new Promise((resolve, reject) => {
       const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
