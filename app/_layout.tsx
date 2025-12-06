@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, StatusBar, Platform } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from "@/context/AuthContext";
@@ -80,10 +80,8 @@ const RootLayout: React.FC = () => {
     <SafeAreaProvider>
       <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
         <StatusBar 
-          barStyle="light-content" 
-          backgroundColor={Colors.light.accent}
-          translucent={Platform.OS === 'android'}
-          hidden={Platform.OS === 'android'}
+          barStyle="dark-content" 
+          backgroundColor={Colors.light.backgroundSecondary}
         />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ErrorBoundary>

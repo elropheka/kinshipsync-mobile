@@ -144,7 +144,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
           <Ionicons name="close-outline" size={28} color={Colors.light.text} />

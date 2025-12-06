@@ -136,7 +136,7 @@ const EventMessagesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <Stack.Screen options={{ title: event ? `${event.name} - Messages` : 'Event Messages' }} />
       
       <FlatList

@@ -11,7 +11,7 @@ const TeamsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <Stack.Screen
         options={{
           title: 'Teams',

@@ -129,7 +129,7 @@ const ConversationSettingsScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Loading Settings...' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -141,7 +141,7 @@ const ConversationSettingsScreen = () => {
   if (error || !conversation) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Error' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={{ color: Colors.light.error }}>{error || "Could not load conversation details."}</Text>
@@ -214,7 +214,7 @@ const ConversationSettingsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <Stack.Screen options={{ title: conversation.name || 'Chat Settings' }} />
       <View style={styles.content}>
         <Text style={styles.title}>{conversation.name || 'Group Chat'} Settings</Text>

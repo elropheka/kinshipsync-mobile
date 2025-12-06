@@ -9,10 +9,9 @@ function VendorsStack() {
   return (
     <>
     <StatusBar 
-            backgroundColor={Platform.OS === 'android' ? Colors.dark.accent : undefined} 
-            style={Platform.OS === 'ios' ? 'light' : 'auto'}
+            backgroundColor={Platform.OS === 'android' ? Colors.light.backgroundSecondary : undefined} 
+            style="dark"
             translucent={Platform.OS === 'android' ? false : undefined}
-            hidden={Platform.OS === 'android'}
           />
       <Stack
       screenOptions={{

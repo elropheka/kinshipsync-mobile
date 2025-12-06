@@ -245,7 +245,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       {/* Custom Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>

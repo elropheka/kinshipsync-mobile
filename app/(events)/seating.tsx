@@ -158,7 +158,7 @@ import { useAlert } from '@/context/AlertContext';
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'}/>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       {/* Header */}
       <Stack.Screen options={{ title: `Seating - ${event.name}` }} />
       <View style={styles.headerControls}>

@@ -88,7 +88,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundLight} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <ResponsiveContainer>
         <View style={styles.header}>
           <TouchableOpacity onPress={globalToggleSidebar}>

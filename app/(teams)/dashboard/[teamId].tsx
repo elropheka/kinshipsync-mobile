@@ -289,7 +289,7 @@ const TeamDashboardScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text style={{marginTop: 10}}>Loading team data...</Text>
       </SafeAreaView>
@@ -299,7 +299,7 @@ const TeamDashboardScreen = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Text style={{color: 'red', marginBottom: 10}}>{error}</Text>
         {/* Optionally add a retry button here */}
       </SafeAreaView>
@@ -309,7 +309,7 @@ const TeamDashboardScreen = () => {
   if (!team) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Team Not Found' }} />
         <Text>Team not found.</Text>
       </SafeAreaView>
@@ -379,7 +379,7 @@ const TeamDashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <Stack.Screen
         options={{
           title: team.name || 'Team Dashboard',

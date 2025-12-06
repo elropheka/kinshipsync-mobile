@@ -360,7 +360,7 @@ const ChatAreaScreen: React.FC = () => {
   if (isLoadingMessages && messages.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -370,7 +370,7 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
       </SafeAreaView>
     );
@@ -378,7 +378,7 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.light.accent} hidden={Platform.OS === 'android'} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
       <Stack.Screen 
         options={{
           title: screenTitle,

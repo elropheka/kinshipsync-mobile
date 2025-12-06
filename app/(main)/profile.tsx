@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -138,7 +138,7 @@ const ProfileScreen = () => {
   if (isLoadingUser && !currentUserProfile) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading Profile...</Text>
       </SafeAreaView>
@@ -148,7 +148,7 @@ const ProfileScreen = () => {
   if (userError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Text style={styles.errorText}>Error loading profile: {userError.message}</Text>
       </SafeAreaView>
     );
@@ -157,7 +157,7 @@ const ProfileScreen = () => {
   if (!currentUserProfile) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
         <Text>No profile data found.</Text>
          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/signIn')}>
             <Text style={styles.buttonText}>Go to Sign In</Text>
@@ -169,7 +169,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.dark.accent} hidden={Platform.OS === 'android'}/>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>
