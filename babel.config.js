@@ -3,6 +3,14 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      [
+        'babel-plugin-inline-dotenv',
+        {
+          path: '.env', // Path to .env file (for local development)
+          // For EAS builds, environment variables are provided via EAS Secrets
+          // and are automatically available as process.env variables
+        },
+      ],
       'react-native-reanimated/plugin',
     ],
   };

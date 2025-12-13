@@ -249,7 +249,13 @@ const EditEventScreen = () => {
       }
       
       showSuccess('Success', 'Event updated successfully!', {
-        onConfirm: () => router.back(),
+        onConfirm: () => {
+          if (event?.id) {
+            router.replace({ pathname: '/(events)/details/[id]', params: { id: event.id } });
+          } else {
+            router.back();
+          }
+        },
       });
     } catch (error) {
       console.error("Failed to update event:", error);

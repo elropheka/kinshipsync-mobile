@@ -2,11 +2,11 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { doc, updateDoc, arrayUnion, arrayRemove, getDoc, collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, writeBatch, Timestamp } from '@firebase/firestore';
-import { firestore, app } from './firebaseConfig';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { firestore } from './firebaseConfig';
 import { UserProfile } from '../types/userTypes';
 import { InAppNotification, NewNotificationPayload, } from '../types/notificationTypes';
 import { isValidE164Format } from '../utils/phoneUtils';
+import { sendPush, sendText, sendEmail } from './messagingService';
 
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -270,50 +270,52 @@ export const sendPushNotificationInternal = async (
   }
 
   try {
-    const functionsInstance = getFunctions(app);
-    const callableSendPush = httpsCallable(functionsInstance, 'sendPushNotification');
+    // Get user's push token from Firestore
+    const userDocRef = doc(firestore, 'users', recipientId);
+    const userDocSnap = await getDoc(userDocRef);
 
-    const notificationData: { [key: string]: string } = {};
+    if (!userDocSnap.exists()) {
+      console.error(`User with ID ${recipientId} not found. Cannot send push notification.`);
+      return false;
+    }
+
+    const userData = userDocSnap.data() as UserProfile;
+    const pushToken = userData.fcmTokens?.[0]; // Use the first token, or implement logic to select the right one
+
+    if (!pushToken) {
+      console.error(`User ${recipientId} has no push token. Cannot send push notification.`);
+      return false;
+    }
+
+    // Convert data to the format expected by messaging API (all values as strings)
+    const notificationData: Record<string, unknown> = {};
     if (data) {
       Object.keys(data).forEach(key => {
         const value = data[key];
         if (value !== undefined && value !== null) {
-          notificationData[key] = String(value);
+          notificationData[key] = value;
         }
       });
     }
 
-    console.log('📞 Calling Cloud Function "sendPushNotification"...');
-    const result = await callableSendPush({
-      recipientId,
+    console.log('📞 Calling messaging API to send push notification...');
+    const result = await sendPush({
+      to: pushToken,
       title,
       body,
-      notificationData: Object.keys(notificationData).length > 0 ? notificationData : undefined,
+      data: Object.keys(notificationData).length > 0 ? notificationData : undefined,
     });
-
-    const responseData = result.data as { success: boolean; message: string };
     
-    if (responseData.success) {
+    if (result.success) {
       console.log(`✅ Push notification successfully sent for recipient: ${recipientId}`);
       return true;
     } else {
-      console.warn(`⚠️ Failed to send push notification for recipient ${recipientId}:`, responseData.message);
+      console.warn(`⚠️ Failed to send push notification for recipient ${recipientId}:`, result.message || result.error);
       return false;
     }
   } catch (error: any) {
-    console.error('❌ Error sending push notification via Cloud Function:', error);
-    // Handle specific Firebase errors
-    if (error.code === 'functions/not-found') {
-      console.error('❌ Cloud Function "sendPushNotification" not found. Make sure it is deployed.');
-      console.error('   Run: firebase deploy --only functions');
-    } else if (error.code === 'functions/permission-denied') {
-      console.error('❌ Permission denied when calling sendPushNotification. Check authentication.');
-    } else if (error.code) {
-      console.error(`❌ Firebase error code: ${error.code}`);
-      console.error(`   Message: ${error.message}`);
-    } else {
-      console.error('   Full error:', JSON.stringify(error, null, 2));
-    }
+    console.error('❌ Error sending push notification via messaging API:', error);
+    console.error('   Error details:', error.message || JSON.stringify(error, null, 2));
     return false;
   }
 };
@@ -356,35 +358,25 @@ export const sendSMSNotificationInternal = async (
       return false;
     }
 
-    const functionsInstance = getFunctions(app);
-    const callableSendSMS = httpsCallable(functionsInstance, 'sendSMS');
-
-    const result = await callableSendSMS({
-      toPhoneNumber,
+    console.log('📞 Calling messaging API to send SMS...');
+    const result = await sendText({
+      to: toPhoneNumber,
       message,
-      fromPhoneNumber, // Optional: uses configured Twilio number if not provided
+      from: fromPhoneNumber, // Optional: uses configured Twilio number if not provided
     });
-
-    const responseData = result.data as { success: boolean; message: string; messageId?: string; status?: string };
     
-    if (responseData.success) {
+    if (result.success) {
       console.log(`SMS notification successfully sent for recipient: ${recipientId}`, 
-        responseData.messageId ? `Message SID: ${responseData.messageId}` : '',
-        responseData.status ? `Status: ${responseData.status}` : ''
+        result.data?.messageId ? `Message ID: ${result.data.messageId}` : ''
       );
       return true;
     } else {
-      console.warn(`Failed to send SMS notification for recipient ${recipientId}:`, responseData.message);
+      console.warn(`Failed to send SMS notification for recipient ${recipientId}:`, result.message || result.error);
       return false;
     }
   } catch (error: any) {
-    console.error('Error sending SMS notification via Cloud Function:', error);
-    // Handle specific Firebase errors
-    if (error.code === 'functions/not-found') {
-      console.error('Cloud Function "sendSMS" not found. Make sure it is deployed.');
-    } else if (error.code === 'functions/permission-denied') {
-      console.error('Permission denied when calling sendSMS. Check authentication.');
-    }
+    console.error('Error sending SMS notification via messaging API:', error);
+    console.error('   Error details:', error.message || JSON.stringify(error, null, 2));
     return false;
   }
 };
@@ -416,28 +408,23 @@ export const sendEmailNotificationInternal = async (
       return false;
     }
 
-    const functionsInstance = getFunctions(app);
-    const callableSendEmail = httpsCallable(functionsInstance, 'sendEmail');
-
-    const result = await callableSendEmail({
-      toEmail,
-      toName,
+    console.log('📞 Calling messaging API to send email...');
+    const result = await sendEmail({
+      to: toEmail,
       subject,
-      htmlContent,
-      fromEmail,
-      fromName,
+      body: htmlContent,
+      from: fromEmail,
     });
 
-    const responseData = result.data as { success: boolean; message: string };
-    if (responseData.success) {
+    if (result.success) {
       console.log(`Email notification successfully sent for recipient: ${recipientId}`);
       return true;
     } else {
-      console.error(`Failed to send email notification for recipient ${recipientId}:`, responseData.message);
+      console.error(`Failed to send email notification for recipient ${recipientId}:`, result.message || result.error);
       return false;
     }
   } catch (error) {
-    console.error('Error sending email notification via Cloud Function:', error);
+    console.error('Error sending email notification via messaging API:', error);
     return false;
   }
 };

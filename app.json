@@ -2,7 +2,7 @@
   "expo": {
     "name": "kinshipSync",
     "slug": "kinshipSync",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -91,7 +91,8 @@
       "router": {},
       "eas": {
         "projectId": "ad4bb59d-fd0d-4396-af25-8c32f9c8bb42"
-      }
+      },
+      "messagingApiUrl": "https://kinshipsync-messaging.vercel.app"
     },
     "runtimeVersion": "1.0.5",
     "updates": {
