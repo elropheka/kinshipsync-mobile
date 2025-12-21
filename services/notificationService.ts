@@ -7,6 +7,7 @@ import { UserProfile } from '../types/userTypes';
 import { InAppNotification, NewNotificationPayload, } from '../types/notificationTypes';
 import { isValidE164Format } from '../utils/phoneUtils';
 import { sendPush, sendText, sendEmail } from './messagingService';
+import { getUserProfileByEmail } from './userService';
 
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -401,7 +402,6 @@ export const sendEmailNotificationInternal = async (
 
     const userData = userDocSnap.data() as UserProfile;
     const toEmail = userData.email;
-    const toName = userData.displayName;
 
     if (!toEmail) {
       console.error(`User ${recipientId} has no email address. Cannot send email.`);
@@ -847,6 +847,102 @@ export const createWebsitePublishedNotification = async (
     }
   };
   return sendInAppNotificationInternal(notification);
+};
+
+/**
+ * Sends event invitation notifications via in-app, email, and SMS
+ * @param guestEmail - Guest's email address
+ * @param guestName - Guest's name
+ * @param guestPhone - Guest's phone number (optional)
+ * @param eventName - Name of the event
+ * @param eventDate - Event date
+ * @param eventTime - Event time (optional)
+ * @param eventLocation - Event location (optional)
+ * @param organizerName - Name of the event organizer
+ * @param eventId - Event ID for navigation
+ */
+export const createEventInvitationNotification = async (
+  guestEmail: string | undefined,
+  guestName: string,
+  guestPhone: string | undefined,
+  eventName: string,
+  eventDate: string,
+  eventTime: string | undefined,
+  eventLocation: string | undefined,
+  organizerName: string,
+  eventId: string
+): Promise<void> => {
+  console.log(`Sending event invitation notifications for ${guestName} to event ${eventName}`);
+
+  // 1. Send in-app notification if guest is a registered user
+  if (guestEmail) {
+    try {
+      const guestUser = await getUserProfileByEmail(guestEmail);
+      if (guestUser?.userId) {
+        const notification: NewNotificationPayload = {
+          recipientId: guestUser.userId,
+          type: 'event_invite',
+          title: 'Event Invitation',
+          body: `You've been invited to ${eventName} by ${organizerName}!`,
+          data: {
+            screen: 'EventDetails',
+            itemId: eventId
+          }
+        };
+        await sendInAppNotificationInternal(notification);
+        console.log(`In-app notification sent to registered user ${guestUser.userId}`);
+      } else {
+        console.log(`Guest ${guestEmail} is not a registered user, skipping in-app notification`);
+      }
+    } catch (error) {
+      console.error('Error sending in-app notification for event invitation:', error);
+      // Continue with email/SMS even if in-app fails
+    }
+  }
+
+  // 2. Send email notification
+  if (guestEmail) {
+    try {
+      const emailSubject = `You're invited to ${eventName}!`;
+      const emailBody = `<h2>You're Invited!</h2><p>Hi ${guestName},</p><p><strong>${organizerName}</strong> has invited you to <strong>${eventName}</strong>.</p><p><strong>Date:</strong> ${eventDate}</p>${eventTime ? `<p><strong>Time:</strong> ${eventTime}</p>` : ''}${eventLocation ? `<p><strong>Location:</strong> ${eventLocation}</p>` : ''}<p>Please RSVP in the app or visit the event website to confirm your attendance.</p>`;
+      
+      const result = await sendEmail({
+        to: guestEmail,
+        subject: emailSubject,
+        body: emailBody,
+      });
+      
+      if (result.success) {
+        console.log(`Email invitation sent to ${guestEmail}`);
+      } else {
+        console.warn(`Failed to send email invitation to ${guestEmail}:`, result.message || result.error);
+      }
+    } catch (error) {
+      console.error(`Error sending email invitation to ${guestEmail}:`, error);
+    }
+  }
+
+  // 3. Send SMS notification
+  if (guestPhone && isValidE164Format(guestPhone)) {
+    try {
+      const smsMessage = `Hi ${guestName}! You're invited to ${eventName} on ${eventDate}${eventTime ? ` at ${eventTime}` : ''}${eventLocation ? ` (${eventLocation})` : ''}. Organized by ${organizerName}. Please check your email or the app to RSVP.`;
+      
+      const result = await sendText({
+        to: guestPhone,
+        message: smsMessage,
+      });
+      
+      if (result.success) {
+        console.log(`SMS invitation sent to ${guestPhone}`);
+      } else {
+        console.warn(`Failed to send SMS invitation to ${guestPhone}:`, result.message || result.error);
+      }
+    } catch (error) {
+      console.error(`Error sending SMS invitation to ${guestPhone}:`, error);
+    }
+  } else if (guestPhone) {
+    console.warn(`Invalid phone number format for SMS invitation: ${guestPhone}. Must be in E.164 format (e.g., +1234567890)`);
+  }
 };
 
 export const createWebsiteUpdatedNotification = async (

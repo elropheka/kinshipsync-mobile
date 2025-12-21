@@ -21,7 +21,7 @@ import {
 import { firestore } from './firebaseConfig';
 import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
 import { getUserProfileById } from './userService';
-import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification } from '../services/notificationService';
+import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification } from '../services/notificationService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload,
@@ -380,42 +380,23 @@ export const addGuestToEvent = async (isAuthenticated: boolean, eventId: string,
       }
     }
 
-    const batch = writeBatch(firestore);
-
-    if (payload.email) {
-      const emailTriggerColRef = collection(firestore, 'event_invitation_emails');
-      const emailDocRef = doc(emailTriggerColRef);
-      batch.set(emailDocRef, {
-        to: payload.email,
-        message: {
-          subject: `You're invited to ${event.name}!`,
-          templateData: {
-            guestName: payload.name,
-            eventName: event.name,
-            eventDate: event.date,
-            eventTime: event.time || 'Not specified',
-            eventLocation: event.location || 'Not specified',
-            organizerName: organizerName,
-          },
-        },
-        createdAt: serverTimestamp(),
-      });
-    }
-
-    const fcmTriggerColRef = collection(firestore, 'pending_event_invitations_fcm');
-    const fcmDocRef = doc(fcmTriggerColRef);
-    batch.set(fcmDocRef, {
-      invitedGuestEmail: payload.email || null,
-      invitedGuestName: payload.name,
-      organizerId: event.organizerId,
-      eventId: eventId,
-      eventName: event.name,
-      timestamp: serverTimestamp(),
+    // Send event invitation notifications (in-app, email, SMS)
+    createEventInvitationNotification(
+      payload.email,
+      payload.name,
+      payload.phone,
+      event.name,
+      event.date,
+      event.time,
+      event.location,
+      organizerName,
+      eventId
+    ).catch(error => {
+      console.error('Error sending event invitation notifications:', error);
+      // Don't throw - guest was created successfully, notification failure is non-critical
     });
 
-    await batch.commit();
-
-    console.log(`Guest ${createdGuestId} added and notification triggers created for event ${eventId}.`);
+    console.log(`Guest ${createdGuestId} added and invitation notifications sent for event ${eventId}.`);
 
     return {
       id: createdGuestId,
