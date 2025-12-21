@@ -2,7 +2,7 @@
   "expo": {
     "name": "kinshipSync",
     "slug": "kinshipSync",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -88,7 +88,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
+      "router": {
+        "appRoot": "./app"
+      },
       "eas": {
         "projectId": "ad4bb59d-fd0d-4396-af25-8c32f9c8bb42"
       },

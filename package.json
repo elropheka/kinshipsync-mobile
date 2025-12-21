@@ -1,6 +1,6 @@
 {
   "name": "kinshipsync",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "version": "1.0.15",
   "scripts": {
     "build": "npm ci --legacy-peer-deps",
@@ -74,6 +74,7 @@
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.3.0",
     "babel-plugin-inline-dotenv": "^1.7.0",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "dotenv": "^17.2.3",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~9.2.0",

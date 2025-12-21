@@ -7,6 +7,7 @@ module.exports = function(api) {
         'babel-plugin-inline-dotenv',
         {
           path: '.env', // Path to .env file (for local development)
+          systemVar: 'overwrite', // Use system environment variables if available
           // For EAS builds, environment variables are provided via EAS Secrets
           // and are automatically available as process.env variables
         },
