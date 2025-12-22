@@ -28,6 +28,8 @@
       "env": {
         "MESSAGING_API_URL": "https://kinshipsync-messaging.vercel.app"
       }
+      // Note: MESSAGING_API_TOKEN should be set via EAS secrets:
+      // eas secret:create --scope project --name MESSAGING_API_TOKEN --value your_token_here
     }
   },
   "submit": {

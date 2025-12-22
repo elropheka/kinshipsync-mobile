@@ -16,12 +16,12 @@ import {
   Timestamp,
   arrayUnion,
   arrayRemove,
-  writeBatch,
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
-import { getUserProfileById } from './userService';
-import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification } from '../services/notificationService';
+import { getUserProfileById, getUserProfileByEmail } from './userService';
+import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification } from '../services/notificationService';
+import { createDirectConversation, sendMessage } from './chatService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload,
@@ -47,6 +47,21 @@ const generateKeywords = (name: string, description?: string, location?: string)
     }
   });
   return Array.from(new Set([...words, ...substrings]));
+};
+
+const mapGuestStatusToRsvpStatus = (status?: string): 'pending' | 'accepted' | 'declined' | undefined => {
+  if (!status) return 'pending';
+  switch (status) {
+    case 'accepted':
+    case 'Attending':
+      return 'accepted';
+    case 'declined':
+      return 'declined';
+    case 'pending':
+    case 'Invited':
+    default:
+      return 'pending';
+  }
 };
 
 export const getEventsPaginated = async (
@@ -357,8 +372,12 @@ export const addGuestToEvent = async (isAuthenticated: boolean, eventId: string,
 
   try {
     const guestsColRef = collection(firestore, 'events', eventId, 'guests');
+    // Filter out undefined values from payload to avoid Firestore errors
+    const cleanedPayload = Object.fromEntries(
+      Object.entries(payload).filter(([_, value]) => value !== undefined)
+    );
     const newGuestData = {
-      ...payload,
+      ...cleanedPayload,
       eventId,
       addedAt: serverTimestamp(),
       status: payload.status || 'Invited',
@@ -448,45 +467,63 @@ export const sendRsvpReminderToGuest = async (isAuthenticated: boolean, eventId:
       }
     }
 
-    const batch = writeBatch(firestore);
-    const reminderTimestamp = serverTimestamp();
-
-    if (guest.email) {
-      const emailTriggerColRef = collection(firestore, 'event_invitation_emails');
-      const emailDocRef = doc(emailTriggerColRef);
-      batch.set(emailDocRef, {
-        to: guest.email,
-        message: {
-          subject: `Reminder: You're invited to ${event.name}!`,
-          templateData: {
-            guestName: guest.name,
-            eventName: event.name,
-            eventDate: event.date,
-            eventTime: event.time || 'Not specified',
-            eventLocation: event.location || 'Not specified',
-            organizerName: organizerName,
-            isReminder: true,
-          },
-        },
-        createdAt: reminderTimestamp,
-      });
-    }
-
-    const fcmTriggerColRef = collection(firestore, 'pending_event_invitations_fcm');
-    const fcmDocRef = doc(fcmTriggerColRef);
-    batch.set(fcmDocRef, {
-      invitedGuestEmail: guest.email || null,
-      invitedGuestName: guest.name,
-      organizerId: event.organizerId,
-      eventId: eventId,
-      eventName: event.name,
-      timestamp: reminderTimestamp,
-      type: 'reminder',
-      guestId: guest.id,
+    // Send email, SMS, and in-app notifications
+    await createRsvpReminderNotification(
+      guest.email,
+      guest.name,
+      guest.phone,
+      event.name,
+      event.date,
+      event.time,
+      event.location,
+      organizerName,
+      eventId
+    ).catch(error => {
+      console.error('Error sending RSVP reminder notifications:', error);
+      // Don't throw - continue with chat message even if notifications fail
     });
 
-    await batch.commit();
-    console.log(`RSVP reminder triggers created for guest ${guestId} for event ${eventId}.`);
+    // Send chat message if guest is a registered user and organizer is available
+    if (guest.email && event.organizerId) {
+      try {
+        const guestUser = await getUserProfileByEmail(guest.email);
+        if (guestUser?.userId && guestUser.userId !== event.organizerId) {
+          console.log(`Guest ${guest.email} is a registered user, sending chat message...`);
+          
+          try {
+            const conversation = await createDirectConversation(isAuthenticated, event.organizerId, {
+              recipientId: guestUser.userId,
+            });
+
+            if (conversation) {
+              const reminderContent = `Reminder: Please RSVP for ${event.name} on ${event.date}${event.time ? ` at ${event.time}` : ''}${event.location ? ` (${event.location})` : ''}.`;
+              await sendMessage(isAuthenticated, {
+                conversationId: conversation.id,
+                content: reminderContent,
+                contentType: 'eventInvitation',
+                eventId: eventId,
+                guestId: guest.id,
+                eventName: event.name,
+                rsvpStatus: mapGuestStatusToRsvpStatus(guest.status),
+              }, event.organizerId);
+              console.log(`RSVP reminder chat message sent to ${guestUser.displayName || guestUser.email}`);
+            }
+          } catch (chatError: any) {
+            console.error(`Failed to send RSVP reminder chat message:`, chatError.message);
+            // Don't throw - chat message failure is non-critical
+          }
+        } else if (guestUser?.userId === event.organizerId) {
+          console.log("Guest is the event organizer, no chat message sent.");
+        } else {
+          console.log(`Guest with email ${guest.email} is not a registered user. No chat message sent.`);
+        }
+      } catch (userLookupError: any) {
+        console.error(`Error looking up guest user for chat message:`, userLookupError.message);
+        // Don't throw - user lookup failure is non-critical
+      }
+    }
+
+    console.log(`RSVP reminder sent successfully for guest ${guestId} for event ${eventId}.`);
     return true;
 
   } catch (error) {
@@ -502,7 +539,11 @@ export const updateGuestRsvp = async (isAuthenticated: boolean, eventId: string,
   if (!eventId || !guestId) throw new Error("Event ID and Guest ID are required.");
   try {
     const guestDocRef = doc(firestore, 'events', eventId, 'guests', guestId);
-    const updateData = { ...payload };
+    // Filter out undefined values from payload to avoid Firestore errors
+    const cleanedPayload = Object.fromEntries(
+      Object.entries(payload).filter(([_, value]) => value !== undefined)
+    );
+    const updateData = { ...cleanedPayload };
     if (payload.status) {
       (updateData as any).rsvpUpdatedAt = serverTimestamp();
     }

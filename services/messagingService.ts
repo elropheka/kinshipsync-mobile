@@ -8,7 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 const MESSAGING_API_URL = 
   (typeof process !== 'undefined' && process.env?.MESSAGING_API_URL) ||
   Constants.expoConfig?.extra?.messagingApiUrl || 
-  'https://kinshipsync-messaging.vercel.app';
+  'http://localhost:3000';
 
 const MESSAGING_API_TOKEN = 
   (typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN) ||
@@ -36,9 +36,8 @@ messagingApiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${apiToken}`;
       // Also set x-api-token header as alternative (messaging service supports both)
       config.headers['x-api-token'] = apiToken;
-    } else {
-      console.warn('⚠️ Messaging API token not found. Requests may fail.');
     }
+    // Note: We don't warn here anymore since individual functions check for token before making requests
 
     return config;
   },
@@ -89,10 +88,32 @@ export interface MessagingApiResponse<T> {
 }
 
 /**
+ * Check if messaging API token is available
+ */
+const checkApiToken = async (): Promise<string | null> => {
+  let apiToken = MESSAGING_API_TOKEN;
+  if (!apiToken) {
+    apiToken = await SecureStore.getItemAsync('messagingApiToken');
+  }
+  return apiToken;
+};
+
+/**
  * Send email via messaging API
  */
 export const sendEmail = async (params: SendEmailParams): Promise<MessagingApiResponse<any>> => {
   try {
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      const errorMessage = 'Messaging API token is not configured. Please set MESSAGING_API_TOKEN in environment variables or use setMessagingApiToken() to configure it.';
+      console.error('❌', errorMessage);
+      return {
+        success: false,
+        error: 'Unauthorized',
+        message: errorMessage,
+      };
+    }
+
     const response = await messagingApiClient.post<MessagingApiResponse<any>>('/email', params);
     return response.data;
   } catch (error: any) {
@@ -110,6 +131,17 @@ export const sendEmail = async (params: SendEmailParams): Promise<MessagingApiRe
  */
 export const sendText = async (params: SendTextParams): Promise<MessagingApiResponse<any>> => {
   try {
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      const errorMessage = 'Messaging API token is not configured. Please set MESSAGING_API_TOKEN in environment variables or use setMessagingApiToken() to configure it.';
+      console.error('❌', errorMessage);
+      return {
+        success: false,
+        error: 'Unauthorized',
+        message: errorMessage,
+      };
+    }
+
     const response = await messagingApiClient.post<MessagingApiResponse<any>>('/text', params);
     return response.data;
   } catch (error: any) {
@@ -127,6 +159,17 @@ export const sendText = async (params: SendTextParams): Promise<MessagingApiResp
  */
 export const sendPush = async (params: SendPushParams): Promise<MessagingApiResponse<any>> => {
   try {
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      const errorMessage = 'Messaging API token is not configured. Please set MESSAGING_API_TOKEN in environment variables or use setMessagingApiToken() to configure it.';
+      console.error('❌', errorMessage);
+      return {
+        success: false,
+        error: 'Unauthorized',
+        message: errorMessage,
+      };
+    }
+
     const response = await messagingApiClient.post<MessagingApiResponse<any>>('/push', params);
     return response.data;
   } catch (error: any) {

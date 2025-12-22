@@ -94,7 +94,8 @@
       "eas": {
         "projectId": "ad4bb59d-fd0d-4396-af25-8c32f9c8bb42"
       },
-      "messagingApiUrl": "https://kinshipsync-messaging.vercel.app"
+      "messagingApiUrl": "http://localhost:3000",
+      "messagingApiToken": "7149a08e90df44321bd68897da3d811e"
     },
     "runtimeVersion": "1.0.5",
     "updates": {

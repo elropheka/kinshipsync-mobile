@@ -214,4 +214,32 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     color: Colors.light.buttonPrimary,
   },
+  phoneInputContainer: {
+    backgroundColor: Colors.light.neutralBg,
+    borderRadius: BorderRadius.l,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    width: '100%',
+  },
+  phoneInputTextContainer: {
+    backgroundColor: Colors.light.neutralBg,
+    paddingVertical: 0,
+  },
+  phoneInputText: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: Colors.light.text,
+    padding: Spacing.m,
+  },
+  phoneInputCodeText: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: Colors.light.text,
+  },
+  phoneInputFlagButton: {
+    paddingVertical: Spacing.m,
+    paddingHorizontal: Spacing.s,
+  },
+  phoneInputCountryPicker: {
+    paddingVertical: Spacing.m,
+    paddingHorizontal: Spacing.s,
+  },
 });

@@ -8,6 +8,7 @@ import { InAppNotification, NewNotificationPayload, } from '../types/notificatio
 import { isValidE164Format } from '../utils/phoneUtils';
 import { sendPush, sendText, sendEmail } from './messagingService';
 import { getUserProfileByEmail } from './userService';
+import { getGenericNotificationEmail, getEventInvitationEmail, getRsvpReminderEmail } from './emailTemplates';
 
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -443,10 +444,9 @@ export const sendNotification = async (payload: NewNotificationPayload): Promise
     console.error(`Error in sendInAppNotificationInternal for ${recipientId}:`, error);
   }
 
-  const emailSubject = title;
-  const emailHtmlContent = `<p>${body}</p><p>View details in the app.</p>`;
+  const emailTemplate = getGenericNotificationEmail(title, body);
 
-  sendEmailNotificationInternal(recipientId, emailSubject, emailHtmlContent)
+  sendEmailNotificationInternal(recipientId, emailTemplate.subject, emailTemplate.htmlContent)
     .then(success => {
       if (success) {
         console.log(`Email notification process initiated for recipient: ${recipientId}`);
@@ -903,13 +903,19 @@ export const createEventInvitationNotification = async (
   // 2. Send email notification
   if (guestEmail) {
     try {
-      const emailSubject = `You're invited to ${eventName}!`;
-      const emailBody = `<h2>You're Invited!</h2><p>Hi ${guestName},</p><p><strong>${organizerName}</strong> has invited you to <strong>${eventName}</strong>.</p><p><strong>Date:</strong> ${eventDate}</p>${eventTime ? `<p><strong>Time:</strong> ${eventTime}</p>` : ''}${eventLocation ? `<p><strong>Location:</strong> ${eventLocation}</p>` : ''}<p>Please RSVP in the app or visit the event website to confirm your attendance.</p>`;
+      const emailTemplate = getEventInvitationEmail(
+        guestName,
+        organizerName,
+        eventName,
+        eventDate,
+        eventTime,
+        eventLocation
+      );
       
       const result = await sendEmail({
         to: guestEmail,
-        subject: emailSubject,
-        body: emailBody,
+        subject: emailTemplate.subject,
+        body: emailTemplate.htmlContent,
       });
       
       if (result.success) {
@@ -942,6 +948,108 @@ export const createEventInvitationNotification = async (
     }
   } else if (guestPhone) {
     console.warn(`Invalid phone number format for SMS invitation: ${guestPhone}. Must be in E.164 format (e.g., +1234567890)`);
+  }
+};
+
+/**
+ * Sends RSVP reminder notifications via in-app, email, and SMS
+ * @param guestEmail - Guest's email address
+ * @param guestName - Guest's name
+ * @param guestPhone - Guest's phone number (optional)
+ * @param eventName - Name of the event
+ * @param eventDate - Event date
+ * @param eventTime - Event time (optional)
+ * @param eventLocation - Event location (optional)
+ * @param organizerName - Name of the event organizer
+ * @param eventId - Event ID for navigation
+ */
+export const createRsvpReminderNotification = async (
+  guestEmail: string | undefined,
+  guestName: string,
+  guestPhone: string | undefined,
+  eventName: string,
+  eventDate: string,
+  eventTime: string | undefined,
+  eventLocation: string | undefined,
+  organizerName: string,
+  eventId: string
+): Promise<void> => {
+  console.log(`Sending RSVP reminder notifications for ${guestName} for event ${eventName}`);
+
+  // 1. Send in-app notification if guest is a registered user
+  if (guestEmail) {
+    try {
+      const guestUser = await getUserProfileByEmail(guestEmail);
+      if (guestUser?.userId) {
+        const notification: NewNotificationPayload = {
+          recipientId: guestUser.userId,
+          type: 'rsvp_reminder',
+          title: 'RSVP Reminder',
+          body: `Reminder: Please RSVP for ${eventName} by ${organizerName}!`,
+          data: {
+            screen: 'EventDetails',
+            itemId: eventId
+          }
+        };
+        await sendInAppNotificationInternal(notification);
+        console.log(`In-app RSVP reminder sent to registered user ${guestUser.userId}`);
+      } else {
+        console.log(`Guest ${guestEmail} is not a registered user, skipping in-app notification`);
+      }
+    } catch (error) {
+      console.error('Error sending in-app notification for RSVP reminder:', error);
+      // Continue with email/SMS even if in-app fails
+    }
+  }
+
+  // 2. Send email notification
+  if (guestEmail) {
+    try {
+      const emailTemplate = getRsvpReminderEmail(
+        guestName,
+        organizerName,
+        eventName,
+        eventDate,
+        eventTime,
+        eventLocation
+      );
+      
+      const result = await sendEmail({
+        to: guestEmail,
+        subject: emailTemplate.subject,
+        body: emailTemplate.htmlContent,
+      });
+      
+      if (result.success) {
+        console.log(`Email RSVP reminder sent to ${guestEmail}`);
+      } else {
+        console.warn(`Failed to send email RSVP reminder to ${guestEmail}:`, result.message || result.error);
+      }
+    } catch (error) {
+      console.error(`Error sending email RSVP reminder to ${guestEmail}:`, error);
+    }
+  }
+
+  // 3. Send SMS notification
+  if (guestPhone && isValidE164Format(guestPhone)) {
+    try {
+      const smsMessage = `Hi ${guestName}! Reminder: You're invited to ${eventName} on ${eventDate}${eventTime ? ` at ${eventTime}` : ''}${eventLocation ? ` (${eventLocation})` : ''}. Organized by ${organizerName}. Please check your email or the app to RSVP.`;
+      
+      const result = await sendText({
+        to: guestPhone,
+        message: smsMessage,
+      });
+      
+      if (result.success) {
+        console.log(`SMS RSVP reminder sent to ${guestPhone}`);
+      } else {
+        console.warn(`Failed to send SMS RSVP reminder to ${guestPhone}:`, result.message || result.error);
+      }
+    } catch (error) {
+      console.error(`Error sending SMS RSVP reminder to ${guestPhone}:`, error);
+    }
+  } else if (guestPhone) {
+    console.warn(`Invalid phone number format for SMS RSVP reminder: ${guestPhone}. Must be in E.164 format (e.g., +1234567890)`);
   }
 };
 

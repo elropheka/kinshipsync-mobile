@@ -15,6 +15,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font'; 
 import { Colors } from "@/constants/Colors";
 import * as Updates from 'expo-updates';
+import Constants from 'expo-constants';
+import { setMessagingApiToken } from '@/services/messagingService';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,6 +49,25 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     async function prepare() {
       try {
+        // Initialize messaging API token from environment or app config
+        try {
+          const tokenFromEnv = typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN;
+          const tokenFromConfig = Constants.expoConfig?.extra?.messagingApiToken;
+          
+          // Use token from environment first, then from app.json config
+          const messagingToken = tokenFromEnv || tokenFromConfig;
+          
+          if (messagingToken && messagingToken !== 'null' && messagingToken !== 'undefined') {
+            await setMessagingApiToken(messagingToken);
+            console.log('✅ Messaging API token initialized from environment/config');
+          } else {
+            console.log('ℹ️ Messaging API token not found in environment/config. It can be set at runtime using setMessagingApiToken().');
+          }
+        } catch (tokenError) {
+          console.warn('⚠️ Error initializing messaging API token:', tokenError);
+          // Don't block app startup if token initialization fails
+        }
+
         if (!__DEV__) {
           const update = await Updates.checkForUpdateAsync();
           if (update.isAvailable) {

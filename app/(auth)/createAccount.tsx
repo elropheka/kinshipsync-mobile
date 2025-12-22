@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { Colors } from '@/constants/Colors'; 
 import { IconSizes } from '@/constants/dimensions';
 import GoogleIcon from '@/components/common/GoogleIcon';
+import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
+import { isValidE164Format } from '@/utils/phoneUtils';
+
+// Type assertion to fix React 19 compatibility issue with class components
+const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
 
 interface FormData {
   fullName: string;
@@ -45,6 +50,8 @@ const CreateAccountScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false); 
   const [isGoogleLoading, setIsGoogleLoading] = useState(false); 
   const [isAppleLoading, setIsAppleLoading] = useState(false); 
+  const phoneInputRef = useRef<any>(null);
+  const defaultCountryCode = 'US';
   const { signUp, signInWithGoogle, signInWithApple } = useAuth();
   const { showError } = useAlert();
 
@@ -64,12 +71,25 @@ const CreateAccountScreen: React.FC = () => {
     const first_name = nameParts[0] || '';
     const last_name = nameParts.slice(1).join(' ') || '';
 
+    // Validate phone number if provided - ensure it's in E164 format
+    let phoneToSave: string | undefined = undefined;
+    const trimmedPhone = formData.phoneNumber?.trim();
+    if (trimmedPhone) {
+      if (isValidE164Format(trimmedPhone)) {
+        phoneToSave = trimmedPhone;
+      } else {
+        showError('Invalid Phone Number', 'Please enter a valid phone number in international format, or leave it empty.');
+        setIsLoading(false);
+        return;
+      }
+    }
+
     await signUp({
       email: formData.email.trim(),
       pass: formData.password, 
       first_name,
       last_name,
-      phone: formData.phoneNumber?.trim() || undefined,
+      phone: phoneToSave,
       location: formData.location?.trim() || undefined,
       avatarUri: formData.avatarUri, 
     });
@@ -205,17 +225,26 @@ const CreateAccountScreen: React.FC = () => {
 
               <View style={styles.inputWrapper}>
                 <Text style={styles.optionalLabel}>Phone Number (Optional)</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your phone number"
-                    keyboardType="phone-pad"
-                    autoCapitalize="none"
-                    value={formData.phoneNumber}
-                    onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-                  />
-                  <Text style={styles.inputIcon}>#</Text>
-                </View>
+                <PhoneInput
+                  ref={phoneInputRef}
+                  defaultValue={formData.phoneNumber}
+                  defaultCode={defaultCountryCode}
+                  layout="first"
+                  onChangeText={(text: string) => setFormData({ ...formData, phoneNumber: text })}
+                  onChangeFormattedText={(formattedText: string) => {
+                    setFormData({ ...formData, phoneNumber: formattedText });
+                  }}
+                  containerStyle={styles.phoneInputContainer}
+                  textContainerStyle={styles.phoneInputTextContainer}
+                  textInputStyle={styles.phoneInputText}
+                  codeTextStyle={styles.phoneInputCodeText}
+                  flagButtonStyle={styles.phoneInputFlagButton}
+                  countryPickerButtonStyle={styles.phoneInputCountryPicker}
+                  textInputProps={{
+                    placeholder: "Enter your phone number",
+                    placeholderTextColor: Colors.light.textSecondary,
+                  }}
+                />
               </View>
 
               <View style={styles.inputWrapper}>

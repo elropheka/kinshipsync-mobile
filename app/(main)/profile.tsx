@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
+import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
+import { isValidE164Format } from '../../utils/phoneUtils';
+
+// Type assertion to fix React 19 compatibility issue with class components
+const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
 
 
 type EditableProfileFields = {
@@ -41,13 +46,22 @@ const ProfileScreen = () => {
     avatarUrl: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [defaultCountryCode, setDefaultCountryCode] = useState<string>('US');
+  const phoneInputRef = useRef<any>(null);
 
   useEffect(() => {
     if (currentUserProfile) {
+      const phoneNumber = currentUserProfile.phoneNumber || '';
+      // Extract country code from existing E164 phone number if available
+      if (phoneNumber && isValidE164Format(phoneNumber)) {
+        // PhoneInput will handle parsing the E164 number
+        // For defaultCountryCode, we'll use US as fallback
+        setDefaultCountryCode('US');
+      }
       setEditableProfile(prev => ({
         ...prev,
         displayName: currentUserProfile.displayName || '',
-        phoneNumber: currentUserProfile.phoneNumber || '',
+        phoneNumber: phoneNumber,
         city: currentUserProfile.address?.city || '',
         bio: currentUserProfile.bio || '',
         avatarUrl: isEditing ? prev.avatarUrl : currentUserProfile.avatarUrl || '',
@@ -62,9 +76,24 @@ const ProfileScreen = () => {
   const handleSave = async () => {
     if (!currentUserProfile) return;
     setIsSaving(true);
+    
+    // Validate phone number - ensure it's in E164 format if provided
+    let phoneNumberToSave: string | null = null;
+    const trimmedPhone = editableProfile.phoneNumber.trim();
+    if (trimmedPhone) {
+      if (isValidE164Format(trimmedPhone)) {
+        phoneNumberToSave = trimmedPhone;
+      } else {
+        // If phone number is provided but not in E164 format, show error
+        showError("Invalid Phone Number", "Please enter a valid phone number in international format.");
+        setIsSaving(false);
+        return;
+      }
+    }
+    
     const payload: UpdateUserProfilePayload = {
       displayName: editableProfile.displayName.trim(),
-      phoneNumber: editableProfile.phoneNumber.trim() || null,
+      phoneNumber: phoneNumberToSave,
       bio: editableProfile.bio.trim() || null,
       avatarUrl: editableProfile.avatarUrl.trim() || null,
       address: {
@@ -208,14 +237,35 @@ const ProfileScreen = () => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Phone Number</Text>
-            <TextInput
-              style={styles.input}
-              value={editableProfile.phoneNumber}
-              onChangeText={(text) => handleInputChange('phoneNumber', text)}
-              editable={isEditing}
-              keyboardType="phone-pad"
-              placeholder="Your Phone Number"
-            />
+            {isEditing ? (
+              <PhoneInput
+                ref={phoneInputRef}
+                defaultValue={editableProfile.phoneNumber}
+                defaultCode={defaultCountryCode}
+                layout="first"
+                onChangeText={(text: string) => handleInputChange('phoneNumber', text)}
+                onChangeFormattedText={(formattedText: string) => {
+                  handleInputChange('phoneNumber', formattedText);
+                }}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                flagButtonStyle={styles.phoneInputFlagButton}
+                countryPickerButtonStyle={styles.phoneInputCountryPicker}
+                textInputProps={{
+                  placeholder: "Your Phone Number",
+                  placeholderTextColor: Colors.light.textSecondary,
+                }}
+              />
+            ) : (
+              <TextInput
+                style={[styles.input, styles.disabledInput]}
+                value={editableProfile.phoneNumber || 'Not set'}
+                editable={false}
+                selectTextOnFocus={false}
+              />
+            )}
           </View>
 
           <View style={styles.inputContainer}>

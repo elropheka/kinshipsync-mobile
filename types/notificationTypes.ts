@@ -44,6 +44,7 @@ export type NotificationType =
   | 'payment_made'
   | 'budget_milestone'
   | 'rsvp_received'
+  | 'rsvp_reminder'
   | 'guest_milestone'
   | 'dietary_preference'
   | 'schedule_added'
