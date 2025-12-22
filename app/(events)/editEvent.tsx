@@ -248,15 +248,17 @@ const EditEventScreen = () => {
         console.log('Event details refetched successfully');
       }
       
-      showSuccess('Success', 'Event updated successfully!', {
-        onConfirm: () => {
-          if (event?.id) {
-            router.replace({ pathname: '/(events)/details/[id]', params: { id: event.id } });
-          } else {
+      // Navigate to event details screen immediately after successful update
+      if (event?.id) {
+        showSuccess('Success', 'Event updated successfully!');
+        router.replace({ pathname: '/(events)/details/[id]', params: { id: event.id } });
+      } else {
+        showSuccess('Success', 'Event updated successfully!', {
+          onConfirm: () => {
             router.back();
-          }
-        },
-      });
+          },
+        });
+      }
     } catch (error) {
       console.error("Failed to update event:", error);
       console.error("Error details:", {
