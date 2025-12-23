@@ -71,7 +71,8 @@ const CreateEventScreen = () => {
 
 
   const [eventWebsiteData, setEventWebsiteData] = useState<Partial<UpdateEventWebsiteDetailsPayload>>({});
-
+  const [hasWebsiteData, setHasWebsiteData] = useState(false);
+  const [skipWebsite, setSkipWebsite] = useState(false);
 
   const [showPicker, setShowPicker] = useState<'date' | 'time' | 'none'>('none');
 
@@ -148,9 +149,23 @@ const CreateEventScreen = () => {
     }
   };
 
+  const handleSkipWebsite = () => {
+    setSkipWebsite(true);
+    setCurrentStep(4); // Go to final step (create event)
+  };
+
   const handlePreviousStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      if (currentStep === 4) {
+        // If going back from create step, go to website step if we have website data, otherwise go to theme step
+        if (hasWebsiteData && !skipWebsite) {
+          setCurrentStep(3);
+        } else {
+          setCurrentStep(2);
+        }
+      } else {
+        setCurrentStep(currentStep - 1);
+      }
     }
   };
   
@@ -204,8 +219,8 @@ const CreateEventScreen = () => {
         let websiteUrl: string | null = null;
         let customUrlSlug: string | null = null;
         
-        // Create website if we have website data, or create a basic one with event name
-        if (newEvent.id) {
+        // Create website if we have website data and didn't skip it
+        if (newEvent.id && hasWebsiteData && !skipWebsite) {
           const websitePayload: UpdateEventWebsiteDetailsPayload = {
             ...eventWebsiteData,
             title: eventWebsiteData.title || name || 'Untitled Event',
@@ -247,15 +262,15 @@ const CreateEventScreen = () => {
           }
         }
         
+        // Route to event details page immediately after successful creation
+        router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
+        
         // Show success alert with website URL if available
         if (websiteUrl) {
           showSuccess(
             'Event Created Successfully!',
             `Your event website is ready!\n\nWebsite URL:\n${websiteUrl}`,
             {
-              onConfirm: () => {
-                router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
-              },
               confirmText: 'OK',
             }
           );
@@ -272,11 +287,7 @@ const CreateEventScreen = () => {
             }, 500);
           }
         } else {
-          showSuccess('Success', 'Event created successfully!', {
-            onConfirm: () => {
-              router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
-            },
-          });
+          showSuccess('Success', 'Event created successfully!');
         }
       } else {
         showError('Error', 'Failed to create event. Please try again.');
@@ -528,6 +539,10 @@ const CreateEventScreen = () => {
 
   const handleWebsiteFormSubmit = (websiteData: UpdateEventWebsiteDetailsPayload) => {
     setEventWebsiteData(websiteData);
+    setHasWebsiteData(true);
+    // After saving website, go to final step to create event
+    setCurrentStep(4);
+    showInfo('Website Saved', 'Website details have been saved. You can now create your event.');
   };
 
   const handleWebsiteFormCancel = () => {
@@ -554,25 +569,6 @@ const CreateEventScreen = () => {
               onCancel={handleWebsiteFormCancel}
             />
           </GestureHandlerRootView>
-          {/* Create Event button that's always visible */}
-          <View style={{ 
-            padding: 20, 
-            backgroundColor: Colors.light.backgroundPrimary,
-            borderTopWidth: 1,
-            borderTopColor: Colors.light.border,
-          }}>
-            <TouchableOpacity 
-              style={[styles.nextButton, isCreatingEvent && styles.disabledButton]} 
-              onPress={handleFinalizeEventCreation}
-              disabled={isCreatingEvent}
-            >
-              {isCreatingEvent ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.nextButtonText}>Create Event</Text>
-              )}
-            </TouchableOpacity>
-          </View>
         </View>
       );
     } catch (error) {
@@ -587,6 +583,36 @@ const CreateEventScreen = () => {
     }
   };
 
+  const renderStep4Create = () => {
+    return (
+      <ScrollView style={styles.scrollableContent}>
+        <View style={styles.formContainer}>
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Ionicons name="checkmark-circle" size={64} color={Colors.light.primary} style={{ marginBottom: 20 }} />
+            <Text style={[styles.inputLabel, { fontSize: 20, marginBottom: 10 }]}>Ready to Create Event</Text>
+            <Text style={{ color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 30 }}>
+              {hasWebsiteData && !skipWebsite 
+                ? 'Your event details and website have been configured. Click the button below to create your event.'
+                : 'Your event details have been configured. Click the button below to create your event.'}
+            </Text>
+            
+            <TouchableOpacity 
+              style={[styles.nextButton, isCreatingEvent && styles.disabledButton]} 
+              onPress={handleFinalizeEventCreation}
+              disabled={isCreatingEvent}
+            >
+              {isCreatingEvent ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.nextButtonText}>Create Event</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Create New Event" }} />
@@ -594,7 +620,9 @@ const CreateEventScreen = () => {
          <TouchableOpacity onPress={() => currentStep === 1 ? router.back() : handlePreviousStep()} style={styles.backButton}>
            <Ionicons name="chevron-back" size={24} color={Colors.light.tint} />
          </TouchableOpacity>
-         <Text style={styles.headerTitle}>Create Event - Step {currentStep}</Text>
+         <Text style={styles.headerTitle}>
+           {currentStep === 4 ? 'Create Event' : `Create Event - Step ${currentStep}`}
+         </Text>
          <View style={{width: 24}} />
        </View>
 
@@ -606,13 +634,17 @@ const CreateEventScreen = () => {
         <View style={[styles.tabItem, currentStep === 2 && styles.activeTab]}>
           <Text style={[styles.tabText, currentStep === 2 && styles.activeTabText]}>Theme</Text>
         </View>
-        <View style={[styles.tabItem, currentStep === 3 && styles.activeTab]}>
-          <Text style={[styles.tabText, currentStep === 3 && styles.activeTabText]}>Website</Text>
+        <View style={[styles.tabItem, (currentStep === 3 || currentStep === 4) && styles.activeTab]}>
+          <Text style={[styles.tabText, (currentStep === 3 || currentStep === 4) && styles.activeTabText]}>
+            {currentStep === 4 ? 'Create' : 'Website'}
+          </Text>
         </View>
       </View>
 
       {currentStep === 3 ? (
         renderStep3Website()
+      ) : currentStep === 4 ? (
+        renderStep4Create()
       ) : (
         <ScrollView style={styles.scrollableContent}>
           <View style={styles.formContainer}>
@@ -641,19 +673,23 @@ const CreateEventScreen = () => {
                   <Text style={styles.previousButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 3 ? (
+              {currentStep === 2 ? (
+                <>
+                  <TouchableOpacity 
+                    style={[styles.nextButton, { backgroundColor: Colors.light.textSecondary, marginRight: 10 }]} 
+                    onPress={handleSkipWebsite}
+                  >
+                    <Text style={styles.nextButtonText}>Skip Website</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
+                    <Text style={styles.nextButtonText}>Add Website</Text>
+                  </TouchableOpacity>
+                </>
+              ) : currentStep === 1 ? (
                 <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
                   <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity 
-                  style={[styles.nextButton, isCreatingEvent && styles.disabledButton]} 
-                  onPress={handleFinalizeEventCreation}
-                  disabled={isCreatingEvent}
-                >
-                  {isCreatingEvent ? <ActivityIndicator color="#fff" /> : <Text style={styles.nextButtonText}>Create Event</Text>}
-                </TouchableOpacity>
-              )}
+              ) : null}
             </View>
           </View>
         </ScrollView>

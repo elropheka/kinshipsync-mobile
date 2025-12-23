@@ -1,9 +1,71 @@
-import { ref, uploadBytesResumable, getDownloadURL, StorageError } from '@firebase/storage';
+import axios, { AxiosError } from 'axios';
+import Constants from 'expo-constants';
+import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system';
-import { storage } from './firebaseConfig';
 import { Platform } from 'react-native';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+// Get storage API URL and token from environment variables
+// Priority: process.env (from .env file or EAS secrets) > app.json extra > default
+const STORAGE_API_URL = 
+  (typeof process !== 'undefined' && process.env?.MESSAGING_API_URL) ||
+  Constants.expoConfig?.extra?.messagingApiUrl || 
+  'https://kinshipsync-messaging.vercel.app';
+  // 'http://localhost:3000';
+
+const STORAGE_API_TOKEN = 
+  (typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN) ||
+  Constants.expoConfig?.extra?.messagingApiToken;
+
+// Create axios instance for storage API (uses same base URL as messaging)
+const storageApiClient = axios.create({
+  baseURL: STORAGE_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add API token to requests
+storageApiClient.interceptors.request.use(
+  async (config) => {
+    let apiToken = STORAGE_API_TOKEN;
+    
+    if (!apiToken) {
+      apiToken = await SecureStore.getItemAsync('messagingApiToken');
+    }
+
+    if (apiToken) {
+      config.headers.Authorization = `Bearer ${apiToken}`;
+      config.headers['x-api-token'] = apiToken;
+    }
+
+    return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for error handling
+storageApiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    console.error('Storage API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
+interface StorageApiResponse {
+  success: boolean;
+  data?: {
+    url: string;
+    fileName?: string;
+    fileSize?: number;
+  };
+  message?: string;
+  error?: string;
+}
 
 interface FileInfo {
   name: string;
@@ -28,34 +90,33 @@ interface UploadImageResult {
 
 type ContentType = 'image' | 'file' | 'other';
 
-const verifyStorageInitialized = (): void => {
-  if (!storage) {
-    throw new Error('Firebase Storage is not initialized. Check your Firebase configuration.');
+/**
+ * Check if storage API token is available
+ */
+const checkApiToken = async (): Promise<string | null> => {
+  let apiToken = STORAGE_API_TOKEN;
+  if (!apiToken) {
+    apiToken = await SecureStore.getItemAsync('messagingApiToken');
   }
+  return apiToken;
 };
 
-const handleStorageError = (error: StorageError, details: Record<string, any>): string => {
-  console.error('Storage error:', error.code, error.message);
+const handleStorageError = (error: any, details: Record<string, any>): string => {
+  console.error('Storage error:', error);
 
-  switch (error.code) {
-    case 'storage/unauthorized':
-      return 'You do not have permission to perform this operation. Please try again or contact support.';
-    case 'storage/canceled':
-      return 'Operation was canceled. Please try again.';
-    case 'storage/retry-limit-exceeded':
-      return 'Network timeout. Please check your connection and try again.';
-    case 'storage/invalid-checksum':
-      return 'File integrity check failed. Please try again.';
-    case 'storage/server-file-wrong-size':
-      return 'File size mismatch. Please try again.';
-    case 'storage/unknown':
-      const serverMsg = error.serverResponse ? 
-        `Server response: ${JSON.stringify(error.serverResponse)}` : 
-        'No server response available - this usually indicates a configuration issue';
-      return `Unknown storage error occurred. ${serverMsg}. Check Firebase console for more details.`;
-    default:
-      return `Operation failed: ${error.message || 'An unknown error occurred'}. Please try again.`;
+  if (error.response?.data?.error) {
+    return error.response.data.error;
   }
+
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+
+  if (error.message) {
+    return error.message;
+  }
+
+  return 'An unknown error occurred while uploading the file. Please try again.';
 };
 
 const getFileInfo = async (localFileUri: string): Promise<FileInfo> => {
@@ -104,50 +165,51 @@ const determineContentType = (fileName: string, mimeType?: string): ContentType 
   return 'other';
 };
 
-const uriToBlob = async (uri: string, mimeType?: string): Promise<Blob> => {
-  // On web, use fetch for blob/data URIs
-  if (Platform.OS === 'web') {
-    if (uri.startsWith('blob:') || uri.startsWith('data:')) {
-      const response = await fetch(uri);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-      }
-      return await response.blob();
-    }
+/**
+ * Convert file URI to base64 data URI for API upload
+ */
+const uriToDataUri = async (uri: string, mimeType?: string): Promise<string> => {
+  // If already a data URI, return as is
+  if (uri.startsWith('data:')) {
+    return uri;
   }
 
-  // On React Native, read file as base64 and convert to blob
-  // This is necessary because fetch() doesn't work reliably with file:// URIs on React Native
-  try {
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    // Convert base64 to blob using atob (available in React Native)
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    
-    // Use the provided mimeType or default to image/jpeg
-    const blobType = mimeType || 'image/jpeg';
-    return new Blob([byteArray], { type: blobType });
-  } catch (error) {
-    // Fallback: try fetch if base64 conversion fails (for web or other edge cases)
-    console.warn('Failed to read file as base64, trying fetch as fallback:', error);
+  // On web, handle blob URIs
+  if (Platform.OS === 'web' && uri.startsWith('blob:')) {
     try {
       const response = await fetch(uri);
       if (!response.ok) {
         throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
       }
-      return await response.blob();
-    } catch (fetchError) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown error';
-      throw new Error(`Failed to convert file to blob. Base64 conversion failed: ${errorMessage}. Fetch fallback also failed: ${fetchErrorMessage}`);
+      const blob = await response.blob();
+      
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          resolve(base64data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      throw new Error(`Failed to convert blob to data URI: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  // On React Native, read file as base64
+  try {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Determine MIME type
+    const finalMimeType = mimeType || 'application/octet-stream';
+    
+    // Return as data URI
+    return `data:${finalMimeType};base64,${base64}`;
+  } catch (error) {
+    throw new Error(`Failed to read file as base64: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
@@ -158,7 +220,11 @@ export const uploadFile = async (
   onProgress?: (progress: number) => void
 ): Promise<UploadFileResult> => {
   try {
-    verifyStorageInitialized();
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      throw new Error('Storage API token is not configured. Please set MESSAGING_API_TOKEN in environment variables.');
+    }
+
     console.log(`Starting upload for URI: ${localFileUri}`, { conversationId, userId });
     
     const { name: originalFileName, size: fileSize, mimeType } = await getFileInfo(localFileUri);
@@ -176,66 +242,53 @@ export const uploadFile = async (
       console.warn(`Uploading file of 'other' content type: ${originalFileName}`);
     }
 
-    const timestamp = new Date().getTime();
-    const uniqueFileName = `${timestamp}_${originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const storagePath = `chat_attachments/${uniqueFileName}`;
-    const metadata = {
-      customMetadata: {
-        uploadedBy: userId,
-        conversationId,
-        originalFileName,
-        uploadTimestamp: new Date().toISOString()
-      }
-    };
-    const fileRef = ref(storage, storagePath);
+    // Determine proper MIME type
+    const properMimeType = mimeType || (contentType === 'image' ? 'image/jpeg' : 'application/octet-stream');
+    
+    // Convert file to base64 data URI
+    if (onProgress) {
+      onProgress(10); // 10% - reading file
+    }
+    const dataUri = await uriToDataUri(localFileUri, properMimeType);
+    
+    if (onProgress) {
+      onProgress(50); // 50% - file read, starting upload
+    }
 
-    console.log(`Uploading to: ${storagePath}`, { fileSize, contentType });
+    // Determine resource type for API
+    const resourceType = contentType === 'image' ? 'image' : 'file';
 
-    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
-    const blob = await uriToBlob(localFileUri, mimeType);
-
-    return await new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          if (onProgress) {
-            onProgress(progress);
-          }
-        },
-        (error: StorageError) => {
-          const errorMessage = handleStorageError(error, {
-            storagePath,
-            fileSize,
-            contentType,
-            conversationId,
-            userId
-          });
-          reject(new Error(errorMessage));
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log('File available at', downloadURL);
-            resolve({
-              mediaUrl: downloadURL,
-              fileName: originalFileName,
-              fileSize: fileSize,
-              contentType: contentType,
-            });
-          } catch (error: unknown) {
-            console.error('Failed to get download URL:', error);
-            reject(error instanceof Error ? error : new Error('Failed to get download URL'));
-          }
-        }
-      );
+    // Upload to API
+    const response = await storageApiClient.post<StorageApiResponse>('/storage/upload', {
+      file: dataUri,
+      folder: 'chat_attachments',
+      resourceType: resourceType,
     });
-  } catch (error) {
+
+    if (onProgress) {
+      onProgress(100); // 100% - upload complete
+    }
+
+    if (!response.data.success || !response.data.data?.url) {
+      throw new Error(response.data.error || response.data.message || 'Upload failed');
+    }
+
+    console.log('File available at', response.data.data.url);
+
+    return {
+      mediaUrl: response.data.data.url,
+      fileName: originalFileName,
+      fileSize: fileSize,
+      contentType: contentType,
+    };
+  } catch (error: any) {
     console.error('Error in uploadFile:', error);
-    throw error;
+    const errorMessage = handleStorageError(error, {
+      conversationId,
+      userId,
+      fileName: localFileUri.split('/').pop(),
+    });
+    throw new Error(errorMessage);
   }
 };
 
@@ -245,7 +298,10 @@ export const uploadUserAvatar = async (
   onProgress?: (progress: number) => void
 ): Promise<UploadAvatarResult> => {
   try {
-    verifyStorageInitialized();
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      throw new Error('Storage API token is not configured. Please set MESSAGING_API_TOKEN in environment variables.');
+    }
     
     const { name: originalFileName, size: fileSize, mimeType } = await getFileInfo(localFileUri);
 
@@ -262,62 +318,42 @@ export const uploadUserAvatar = async (
       throw new Error('Invalid file type for avatar. Only images are allowed.');
     }
 
-    const timestamp = new Date().getTime();
-    const uniqueFileName = `${timestamp}_${originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const storagePath = `profile_avatar/${uniqueFileName}`;
+    // Determine proper MIME type
+    const properMimeType = mimeType || 'image/jpeg';
     
-    const metadata = {
-      customMetadata: {
-        uploadedBy: userId,
-        originalFileName,
-        uploadTimestamp: new Date().toISOString()
-      }
-    };
-    const fileRef = ref(storage, storagePath);
+    // Convert file to base64 data URI
+    if (onProgress) {
+      onProgress(10);
+    }
+    const dataUri = await uriToDataUri(localFileUri, properMimeType);
+    
+    if (onProgress) {
+      onProgress(50);
+    }
 
-    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
-    const blob = await uriToBlob(localFileUri, mimeType);
-
-    return new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          if (onProgress) {
-            onProgress(progress);
-          }
-        },
-        (error: StorageError) => {
-          const errorDetails = {
-            storagePath,
-            fileSize,
-            contentType,
-            userId,
-            fileName: uniqueFileName,
-            timestamp,
-            blobSize: blob.size,
-            blobType: blob.type
-          };
-          
-          const userFriendlyMessage = handleStorageError(error, errorDetails);
-          reject(new Error(`Avatar upload failed: ${userFriendlyMessage}`));
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve({ avatarUrl: downloadURL });
-          } catch (error: unknown) {
-            console.error('Failed to get avatar download URL:', error);
-            reject(new Error(`Avatar upload completed but failed to get download URL: ${error instanceof Error ? error.message : 'Unknown error'}`));
-          }
-        }
-      );
+    // Upload to API
+    const response = await storageApiClient.post<StorageApiResponse>('/storage/upload', {
+      file: dataUri,
+      folder: 'profile_avatar',
+      resourceType: 'image',
     });
-  } catch (error) {
+
+    if (onProgress) {
+      onProgress(100);
+    }
+
+    if (!response.data.success || !response.data.data?.url) {
+      throw new Error(response.data.error || response.data.message || 'Avatar upload failed');
+    }
+
+    return { avatarUrl: response.data.data.url };
+  } catch (error: any) {
     console.error('Error in uploadUserAvatar:', error);
-    throw error;
+    const errorMessage = handleStorageError(error, {
+      userId,
+      fileName: localFileUri.split('/').pop(),
+    });
+    throw new Error(`Avatar upload failed: ${errorMessage}`);
   }
 };
 
@@ -328,7 +364,11 @@ export const uploadImage = async (
   onProgress?: (progress: number) => void
 ): Promise<UploadImageResult> => {
   try {
-    verifyStorageInitialized();
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      throw new Error('Storage API token is not configured. Please set MESSAGING_API_TOKEN in environment variables.');
+    }
+
     console.log(`Starting generic image upload from URI: ${localFileUri} to prefix: ${storagePathPrefix}`);
     
     const { name: originalFileName, size: fileSize, mimeType } = await getFileInfo(localFileUri);
@@ -345,74 +385,60 @@ export const uploadImage = async (
       throw new Error('Invalid file type. Only images are allowed for this function.');
     }
 
-    const timestamp = new Date().getTime();
-    const uniqueFileName = `${timestamp}_${originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const storagePath = `${storagePathPrefix}/${uniqueFileName}`;
+    // Determine proper MIME type
+    const properMimeType = mimeType || 'image/jpeg';
     
-    const metadata = {
-      customMetadata: {
-        uploadedBy: entityId || 'unknown',
-        storagePathPrefix,
-        originalFileName,
-        uploadTimestamp: new Date().toISOString()
-      }
-    };
-    const fileRef = ref(storage, storagePath);
+    // Convert file to base64 data URI
+    if (onProgress) {
+      onProgress(10);
+    }
+    const dataUri = await uriToDataUri(localFileUri, properMimeType);
+    
+    if (onProgress) {
+      onProgress(50);
+    }
 
-    console.log(`Uploading image to: ${storagePath}`);
+    // Use storagePathPrefix as folder name (sanitize it)
+    const folder = storagePathPrefix.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
 
-    // Use helper function to convert URI to blob (handles React Native file:// URIs properly)
-    const blob = await uriToBlob(localFileUri, mimeType);
-
-    return new Promise((resolve, reject) => {
-      const uploadTask = uploadBytesResumable(fileRef, blob, metadata);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Image upload to ${storagePathPrefix} is ${progress}% done`);
-          if (onProgress) {
-            onProgress(progress);
-          }
-        },
-        (error: StorageError) => {
-          console.error(`Image upload to ${storagePathPrefix} failed:`, error);
-          const errorDetails = {
-            storagePath,
-            fileSize,
-            contentType,
-            storagePathPrefix,
-            entityId
-          };
-          
-          const userFriendlyMessage = handleStorageError(error, errorDetails);
-          reject(new Error(`Image upload failed: ${userFriendlyMessage}`));
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log(`Image for ${storagePathPrefix} available at`, downloadURL);
-            resolve({ imageUrl: downloadURL });
-          } catch (error: unknown) {
-            console.error(`Failed to get image download URL for ${storagePathPrefix}:`, error);
-            reject(error instanceof Error ? error : new Error('Failed to get image download URL'));
-          }
-        }
-      );
+    // Upload to API
+    const response = await storageApiClient.post<StorageApiResponse>('/storage/upload', {
+      file: dataUri,
+      folder: folder,
+      resourceType: 'image',
     });
-  } catch (error) {
+
+    if (onProgress) {
+      onProgress(100);
+    }
+
+    if (!response.data.success || !response.data.data?.url) {
+      throw new Error(response.data.error || response.data.message || 'Image upload failed');
+    }
+
+    console.log(`Image for ${storagePathPrefix} available at`, response.data.data.url);
+    return { imageUrl: response.data.data.url };
+  } catch (error: any) {
     console.error('Error in uploadImage:', error);
-    throw error;
+    const errorMessage = handleStorageError(error, {
+      storagePathPrefix,
+      entityId,
+    });
+    throw new Error(`Image upload failed: ${errorMessage}`);
   }
 };
 
 export const testFirebaseConnection = async (): Promise<boolean> => {
   try {
-    const testRef = ref(storage, 'test/connection');
-    return !!testRef;
+    const apiToken = await checkApiToken();
+    if (!apiToken) {
+      console.error('Storage API token is not configured');
+      return false;
+    }
+    // Test by making a simple request (you might want to add a health check endpoint)
+    return true;
   } catch (error) {
-    console.error('Firebase connection test failed:', error);
+    console.error('Storage connection test failed:', error);
     return false;
   }
 };

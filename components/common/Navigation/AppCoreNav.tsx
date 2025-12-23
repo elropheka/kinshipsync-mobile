@@ -5,6 +5,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import SidebarComponent from './sideBar';
 import * as Font from 'expo-font';
 import * as notificationService from '@/services/notificationService';
+import { OneSignal } from 'react-native-onesignal';
 
 import Toast from 'react-native-toast-message'; 
 import { Colors } from "@/constants/Colors";
@@ -41,18 +42,73 @@ export default function AppCoreNav() {
 
 
   useEffect(() => {
-    const registerForPushNotifications = async () => {
-      const permissionGranted = await notificationService.requestNotificationPermissions();
-      if (permissionGranted && authUser?.uid && isAuthenticated) {
-        const token = await notificationService.getPushToken();
-        if (token) {
-          await notificationService.saveFcmTokenToProfile(isAuthenticated, authUser.uid, token);
+    const registerForOneSignal = async () => {
+      if (!authUser?.uid || !isAuthenticated) {
+        return;
+      }
+
+      try {
+        // Check if user has permission
+        const hasPermission = await OneSignal.Notifications.getPermissionAsync();
+        
+        if (hasPermission) {
+          // Get OneSignal subscription ID
+          const subscriptionId = await notificationService.getOneSignalSubscriptionId();
+          
+          if (subscriptionId) {
+            // Save to Firestore
+            await notificationService.saveOneSignalSubscriptionIdToProfile(
+              isAuthenticated,
+              authUser.uid,
+              subscriptionId
+            );
+            console.log('✅ OneSignal subscription registered for user:', authUser.uid);
+          } else {
+            console.warn('⚠️ OneSignal subscription ID not available yet');
+          }
+        } else {
+          console.log('ℹ️ Push notification permission not granted yet');
+        }
+      } catch (error) {
+        console.error('❌ Error registering OneSignal subscription:', error);
+      }
+    };
+
+    // Register OneSignal subscription when user is authenticated
+    if (authUser?.uid && isAuthenticated) {
+      registerForOneSignal();
+    }
+  }, [authUser, isAuthenticated]);
+
+  // Listen for OneSignal subscription changes
+  useEffect(() => {
+    if (!authUser?.uid || !isAuthenticated) {
+      return;
+    }
+
+    const handleSubscriptionChange = async (event: { previous: { id?: string; token?: string; optedIn: boolean }; current: { id?: string; token?: string; optedIn: boolean } }) => {
+      console.log('🔄 OneSignal subscription changed:', event);
+      const subscriptionId = event.current.id;
+      
+      if (subscriptionId) {
+        try {
+          await notificationService.saveOneSignalSubscriptionIdToProfile(
+            isAuthenticated,
+            authUser.uid,
+            subscriptionId
+          );
+          console.log('✅ OneSignal subscription ID updated in Firestore');
+        } catch (error) {
+          console.error('❌ Error updating OneSignal subscription ID:', error);
         }
       }
     };
-    if (authUser?.uid && isAuthenticated) {
-      registerForPushNotifications();
-    }
+
+    OneSignal.User.pushSubscription.addEventListener('change', handleSubscriptionChange);
+
+    return () => {
+      OneSignal.User.pushSubscription.removeEventListener('change', handleSubscriptionChange);
+    };
   }, [authUser, isAuthenticated]);
 
  

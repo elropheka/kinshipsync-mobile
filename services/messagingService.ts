@@ -8,7 +8,8 @@ import * as SecureStore from 'expo-secure-store';
 const MESSAGING_API_URL = 
   (typeof process !== 'undefined' && process.env?.MESSAGING_API_URL) ||
   Constants.expoConfig?.extra?.messagingApiUrl || 
-  'https://kinshipsync-messaging.vercel.app';
+  'https://kinshipsync-messaging.vercel.app'; 
+  // 'http://localhost:3000';
 
 const MESSAGING_API_TOKEN = 
   (typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN) ||

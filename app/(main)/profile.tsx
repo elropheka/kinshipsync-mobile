@@ -51,7 +51,8 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     if (currentUserProfile) {
-      const phoneNumber = currentUserProfile.phoneNumber || '';
+      // Explicitly handle phoneNumber - it may be undefined, null, or a string
+      const phoneNumber = currentUserProfile.phoneNumber ?? '';
       // Extract country code from existing E164 phone number if available
       if (phoneNumber && isValidE164Format(phoneNumber)) {
         // PhoneInput will handle parsing the E164 number
@@ -123,43 +124,59 @@ const ProfileScreen = () => {
   };
   
   const handleEditAvatar = async () => {
+    console.log('handleEditAvatar called');
     if (!authUser?.uid) {
       showError("Error", "User not authenticated.");
       return;
     }
 
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      showInfo("Permission Required", "Permission to access camera roll is required to change your avatar.");
-      return;
-    }
-
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-
-    if (pickerResult.canceled === true) {
-      return;
-    }
-
-    if (pickerResult.assets && pickerResult.assets.length > 0) {
-      const imageUri = pickerResult.assets[0].uri;
-      setIsSaving(true);
-      try {
-        const uploadResult = await uploadUserAvatar(imageUri, authUser.uid, (progress) => {
-          console.log(`Avatar Upload Progress: ${progress}%`); 
-        });
-        handleInputChange('avatarUrl', uploadResult.avatarUrl);
-        showInfo("Avatar Selected", "New avatar image is ready. Click 'Save Changes' to apply.");
-      } catch (uploadError: any) {
-        console.error("Avatar upload failed:", uploadError);
-        showError("Upload Failed", `Could not upload image: ${uploadError.message}`);
-      } finally {
-        setIsSaving(false);
+    try {
+      console.log('Requesting media library permissions...');
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log('Permission result:', permissionResult);
+      if (permissionResult.granted === false) {
+        showInfo("Permission Required", "Permission to access camera roll is required to change your avatar.");
+        return;
       }
+
+      console.log('Launching image picker...');
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      });
+
+      console.log('Image picker result:', { canceled: pickerResult.canceled, hasAssets: !!pickerResult.assets?.length });
+
+      if (pickerResult.canceled === true) {
+        console.log('User canceled image picker');
+        return;
+      }
+
+      if (pickerResult.assets && pickerResult.assets.length > 0) {
+        const imageUri = pickerResult.assets[0].uri;
+        console.log('Image selected, starting upload...', imageUri);
+        setIsSaving(true);
+        try {
+          const uploadResult = await uploadUserAvatar(imageUri, authUser.uid, (progress) => {
+            console.log(`Avatar Upload Progress: ${progress}%`); 
+          });
+          handleInputChange('avatarUrl', uploadResult.avatarUrl);
+          showInfo("Avatar Selected", "New avatar image is ready. Click 'Save Changes' to apply.");
+        } catch (uploadError: any) {
+          console.error("Avatar upload failed:", uploadError);
+          showError("Upload Failed", `Could not upload image: ${uploadError.message}`);
+        } finally {
+          setIsSaving(false);
+        }
+      } else {
+        console.warn('Image picker returned no assets');
+        showError("Error", "No image was selected.");
+      }
+    } catch (error: any) {
+      console.error("Error in handleEditAvatar:", error);
+      showError("Error", `Failed to open image picker: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -313,7 +330,7 @@ const ProfileScreen = () => {
               if(currentUserProfile) {
                 setEditableProfile({
                   displayName: currentUserProfile.displayName || '',
-                  phoneNumber: currentUserProfile.phoneNumber || '',
+                  phoneNumber: currentUserProfile.phoneNumber ?? '',
                   city: currentUserProfile.address?.city || '',
                   bio: currentUserProfile.bio || '',
                   avatarUrl: currentUserProfile.avatarUrl || '',

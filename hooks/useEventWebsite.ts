@@ -79,8 +79,12 @@ export const useEventWebsite = (slug: string | undefined) => {
         published: updates.published,
       };
       await updateDoc(eventDocRef, { website: eventWebsiteData });
+      // Filter out undefined values as Firebase doesn't support them
+      const cleanedUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      );
       const updatedData = {
-        ...updates,
+        ...cleanedUpdates,
         lastUpdatedAt: new Date().toISOString()
       };
 

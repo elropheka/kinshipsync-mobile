@@ -84,7 +84,7 @@ const createContentSection = (content: string): string => {
 /**
  * Helper to create info boxes
  */
-const createInfoBox = (items: Array<{ label: string; value: string }>): string => {
+const createInfoBox = (items: { label: string; value: string }[]): string => {
   const itemsHtml = items.map(item => `
     <tr>
       <td style="padding: 12px 16px; background-color: ${BRAND_COLORS.lightNude}; border-left: 3px solid ${BRAND_COLORS.teal};">
@@ -129,21 +129,24 @@ export const getEventInvitationEmail = (
   eventTime?: string,
   eventLocation?: string
 ): EmailTemplate => {
+  const formattedDate = formatDateForSMS(eventDate);
+  const formattedTime = formatTimeForSMS(eventTime);
+  
   const infoItems = [
-    { label: 'Event', value: eventName },
-    { label: 'Date', value: eventDate },
+    { label: '📅 Event', value: eventName },
+    { label: '📆 Date', value: formattedDate },
   ];
   
-  if (eventTime) {
-    infoItems.push({ label: 'Time', value: eventTime });
+  if (formattedTime) {
+    infoItems.push({ label: '⏰ Time', value: formattedTime });
   }
   
   if (eventLocation) {
-    infoItems.push({ label: 'Location', value: eventLocation });
+    infoItems.push({ label: '📍 Location', value: eventLocation });
   }
 
   const content = createContentSection(`
-    <h2>You're Invited!</h2>
+    <h2>🎉 You're Invited!</h2>
     <p>Hi ${guestName},</p>
     <p><strong>${organizerName}</strong> has invited you to <strong>${eventName}</strong>.</p>
     ${createInfoBox(infoItems)}
@@ -169,21 +172,24 @@ export const getRsvpReminderEmail = (
   eventTime?: string,
   eventLocation?: string
 ): EmailTemplate => {
+  const formattedDate = formatDateForSMS(eventDate);
+  const formattedTime = formatTimeForSMS(eventTime);
+  
   const infoItems = [
-    { label: 'Event', value: eventName },
-    { label: 'Date', value: eventDate },
+    { label: '📅 Event', value: eventName },
+    { label: '📆 Date', value: formattedDate },
   ];
   
-  if (eventTime) {
-    infoItems.push({ label: 'Time', value: eventTime });
+  if (formattedTime) {
+    infoItems.push({ label: '⏰ Time', value: formattedTime });
   }
   
   if (eventLocation) {
-    infoItems.push({ label: 'Location', value: eventLocation });
+    infoItems.push({ label: '📍 Location', value: eventLocation });
   }
 
   const content = createContentSection(`
-    <h2>RSVP Reminder</h2>
+    <h2>⏰ RSVP Reminder</h2>
     <p>Hi ${guestName},</p>
     <p>This is a friendly reminder that <strong>${organizerName}</strong> has invited you to <strong>${eventName}</strong>.</p>
     ${createInfoBox(infoItems)}
@@ -632,5 +638,151 @@ export const getPlanningProgressEmail = (
     subject: 'Planning Progress',
     htmlContent: wrapEmailTemplate('Planning Progress', content),
   };
+};
+
+/**
+ * Helper function to format date to dd-mm-yyyy format
+ */
+export const formatDateForSMS = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  } catch (error) {
+    console.error('Error formatting date for SMS:', error);
+    return dateString; // Return original if parsing fails
+  }
+};
+
+/**
+ * Helper function to format time to "6pm UTC" format
+ */
+export const formatTimeForSMS = (timeString: string | undefined): string => {
+  if (!timeString) return '';
+  
+  try {
+    let formattedTime = timeString.trim();
+    
+    // Try to parse ISO 8601 format (e.g., "2024-12-12T18:00:00Z" or "18:00:00")
+    // Or HH:MM format (e.g., "18:00" or "6:00 PM")
+    let hours = 0;
+    let minutes = 0;
+    let isPM = false;
+    
+    // Check if it's already in 12-hour format with am/pm
+    const amPmMatch = formattedTime.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)/i);
+    if (amPmMatch) {
+      hours = parseInt(amPmMatch[1], 10);
+      minutes = amPmMatch[2] ? parseInt(amPmMatch[2], 10) : 0;
+      isPM = amPmMatch[3].toLowerCase() === 'pm';
+      if (isPM && hours !== 12) hours += 12;
+      if (!isPM && hours === 12) hours = 0;
+    } else {
+      // Try to parse 24-hour format (HH:MM or HH:MM:SS)
+      const timeMatch = formattedTime.match(/(\d{1,2}):(\d{2})(?::\d{2})?/);
+      if (timeMatch) {
+        hours = parseInt(timeMatch[1], 10);
+        minutes = parseInt(timeMatch[2], 10);
+        
+        // Convert to 12-hour format
+        isPM = hours >= 12;
+        if (hours > 12) {
+          hours -= 12;
+        } else if (hours === 0) {
+          hours = 12;
+        }
+      } else {
+        // If we can't parse it, return as-is with UTC appended if needed
+        if (!formattedTime.toLowerCase().includes('utc') && 
+            !formattedTime.toLowerCase().includes('gmt') &&
+            !formattedTime.match(/\+\d{2}:\d{2}/)) {
+          formattedTime = `${formattedTime} UTC`;
+        }
+        return formattedTime;
+      }
+    }
+    
+    // Format as "6pm" or "6:30pm"
+    const timeStr = minutes > 0 ? `${hours}:${String(minutes).padStart(2, '0')}${isPM ? 'pm' : 'am'}` : `${hours}${isPM ? 'pm' : 'am'}`;
+    return `${timeStr} UTC`;
+  } catch (error) {
+    console.error('Error formatting time for SMS:', error);
+    // Return original with UTC appended if not present
+    let result = timeString.trim();
+    if (!result.toLowerCase().includes('utc') && 
+        !result.toLowerCase().includes('gmt') &&
+        !result.match(/\+\d{2}:\d{2}/)) {
+      result = `${result} UTC`;
+    }
+    return result;
+  }
+};
+
+/**
+ * Event invitation SMS template - matches email format with emojis
+ */
+export const getEventInvitationSMS = (
+  guestName: string,
+  organizerName: string,
+  eventName: string,
+  eventDate: string,
+  eventTime?: string,
+  eventLocation?: string
+): string => {
+  const formattedDate = formatDateForSMS(eventDate);
+  const formattedTime = formatTimeForSMS(eventTime);
+  
+  let message = `You're Invited!\n\n`;
+  message += `Hi ${guestName},\n\n`;
+  message += `${organizerName} has invited you to ${eventName}.\n\n`;
+  message += `Event: ${eventName}\n`;
+  message += `Date: ${formattedDate}`;
+  
+  if (formattedTime) {
+    message += `\nTime: ${formattedTime}`;
+  }
+  
+  if (eventLocation) {
+    message += `\n Location: ${eventLocation}`;
+  }
+  
+  message += `\n\nPlease RSVP in the app or visit the event website to confirm your attendance.`;
+  
+  return message;
+};
+
+/**
+ * RSVP reminder SMS template - matches email format with emojis
+ */
+export const getRsvpReminderSMS = (
+  guestName: string,
+  organizerName: string,
+  eventName: string,
+  eventDate: string,
+  eventTime?: string,
+  eventLocation?: string
+): string => {
+  const formattedDate = formatDateForSMS(eventDate);
+  const formattedTime = formatTimeForSMS(eventTime);
+  
+  let message = `RSVP Reminder\n\n`;
+  message += `Hi ${guestName},\n\n`;
+  message += `This is a friendly reminder that ${organizerName} has invited you to ${eventName}.\n\n`;
+  message += `Event: ${eventName}\n`;
+  message += `Date: ${formattedDate}`;
+  
+  if (formattedTime) {
+    message += `\nTime: ${formattedTime}`;
+  }
+  
+  if (eventLocation) {
+    message += `\n📍 Location: ${eventLocation}`;
+  }
+  
+  message += `\n\nPlease RSVP in the app or visit the event website to confirm your attendance.`;
+  
+  return message;
 };
 

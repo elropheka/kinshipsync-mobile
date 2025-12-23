@@ -8,7 +8,8 @@ import { InAppNotification, NewNotificationPayload, } from '../types/notificatio
 import { isValidE164Format } from '../utils/phoneUtils';
 import { sendPush, sendText, sendEmail } from './messagingService';
 import { getUserProfileByEmail } from './userService';
-import { getGenericNotificationEmail, getEventInvitationEmail, getRsvpReminderEmail } from './emailTemplates';
+import { getGenericNotificationEmail, getEventInvitationEmail, getRsvpReminderEmail, getEventInvitationSMS, getRsvpReminderSMS } from './emailTemplates';
+import { OneSignal } from 'react-native-onesignal';
 
 export const requestNotificationPermissions = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -38,6 +39,34 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   }
 };
 
+/**
+ * Get OneSignal subscription ID (player ID)
+ * This is the ID that should be used with the messaging service
+ */
+export const getOneSignalSubscriptionId = async (): Promise<string | null> => {
+  try {
+    const subscriptionId = await OneSignal.User.pushSubscription.getIdAsync();
+    if (subscriptionId) {
+      console.log('✅ OneSignal Subscription ID obtained:', subscriptionId);
+      return subscriptionId;
+    } else {
+      console.warn('⚠️ OneSignal subscription ID is not available yet');
+      return null;
+    }
+  } catch (error) {
+    console.error('❌ Error getting OneSignal subscription ID:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    return null;
+  }
+};
+
+/**
+ * @deprecated Use getOneSignalSubscriptionId instead
+ * Get Expo push token (legacy - kept for backward compatibility)
+ */
 export const getPushToken = async (): Promise<string | null> => {
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync({
@@ -57,6 +86,49 @@ export const getPushToken = async (): Promise<string | null> => {
   }
 };
 
+/**
+ * Save OneSignal subscription ID to user profile
+ */
+export const saveOneSignalSubscriptionIdToProfile = async (isAuthenticated: boolean, userId: string, subscriptionId: string): Promise<void> => {
+  if (!isAuthenticated) {
+    throw new Error("User not authenticated. Please sign in.");
+  }
+  if (!userId || !subscriptionId) {
+    console.warn('⚠️ Cannot save subscription ID: missing userId or subscriptionId', { userId, hasSubscriptionId: !!subscriptionId });
+    return;
+  }
+  try {
+    console.log(`💾 Saving OneSignal subscription ID for user ${userId}...`);
+    const userDocRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      const userData = userDoc.data() as UserProfile;
+      if (userData.oneSignalSubscriptionIds && userData.oneSignalSubscriptionIds.includes(subscriptionId)) {
+        console.log("✅ OneSignal subscription ID already exists for user:", userId);
+        return;
+      }
+      console.log(`📝 User currently has ${userData.oneSignalSubscriptionIds?.length || 0} OneSignal subscription ID(s)`);
+    } else {
+      console.warn(`⚠️ User document ${userId} does not exist yet`);
+    }
+    await updateDoc(userDocRef, {
+      oneSignalSubscriptionIds: arrayUnion(subscriptionId),
+    });
+    console.log('✅ OneSignal subscription ID saved successfully for user:', userId);
+    console.log('Subscription ID:', subscriptionId);
+  } catch (error) {
+    console.error('❌ Error saving OneSignal subscription ID:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
+    throw error;
+  }
+};
+
+/**
+ * @deprecated Use saveOneSignalSubscriptionIdToProfile instead
+ * Save FCM/Expo token to user profile (legacy - kept for backward compatibility)
+ */
 export const saveFcmTokenToProfile = async (isAuthenticated: boolean, userId: string, token: string): Promise<void> => {
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
@@ -282,11 +354,20 @@ export const sendPushNotificationInternal = async (
     }
 
     const userData = userDocSnap.data() as UserProfile;
-    const pushToken = userData.fcmTokens?.[0]; // Use the first token, or implement logic to select the right one
+    
+    // Prefer OneSignal subscription ID over legacy FCM tokens
+    const oneSignalSubscriptionId = userData.oneSignalSubscriptionIds?.[0];
+    const pushToken = oneSignalSubscriptionId || userData.fcmTokens?.[0]; // Fallback to legacy token if OneSignal ID not available
 
     if (!pushToken) {
-      console.error(`User ${recipientId} has no push token. Cannot send push notification.`);
+      console.error(`User ${recipientId} has no push token or OneSignal subscription ID. Cannot send push notification.`);
       return false;
+    }
+    
+    if (oneSignalSubscriptionId) {
+      console.log(`📱 Using OneSignal subscription ID for user ${recipientId}`);
+    } else {
+      console.warn(`⚠️ Using legacy FCM token for user ${recipientId}. Consider migrating to OneSignal.`);
     }
 
     // Convert data to the format expected by messaging API (all values as strings)
@@ -931,7 +1012,14 @@ export const createEventInvitationNotification = async (
   // 3. Send SMS notification
   if (guestPhone && isValidE164Format(guestPhone)) {
     try {
-      const smsMessage = `Hi ${guestName}! You're invited to ${eventName} on ${eventDate}${eventTime ? ` at ${eventTime}` : ''}${eventLocation ? ` (${eventLocation})` : ''}. Organized by ${organizerName}. Please check your email or the app to RSVP.`;
+      const smsMessage = getEventInvitationSMS(
+        guestName,
+        organizerName,
+        eventName,
+        eventDate,
+        eventTime,
+        eventLocation
+      );
       
       const result = await sendText({
         to: guestPhone,
@@ -1033,7 +1121,14 @@ export const createRsvpReminderNotification = async (
   // 3. Send SMS notification
   if (guestPhone && isValidE164Format(guestPhone)) {
     try {
-      const smsMessage = `Hi ${guestName}! Reminder: You're invited to ${eventName} on ${eventDate}${eventTime ? ` at ${eventTime}` : ''}${eventLocation ? ` (${eventLocation})` : ''}. Organized by ${organizerName}. Please check your email or the app to RSVP.`;
+      const smsMessage = getRsvpReminderSMS(
+        guestName,
+        organizerName,
+        eventName,
+        eventDate,
+        eventTime,
+        eventLocation
+      );
       
       const result = await sendText({
         to: guestPhone,

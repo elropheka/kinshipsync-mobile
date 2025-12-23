@@ -16,7 +16,8 @@ export interface UserProfile {
     postalCode?: string | null;
     country?: string | null;
   } | null;
-  fcmTokens?: string[] | null; // For Firebase Cloud Messaging
+  fcmTokens?: string[] | null; // For Firebase Cloud Messaging (legacy)
+  oneSignalSubscriptionIds?: string[] | null; // For OneSignal push notifications
   isAdmin?: boolean | null;
   isVendor?: boolean | null;
   // Add other profile-specific fields

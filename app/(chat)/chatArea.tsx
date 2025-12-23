@@ -45,6 +45,7 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderName: initialSenderName, senderAvatarUrl: initialSenderAvatarUrl, senderId, currentUserId, isAuthenticated }) => {
+  const { showSuccess, showError } = useAlert();
   const [displayName, setDisplayName] = useState(initialSenderName || (isUser ? '' : 'User'));
   const [avatarUrl, setAvatarUrl] = useState(initialSenderAvatarUrl);
   const [rsvpProcessed, setRsvpProcessed] = useState(message.rsvpStatus !== 'pending');
@@ -196,7 +197,7 @@ const ChatAreaScreen: React.FC = () => {
   const router = useRouter();
   const { conversationId, chatTitle } = useLocalSearchParams<{ conversationId: string, chatTitle?: string }>();
   const { user: currentUser } = useAppAuth();
-  const { showError, showSuccess, showInfo } = useAlert();
+  const { showError } = useAlert();
 
   const { 
     messages, 
@@ -204,9 +205,9 @@ const ChatAreaScreen: React.FC = () => {
     error, 
     postMessage, 
     conversationDetails,
-    isSendingMessage, // Renamed in hook
-    isUploadingFile,  // New state from hook
-    uploadProgress    // New state from hook
+    isSendingMessage,
+    isUploadingFile,  
+    uploadProgress    
   } = useChatMessages(conversationId);
 
   const [inputText, setInputText] = useState<string>('');
@@ -274,7 +275,7 @@ const ChatAreaScreen: React.FC = () => {
     if (!hasPermission) return;
 
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.7,

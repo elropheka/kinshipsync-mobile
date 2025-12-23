@@ -17,6 +17,7 @@ import { Colors } from "@/constants/Colors";
 import * as Updates from 'expo-updates';
 import Constants from 'expo-constants';
 import { setMessagingApiToken } from '@/services/messagingService';
+import { OneSignal, LogLevel } from 'react-native-onesignal';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,6 +50,40 @@ const RootLayout: React.FC = () => {
   useEffect(() => {
     async function prepare() {
       try {
+        // Initialize OneSignal SDK
+        try {
+          // Enable verbose logging for debugging (only in development)
+          if (__DEV__) {
+            OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+          }
+          // Initialize with your OneSignal App ID
+          OneSignal.initialize('8d7630da-1b46-425d-a912-c9002e7c79a4');
+          console.log('✅ OneSignal SDK initialized');
+          
+          // Request push notification permissions
+          // Check if we can request permission (hasn't been prompted before)
+          const canRequest = await OneSignal.Notifications.canRequestPermission();
+          if (canRequest) {
+            const permissionGranted = await OneSignal.Notifications.requestPermission(false);
+            if (permissionGranted) {
+              console.log('✅ Push notification permission granted');
+            } else {
+              console.log('ℹ️ Push notification permission denied');
+            }
+          } else {
+            // Permission was already requested, check current status
+            const hasPermission = await OneSignal.Notifications.getPermissionAsync();
+            if (hasPermission) {
+              console.log('✅ Push notification permission already granted');
+            } else {
+              console.log('ℹ️ Push notification permission was previously denied');
+            }
+          }
+        } catch (oneSignalError) {
+          console.warn('⚠️ Error initializing OneSignal SDK:', oneSignalError);
+          // Don't block app startup if OneSignal initialization fails
+        }
+
         // Initialize messaging API token from environment or app config
         try {
           const tokenFromEnv = typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN;

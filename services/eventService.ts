@@ -992,8 +992,12 @@ export const updateEventWebsite = async (isAuthenticated: boolean, eventId: stri
   
   try {
     const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
+    // Filter out undefined values as Firebase doesn't support them
+    const cleanedPayload = Object.fromEntries(
+      Object.entries(payload).filter(([_, value]) => value !== undefined)
+    );
     await setDoc(websiteDocRef, {
-      ...payload,
+      ...cleanedPayload,
       updatedAt: serverTimestamp()
     }, { merge: true });
 

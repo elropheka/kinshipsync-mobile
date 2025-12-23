@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors'; // Adjust path as needed
 // Styles imported from component-specific styles file
 import { CreateGuestPayload, GuestStatus } from '../../types/eventTypes'; // Adjust path
 import { useAlert } from '@/context/AlertContext';
+import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
+import { isValidE164Format } from '../../utils/phoneUtils';
+
+// Type assertion to fix React 19 compatibility issue with class components
+const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
 
 interface InviteGuestModalProps {
   visible: boolean;
@@ -23,6 +28,8 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<GuestStatus>('Invited');
   const [plusOnes, setPlusOnes] = useState<number>(0);
+  const [defaultCountryCode, setDefaultCountryCode] = useState<string>('US');
+  const phoneInputRef = useRef<any>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showError } = useAlert();
@@ -37,13 +44,46 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
         return;
     }
 
+    // Get phone number from ref if available, otherwise use state
+    let phoneNumberFromRef: string | undefined = undefined;
+    if (phoneInputRef.current) {
+      try {
+        // Get the formatted phone number from the ref
+        const phoneData = phoneInputRef.current.getNumberAfterPossiblyEliminatingZero?.();
+        if (phoneData?.formattedNumber && phoneData.formattedNumber.trim()) {
+          phoneNumberFromRef = phoneData.formattedNumber.trim();
+        }
+      } catch (e) {
+        console.log("Could not get phone number from ref:", e);
+      }
+    }
+
+    // Validate phone number - ensure it's in E164 format if provided
+    let phoneNumberToSave: string | undefined = undefined;
+    const phoneToValidate = phoneNumberFromRef || phone.trim();
+    if (phoneToValidate) {
+      // Check if it's a valid E164 format and has more than just a country code
+      // E164 format: +[country code][number], minimum length is usually +[1-3 digits][at least 4-7 digits]
+      if (isValidE164Format(phoneToValidate) && phoneToValidate.length > 4) {
+        phoneNumberToSave = phoneToValidate;
+      } else if (phoneToValidate.length <= 4) {
+        // If it's too short, it's likely just a country code
+        showError("Invalid Phone Number", "Please enter a complete phone number, not just the country code.");
+        return;
+      } else {
+        // If phone number is provided but not in E164 format, show error
+        showError("Invalid Phone Number", "Please enter a valid phone number in international format.");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     const guestData: CreateGuestPayload = {
       name: name.trim(),
       firstName: name.trim().split(' ')[0] || '',
       lastName: name.trim().split(' ').slice(1).join(' ') || '',
       email: email.trim() || undefined, // Send undefined if empty, not an empty string
-      phone: phone.trim() || undefined,
+      phone: phoneNumberToSave,
       notes: notes.trim() || '',
       status,
       plusOnes: Number(plusOnes) || 0,
@@ -122,13 +162,29 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="(Optional)"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-                placeholderTextColor={Colors.light.grey}
+              <PhoneInput
+                ref={phoneInputRef}
+                defaultValue={phone}
+                defaultCode={defaultCountryCode}
+                layout="first"
+                onChangeText={(text: string) => {
+                  // This gives us the raw number without country code
+                  // We'll rely on onChangeFormattedText for the full number
+                }}
+                onChangeFormattedText={(formattedText: string) => {
+                  // This gives us the full E164 formatted number with country code
+                  setPhone(formattedText);
+                }}
+                containerStyle={styles.phoneInputContainer}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputText}
+                codeTextStyle={styles.phoneInputCodeText}
+                flagButtonStyle={styles.phoneInputFlagButton}
+                countryPickerButtonStyle={styles.phoneInputCountryPicker}
+                textInputProps={{
+                  placeholder: "(Optional)",
+                  placeholderTextColor: Colors.light.grey,
+                }}
               />
             </View>
             
@@ -301,6 +357,34 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontSize: 16,
     fontWeight: '500',
+  },
+  phoneInputContainer: {
+    backgroundColor: Colors.light.backgroundPaper,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    width: '100%',
+  },
+  phoneInputTextContainer: {
+    backgroundColor: Colors.light.backgroundPaper,
+    paddingVertical: 0,
+  },
+  phoneInputText: {
+    fontSize: 16,
+    color: Colors.light.text,
+    padding: 10,
+  },
+  phoneInputCodeText: {
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  phoneInputFlagButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  phoneInputCountryPicker: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
 });
 
