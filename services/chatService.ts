@@ -196,6 +196,45 @@ export const getConversations = async (
   }
 };
 
+export const listenToConversations = (
+  isAuthenticated: boolean,
+  userId: string,
+  callback: (conversations: Conversation[]) => void,
+  limitNum: number = 20
+): (() => void) => {
+  if (!isAuthenticated || !userId) {
+    return () => {};
+  }
+
+  const conversationsColRef = collection(firestore, 'conversations');
+  const q = query(
+    conversationsColRef, 
+    where('participantIds', 'array-contains', userId), 
+    orderBy('updatedAt', 'desc'), 
+    limit(limitNum)
+  );
+
+  return onSnapshot(q, (querySnapshot) => {
+    const conversations: Conversation[] = querySnapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        ...data,
+        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
+        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
+        lastMessage: data.lastMessage ? {
+          content: data.lastMessage.text,
+          senderId: data.lastMessage.senderId,
+          timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
+        } : undefined,
+      } as Conversation;
+    });
+    callback(conversations);
+  }, (error) => {
+    console.error("Error listening to conversations:", error);
+  });
+};
+
 export const getConversationById = async (isAuthenticated: boolean, conversationId: string, currentUserId: string): Promise<Conversation | null> => {
   if (!isAuthenticated) throw new Error("User not authenticated.");
   if (!conversationId || !currentUserId) return null;

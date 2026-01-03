@@ -1,71 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(chat)/messages.styles'; // Ensure this path is correct
+import { styles } from '../../styles/app/(chat)/messages.styles';
 import { useConversations } from '../../hooks/useChat';
-import { Conversation, ParticipantInfo } from '../../types/chatTypes';
+import { Conversation } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from 'constants/Colors';
 import { getUserProfileById } from '../../services/userService';
+import { Avatar } from '../../components/common/Avatar';
 
 interface ConversationItemProps {
   item: Conversation;
-  currentUser: any;
-  router: any;
-  getOtherParticipant: (participants: ParticipantInfo[]) => ParticipantInfo | undefined;
-  formatTimestamp: (timestamp?: string | number) => string;
+  currentUserId?: string;
+  onPress: (conversationId: string) => void;
 }
 
-const ConversationItem: React.FC<ConversationItemProps> = ({ item, currentUser, router, getOtherParticipant, formatTimestamp }) => {
-  const initialOtherParticipant = getOtherParticipant(item.participants);
+const ConversationItem: React.FC<ConversationItemProps> = React.memo(function ConversationItem({ item, currentUserId, onPress }) {
+  // Find other participant - use stable reference by finding by ID
+  const otherParticipant = item.participants.find(p => p.userId !== currentUserId);
+  const otherUserId = otherParticipant?.userId;
   
-  const [displayName, setDisplayName] = useState(initialOtherParticipant?.displayName || 'Unknown User');
-  const [avatarUrl, setAvatarUrl] = useState(initialOtherParticipant?.avatarUrl);
+  const [displayName, setDisplayName] = useState(otherParticipant?.displayName || 'Unknown User');
+  const [avatarUrl, setAvatarUrl] = useState(otherParticipant?.avatarUrl);
+  const [hasFetchedProfile, setHasFetchedProfile] = useState(false);
 
+  // Update from participant data when it changes
   useEffect(() => {
-    const otherP = getOtherParticipant(item.participants);
-    if (otherP && (otherP.displayName === 'Unknown User' || !otherP.displayName)) {
-      if (otherP.userId) {
-        getUserProfileById(otherP.userId)
-          .then(profile => {
-            if (profile && profile.displayName) {
-              setDisplayName(profile.displayName);
-            }
-            if (profile && profile.avatarUrl) {
-              setAvatarUrl(profile.avatarUrl);
-            }
-          })
-          .catch(err => console.error("Failed to fetch profile for item:", err));
-      }
-    } else if (otherP) {
-        setDisplayName(otherP.displayName || 'Unknown User');
-        setAvatarUrl(otherP.avatarUrl);
+    if (otherParticipant?.displayName && otherParticipant.displayName !== 'Unknown User') {
+      setDisplayName(otherParticipant.displayName);
     }
-  }, [item.participants, getOtherParticipant]);
+    if (otherParticipant?.avatarUrl) {
+      setAvatarUrl(otherParticipant.avatarUrl);
+    }
+  }, [otherParticipant?.displayName, otherParticipant?.avatarUrl]);
 
-  if (!initialOtherParticipant) return null;
+  // Fetch profile only once if needed
+  useEffect(() => {
+    if (hasFetchedProfile || !otherUserId) return;
+    
+    if (!otherParticipant?.displayName || otherParticipant.displayName === 'Unknown User') {
+      setHasFetchedProfile(true);
+      getUserProfileById(otherUserId)
+        .then(profile => {
+          if (profile?.displayName) {
+            setDisplayName(profile.displayName);
+          }
+          if (profile?.avatarUrl) {
+            setAvatarUrl(profile.avatarUrl);
+          }
+        })
+        .catch(err => console.error("Failed to fetch profile for item:", err));
+    }
+  }, [otherUserId, otherParticipant?.displayName, hasFetchedProfile]);
+
+  const formatTimestamp = (timestamp?: string | number): string => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  if (!otherParticipant) return null;
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.messageItem}
-      onPress={() => router.push({ pathname: '/(chat)/chatArea', params: { conversationId: item.id } })}
+      onPress={() => onPress(item.id)}
     >
-      {avatarUrl ? (
-        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-      ) : (
-        <View style={styles.avatarPlaceholder}>
-          <Ionicons name="person-outline" size={24} color={Colors.light.background} />
-        </View>
-      )}
+      <Avatar
+        name={displayName}
+        avatarUrls={avatarUrl ? [avatarUrl] : []}
+        size={50}
+        style={styles.avatar}
+      />
       <View style={styles.messageContent}>
         <View style={styles.messageHeader}>
           <Text style={styles.senderName}>{displayName}</Text>
           <Text style={styles.messageTime}>{formatTimestamp(item.lastMessageTimestamp)}</Text>
         </View>
         <Text style={styles.lastMessage} numberOfLines={1}>
-          {item.lastMessage?.senderId === currentUser?.uid ? "You: " : ""}{item.lastMessage?.content || 'No messages yet'}
+          {item.lastMessage?.senderId === currentUserId ? "You: " : ""}{item.lastMessage?.content || 'No messages yet'}
         </Text>
       </View>
       {item.unreadCount && item.unreadCount > 0 && (
@@ -75,7 +90,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({ item, currentUser, 
       )}
     </TouchableOpacity>
   );
-};
+});
 
 const ChatListScreen = () => {
   const router = useRouter();
@@ -84,7 +99,7 @@ const ChatListScreen = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const filteredConversations = conversations.filter(conv => {
+  const filteredConversations = useMemo(() => conversations.filter(conv => {
     if (!searchQuery.trim()) {
       return true;
     }
@@ -99,30 +114,32 @@ const ChatListScreen = () => {
       const otherParticipant = conv.participants.find(p => p.userId !== currentUser?.uid);
       return otherParticipant?.displayName?.toLowerCase().includes(lowercasedQuery);
     }
-  });
+  }), [conversations, searchQuery, currentUser?.uid]);
 
-  const getOtherParticipant = (participants: ParticipantInfo[]): ParticipantInfo | undefined => {
-    return participants.find(p => p.userId !== currentUser?.uid);
-  };
+  const handleConversationPress = useCallback((conversationId: string) => {
+    router.push({ pathname: '/(chat)/chatArea', params: { conversationId } });
+  }, [router]);
 
-  const formatTimestamp = (timestamp?: string | number): string => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  const renderConversationItem = useCallback(({ item }: { item: Conversation }) => {
+    return (
+      <ConversationItem 
+        item={item} 
+        currentUserId={currentUser?.uid} 
+        onPress={handleConversationPress} 
+      />
+    );
+  }, [currentUser?.uid, handleConversationPress]);
 
-  const renderConversationItem = ({ item }: { item: Conversation }) => {
-    return <ConversationItem item={item} currentUser={currentUser} router={router} getOtherParticipant={getOtherParticipant} formatTimestamp={formatTimestamp} />;
-  };
-
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     router.push('/(chat)/newChat');
-  };
+  }, [router]);
+
+  const ItemSeparator = useCallback(() => <View style={styles.separator} />, []);
 
   if (isLoading && conversations.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading conversations...</Text>
       </SafeAreaView>
@@ -132,7 +149,7 @@ const ChatListScreen = () => {
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -143,7 +160,7 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 
@@ -162,8 +179,8 @@ const ChatListScreen = () => {
         data={filteredConversations}
         renderItem={renderConversationItem}
         keyExtractor={item => item.id}
-        style={styles.messageList} // Reusing styles, might need specific conversationList styles
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        style={styles.messageList}
+        ItemSeparatorComponent={ItemSeparator}
         ListEmptyComponent={
             <View style={styles.centered}>
                 <Text style={styles.emptyListText}>No conversations yet.</Text>
@@ -172,8 +189,9 @@ const ChatListScreen = () => {
                 </TouchableOpacity>
             </View>
         }
-        refreshing={isLoading} // Show refresh indicator while loading
-        onRefresh={fetchConversations} // Allow pull-to-refresh
+        refreshing={isLoading}
+        onRefresh={fetchConversations}
+        extraData={currentUser?.uid}
       />
       <TouchableOpacity
         style={styles.fab}

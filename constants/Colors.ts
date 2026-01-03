@@ -6,6 +6,8 @@ const brown = '#A47551';
 const darkBrown = '#7B4E2D';
 
 export const Colors = {
+  brown: brown,
+  darkBrown: darkBrown,
   light: {
     text: teal,
     textSecondary: '#687076',

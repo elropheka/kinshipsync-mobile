@@ -19,12 +19,20 @@ export default function ChatLayout() {
         name="messages"
         options={{
           title: 'Messages',
+          headerStyle: {
+            backgroundColor: Colors.brown,
+          },
+          headerTintColor: Colors.dark.text,
         }}
       />
       <Stack.Screen
         name="chatArea"
         options={{
           title: 'Chat',
+          headerStyle: {
+            backgroundColor: Colors.brown,
+          },
+          headerTintColor: Colors.dark.text,
         }}
       />
     </Stack>

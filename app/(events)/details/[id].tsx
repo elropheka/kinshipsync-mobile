@@ -156,17 +156,24 @@ export default function EventDetailsScreen() {
       return { text: 'RSVP details not available', style: styles.deadlineTextDefault };
     }
 
+    // If guests data is not loaded yet, show loading state
+    if (isLoadingEventDetails) {
+      return { text: 'Loading RSVP details...', style: styles.deadlineTextDefault };
+    }
+
     const eventDate = new Date(event.date);
     const now = new Date();
     const daysUntilEvent = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     // Calculate RSVP statistics
     const totalGuests = guests.length;
-    const respondedGuests = guests.filter(guest => 
-      guest.status === 'accepted' || guest.status === 'declined'
+    const respondedGuests = guests.filter(guest =>
+      guest.status === 'accepted' || guest.status === 'Attending' ||
+      guest.status === 'declined' || guest.status === 'Declined'
     ).length;
-    const pendingGuests = guests.filter(guest => 
-      guest.status === 'pending' || guest.status === 'Invited'
+    const pendingGuests = guests.filter(guest =>
+      guest.status === 'pending' || guest.status === 'Invited' ||
+      guest.status === 'Maybe' || !guest.status
     ).length;
     
     // Determine appropriate message and style based on event timing and RSVP status

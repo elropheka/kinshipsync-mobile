@@ -172,6 +172,11 @@
 						LastSwiftMigration = 1250;
 						DevelopmentTeam = "2R9CZ2H54X";
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};

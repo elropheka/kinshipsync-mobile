@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
@@ -51,11 +51,16 @@ export const styles = StyleSheet.create({
     alignSelf: 'stretch', // Make announcements take full width available
     maxWidth: '100%',
   },
+  senderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xxs,
+  },
   senderNameText: {
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.bold,
     color: Colors.light.textSecondary, // Or a distinct color for sender name
-    marginBottom: Spacing.xxs,
+    marginLeft: Spacing.xs,
   },
   messageText: {
     fontSize: ResponsiveFontSizes.body,

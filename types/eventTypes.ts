@@ -25,7 +25,7 @@ export interface Event {
 }
 
 // Guest Types
-export type GuestStatus = 'pending' | 'accepted' | 'declined' | 'Attending' | 'Invited';
+export type GuestStatus = 'pending' | 'accepted' | 'declined' | 'Declined' | 'Attending' | 'Invited' | 'Maybe';
 
 export interface Guest {
   id: string;

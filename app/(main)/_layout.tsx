@@ -42,8 +42,9 @@ function MainTabsLayout() {
               display: Platform.OS === 'web' ? 'none' : 'flex',
             },
              headerStyle: {
-                      backgroundColor: Colors.light.backgroundPrimary
+                      backgroundColor: Colors.brown
                 },
+                headerTintColor: Colors.dark.text,
           }}
           tabBar={props => {
             if (!props.state || !props.state.routes) {

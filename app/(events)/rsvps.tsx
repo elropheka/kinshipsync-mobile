@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,10 +7,13 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { styles } from '@/styles/app/(events)/rsvps.styles';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
-import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest } from '@/services/eventService';
-import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload } from '@/types/eventTypes';
+import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest, addGuestToEvent } from '@/services/eventService';
+import { getUserProfileByEmail } from '@/services/userService';
+import { createDirectConversation, sendMessage } from '@/services/chatService';
+import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload, CreateGuestPayload } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
+import InviteGuestModal from '@/components/events/InviteGuestModal';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -31,7 +34,8 @@ const RsvpListScreen = () => {
   
   const [isPreferenceModalVisible, setIsPreferenceModalVisible] = useState(false);
   const [editingGuest, setEditingGuest] = useState<GuestType | null>(null);
-  const [remindingGuestId, setRemindingGuestId] = useState<string | null>(null); 
+  const [remindingGuestId, setRemindingGuestId] = useState<string | null>(null);
+  const [isInviteModalVisible, setIsInviteModalVisible] = useState(false); 
 
   useEffect(() => {
     if (!eventId) {
@@ -134,6 +138,55 @@ const RsvpListScreen = () => {
     }
   };
 
+  const handleInviteGuestSubmit = async (guestData: CreateGuestPayload) => {
+    if (!eventId || !isAuthenticated) {
+      showError("Error", "Cannot invite guest. Event ID or authentication missing.");
+      throw new Error("Event ID or auth missing");
+    }
+    try {
+      const invitedGuest = await addGuestToEvent(isAuthenticated, eventId, guestData);
+      showSuccess("Success", `${invitedGuest.name} has been invited.`);
+      setIsInviteModalVisible(false);
+
+      if (guestData.email && user?.uid && eventId) {
+        try {
+          const invitedAppUser = await getUserProfileByEmail(guestData.email);
+          if (invitedAppUser && invitedAppUser.userId !== user.uid) {
+            console.log('Guest would be linked to user:', invitedAppUser.userId);
+
+            const conversation = await createDirectConversation(isAuthenticated, user.uid, {
+              recipientId: invitedAppUser.userId,
+            });
+
+            if (conversation) {
+              const eventName = eventDetails?.name || 'an event';
+              const invitationContent = `You've been invited to ${eventName}.`;
+              await sendMessage(isAuthenticated, {
+                conversationId: conversation.id,
+                content: invitationContent,
+                contentType: 'eventInvitation',
+                eventId: eventId,
+                guestId: invitedGuest.id,
+                eventName: eventName,
+                rsvpStatus: 'pending',
+              }, user.uid);
+              console.log(`Event invitation message sent to ${invitedAppUser.displayName || invitedAppUser.email}`);
+            }
+          } else if (invitedAppUser && invitedAppUser.userId === user.uid) {
+            console.log("Invited guest is the current user, no DM sent.");
+          } else {
+            console.log(`Guest with email ${guestData.email} is not an existing app user. No DM invitation sent.`);
+          }
+        } catch (dmError: any) {
+          console.error("Failed to send direct message or find user:", dmError.message);
+        }
+      }
+    } catch (e: any) {
+      showError("Error", `Failed to invite guest: ${e.message}`);
+      throw e;
+    }
+  };
+
   const renderRsvpItem = ({ item: guest }: { item: GuestType }) => (
     <TouchableOpacity style={styles.rsvpItem} onPress={() => handleOpenPreferenceModal(guest)}>
       <View style={styles.rsvpInfo}>
@@ -203,7 +256,16 @@ const RsvpListScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
-      <Stack.Screen options={{ title: `RSVPs: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'List')}` }} />
+      <Stack.Screen 
+        options={{ 
+          title: eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'RSVPs'),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{ marginRight: 10 }}>
+              <Ionicons name="person-add-outline" size={24} color="white" />
+            </TouchableOpacity>
+          )
+        }} 
+      />
    
       
       <View style={styles.searchContainer}>
@@ -280,6 +342,12 @@ const RsvpListScreen = () => {
           } : null}
         />
       )}
+      <InviteGuestModal 
+        visible={isInviteModalVisible}
+        onClose={() => setIsInviteModalVisible(false)}
+        onSubmit={handleInviteGuestSubmit}
+        currentEventName={eventDetails?.name}
+      />
     </SafeAreaView>
   );
 };

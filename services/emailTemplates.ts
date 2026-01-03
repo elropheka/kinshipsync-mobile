@@ -721,7 +721,7 @@ export const formatTimeForSMS = (timeString: string | undefined): string => {
 };
 
 /**
- * Event invitation SMS template - matches email format with emojis
+ * Event invitation SMS template - matches email format
  */
 export const getEventInvitationSMS = (
   guestName: string,
@@ -754,7 +754,7 @@ export const getEventInvitationSMS = (
 };
 
 /**
- * RSVP reminder SMS template - matches email format with emojis
+ * RSVP reminder SMS template - matches email format
  */
 export const getRsvpReminderSMS = (
   guestName: string,
@@ -778,7 +778,7 @@ export const getRsvpReminderSMS = (
   }
   
   if (eventLocation) {
-    message += `\n📍 Location: ${eventLocation}`;
+    message += `\nLocation: ${eventLocation}`;
   }
   
   message += `\n\nPlease RSVP in the app or visit the event website to confirm your attendance.`;

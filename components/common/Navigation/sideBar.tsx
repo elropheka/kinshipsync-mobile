@@ -19,6 +19,7 @@ import { useCurrentUser } from '../../../hooks/useUser';
 import { styles, SIDEBAR_WIDTH } from '../../../styles/components/common/Navigation/sideBar.styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from 'constants/Colors';
+import { Avatar } from '../Avatar';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -122,15 +123,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                       router.push('/(main)/profile');
                     }}
                   >
-                    {currentUserProfile.avatarUrl ? (
-                      <Image source={{ uri: currentUserProfile.avatarUrl }} style={styles.avatarImage} />
-                    ) : (
-                      <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>
-                          {currentUserProfile.displayName ? currentUserProfile.displayName.substring(0, 2).toUpperCase() : (currentUserProfile.email ? currentUserProfile.email.substring(0, 2).toUpperCase() : '??')}
-                        </Text>
-                      </View>
-                    )}
+                    <Avatar
+                      name={currentUserProfile.displayName || currentUserProfile.email || 'User'}
+                      avatarUrls={currentUserProfile.avatarUrl ? [currentUserProfile.avatarUrl] : []}
+                      size={40}
+                    />
                     <View style={styles.profileInfo}>
                       <Text style={styles.profileName} numberOfLines={1} ellipsizeMode="tail">
                         {currentUserProfile.displayName || 'User'}
@@ -142,9 +139,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                   </TouchableOpacity>
                 ) : (
                    <View style={styles.profileSection}>
-                      <View style={styles.avatar}>
-                         <Text style={styles.avatarText}>??</Text>
-                      </View>
+                      <Avatar
+                        name="Loading"
+                        avatarUrl={undefined}
+                        size={40}
+                      />
                       <View style={styles.profileInfo}>
                          <Text style={styles.profileName}>Loading...</Text>
                          <Text style={styles.profileEmail}>Loading...</Text>

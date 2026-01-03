@@ -33,6 +33,7 @@ import { getUserProfileById } from '../../services/userService'; // Import userS
 import { updateGuestRsvp } from '../../services/eventService'; // Added for RSVP actions
 import { updateMessageRsvpStatus } from '../../services/chatService'; // Added for updating message state
 import { useAlert } from '@/context/AlertContext';
+import { Avatar } from '../../components/common/Avatar';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -78,7 +79,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
 
     setIsProcessingRsvp(true);
     try {
-      const guestStatusUpdate: GuestStatus = action === 'accepted' ? 'Attending' : 'declined';
+      const guestStatusUpdate: GuestStatus = action === 'accepted' ? 'accepted' : 'declined';
       await updateGuestRsvp(isAuthenticated, message.eventId, message.guestId, { status: guestStatusUpdate });
       await updateMessageRsvpStatus(isAuthenticated, message.conversationId, message.id, action);
       showSuccess("RSVP Submitted", `You have ${action} the invitation.`);
@@ -97,13 +98,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
 
   return (
     <View style={[styles.messageBubbleContainer, isUser ? styles.userMessageContainer : styles.otherMessageContainer]}>
-      {!isUser && avatarUrl && (
-         <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-      )}
-      {!isUser && !avatarUrl && (
-        <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person-outline" size={16} color={Colors.light.background} />
-        </View>
+      {!isUser && (
+        <Avatar
+          name={displayName}
+          avatarUrls={avatarUrl ? [avatarUrl] : []}
+          size={32}
+        />
       )}
       <View style={[styles.messageBubble, isUser ? styles.userMessage : styles.otherMessage]}>
         {!isUser && <Text style={styles.senderName}>{displayName}</Text>}
@@ -254,7 +254,7 @@ const ChatAreaScreen: React.FC = () => {
   const MAX_FILE_SIZE_MB = 10;
   const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-  const requestPermissions = async () => {
+  const requestPermissions = useCallback(async () => {
     if (Platform.OS !== 'web') {
       const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (mediaLibraryStatus !== 'granted') {
@@ -263,11 +263,11 @@ const ChatAreaScreen: React.FC = () => {
       }
     }
     return true;
-  };
+  }, [showError]);
 
   useEffect(() => {
     requestPermissions();
-  }, []);
+  }, [requestPermissions]);
 
 
   const handlePickImage = async () => {
@@ -361,7 +361,7 @@ const ChatAreaScreen: React.FC = () => {
   if (isLoadingMessages && messages.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
         <ActivityIndicator size="large" color={Colors.light.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -371,7 +371,7 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
       </SafeAreaView>
     );
@@ -379,7 +379,7 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
       <Stack.Screen 
         options={{
           title: screenTitle,

@@ -13,6 +13,7 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
 import { isValidE164Format } from '../../utils/phoneUtils';
+import { Avatar } from '../../components/common/Avatar';
 
 // Type assertion to fix React 19 compatibility issue with class components
 const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
@@ -219,9 +220,14 @@ const ProfileScreen = () => {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>
-          <Image 
-            source={{ uri: editableProfile.avatarUrl || currentUserProfile.avatarUrl || authUser?.photoURL || 'https://via.placeholder.com/150' }} 
-            style={styles.profileImage} 
+          <Avatar
+            name={currentUserProfile?.displayName || authUser?.email || 'User'}
+            avatarUrls={[
+              editableProfile.avatarUrl,
+              currentUserProfile?.avatarUrl,
+              authUser?.photoURL
+            ].filter(url => url && url.trim()) as string[]}
+            size={120}
           />
           {isEditing && (
             <TouchableOpacity style={styles.editImageButton} onPress={handleEditAvatar}>

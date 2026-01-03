@@ -347,12 +347,20 @@ const styles = StyleSheet.create({
   },
   alertContainer: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    width: SCREEN_WIDTH,
+    left: Spacing.l,
+    right: Spacing.l,
+    borderRadius: BorderRadius.m,
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
     zIndex: 9999,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
   },
   modalContainer: {
     position: 'relative',

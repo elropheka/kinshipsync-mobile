@@ -10,9 +10,11 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { getUserProfile } from '../../services/userService';
 import { Colors } from '../../constants/Colors';
 import { useAlert } from '@/context/AlertContext';
+import { Avatar } from '../../components/common/Avatar';
 
 interface SenderDetails {
   name: string;
+  avatarUrl?: string;
 }
 
 const EventMessagesScreen = () => {
@@ -60,7 +62,10 @@ const EventMessagesScreen = () => {
           try {
             const profile = await getUserProfile(!!currentUser, senderId);
             if (profile && profile.displayName) {
-              currentCache[senderId] = { name: profile.displayName };
+              currentCache[senderId] = {
+                name: profile.displayName,
+                avatarUrl: profile.avatarUrl || undefined
+              };
             } else {
               currentCache[senderId] = { name: 'Unknown User' };
             }
@@ -112,16 +117,26 @@ const EventMessagesScreen = () => {
 
   const renderMessageItem = ({ item }: { item: EventMessage }) => {
     const isMyMessage = item.sender === currentUser?.uid;
+    const senderDetails = senderDetailsCache[item.sender];
+    const senderName = getSenderName(item.sender);
+
     return (
       <View style={[
-        styles.messageBubble, 
+        styles.messageBubble,
         isMyMessage ? styles.myMessageBubble : styles.otherMessageBubble,
-
       ]}>
-        {!isMyMessage && <Text style={styles.senderNameText}>{getSenderName(item.sender)}</Text>}
+        {!isMyMessage && (
+          <View style={styles.senderHeader}>
+            <Avatar
+              name={senderName}
+              avatarUrls={senderDetails?.avatarUrl ? [senderDetails.avatarUrl] : []}
+              size={24}
+            />
+            <Text style={styles.senderNameText}>{senderName}</Text>
+          </View>
+        )}
         <Text style={styles.messageText}>{item.content}</Text>
         <Text style={styles.timestampText}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-
       </View>
     );
   };

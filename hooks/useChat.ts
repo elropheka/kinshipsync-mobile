@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import * as chatService from '../services/chatService';
 import { uploadFile } from '../services/storageService';
 import {
@@ -14,72 +14,69 @@ export const useConversations = () => {
   const { isAuthenticated } = useAuth();
   const currentUserId = authUser?.uid;
 
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [lastConversation, setLastConversation] = useState<Conversation | undefined>(undefined);
-  const [hasMoreConversations, setHasMoreConversations] = useState(true);
-  const conversationsLimit = 20;
+  // Use ref to track isAuthenticated without triggering effect re-runs
+  const isAuthenticatedRef = useRef(isAuthenticated);
+  useEffect(() => {
+    isAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
 
-  const fetchConversations = useCallback(async (isInitialFetch: boolean = false) => {
-    if (!currentUserId || (!hasMoreConversations && !isInitialFetch)) return;
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Real-time listener for conversations
+  useEffect(() => {
+    if (!currentUserId || !isAuthenticatedRef.current) {
+      setConversations([]);
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
-    setError(null);
+    
+    const unsubscribe = chatService.listenToConversations(
+      true,
+      currentUserId,
+      (updatedConversations) => {
+        setConversations(updatedConversations);
+        setIsLoading(false);
+        setError(null);
+      },
+      50 // Increased limit for real-time list
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [currentUserId]);
+
+  // Manual refresh function (for pull-to-refresh)
+  const refreshConversations = useCallback(async () => {
+    if (!currentUserId || !isAuthenticatedRef.current) return;
+    
+    setIsLoading(true);
     try {
-      const cursor = isInitialFetch ? undefined : lastConversation;
-      const data = await chatService.getConversations(isAuthenticated, currentUserId, conversationsLimit, cursor);
-      
-      if (isInitialFetch) {
-        setConversations(data);
-      } else {
-        setConversations(prev => {
-          const existingIds = new Set(prev.map(c => c.id));
-          return [...prev, ...data.filter(c => !existingIds.has(c.id))];
-        });
-      }
-      
-      setHasMoreConversations(data.length === conversationsLimit);
-      if (data.length > 0) {
-        setLastConversation(data[data.length - 1]);
-      }
+      // Fetch fresh data from Firestore
+      const freshData = await chatService.getConversations(true, currentUserId, 50);
+      setConversations(freshData);
+      setError(null);
     } catch (e) {
       setError(e as Error);
-      console.error("Failed to fetch conversations:", e);
+      console.error("Failed to refresh conversations:", e);
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, hasMoreConversations, lastConversation, conversationsLimit, isAuthenticated]);
+  }, [currentUserId]);
 
-  useEffect(() => {
-    if (currentUserId) {
-      setLastConversation(undefined);
-      setHasMoreConversations(true);
-      fetchConversations(true); 
-    } else {
-      setConversations([]); 
-      setLastConversation(undefined);
-      setHasMoreConversations(true);
-    }
-  }, [currentUserId, fetchConversations]); 
-
-  const loadMoreConversations = () => {
-    if (hasMoreConversations && !isLoading) {
-      fetchConversations(false);
-    }
-  };
-  
-  const refreshConversations = () => {
-    setLastConversation(undefined);
-    setHasMoreConversations(true);
-    fetchConversations(true);
-  };
+  const loadMoreConversations = useCallback(() => {
+    // With real-time listener, we show all recent conversations
+  }, []);
 
   const createDirectChat = useCallback(async (payload: CreateDirectConversationPayload) => {
-    if (!currentUserId) { setError(new Error("User not authenticated.")); return null; }
+    if (!currentUserId || !isAuthenticatedRef.current) { setError(new Error("User not authenticated.")); return null; }
     setIsLoading(true);
     try {
-      const newConversation = await chatService.createDirectConversation(isAuthenticated, currentUserId, payload);
+      const newConversation = await chatService.createDirectConversation(true, currentUserId, payload);
       setConversations(prev => [newConversation, ...prev.filter(c => c.id !== newConversation.id)]);
       return newConversation;
     } catch (e) {
@@ -88,13 +85,13 @@ export const useConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, isAuthenticated]);
+  }, [currentUserId]);
 
   const createGroupChat = useCallback(async (payload: CreateGroupConversationPayload) => {
-    if (!currentUserId) { setError(new Error("User not authenticated.")); return null; }
+    if (!currentUserId || !isAuthenticatedRef.current) { setError(new Error("User not authenticated.")); return null; }
     setIsLoading(true);
     try {
-      const newConversation = await chatService.createGroupConversation(isAuthenticated, currentUserId, payload);
+      const newConversation = await chatService.createGroupConversation(true, currentUserId, payload);
       setConversations(prev => [newConversation, ...prev.filter(c => c.id !== newConversation.id)]);
       return newConversation;
     } catch (e) {
@@ -103,7 +100,7 @@ export const useConversations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserId, isAuthenticated]);
+  }, [currentUserId]);
   
   const updateConversationInList = useCallback((updatedConv: Conversation) => {
     setConversations(prevConvs => {
@@ -125,6 +122,12 @@ export const useChatMessages = (conversationId?: string) => {
   const { isAuthenticated } = useAuth();
   const currentUserId = authUser?.uid;
 
+  // Use ref to track isAuthenticated without triggering effect re-runs
+  const isAuthenticatedRef = useRef(isAuthenticated);
+  useEffect(() => {
+    isAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationDetails, setConversationDetails] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -134,13 +137,13 @@ export const useChatMessages = (conversationId?: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (conversationId && currentUserId) {
+    // Only set up listeners if we have valid IDs and user is authenticated
+    // Using ref to check auth status without re-subscribing on auth micro-changes
+    if (conversationId && currentUserId && isAuthenticatedRef.current) {
       setIsLoading(true);
-      setMessages([]); 
-      setConversationDetails(null);
 
       const unsubscribeConversationDetails = chatService.listenToConversationDetails(
-        isAuthenticated,
+        true,
         conversationId,
         currentUserId,
         (details) => {
@@ -155,13 +158,13 @@ export const useChatMessages = (conversationId?: string) => {
       );
 
       const unsubscribeMessages = chatService.listenToMessages(
-        isAuthenticated,
+        true,
         conversationId,
         (newMessages) => {
           setMessages(newMessages);
           setIsLoading(false);
           if (newMessages.length > 0) {
-            chatService.markConversationAsRead(isAuthenticated, { conversationId }, currentUserId);
+            chatService.markConversationAsRead(true, { conversationId }, currentUserId);
           }
         },
         30
@@ -171,12 +174,12 @@ export const useChatMessages = (conversationId?: string) => {
         unsubscribeConversationDetails();
         unsubscribeMessages();
       };
-    } else {
+    } else if (!conversationId || !currentUserId) {
       setMessages([]);
       setConversationDetails(null);
       setIsLoading(false);
     }
-  }, [conversationId, currentUserId, isAuthenticated]);
+  }, [conversationId, currentUserId]);
 
   interface PostMessageHookPayload {
     content: string;
