@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
-    width: Layout.SCREEN_WIDTH * 0.8,
+    width: Layout.SCREEN_WIDTH * 0.9,
     alignSelf: isTablet() ? 'center' : 'stretch',
   },
   sectionTitle: {
@@ -114,12 +114,13 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
   },
   button: {
-    marginHorizontal: Spacing.m,
     marginTop: Spacing.l,
     paddingVertical: Spacing.l,
     borderRadius: BorderRadius.m,
     alignItems: 'center',
     justifyContent: 'center',
+    width: Layout.SCREEN_WIDTH * 0.9,
+    alignSelf: isTablet() ? 'center' : 'stretch',
   },
   saveButton: {
     backgroundColor: Colors.light.buttonPrimary,
