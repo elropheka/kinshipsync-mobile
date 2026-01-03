@@ -1,23 +1,23 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createCategoryStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     // justifyContent: 'center', // Remove, content will fill
     // alignItems: 'center', // Remove, content will fill
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   listContentContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   vendorCard: {
-    backgroundColor: Colors.light.background, // Or Colors.light.backgroundPaper for contrast
+    backgroundColor: theme.background, // Or theme.backgroundPaper for contrast
     borderRadius: 8,
     marginBottom: 16,
     padding: 16,
-    borderColor: Colors.light.border, // Use a defined border color
+    borderColor: theme.border, // Use a defined border color
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
-    backgroundColor: Colors.light.backgroundPaper, // Changed from backgroundMuted
+    backgroundColor: theme.backgroundPaper, // Changed from backgroundMuted
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -40,11 +40,11 @@ export const styles = StyleSheet.create({
   vendorName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
   },
   vendorCategoryName: { // Specific for this screen if needed, or reuse vendorCategory style
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: 2,
   },
   ratingContainer: {
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
   ratingText: {
     marginLeft: 4,
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   loader: {
     marginTop: 20,
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: 'center',
-    color: Colors.light.error, // Use a defined error color
+    color: theme.error, // Use a defined error color
     margin: 16,
     fontSize: 16,
   },
@@ -75,13 +75,16 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: 16,
   },
   itemPrice: { // Added style for item price
     fontSize: 14, // Slightly smaller than vendor name
     fontWeight: '600', // Semi-bold
-    color: Colors.light.primary, // Use primary color for price, or Colors.light.text
+    color: theme.primary, // Use primary color for price, or theme.text
     marginTop: 4,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createCategoryStyles(Colors.light);

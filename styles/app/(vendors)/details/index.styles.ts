@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     zIndex: 10,
   },
   backButton: {
@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   favoriteButton: {
     padding: Spacing.s,
@@ -56,11 +56,11 @@ export const styles = StyleSheet.create({
     width: moderateScale(8),
     height: moderateScale(8),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.background + '80',
+    backgroundColor: theme.background + '80',
     marginHorizontal: Spacing.xs,
   },
   activePaginationDot: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   infoContainer: {
     padding: Spacing.m,
@@ -75,12 +75,12 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     fontFamily: Fonts.headerBold,
-    color: Colors.light.text,
+    color: theme.text,
     flexShrink: 1,
   },
   vendorCategory: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontFamily: Fonts.bodyRegular,
     marginTop: Spacing.xxs,
   },
@@ -93,7 +93,7 @@ export const styles = StyleSheet.create({
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   contactButtonsContainer: {
     flexDirection: 'row',
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
   },
   contactButton: {
     alignItems: 'center',
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
   contactButtonText: {
     marginTop: Spacing.xs,
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontFamily: Fonts.bodyMedium,
   },
   sectionHeader: {
@@ -121,14 +121,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
     paddingHorizontal: Spacing.m,
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   sectionContent: {
     paddingVertical: Spacing.m,
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
   descriptionText: {
     fontSize: ResponsiveFontSizes.body,
     lineHeight: ResponsiveFontSizes.body * 1.5,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontFamily: Fonts.bodyRegular,
     marginBottom: Spacing.s,
   },
@@ -148,7 +148,7 @@ export const styles = StyleSheet.create({
   },
   addressText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.xs,
     flex: 1,
     fontFamily: Fonts.bodyRegular,
@@ -157,7 +157,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.m,
     paddingBottom: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   serviceHeader: {
     flexDirection: 'row',
@@ -169,17 +169,17 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle - 1,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   servicePrice: {
     fontSize: ResponsiveFontSizes.subtitle - 1,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   serviceDescription: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     lineHeight: ResponsiveFontSizes.body * 1.4,
     fontFamily: Fonts.bodyRegular,
   },
@@ -187,7 +187,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.m,
     paddingBottom: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -199,17 +199,17 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle - 1,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   reviewDate: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
     fontFamily: Fonts.bodyRegular,
   },
   reviewComment: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     lineHeight: ResponsiveFontSizes.body * 1.4,
     fontFamily: Fonts.bodyRegular,
     marginTop: Spacing.xs,
@@ -219,30 +219,33 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.xl,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginTop: Spacing.s,
   },
   writeReviewText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontFamily: Fonts.bodyMedium,
   },
   bookButtonContainer: {
     padding: Spacing.m,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
   },
   bookButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.m,
     borderRadius: BorderRadius.m,
     alignItems: 'center',
   },
   bookButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     fontFamily: Fonts.headerSemiBold,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

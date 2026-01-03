@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Modal,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -16,9 +15,9 @@ import SecondaryIcon from 'react-native-vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useAuth } from '../../../context/AuthContext';
 import { useCurrentUser } from '../../../hooks/useUser';
-import { styles, SIDEBAR_WIDTH } from '../../../styles/components/common/Navigation/sideBar.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { createSideBarStyles, SIDEBAR_WIDTH } from '../../../styles/components/common/Navigation/sideBar.styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from 'constants/Colors';
 import { Avatar } from '../Avatar';
 
 interface SidebarProps {
@@ -31,6 +30,8 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const { signOut } = useAuth();
   const { profile: currentUserProfile, isLoading: isLoadingUser } = useCurrentUser();
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createSideBarStyles(currentColors), [currentColors]);
 
   useEffect(() => {
     if (isVisible) {
@@ -72,7 +73,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
         onRequestClose={onClose}
       >
         <View style={styles.overlay}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
+          <ActivityIndicator size="large" color={currentColors.primary} />
         </View>
       </Modal>
     );
@@ -161,7 +162,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                       router.push('/(main)/profile');
                     }}
                   >
-                    <SecondaryIcon name="person-outline" size={22} color="#333" />
+                    <SecondaryIcon name="person-outline" size={22} color={currentColors.text} />
                     <Text style={styles.menuText}>Profile</Text>
                   </TouchableOpacity>
                   
@@ -172,7 +173,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                       router.push('/(main)/settings');
                     }}
                   >
-                    <Icon name="settings" size={22} color="#333" />
+                    <Icon name="settings" size={22} color={currentColors.text} />
                     <Text style={styles.menuText}>Settings</Text>
                   </TouchableOpacity>
                   
@@ -183,7 +184,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                       router.push('/(main)/subscriptionPlans');
                     }}
                   >
-                    <Icon name="card-membership" size={22} color="#333" />
+                    <Icon name="card-membership" size={22} color={currentColors.text} />
                     <Text style={styles.menuText}>Subscription Plan</Text>
                   </TouchableOpacity> */}
                 </View>
@@ -202,7 +203,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     }
                   }}
                 >
-                  <Icon name="logout" size={22} color="#FF3B30" />
+                  <Icon name="logout" size={22} color={currentColors.error} />
                   <Text style={styles.logoutText}>Logout</Text>
                 </TouchableOpacity>
               </View>

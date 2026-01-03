@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, ScrollView, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Spacing } from '@/constants/dimensions';
 
 interface SliderProps {
@@ -29,6 +29,7 @@ const Slider: React.FC<SliderProps> = ({
   loop = true,
   pauseOnHover = false,
 }) => {
+  const { currentColors } = useAppTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -124,6 +125,8 @@ const Slider: React.FC<SliderProps> = ({
     };
   }, []);
 
+  const styles = useMemo(() => SliderStyles(currentColors), [currentColors]);
+
   if (!children || children.length === 0) {
     return null;
   }
@@ -156,7 +159,7 @@ const Slider: React.FC<SliderProps> = ({
             onPress={goToPreviousSlide}
             activeOpacity={0.7}
           >
-            <Ionicons name="chevron-back" size={24} color={Colors.light.textLight} />
+            <Ionicons name="chevron-back" size={24} color={currentColors.textLight} />
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -164,7 +167,7 @@ const Slider: React.FC<SliderProps> = ({
             onPress={goToNextSlide}
             activeOpacity={0.7}
           >
-            <Ionicons name="chevron-forward" size={24} color={Colors.light.textLight} />
+            <Ionicons name="chevron-forward" size={24} color={currentColors.textLight} />
           </TouchableOpacity>
         </>
       )}
@@ -188,7 +191,7 @@ const Slider: React.FC<SliderProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const SliderStyles = (currentColors: typeof import('constants/Colors').Colors.light) => StyleSheet.create({
   container: {
     position: 'relative',
     paddingRight: Spacing.l,
@@ -236,10 +239,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: Colors.light.textLight,
+    backgroundColor: currentColors.textLight,
   },
   inactiveDot: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: currentColors.backgroundPaper + '80', // 50% opacity
   },
 });
 

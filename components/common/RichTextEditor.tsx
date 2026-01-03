@@ -1,8 +1,8 @@
-import React, { useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { RichEditor, RichToolbar, actions } from 'react-native-pell-rich-editor';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 export interface RichTextEditorRef {
   setContent: (content: string) => void;
@@ -22,6 +22,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
   placeholder = 'Start typing...',
   minHeight = 200
 }, ref) => {
+  const { currentColors } = useAppTheme();
   const richText = useRef<RichEditor>(null);
 
   useImperativeHandle(ref, () => ({
@@ -66,6 +67,38 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
     }
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    toolbar: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+    },
+    toolbarButton: {
+      padding: 8,
+    },
+    toolbarButtonSelected: {
+      backgroundColor: currentColors.backgroundSecondary,
+      borderRadius: 4,
+    },
+    richEditor: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    editor: StyleSheet.create({
+      style: {
+        backgroundColor: currentColors.backgroundPaper,
+        color: currentColors.text,
+      }
+    }).style,
+  }), [currentColors]);
+
   const renderAction = (action: string, selected: boolean) => {
     if (action in customActions) {
       return (
@@ -76,7 +109,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
           <Ionicons
             name={customActions[action].iconName}
             size={20}
-            color={selected ? Colors.light.primary : Colors.light.text}
+            color={selected ? currentColors.primary : currentColors.text}
           />
         </TouchableOpacity>
       );
@@ -91,8 +124,8 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
         actions={toolbarActions}
         iconMap={customActions}
         renderAction={renderAction}
-        selectedIconTint={Colors.light.primary}
-        iconTint={Colors.light.text}
+        selectedIconTint={currentColors.primary}
+        iconTint={currentColors.text}
         style={styles.toolbar}
       />
       <RichEditor
@@ -111,37 +144,5 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
 });
 
 RichTextEditor.displayName = 'RichTextEditor';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  toolbar: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-  },
-  toolbarButton: {
-    padding: 8,
-  },
-  toolbarButtonSelected: {
-    backgroundColor: Colors.light.backgroundSecondary,
-    borderRadius: 4,
-  },
-  richEditor: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  editor: StyleSheet.create({
-    style: {
-      backgroundColor: Colors.light.backgroundPaper,
-      color: Colors.light.text,
-    }
-  }).style,
-});
 
 export default RichTextEditor;

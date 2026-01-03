@@ -6,15 +6,14 @@ import {
   BorderRadius,
   ResponsiveFontSizes,
   IconSizes,
-  Layout,
   moderateScale,
   isTablet,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -41,19 +40,19 @@ export const styles = StyleSheet.create({
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
     textAlign: isTablet() ? 'center' : 'left',
   },
   subtitle: {
     fontSize: isTablet() ? ResponsiveFontSizes.subtitle : ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.l,
     lineHeight: isTablet() ? ResponsiveFontSizes.subtitle * 1.4 : ResponsiveFontSizes.body * 1.4,
     textAlign: isTablet() ? 'center' : 'left',
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.xl,
     marginVertical: Spacing.l,
     padding: Spacing.xs,
@@ -62,11 +61,11 @@ export const styles = StyleSheet.create({
   },
   toggleButtonActive: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.m,
     alignItems: 'center',
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(1),
@@ -79,10 +78,10 @@ export const styles = StyleSheet.create({
   },
   toggleTextActive: {
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   toggleTextInactive: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   form: {
     marginTop: Spacing.s,
@@ -90,39 +89,39 @@ export const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: Spacing.m,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: BorderRadius.m,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     flexDirection: 'row',
     alignItems: 'center',
-    color: Colors.light.text,
+    color: theme.text,
   },
   input: {
     flex: 1,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
   inputIcon: {
     paddingRight: Spacing.m,
-    color: Colors.light.icon,
+    color: theme.icon,
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
     marginBottom: Spacing.l,
   },
   forgotPasswordText: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   signInButton: {
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.l,
     alignItems: 'center',
     marginTop: Spacing.s,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -134,7 +133,7 @@ export const styles = StyleSheet.create({
   signInButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -144,11 +143,11 @@ export const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   dividerText: {
     paddingHorizontal: Spacing.m,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   socialButtons: {
@@ -161,9 +160,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.m,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: BorderRadius.xl,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     flex: Platform.OS === 'android'? 1 : 0.48,
   },
   appleButton: {
@@ -173,9 +172,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.m,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: BorderRadius.xl,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     flex: 0.48,
   },
   socialIcon: {
@@ -185,7 +184,7 @@ export const styles = StyleSheet.create({
   },
   socialButtonText: {
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text,
+    color: theme.text,
   },
   signUpContainer: {
     flexDirection: 'row',
@@ -194,10 +193,10 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   signUpText: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   signUpLink: {
-    color: Colors.light.success,
+    color: theme.success,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
   },
@@ -210,3 +209,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.s,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createSignInStyles(Colors.light);

@@ -3,8 +3,9 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator 
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router'; 
-import { styles } from '../../../styles/app/(events)/all/index.styles';
+import { createIndexStyles } from '../../../styles/app/(events)/all/index.styles';
 import { useAllEvents } from '../../../hooks/useEvents';
+import { useAppTheme } from '../../../context/AppThemeContext';
 import { Event as AppEvent } from '../../../types/eventTypes';
 
 type EventClientStatus = 'Upcoming' | 'Past' | 'Planning';
@@ -25,6 +26,9 @@ interface Summary {
 type EventsScreenProps = Record<string, never>;
 
 const EventsScreen: React.FC<EventsScreenProps> = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
   const { events: fetchedEvents, isLoading, error, fetchEvents: refreshEvents } = useAllEvents();
   const [activeTab, setActiveTab] = useState<string>('Upcoming');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);

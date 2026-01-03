@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createMessagesStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background, // Or a slightly different chat background
+    backgroundColor: theme.background, // Or a slightly different chat background
   },
   centered: {
     flex: 1,
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
   },
   listContainer: {
@@ -30,12 +30,12 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.m,
   },
   myMessageBubble: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     alignSelf: 'flex-end',
     borderBottomRightRadius: BorderRadius.xs, // Chat bubble tail effect
   },
   otherMessageBubble: {
-    backgroundColor: Colors.light.backgroundPaper, // Or Colors.light.secondary for contrast
+    backgroundColor: theme.backgroundPaper, // Or theme.secondary for contrast
     alignSelf: 'flex-start',
     borderBottomLeftRadius: BorderRadius.xs, // Chat bubble tail effect
     elevation: 1,
@@ -45,8 +45,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 1,
   },
   announcementBubble: {
-    backgroundColor: Colors.light.warning + '30', // Light warning background for announcements
-    borderColor: Colors.light.warning,
+    backgroundColor: theme.warning + '30', // Light warning background for announcements
+    borderColor: theme.warning,
     borderWidth: 1,
     alignSelf: 'stretch', // Make announcements take full width available
     maxWidth: '100%',
@@ -59,37 +59,37 @@ export const styles = StyleSheet.create({
   senderNameText: {
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.textSecondary, // Or a distinct color for sender name
+    color: theme.textSecondary, // Or a distinct color for sender name
     marginLeft: Spacing.xs,
   },
   messageText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text, // Default for other messages
+    color: theme.text, // Default for other messages
     // For my messages, color should contrast with primary
     // This can be handled by adding a specific style for myMessageText if needed
   },
   myMessageText: { // Example if specific color needed for own messages
-     color: Colors.light.primaryContrastText,
+     color: theme.primaryContrastText,
   },
   timestampText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary, // Default for other messages
+    color: theme.textSecondary, // Default for other messages
     alignSelf: 'flex-end',
     marginTop: Spacing.xs,
   },
   myTimestampText: { // Example for own messages
-     color: Colors.light.primaryContrastText + 'aa', // Lighter version of contrast text
+     color: theme.primaryContrastText + 'aa', // Lighter version of contrast text
   },
   announcementText: {
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.warning,
+    color: theme.warning,
     marginTop: Spacing.xs,
     textAlign: 'center',
   },
   emptyMessagesText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xl,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -98,26 +98,29 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.m,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderTopColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   textInput: {
     flex: 1,
     minHeight: moderateScale(40),
     maxHeight: moderateScale(120), // Allow for multi-line input
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     marginRight: Spacing.m,
   },
   sendButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.round,
     padding: Spacing.m,
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createMessagesStyles(Colors.light);

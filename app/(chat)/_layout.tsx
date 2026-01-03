@@ -2,8 +2,10 @@ import { Stack } from 'expo-router';
 import React from 'react';
 import BackButton from '@/components/common/Navigation/BackButton';
 import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 export default function ChatLayout() {
+  const { currentColors } = useAppTheme();
   return (
     <Stack
       screenOptions={{
@@ -11,7 +13,7 @@ export default function ChatLayout() {
         headerLeft: () => <BackButton />,
         headerBackVisible: false,
          headerStyle: {
-                  backgroundColor: Colors.light.backgroundPrimary,
+                  backgroundColor: currentColors.backgroundPrimary,
                 },
       }}
     >
@@ -22,7 +24,7 @@ export default function ChatLayout() {
           headerStyle: {
             backgroundColor: Colors.brown,
           },
-          headerTintColor: Colors.dark.text,
+          headerTintColor: currentColors.text,
         }}
       />
       <Stack.Screen
@@ -32,7 +34,7 @@ export default function ChatLayout() {
           headerStyle: {
             backgroundColor: Colors.brown,
           },
-          headerTintColor: Colors.dark.text,
+          headerTintColor: currentColors.text,
         }}
       />
     </Stack>

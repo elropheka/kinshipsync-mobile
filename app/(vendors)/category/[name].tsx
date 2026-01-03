@@ -9,12 +9,17 @@ import {
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../../../styles/app/(vendors)/category/[name].styles';
+import { createCategoryStyles } from '../../../styles/app/(vendors)/category/[name].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '../../../constants/Colors';
 import { DisplayVendorItem, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 
 export default function VendorCategoryScreen() {
+  const { currentColors } = useAppTheme();
+  const styles = createCategoryStyles(currentColors);
+
+
   const { name: vendorCategorySlug } = useLocalSearchParams<{ name: string }>();
 
   const {
@@ -61,7 +66,7 @@ export default function VendorCategoryScreen() {
             )}
             {vendorRating !== undefined && vendorRating > 0 && (
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color={Colors.light.tint} />
+                <Ionicons name="star" size={16} color={currentColors.tint} />
                 <Text style={styles.ratingText}>{vendorRating.toFixed(1)} ({vendorReviews || 0} reviews)</Text>
               </View>
             )}
@@ -69,13 +74,13 @@ export default function VendorCategoryScreen() {
         </View>
       </TouchableOpacity>
     );
-  }, [handleNavigateToVendorDetails]);
+  }, [handleNavigateToVendorDetails, styles, currentColors]);
 
   if (isLoading && displayItems.length === 0) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: vendorCategorySlug || 'Category Items' }} />
-        <ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -110,7 +115,7 @@ export default function VendorCategoryScreen() {
             }
           }}
           onEndReachedThreshold={0.5}
-          ListFooterComponent={isLoading && displayItems.length > 0 ? <ActivityIndicator color={Colors.light.tint} style={{ marginVertical: 20 }}/> : null}
+          ListFooterComponent={isLoading && displayItems.length > 0 ? <ActivityIndicator color={currentColors.tint} style={{ marginVertical: 20 }}/> : null}
         />
       )}
     </SafeAreaView>

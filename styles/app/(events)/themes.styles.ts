@@ -5,15 +5,13 @@ import {
   Spacing,
   BorderRadius,
   ResponsiveFontSizes,
-  IconSizes,
-  Layout,
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createThemesStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +19,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl,
     paddingBottom: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   backButton: {
     padding: Spacing.s,
@@ -32,14 +30,14 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
     marginRight: Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   tabItem: {
     flex: 1,
@@ -47,21 +45,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.s,
     borderBottomWidth: moderateScale(4),
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   lastTab: {
     marginRight: 0,
   },
   activeTab: {
-    borderBottomColor: Colors.light.buttonPrimary,
+    borderBottomColor: theme.buttonPrimary,
   },
   tabText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.s,
   },
   activeTabText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   scrollableContent: {
@@ -76,21 +74,21 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.medium,
     marginBottom: Spacing.m,
     marginTop: Spacing.l,
-    color: Colors.light.text,
+    color: theme.text,
   },
   themeCard: {
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
     marginBottom: Spacing.m,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   selectedThemeCard: {
-    borderColor: Colors.light.success,
+    borderColor: theme.success,
     borderWidth: moderateScale(2),
     borderLeftWidth: moderateScale(8),
   },
@@ -101,30 +99,30 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   themeDescription: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   radioButton: {
     width: moderateScale(24),
     height: moderateScale(24),
     borderRadius: BorderRadius.round,
     borderWidth: moderateScale(2),
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: Spacing.s,
   },
   radioButtonSelected: {
-    borderColor: Colors.light.warning,
+    borderColor: theme.warning,
   },
   radioButtonInner: {
     width: moderateScale(14),
     height: moderateScale(14),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.warning,
+    backgroundColor: theme.warning,
   },
   colorPaletteContainer: {
     flexDirection: 'row',
@@ -139,11 +137,11 @@ export const styles = StyleSheet.create({
     margin: Spacing.xs,
 
     borderWidth: 1,
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
   },
   selectedColorOption: {
     borderWidth: moderateScale(3),
-    borderColor: Colors.light.text,
+    borderColor: theme.text,
   },
   fontStyleContainer: {
     flexDirection: 'row',
@@ -154,19 +152,19 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.xl,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   selectedFontStyle: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
                                     
   },
   fontStyleText: {
     textAlign: 'center',
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.body,
   },
   selectedFontStyleText: {
-    color: Colors.light.accentContrastText,
+    color: theme.accentContrastText,
   },
   navigationContainer: {
     flexDirection: 'row',
@@ -175,7 +173,7 @@ export const styles = StyleSheet.create({
   },
   backNextButton: {
     flex: 1,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.l,
     alignItems: 'center',
@@ -184,18 +182,21 @@ export const styles = StyleSheet.create({
   backNextButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.danger,
+    color: theme.danger,
     textAlign: 'center',
     marginVertical: Spacing.m,
   },
   emptyMessage: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginVertical: Spacing.m,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createThemesStyles(Colors.light);

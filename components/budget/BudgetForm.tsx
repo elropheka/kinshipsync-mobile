@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, ScrollView, StatusBar, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -6,7 +6,7 @@ import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '..
 import { Vendor } from '../../types/vendorTypes';
 import { VendorItem } from '../../types/vendorItemTypes';
 import { useVendorSearch, useVendorItemsSearch } from '../../hooks/useVendors';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
 interface BudgetFormProps {
@@ -55,6 +55,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     error: vendorItemsError,
     performItemSearch,
   } = useVendorItemsSearch({ vendorId: selectedVendorId });
+  const { currentColors } = useAppTheme();
   const { showError, showWarning } = useAlert();
 
 
@@ -161,12 +162,145 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     }
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+      marginBottom: 15,
+      marginTop: 10,
+    },
+    disabledText: {
+      color: currentColors.grey, 
+    },
+    readOnlyInput: {
+      backgroundColor: currentColors.divider, 
+      color: currentColors.textSecondary,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+    },
+    entryModeContainer: {
+      flexDirection: 'row',
+      marginBottom: 20,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    entryModeButton: {
+      flex: 1,
+      paddingVertical: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    entryModeButtonActive: {
+      backgroundColor: currentColors.primary,
+    },
+    entryModeText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: currentColors.primary,
+    },
+    entryModeTextActive: {
+      color: currentColors.backgroundPaper,
+    },
+    pickerWrapper: {
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      backgroundColor: currentColors.backgroundPaper,
+      justifyContent: 'center',
+    },
+    picker: {
+      color: currentColors.text,
+    },
+    pickerItem: {
+      color: currentColors.text,
+    },
+    pickerItemPlaceholder: {
+      color: currentColors.textSecondary,
+    },
+    errorText: {
+      color: currentColors.error,
+      fontSize: 14,
+      marginTop: 5,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+      backgroundColor: currentColors.background,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    headerButton: {
+      padding: 5,
+    },
+    headerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    fieldContainer: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      color: currentColors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    requiredStar: {
+      color: currentColors.error,
+    },
+    input: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    textArea: {
+      height: 80,
+      textAlignVertical: 'top',
+    },
+    switchContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+  }), [currentColors]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
-          <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+          <Ionicons name="close-outline" size={28} color={currentColors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{initialBudgetItem?.id ? 'Edit Budget Item' : 'Add Budget Item'}</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
@@ -207,13 +341,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
               value={manualVendorNameInput}
               onChangeText={setManualVendorNameInput}
               placeholder="e.g., John Doe Photography"
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
             />
           </View>
         ) : (
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Select Vendor <Text style={styles.requiredStar}>*</Text></Text>
-            {loadingVendors && <ActivityIndicator size="small" color={Colors.light.primary} />}
+            {loadingVendors && <ActivityIndicator size="small" color={currentColors.primary} />}
             {vendorsError && <Text style={styles.errorText}>Error loading vendors.</Text>}
             {!loadingVendors && !vendorsError && (
               <View style={styles.pickerWrapper}>
@@ -265,7 +399,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
                 value={itemName}
                 onChangeText={setItemName}
                 placeholder="e.g., Wedding Package, DJ Services"
-                placeholderTextColor={Colors.light.textSecondary}
+                placeholderTextColor={currentColors.textSecondary}
                 />
             </View>
         )}
@@ -273,7 +407,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
         {vendorEntryMode === 'select' && selectedVendorId && itemEntryMode === 'select' && (
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Select Vendor Item <Text style={styles.requiredStar}>*</Text></Text>
-            {loadingVendorItems && <ActivityIndicator size="small" color={Colors.light.primary} />}
+            {loadingVendorItems && <ActivityIndicator size="small" color={currentColors.primary} />}
             {vendorItemsError && <Text style={styles.errorText}>Error loading vendor items.</Text>}
             {!loadingVendorItems && !vendorItemsError && (
               <View style={styles.pickerWrapper}>
@@ -307,7 +441,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             value={category}
             onChangeText={setCategory}
             placeholder="e.g., Food, Decorations"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -319,7 +453,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             onChangeText={setEstimatedCost}
             placeholder="0.00"
             keyboardType="numeric"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -331,15 +465,15 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             onChangeText={setActualCost}
             placeholder="0.00 (optional)"
             keyboardType="numeric"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
         
         <View style={[styles.fieldContainer, styles.switchContainer]}>
           <Text style={styles.label}>Paid</Text>
           <Switch
-            trackColor={{ false: "#767577", true: Colors.light.tint }}
-            thumbColor={paid ? Colors.light.primary : "#f4f3f4"}
+            trackColor={{ false: "#767577", true: currentColors.tint }}
+            thumbColor={paid ? currentColors.primary : "#f4f3f4"}
             ios_backgroundColor="#3e3e3e"
             onValueChange={setPaid}
             value={paid}
@@ -355,7 +489,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
             placeholder="Any additional details..."
             multiline
             numberOfLines={3}
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -363,138 +497,5 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
       </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginBottom: 15,
-    marginTop: 10,
-  },
-  disabledText: {
-    color: Colors.light.grey, 
-  },
-  readOnlyInput: {
-    backgroundColor: Colors.light.divider, 
-    color: Colors.light.textSecondary,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-  },
-  entryModeContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  entryModeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  entryModeButtonActive: {
-    backgroundColor: Colors.light.primary,
-  },
-  entryModeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.light.primary,
-  },
-  entryModeTextActive: {
-    color: Colors.light.backgroundPaper,
-  },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    backgroundColor: Colors.light.backgroundPaper,
-    justifyContent: 'center',
-  },
-  picker: {
-    color: Colors.light.text,
-  },
-  pickerItem: {
-    color: Colors.light.text,
-  },
-  pickerItemPlaceholder: {
-    color: Colors.light.textSecondary,
-  },
-  errorText: {
-    color: Colors.light.error,
-    fontSize: 14,
-    marginTop: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  headerButton: {
-    padding: 5,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  requiredStar: {
-    color: Colors.light.error,
-  },
-  input: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-});
 
 export default BudgetForm;

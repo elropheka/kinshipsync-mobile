@@ -11,6 +11,7 @@ import TaskForm from '../../../components/tasks/TaskForm';
 import ScheduleForm from '../../../components/schedules/form/ScheduleForm'; // Added ScheduleForm
 import ScheduleListItem from '../../../components/schedules/list/ScheduleListItem'; // Added ScheduleListItem
 import { Colors } from '../../../constants/Colors';
+import { useAppTheme } from '../../../context/AppThemeContext';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, removeMemberFromTeam, deleteTaskForTeam } from '../../../services/teamService';
@@ -20,6 +21,7 @@ import { getUserProfile } from '../../../services/userService';
 // Mock data removed
 
 const TeamDashboardScreen = () => {
+  const { currentColors } = useAppTheme();
   const router = useRouter();
   const { teamId, initialTab } = useLocalSearchParams<{ teamId: string; initialTab?: string }>();
   const { user: currentUser, token, isInitialized } = useAppAuth();
@@ -289,8 +291,8 @@ const TeamDashboardScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text style={{marginTop: 10}}>Loading team data...</Text>
       </SafeAreaView>
     );
@@ -299,7 +301,7 @@ const TeamDashboardScreen = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Text style={{color: 'red', marginBottom: 10}}>{error}</Text>
         {/* Optionally add a retry button here */}
       </SafeAreaView>
@@ -309,7 +311,7 @@ const TeamDashboardScreen = () => {
   if (!team) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Team Not Found' }} />
         <Text>Team not found.</Text>
       </SafeAreaView>
@@ -328,7 +330,7 @@ const TeamDashboardScreen = () => {
         <Text style={styles.itemSubtitle}>{item.email}</Text>
       </View>
       <TouchableOpacity onPress={() => handleRemoveMember(item.userId, item.displayName)}>
-        <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+        <Ionicons name="trash-outline" size={24} color={currentColors.error} />
       </TouchableOpacity>
     </View>
   );
@@ -346,7 +348,7 @@ const TeamDashboardScreen = () => {
             <Ionicons 
               name={item.status === 'completed' ? "checkmark-circle" : item.status === 'in-progress' ? "ellipsis-horizontal-circle" : "ellipse-outline"} 
               size={24} 
-              color={item.status === 'completed' ? Colors.light.success : item.status === 'in-progress' ? Colors.light.warning : Colors.light.icon} 
+              color={item.status === 'completed' ? currentColors.success : item.status === 'in-progress' ? currentColors.warning : currentColors.icon} 
               style={styles.itemIcon} 
             />
             <View style={styles.itemTextContainer}>
@@ -358,10 +360,10 @@ const TeamDashboardScreen = () => {
             </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleOpenTaskForm(item)} style={{ paddingHorizontal: 10, paddingVertical: 5 }}>
-            <Ionicons name="pencil-outline" size={22} color={Colors.light.primary} />
+            <Ionicons name="pencil-outline" size={22} color={currentColors.primary} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleDeleteTask(item.id, item.title)} style={{ paddingHorizontal: 10, paddingVertical: 5 }}>
-        <Ionicons name="trash-outline" size={22} color={Colors.light.error} />
+        <Ionicons name="trash-outline" size={22} color={currentColors.error} />
       </TouchableOpacity>
     </View>
   );
@@ -379,13 +381,13 @@ const TeamDashboardScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen
         options={{
           title: team.name || 'Team Dashboard',
           headerRight: () => (
             <TouchableOpacity onPress={handleAddItem} style={{ marginRight: 15 }}>
-              <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+              <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
             </TouchableOpacity>
           ),
         }}
@@ -479,13 +481,13 @@ const TeamDashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight, 
+    backgroundColor: currentColors.backgroundLight, 
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background, 
+    backgroundColor: currentColors.background, 
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: currentColors.divider,
   },
   tab: {
     flex: 1,
@@ -496,31 +498,31 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: Colors.light.primary,
+    borderBottomColor: currentColors.primary,
   },
   tabText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
     fontWeight: '500',
   },
   activeTabText: {
-    color: Colors.light.primary,
+    color: currentColors.primary,
   },
   listHeader: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.light.text, 
+    color: currentColors.text, 
     padding: 15,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: currentColors.backgroundPaper,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: currentColors.divider,
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 15,
-    backgroundColor: Colors.light.background,
+    backgroundColor: currentColors.background,
   },
   itemIcon: {
     marginRight: 15,
@@ -530,7 +532,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 15,
-    backgroundColor: Colors.light.divider, // Placeholder bg
+    backgroundColor: currentColors.divider, // Placeholder bg
   },
   itemTextContainer: {
     flex: 1,
@@ -538,23 +540,23 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.light.text,
+    color: currentColors.text,
   },
   itemSubtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
     marginTop: 2,
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: currentColors.divider,
     marginLeft: 15 + 40 + 15, 
   },
   emptyListText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
   }
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,10 @@ import {
   Easing,
 } from 'react-native';
 import { AntDesign as SpecialIcon, Ionicons as SecondaryIcon, Feather, Entypo } from '@expo/vector-icons';
-import { Colors } from 'constants/Colors';
 import { router } from 'expo-router';
-import { styles } from '../../../styles/components/common/Navigation/bottomNavigation.styles';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { createBottomNavigationStyles } from '../../../styles/components/common/Navigation/bottomNavigation.styles';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const MENU_ESTIMATED_HEIGHT = 150;
@@ -28,6 +28,7 @@ interface CustomBottomNavigationProps extends BottomTabBarProps {
 
 const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
   const { isVisible } = props;
+  const { currentColors } = useAppTheme();
 
   const routeName = props.state?.routes?.[props.state?.index]?.name || 'defaultRouteName';
 
@@ -38,6 +39,9 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
   const navBarAnim = useRef(new Animated.Value(0)).current;
 
   const isLandscape = dimensions.width > dimensions.height;
+
+  // Create theme-aware styles
+  const styles = useMemo(() => createBottomNavigationStyles(currentColors), [currentColors]);
 
    const routes = {
     home: '/home',
@@ -59,11 +63,11 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
   };
 
   const getIconColor = (targetRouteName: RouteNames) => {
-    return isActiveRoute(targetRouteName) ? Colors.light.background : Colors.light.text;
+    return isActiveRoute(targetRouteName) ? currentColors.primary : currentColors.text;
   };
 
   const getLabelColor = (targetRouteName: RouteNames) => {
-    return isActiveRoute(targetRouteName) ? Colors.light.background : Colors.light.text;
+    return isActiveRoute(targetRouteName) ? currentColors.primary : currentColors.text;
   };
 
   const getTabButtonStyle = (targetRouteName: RouteNames) => {
@@ -152,7 +156,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
           style={styles.addButton}
           onPress={() => isVisible && setIsAddMenuVisible(!isAddMenuVisible)}
         >
-          <SecondaryIcon name={isAddMenuVisible ? "close-outline" : "add-outline"} size={40} color={Colors.light.neutralBg} />
+          <SecondaryIcon name={isAddMenuVisible ? "close-outline" : "add-outline"} size={40} color={currentColors.neutralBg} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -183,7 +187,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/createEvent')}
             >
-              <SecondaryIcon name="calendar-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
+              <SecondaryIcon name="calendar-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Create Event</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
@@ -191,7 +195,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/messages')}
             >
-              <SecondaryIcon name="chatbox-ellipses-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
+              <SecondaryIcon name="chatbox-ellipses-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Send Messages</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
@@ -199,7 +203,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/(vendors)/all')}
             >
-              <SecondaryIcon name="briefcase-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
+              <SecondaryIcon name="briefcase-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Add Vendor</Text>
             </TouchableOpacity>
              <View style={styles.menuDivider} />
@@ -207,7 +211,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/(main)/teams')}
             >
-              <SecondaryIcon name="people-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
+              <SecondaryIcon name="people-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Create Team</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
@@ -215,7 +219,7 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               style={styles.addMenuItem}
               onPress={() => handleNavigation('/themes/createTheme')}
             >
-              <SecondaryIcon name="color-palette-outline" size={20} color={Colors.light.icon} style={styles.addMenuItemIcon} />
+              <SecondaryIcon name="color-palette-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Create Theme</Text>
             </TouchableOpacity>
           </Animated.View>

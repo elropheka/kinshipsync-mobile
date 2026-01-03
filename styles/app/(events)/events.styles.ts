@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createEventsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,19 +22,19 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
 
   },
   tabsContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundLight,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundLight,
   },
   tab: {
     flex: 1,
@@ -43,17 +43,17 @@ export const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: moderateScale(3),
-    borderBottomColor: Colors.light.accentHighlight,
+    borderBottomColor: theme.accentHighlight,
   },
   tabText: {
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginHorizontal: Spacing.m,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.subtitle,
   },
   filtersContainer: {
@@ -76,23 +76,23 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterButton: {
-    backgroundColor: Colors.light.info + '1A',
+    backgroundColor: theme.info + '1A',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
   },
   selectedFilter: {
-    backgroundColor: Colors.light.info,
+    backgroundColor: theme.info,
   },
   filterText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.info,
+    color: theme.info,
   },
   
   addEventButton: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
@@ -101,13 +101,13 @@ export const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   addEventText: {
-    color: Colors.light.accentContrastText,
+    color: theme.accentContrastText,
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
   ownershipToggle: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
@@ -115,19 +115,19 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.primary,
+    borderColor: theme.primary,
   },
   ownershipToggleActive: {
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
   },
   ownershipToggleText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.primary,
+    color: theme.primary,
     marginLeft: Spacing.xs,
   },
   ownershipToggleTextActive: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   itemCountContainer: {
     paddingHorizontal: Spacing.m,
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   listContainer: {
     paddingHorizontal: Spacing.m,
@@ -153,11 +153,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   eventDate: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   statusContainer: {
     flexDirection: 'row',
@@ -177,24 +177,24 @@ export const styles = StyleSheet.create({
   },
   eventLocationText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   eventOrganizerText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
     fontStyle: 'italic',
   },
   eventGuestCount: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
     fontWeight: Fonts.weights.medium,
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   errorContainer: {
     flex: 1,
@@ -204,18 +204,18 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
   retryButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.m,
   },
   retryButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -227,7 +227,10 @@ export const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createEventsStyles(Colors.light);

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, M
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(events)/budget/index.styles'; // Will need new styles
+import { createIndexStyles } from '../../../styles/app/(events)/budget/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; // Will need new styles
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { useAllEvents, useEventDetail } from '../../../hooks/useEvents';
@@ -13,6 +14,10 @@ import { Colors } from 'constants/Colors';
 import { Spacing } from 'constants/dimensions'; // Import Spacing
 
 const EventBudgetScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   const params = useLocalSearchParams<{ eventId?: string }>();
   const { user: currentUser } = useAppAuth();
   const { showError, showSuccess, showConfirm } = useAlert();
@@ -149,7 +154,7 @@ const EventBudgetScreen = () => {
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.eventItemSelect} onPress={() => handleSelectEvent(item.id)}>
               <Text style={styles.eventItemSelectText}>{item.name}</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.light.textSecondary} />
+              <Ionicons name="chevron-forward" size={20} color={currentColors.textSecondary} />
             </TouchableOpacity>
           )}
           contentContainerStyle={{ padding: Spacing.m }}
@@ -184,7 +189,7 @@ const EventBudgetScreen = () => {
               onChangeText={setCurrentOverallBudgetInput}
               placeholder="Enter total budget"
               keyboardType="numeric"
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
             />
                 <TouchableOpacity
                     style={[styles.saveOverallBudgetButton, isSavingOverallBudget && styles.disabledButton]}
@@ -219,7 +224,7 @@ const EventBudgetScreen = () => {
               <View style={styles.sectionHeaderAction}>
                 <Text style={styles.sectionTitle}>Expenses</Text>
                 <TouchableOpacity style={styles.addButton} onPress={() => handleOpenBudgetForm()}>
-                  <Ionicons name="add-circle-outline" size={26} color={Colors.light.primary} />
+                  <Ionicons name="add-circle-outline" size={26} color={currentColors.primary} />
                   <Text style={styles.addButtonText}>Add Expense</Text>
                 </TouchableOpacity>
               </View>
@@ -238,10 +243,10 @@ const EventBudgetScreen = () => {
             </View>
             <View style={styles.budgetItemActions}>
               <TouchableOpacity onPress={() => handleOpenBudgetForm(item)} style={{marginRight: Spacing.m}}>
-                <Ionicons name="pencil-outline" size={22} color={Colors.light.primary} />
+                <Ionicons name="pencil-outline" size={22} color={currentColors.primary} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDeleteBudgetItem(item.id)}>
-                <Ionicons name="trash-outline" size={22} color={Colors.light.error} />
+                <Ionicons name="trash-outline" size={22} color={currentColors.error} />
               </TouchableOpacity>
             </View>
           </View>

@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { useSidebar } from "@/context/SidebarContext";
+import { useAppTheme } from "@/context/AppThemeContext";
 import SidebarComponent from './sideBar';
 import * as Font from 'expo-font';
 import * as notificationService from '@/services/notificationService';
 import { OneSignal } from 'react-native-onesignal';
 
-import Toast from 'react-native-toast-message'; 
-import { Colors } from "@/constants/Colors";
+import Toast from 'react-native-toast-message';
 
 
 export default function AppCoreNav() {
   const { isAuthenticated,  user: authUser } = useAuth();
   const { isSidebarVisible, toggleSidebar } = useSidebar();
+  const { currentColors } = useAppTheme();
   const [fontError, setFontError] = useState<Error | null>(null);
 
   const handleCloseSidebar = () => toggleSidebar();
@@ -124,7 +125,7 @@ export default function AppCoreNav() {
         headerShown: false,
         headerTitleStyle: { fontFamily: 'Poppins-Regular' },
         gestureEnabled: process.env.NODE_ENV === 'development',
-        contentStyle: { backgroundColor: Colors.light.backgroundPrimary },
+        contentStyle: { backgroundColor: currentColors.backgroundPrimary },
       }}
     >
       {!isAuthenticated ? (

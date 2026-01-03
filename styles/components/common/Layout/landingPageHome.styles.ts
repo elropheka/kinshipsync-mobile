@@ -11,7 +11,7 @@ import {
   isTablet,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createLandingPageHomeStyles = (theme: typeof Colors.light) => StyleSheet.create({
   authButtonsContainer: {
     position: 'absolute',
     bottom: isTablet() ? Spacing.xxl * 2 : Spacing.xxl,
@@ -23,32 +23,32 @@ export const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   loginButton: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     paddingVertical: isTablet() ? Spacing.l : Spacing.m,
     borderRadius: BorderRadius.xl,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.text,
+    borderColor: theme.text,
   },
   createAccountButton: {
-    backgroundColor: Colors.light.text,
+    backgroundColor: theme.text,
     paddingVertical: isTablet() ? Spacing.l : Spacing.m,
     borderRadius: BorderRadius.xl,
     alignItems: 'center',
   },
   loginButtonText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: isTablet() ? ResponsiveFontSizes.title : ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
   },
   createAccountButtonText: {
-    color: Colors.light.background,
+    color: theme.background,
     fontSize: isTablet() ? ResponsiveFontSizes.title : ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
   },
   pageContainer: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
   },
   headerContainer: {
     alignItems: 'center',
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     letterSpacing: 1,
     marginTop: Spacing.xs,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   tagline: {
     fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: isTablet() ? Spacing.xxl : Spacing.l,
     marginBottom: Spacing.s,
     textAlign: 'center',
-    color: Colors.light.text,
+    color: theme.text,
     maxWidth: isTablet() ? 800 : '100%',
   },
   description: {
@@ -97,7 +97,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   featureItem: {
     flexDirection: 'column',
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
     textAlign: 'center',
   },
   collaborationText: {
@@ -122,7 +122,7 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.m,
     padding: Spacing.m,
     borderRadius: BorderRadius.m,
-    color: Colors.light.text,
+    color: theme.text,
     fontWeight: Fonts.weights.medium,
   },
   phonePreviewContainer: {
@@ -132,18 +132,18 @@ export const styles = StyleSheet.create({
     height: Layout.SCREEN_HEIGHT * 0.5,
     width: Layout.SCREEN_WIDTH * 0.3,
     marginTop: Spacing.l,
-    borderColor: Colors.light.text,
+    borderColor: theme.text,
     borderWidth: moderateScale(5),
     borderRadius: BorderRadius.l,
     overflow: 'hidden',
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   phonePreview: {
     width: Layout.SCREEN_WIDTH * 0.6,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.xs,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(3),
@@ -158,11 +158,11 @@ export const styles = StyleSheet.create({
   daysCounter: {
     fontSize: ResponsiveFontSizes.caption,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   notificationIcon: {
     fontSize: IconSizes.s,
-    color: Colors.light.icon,
+    color: theme.icon,
   },
   eventInfoContainer: {
     marginBottom: Spacing.m,
@@ -171,7 +171,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   eventDetailsRow: {
     flexDirection: 'row',
@@ -181,16 +181,16 @@ export const styles = StyleSheet.create({
   eventDetailsIcon: {
     fontSize: IconSizes.s,
     marginRight: Spacing.xs,
-    color: Colors.light.icon,
+    color: theme.icon,
   },
   eventDetailsText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   featureSection: {
     marginBottom: Spacing.s,
     borderRadius: BorderRadius.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     padding: Spacing.s,
   },
   featureHeader: {
@@ -207,17 +207,17 @@ export const styles = StyleSheet.create({
   featureTitle: {
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.text,
+    color: theme.text,
   },
   featureIcon: {
     fontSize: IconSizes.s,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   featureDescription: {
     fontSize: ResponsiveFontSizes.caption,
     lineHeight: ResponsiveFontSizes.caption * 1.4,
     marginBottom: Spacing.xs,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
   featureImage: {
@@ -227,7 +227,7 @@ export const styles = StyleSheet.create({
   imagePlaceholder: {
     width: moderateScale(40),
     height: moderateScale(40),
-    backgroundColor: Colors.light.border,
+    backgroundColor: theme.border,
     borderRadius: BorderRadius.s,
   },
   announcementTypes: {
@@ -241,14 +241,14 @@ export const styles = StyleSheet.create({
   announcementImage: {
     width: moderateScale(40),
     height: moderateScale(40),
-    backgroundColor: Colors.light.border,
+    backgroundColor: theme.border,
     borderRadius: BorderRadius.s,
     marginBottom: Spacing.xs,
   },
   announcementText: {
     fontSize: ResponsiveFontSizes.small - 1,
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   featureButton: {
     marginBottom: Spacing.s,
@@ -275,7 +275,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   featureButtonText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -284,7 +284,7 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   andMoreText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -314,7 +314,7 @@ export const styles = StyleSheet.create({
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.m,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.s,
@@ -327,3 +327,6 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createLandingPageHomeStyles(Colors.light);

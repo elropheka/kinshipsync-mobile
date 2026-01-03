@@ -8,25 +8,25 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createNotificationListItemStyles = (theme: typeof Colors.light) => StyleSheet.create({
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
+    borderBottomColor: theme.border,
   },
   unreadItem: {
-    backgroundColor: Colors.light.primary + '15',
+    backgroundColor: theme.primary + '15',
   },
   avatarContainer: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.m,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -47,24 +47,27 @@ export const styles = StyleSheet.create({
   senderName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   notificationTime: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.s,
     alignSelf: 'flex-start',
   },
   notificationText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     lineHeight: ResponsiveFontSizes.body * 1.4,
   },
   unreadIndicator: { 
     width: moderateScale(10),
     height: moderateScale(10),
     borderRadius: moderateScale(5),
-    backgroundColor: Colors.light.primary, 
+    backgroundColor: theme.primary, 
     marginRight: Spacing.m,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createNotificationListItemStyles(Colors.light);

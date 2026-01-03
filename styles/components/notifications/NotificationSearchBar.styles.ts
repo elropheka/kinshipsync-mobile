@@ -7,11 +7,11 @@ import {
   Layout,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createNotificationSearchBarStyles = (theme: typeof Colors.light) => StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     marginHorizontal: Spacing.l,
     marginBottom: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -24,6 +24,9 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createNotificationSearchBarStyles(Colors.light);

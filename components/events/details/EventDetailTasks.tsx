@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
-import TaskForm from '@/components/tasks/TaskForm'; // Path to existing TaskForm
-import { styles } from '@/styles/app/(events)/details/[id].styles';
-import { Colors } from '@/constants/Colors';
+import TaskForm from '@/components/tasks/TaskForm';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailTasksProps {
@@ -25,6 +25,8 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
   onDeleteTask,
   isOrganizer = true
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const { showSuccess, showError, showConfirm } = useAlert();
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Partial<Task> & { id?: string } | undefined>(undefined);
@@ -110,11 +112,11 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
         <Ionicons 
           name={item.completed ? "checkmark-circle" : "ellipse-outline"} 
           size={24} 
-          color={item.completed ? Colors.light.success : Colors.light.textSecondary} 
+          color={item.completed ? currentColors.success : currentColors.textSecondary} 
         />
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
-            <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+            <Ionicons name="trash-outline" size={24} color={currentColors.error} />
           </TouchableOpacity>
         )}
       </TouchableOpacity>
@@ -127,7 +129,7 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
         <Text style={styles.sectionTitle}>Tasks</Text>
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleOpenTaskForm()}>
-            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+            <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
           </TouchableOpacity>
         )}
       </View>

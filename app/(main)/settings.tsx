@@ -3,22 +3,25 @@ import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator, St
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
+import { createStyles } from '@/styles/app/(main)/settings.styles';
 import { Colors } from 'constants/Colors';
-import { styles } from '@/styles/app/(main)/settings.styles';
 import { useCurrentUser } from '@/hooks/useUser';
 import { UserSettings, UpdateUserSettingsPayload } from '@/types/userTypes';
 import { useAuth } from '@/context/AuthContext';
 import { setEventVisibility } from '../../store/slices/eventVisibilitySlice';
 import { useAlert } from '@/context/AlertContext';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 interface SettingOptionProps {
   title: string;
   value: boolean;
   onToggle: (newValue: boolean) => void;
   description?: string;
+  styles: any;
+  currentColors: typeof Colors.light;
 }
 
-const SettingOption: React.FC<SettingOptionProps> = ({ title, value, onToggle, description }) => (
+const SettingOption: React.FC<SettingOptionProps> = ({ title, value, onToggle, description, styles, currentColors }) => (
   <View style={styles.optionContainer}>
     <View style={styles.optionTextContainer}>
       <Text style={styles.optionText}>{title}</Text>
@@ -27,8 +30,8 @@ const SettingOption: React.FC<SettingOptionProps> = ({ title, value, onToggle, d
     <Switch 
       value={value} 
       onValueChange={onToggle}
-      trackColor={{ false: Colors.light.icon, true: Colors.light.tint }}
-      thumbColor={value ? Colors.light.backgroundLight : Colors.light.backgroundLight} 
+      trackColor={{ false: currentColors.icon, true: currentColors.tint }}
+      thumbColor={value ? currentColors.backgroundLight : currentColors.backgroundLight}
     />
   </View>
 );
@@ -37,8 +40,9 @@ interface ThemeOptionProps {
   title: string;
   currentTheme: UserSettings['theme'];
   onSelectTheme: (theme: UserSettings['theme']) => void;
+  styles: any;
 }
-const ThemeOption: React.FC<ThemeOptionProps> = ({ title, currentTheme, onSelectTheme }) => {
+const ThemeOption: React.FC<ThemeOptionProps> = ({ title, currentTheme, onSelectTheme, styles }) => {
   const themes: UserSettings['theme'][] = ['light', 'dark', 'system'];
   return (
     <View style={styles.optionContainer}>
@@ -66,6 +70,8 @@ const SettingsScreen: React.FC = () => {
   const dispatch = useDispatch();
   const { signOut } = useAuth();
   const { showSuccess, showError } = useAlert();
+  const { setTheme: setAppTheme, currentColors } = useAppTheme();
+  const styles = createStyles(currentColors);
   const { 
     settings: currentSettings, 
     updateSettings, 
@@ -123,6 +129,11 @@ const SettingsScreen: React.FC = () => {
       dispatch(setEventVisibility({ showAllPublicEvents: value }));
     }
 
+    if (category === 'theme') {
+      console.log('Settings: Updating app theme to:', value);
+      await setAppTheme(value);
+    }
+
     try {
       const payload: UpdateUserSettingsPayload = {
         theme: newEditableSettings.theme,
@@ -174,8 +185,8 @@ const SettingsScreen: React.FC = () => {
   if (isLoadingSettings && !currentSettings) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading Settings...</Text>
       </SafeAreaView>
     );
@@ -184,7 +195,7 @@ const SettingsScreen: React.FC = () => {
   if (settingsError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Text style={styles.errorText}>Error loading settings: {settingsError.message}</Text>
       </SafeAreaView>
     );
@@ -202,15 +213,16 @@ const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Settings" }} />
-     <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+     <StatusBar barStyle={currentColors === currentColors ? "light-content" : "dark-content"} backgroundColor={currentColors.backgroundSecondary} />
 
       <ScrollView>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Appearance</Text>
-          <ThemeOption 
+          <ThemeOption
             title="Theme"
             currentTheme={displaySettings.theme!}
             onSelectTheme={(theme) => handleSettingChange('theme', undefined, theme)}
+            styles={styles}
           />
         </View>
 
@@ -220,16 +232,22 @@ const SettingsScreen: React.FC = () => {
             title="Event Invites"
             value={!!displaySettings.emailNotifications?.eventInvites}
             onToggle={(val) => handleSettingChange('emailNotifications', 'eventInvites', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
           <SettingOption
             title="Event Updates"
             value={!!displaySettings.emailNotifications?.eventUpdates}
             onToggle={(val) => handleSettingChange('emailNotifications', 'eventUpdates', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
           <SettingOption
             title="Message Alerts"
             value={!!displaySettings.emailNotifications?.messageAlerts}
             onToggle={(val) => handleSettingChange('emailNotifications', 'messageAlerts', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
         </View>
 
@@ -239,21 +257,29 @@ const SettingsScreen: React.FC = () => {
             title="Event Invites"
             value={!!displaySettings.pushNotifications?.eventInvites}
             onToggle={(val) => handleSettingChange('pushNotifications', 'eventInvites', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
           <SettingOption
             title="Event Updates"
             value={!!displaySettings.pushNotifications?.eventUpdates}
             onToggle={(val) => handleSettingChange('pushNotifications', 'eventUpdates', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
           <SettingOption
             title="Message Alerts"
             value={!!displaySettings.pushNotifications?.messageAlerts}
             onToggle={(val) => handleSettingChange('pushNotifications', 'messageAlerts', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
           <SettingOption
             title="Task Alerts"
             value={!!displaySettings.pushNotifications?.taskAlerts}
             onToggle={(val) => handleSettingChange('pushNotifications', 'taskAlerts', val)}
+            styles={styles}
+            currentColors={currentColors}
           />
         </View>
 
@@ -264,6 +290,8 @@ const SettingsScreen: React.FC = () => {
             value={!!displaySettings.eventVisibility?.showAllPublicEvents}
             onToggle={(val) => handleSettingChange('eventVisibility', 'showAllPublicEvents', val)}
             description="When enabled, you'll see all public events. When disabled, you'll only see events you're invited to or organizing."
+            styles={styles}
+            currentColors={currentColors}
           />
         </View>
 

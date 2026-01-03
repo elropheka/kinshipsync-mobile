@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '../../styles/components/notifications/NotificationListItem.styles';
 import { Notification as UserNotification } from '../../types/userTypes';
 
@@ -22,6 +23,7 @@ interface NotificationListItemProps {
 }
 
 const NotificationListItem: React.FC<NotificationListItemProps> = ({ item, onPress }) => {
+  const { currentColors } = useAppTheme();
   return (
     <TouchableOpacity
       style={[styles.notificationItem, !item.isRead && styles.unreadItem]}
@@ -30,7 +32,7 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ item, onPre
       {!item.isRead && <View style={styles.unreadIndicator} />} 
       
       <View style={styles.avatarContainer}>
-        <Ionicons name={item.avatar} size={30} color="#555" style={styles.avatarIcon} />
+        <Ionicons name={item.avatar} size={30} color={currentColors.textSecondary} style={styles.avatarIcon} />
       </View>
       
       <View style={styles.notificationContent}>

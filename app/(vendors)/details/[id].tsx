@@ -12,13 +12,18 @@ import {
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../../../styles/app/(vendors)/details/[id].styles';
+import { createVendorDetailsStyles } from '../../../styles/app/(vendors)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '../../../constants/Colors';
 import { VendorReview } from '../../../types/vendorTypes';
 import { DisplayVendorItem, useVendorDetail, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 
 export default function VendorDetailsScreen() {
+  const { currentColors } = useAppTheme();
+  const styles = createVendorDetailsStyles(currentColors);
+
+
   const { id: vendorIdFromRoute } = useLocalSearchParams<{ id: string }>();
 
   const {
@@ -57,7 +62,7 @@ export default function VendorDetailsScreen() {
           <Image source={{ uri: itemImage }} style={styles.itemImage} />
         ) : (
           <View style={styles.itemImagePlaceholder}>
-            <Ionicons name={iconName} size={30} color={Colors.light.textSecondary} />
+            <Ionicons name={iconName} size={30} color={currentColors.textSecondary} />
           </View>
         )}
         <View style={styles.itemInfo}>
@@ -77,7 +82,7 @@ export default function VendorDetailsScreen() {
       <View style={styles.reviewHeader}>
         <Text style={styles.reviewUser}>User ID: {item.userId.substring(0, 6)}...</Text>
         <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color={Colors.light.tint} />
+          <Ionicons name="star" size={16} color={currentColors.tint} />
           <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
         </View>
       </View>
@@ -90,7 +95,7 @@ export default function VendorDetailsScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Loading Vendor...' }} />
-        <ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
       </SafeAreaView>
     );
   }
@@ -125,7 +130,7 @@ export default function VendorDetailsScreen() {
         )}
         {!vendor.logoUrl && (
           <View style={styles.logoPlaceholder}>
-            <Ionicons name="storefront-outline" size={80} color={Colors.light.textSecondary} />
+            <Ionicons name="storefront-outline" size={80} color={currentColors.textSecondary} />
           </View>
         )}
 
@@ -133,7 +138,7 @@ export default function VendorDetailsScreen() {
         
         {vendor.averageRating !== undefined && vendor.averageRating > 0 && (
           <View style={styles.ratingSection}>
-            <Ionicons name="star" size={20} color={Colors.light.tint} />
+            <Ionicons name="star" size={20} color={currentColors.tint} />
             <Text style={styles.ratingValue}>{vendor.averageRating.toFixed(1)}</Text>
             <Text style={styles.numberOfReviews}>({vendor.numberOfReviews || 0} reviews)</Text>
           </View>
@@ -167,7 +172,7 @@ export default function VendorDetailsScreen() {
 
         {/* Vendor Items Section */}
         <Text style={styles.sectionTitle}>Products & Services</Text>
-        {isLoadingVendorItems && <ActivityIndicator color={Colors.light.tint} style={{ marginVertical: 10 }} />}
+        {isLoadingVendorItems && <ActivityIndicator color={currentColors.tint} style={{ marginVertical: 10 }} />}
         {errorVendorItems && <Text style={styles.errorText}>Error loading items: {errorVendorItems.message}</Text>}
         {!isLoadingVendorItems && !errorVendorItems && vendorItems.length === 0 && (
           <Text style={styles.emptyText}>This vendor has no items listed yet.</Text>
@@ -183,7 +188,7 @@ export default function VendorDetailsScreen() {
         )}
 
         <Text style={styles.sectionTitle}>Reviews ({totalReviews})</Text>
-        {isLoadingReviews && reviews.length === 0 && <ActivityIndicator color={Colors.light.tint} style={{ marginVertical: 10 }} />}
+        {isLoadingReviews && reviews.length === 0 && <ActivityIndicator color={currentColors.tint} style={{ marginVertical: 10 }} />}
         
         {reviews.length > 0 ? (
           <FlatList
@@ -193,9 +198,9 @@ export default function VendorDetailsScreen() {
             scrollEnabled={false}
             ListFooterComponent={() => (
               <>
-                {isLoadingReviews && reviews.length > 0 && <ActivityIndicator color={Colors.light.tint} style={{ marginVertical: 10 }} />}
+                {isLoadingReviews && reviews.length > 0 && <ActivityIndicator color={currentColors.tint} style={{ marginVertical: 10 }} />}
                 {reviews.length < totalReviews && !isLoadingReviews && (
-                  <Button title="Load More Reviews" onPress={() => loadMoreReviews()} color={Colors.light.tint} />
+                  <Button title="Load More Reviews" onPress={() => loadMoreReviews()} color={currentColors.tint} />
                 )}
               </>
             )}

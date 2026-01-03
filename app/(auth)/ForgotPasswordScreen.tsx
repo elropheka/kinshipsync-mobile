@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { Colors } from '@/constants/Colors';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { sendPasswordReset } from '../../services/authService';
-import { styles } from '../../styles/app/(auth)/forgotPassword.styles';
+import { createForgotPasswordStyles } from '../../styles/app/(auth)/forgotPassword.styles';
 import { useAlert } from '@/context/AlertContext';
 
 const ForgotPasswordScreen = () => {
+    const styles = createForgotPasswordStyles(Colors.light);
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, TextInput, FlatList, KeyboardAvoidingView
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(events)/messages.styles';
+import { createMessagesStyles } from '../../styles/app/(events)/messages.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useEventDetail } from '../../hooks/useEvents';
 import { EventMessage } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
@@ -18,6 +19,10 @@ interface SenderDetails {
 }
 
 const EventMessagesScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createMessagesStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
   const { showError } = useAlert();
@@ -142,7 +147,7 @@ const EventMessagesScreen = () => {
   };
 
   if (isLoadingEventData && !event) { // Show loading only if event data isn't there yet
-    return <View style={styles.centered}><ActivityIndicator size="large" color={Colors.light.primary} /><Text>Loading messages...</Text></View>;
+    return <View style={styles.centered}><ActivityIndicator size="large" color={currentColors.primary} /><Text>Loading messages...</Text></View>;
   }
 
   if (eventError) {
@@ -151,7 +156,7 @@ const EventMessagesScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: event ? `${event.name} - Messages` : 'Event Messages' }} />
       
       <FlatList
@@ -173,7 +178,7 @@ const EventMessagesScreen = () => {
           value={newMessage}
           onChangeText={setNewMessage}
           placeholder="Type a message..."
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           multiline
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage} disabled={isSending || !newMessage.trim()}>

@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '../../styles/components/events/ScheduleItemForm.styles';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
@@ -36,6 +37,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
   onSubmit,
   initialData,
 }) => {
+  const { currentColors } = useAppTheme();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -157,7 +159,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{initialData ? 'Edit Schedule Item' : 'Add Schedule Item'}</Text>
             <TouchableOpacity onPress={onClose}>
-              <Icon name="close" size={24} color="#000" />
+              <Icon name="close" size={24} color={currentColors.text} />
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -172,7 +174,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
               <TouchableOpacity style={styles.input} onPress={() => showDateTimePicker('start', 'date')}>
                 <View style={styles.datePickerInnerContainer}>
                   <Text style={styles.datePickerText}>{formatDate(formStartTime)}</Text>
-                  <Icon name="calendar-today" size={20} color="#666" />
+                  <Icon name="calendar-today" size={20} color={currentColors.textSecondary} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -183,7 +185,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
               <TouchableOpacity style={styles.input} onPress={() => showDateTimePicker('start', 'time')}>
                 <View style={styles.datePickerInnerContainer}>
                   <Text style={styles.datePickerText}>{formatTime(formStartTime)}</Text>
-                  <Icon name="access-time" size={20} color="#666" />
+                  <Icon name="access-time" size={20} color={currentColors.textSecondary} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -194,7 +196,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
               <TouchableOpacity style={styles.input} onPress={() => showDateTimePicker('end', 'date')}>
                 <View style={styles.datePickerInnerContainer}>
                   <Text style={styles.datePickerText}>{formatDate(formEndTime)}</Text>
-                  <Icon name="calendar-today" size={20} color="#666" />
+                  <Icon name="calendar-today" size={20} color={currentColors.textSecondary} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -205,7 +207,7 @@ const ScheduleItemForm: React.FC<ScheduleItemFormProps> = ({
               <TouchableOpacity style={styles.input} onPress={() => showDateTimePicker('end', 'time')}>
                 <View style={styles.datePickerInnerContainer}>
                   <Text style={styles.datePickerText}>{formatTime(formEndTime)}</Text>
-                  <Icon name="access-time" size={20} color="#666" />
+                  <Icon name="access-time" size={20} color={currentColors.textSecondary} />
                 </View>
               </TouchableOpacity>
             </View>

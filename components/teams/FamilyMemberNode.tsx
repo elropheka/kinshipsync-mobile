@@ -4,7 +4,7 @@ import { FamilyMemberNode } from '@/types/teamTypes';
 import { styles } from '@/styles/components/teams/FamilyMemberNode.styles';
 // import {  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 interface FamilyMemberNodeProps {
   node: FamilyMemberNode | Pick<FamilyMemberNode, 'id' | 'name' | 'imageUrl'>; // Allow Pick for spouse
@@ -19,6 +19,7 @@ const FamilyMemberNodeComponent: React.FC<FamilyMemberNodeProps> = ({
   onAddSpousePress, 
   onRemovePress 
 }) => {
+  const { currentColors } = useAppTheme();
   const isFullNode = 'parentIds' in node || 'children' in node || 'spouse' in node;
   const canAddSpouse = isFullNode && !('spouse' in node && node.spouse);
 
@@ -30,23 +31,23 @@ const FamilyMemberNodeComponent: React.FC<FamilyMemberNodeProps> = ({
           <Image source={{ uri: node.imageUrl }} style={styles.nodeImage} />
         ) : (
           <View style={[styles.nodeImage, styles.avatarPlaceholder]}>
-            <Ionicons name="person-circle-outline" size={40} color={Colors.light.accent} />
+            <Ionicons name="person-circle-outline" size={40} color={currentColors.accent} />
           </View>
         )}
 
         {isFullNode && onRemovePress && (
           <TouchableOpacity onPress={onRemovePress} style={[styles.iconButton, styles.removeNodeIcon]}>
-            <Ionicons name="remove-circle-outline" size={22} color={Colors.light.danger} />
+            <Ionicons name="remove-circle-outline" size={22} color={currentColors.error} />
           </TouchableOpacity>
         )}
         {isFullNode && onAddChildPress && (
           <TouchableOpacity onPress={onAddChildPress} style={[styles.iconButton, styles.addChildIcon]}>
-            <Ionicons name="person-add-outline" size={22} color={Colors.light.primary} />
+            <Ionicons name="person-add-outline" size={22} color={currentColors.primary} />
           </TouchableOpacity>
         )}
         {canAddSpouse && onAddSpousePress && (
           <TouchableOpacity onPress={onAddSpousePress} style={[styles.iconButton, styles.addSpouseIcon]}>
-            <Ionicons name="heart-outline" size={22} color={Colors.light.accent} />
+            <Ionicons name="heart-outline" size={22} color={currentColors.accent} />
           </TouchableOpacity>
         )}
         

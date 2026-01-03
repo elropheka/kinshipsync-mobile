@@ -9,10 +9,10 @@ import {
   isTablet,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createSubscriptionPlansStyles = (theme: typeof Colors.light) => StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -21,9 +21,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: isTablet() ? Spacing.xl : Spacing.m,
     paddingTop: Platform.OS === 'android' ? (isTablet() ? Spacing.xxl * 2 : Spacing.xl) : (isTablet() ? Spacing.xxl * 2 : Spacing.xxl),
     paddingBottom: isTablet() ? Spacing.l : Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   headerBackButton: {
     padding: isTablet() ? Spacing.s : Spacing.xs
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     flex: 1,
     textAlign: 'center',
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   container: {
     flex: 1,
@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
     fontSize: isTablet() ? ResponsiveFontSizes.title : ResponsiveFontSizes.subtitle,
     textAlign: 'center',
     marginVertical: isTablet() ? Spacing.l : Spacing.m,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
     paddingHorizontal: isTablet() ? Spacing.m : Spacing.s,
     maxWidth: isTablet() ? 700 : '100%',
     alignSelf: 'center',
@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
     borderWidth: moderateScale(2),
     overflow: 'hidden',
     elevation: 3,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: moderateScale(2.5),
@@ -71,12 +71,12 @@ export const styles = StyleSheet.create({
   planName: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.textLight,
+    color: theme.textLight,
     marginBottom: Spacing.xs,
   },
   planPrice: {
     fontSize: ResponsiveFontSizes.title,
-    color: Colors.light.textLight,
+    color: theme.textLight,
     fontWeight: Fonts.weights.medium,
   },
   featuresContainer: {
@@ -93,7 +93,7 @@ export const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: ResponsiveFontSizes.subtitle - 1,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
     flex: 1,
   },
   selectButton: {
@@ -106,10 +106,10 @@ export const styles = StyleSheet.create({
 
   },
   currentPlanButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
   },
   selectButtonText: {
-    color: Colors.light.textLight,
+    color: theme.textLight,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
   },
@@ -121,20 +121,20 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
   currentPlanInfoCard: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     marginHorizontal: Spacing.s,
     marginBottom: Spacing.l,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     elevation: 2,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(2),
@@ -142,20 +142,23 @@ export const styles = StyleSheet.create({
   currentPlanInfoTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     marginBottom: Spacing.s,
   },
   currentPlanInfoText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
     marginBottom: Spacing.xs,
   },
   cancelButton: {
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
     marginTop: Spacing.m,
   },
   disabledButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
     opacity: 0.7,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createSubscriptionPlansStyles(Colors.light);

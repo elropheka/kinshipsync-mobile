@@ -2,8 +2,10 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import BackButton from '@/components/common/Navigation/BackButton';
 import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 const TeamsLayout: React.FC = () => {
+  const { currentColors } = useAppTheme();
   return (
     <Stack
       screenOptions={{
@@ -11,7 +13,7 @@ const TeamsLayout: React.FC = () => {
         headerLeft: () => <BackButton />,
         headerBackVisible: false,
          headerStyle: {
-                  backgroundColor: Colors.light.backgroundPrimary,
+                  backgroundColor: currentColors.backgroundPrimary,
                 },
       }}
     >

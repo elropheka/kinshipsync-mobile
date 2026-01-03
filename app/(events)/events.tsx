@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityI
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Stack, router, useFocusEffect } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '@/styles/app/(events)/events.styles';
+import { createEventsStyles } from '@/styles/app/(events)/events.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAllEvents } from '@/hooks/useEvents';
 import { Event } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
@@ -12,6 +13,10 @@ const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
 
 const EventListScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventsStyles(currentColors);
+
+
   const [activeTab, setActiveTab] = useState('Events');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,11 +86,11 @@ const EventListScreen = () => {
       <View style={styles.statusContainer}>
         <View style={[
           styles.statusDot,
-          { backgroundColor: item.eventStatus === 'Upcoming' ? Colors.light.success : Colors.light.error }
+          { backgroundColor: item.eventStatus === 'Upcoming' ? currentColors.success : currentColors.error }
         ]} />
         <Text style={[
           styles.statusText,
-          { color: item.eventStatus === 'Upcoming' ? Colors.light.textDarkContrast : Colors.light.error }
+          { color: item.eventStatus === 'Upcoming' ? currentColors.textDarkContrast : currentColors.error }
         ]}>
           {item.eventStatus}
         </Text>
@@ -112,7 +117,7 @@ const EventListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen 
         options={{ 
           title: "Events",

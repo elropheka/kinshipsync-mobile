@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createSeatingStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   centered: {
     flex: 1,
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   controlButton: {
     flexDirection: 'row',
@@ -36,22 +36,22 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
   },
   saveButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   controlButtonText: {
     marginLeft: Spacing.s,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   scrollContent: {
     padding: Spacing.m,
   },
   tableContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.l,
@@ -68,12 +68,12 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.m,
     paddingBottom: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   tableName: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   chairsContainer: {
     flexDirection: 'row',
@@ -90,22 +90,22 @@ export const styles = StyleSheet.create({
     margin: Spacing.xs,
   },
   chairAvailable: {
-    backgroundColor: Colors.light.background,
-    borderColor: Colors.light.success,
+    backgroundColor: theme.background,
+    borderColor: theme.success,
   },
   chairOccupied: {
-    backgroundColor: Colors.light.tint + '30', // Light tint for occupied
-    borderColor: Colors.light.tint,
+    backgroundColor: theme.tint + '30', // Light tint for occupied
+    borderColor: theme.tint,
   },
   chairText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
   emptyText: {
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     paddingVertical: Spacing.xl,
   },
   // Styles for Guest Picker Modal
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     width: '80%',
@@ -125,33 +125,36 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.m,
     textAlign: 'center',
   },
   guestPickerItem: {
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   guestPickerItemText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   guestPickerSeparator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   modalCloseButton: {
     marginTop: Spacing.m,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.m,
     borderRadius: BorderRadius.s,
     alignItems: 'center',
   },
   modalCloseButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createSeatingStyles(Colors.light);

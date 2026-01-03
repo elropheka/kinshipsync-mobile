@@ -8,7 +8,7 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createNotificationFilterChipsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   filterScrollContainer: {
     maxHeight: moderateScale(50),
   },
@@ -20,21 +20,24 @@ export const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.s,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
     justifyContent: 'center',
     height: moderateScale(36),
   },
   activeFilterChip: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   filterText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   activeFilterText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontWeight: Fonts.weights.medium,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createNotificationFilterChipsStyles(Colors.light);

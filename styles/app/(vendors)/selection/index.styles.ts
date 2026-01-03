@@ -1,21 +1,21 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   listContentContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   vendorCard: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: 8,
     marginBottom: 16,
     padding: 16,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 8,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: theme.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -38,11 +38,11 @@ export const styles = StyleSheet.create({
   vendorName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
   },
   vendorCategoryName: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: 2,
   },
   ratingContainer: {
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
   ratingText: {
     marginLeft: 4,
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   loader: {
     marginTop: 20,
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: 'center',
-    color: Colors.light.error,
+    color: theme.error,
     margin: 16,
     fontSize: 16,
   },
@@ -73,13 +73,16 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: 16,
   },
   itemPrice: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.light.primary,
+    color: theme.primary,
     marginTop: 4,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

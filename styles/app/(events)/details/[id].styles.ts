@@ -8,10 +8,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createEventDetailsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -19,9 +19,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.m,
     paddingBottom: Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   headerBackButton: {
     padding: Spacing.xs,
@@ -32,17 +32,17 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginHorizontal: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   container: {
     flex: 1,
   },
   card: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     margin: Spacing.m,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: moderateScale(2) },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(4),
@@ -57,52 +57,52 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     flex: 1,
     textAlign: 'center',
   },
   editButton: {
     padding: Spacing.xs,
     borderRadius: BorderRadius.s,
-    backgroundColor: Colors.light.backgroundPaper,
-    borderColor: Colors.light.primary,
+    backgroundColor: theme.backgroundPaper,
+    borderColor: theme.primary,
   },
   detailHeaderImage: {
     width: '100%',
     height: moderateScale(180), // Using moderateScale for responsiveness
     borderRadius: BorderRadius.m, // Using predefined BorderRadius
     marginBottom: Spacing.m, // Using predefined Spacing
-    backgroundColor: Colors.light.divider, // Placeholder color
+    backgroundColor: theme.divider, // Placeholder color
     alignSelf: 'center', // Center if the container is wider
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Spacing.m,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
   },
   icon: {
     marginRight: Spacing.s,
   },
   detailText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   detailTextBold: { // Added
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text, // Bolder text might use primary text color
+    color: theme.text, // Bolder text might use primary text color
     fontWeight: Fonts.weights.semiBold,
   },
   descriptionTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     marginTop: Spacing.m,
     marginBottom: Spacing.xs,
   },
   descriptionText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     lineHeight: ResponsiveFontSizes.subtitle * 1.5,
     marginBottom: Spacing.m,
   },
@@ -113,26 +113,26 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   deadlineTextDefault: {
-    color: Colors.light.text,
+    color: theme.text,
     fontWeight: Fonts.weights.medium,
     fontSize: ResponsiveFontSizes.body,
   },
   deadlineTextUrgent: {
-    color: Colors.light.error,
+    color: theme.error,
     fontWeight: Fonts.weights.bold,
     fontSize: ResponsiveFontSizes.body,
   },
   deadlineTextPassed: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontStyle: 'italic',
     fontSize: ResponsiveFontSizes.body,
   },
   errorText: {
     fontSize: ResponsiveFontSizes.title,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginTop: Spacing.xxl,
   },
@@ -140,12 +140,12 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.l,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.l,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.s,
     alignSelf: 'center',
   },
   backButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.medium,
@@ -159,7 +159,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: Spacing.m,
     marginBottom: Spacing.s,
     elevation: 2,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: moderateScale(2),
@@ -170,19 +170,19 @@ export const styles = StyleSheet.create({
   navButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.primaryContrastText,
+    // Color is set inline in component to use appropriate contrast for each button
   },
   scheduleButton: {
-    backgroundColor: Colors.light.success,
+    backgroundColor: theme.success,
   },
   ideasButton: {
-    backgroundColor: Colors.light.warning,
+    backgroundColor: theme.warning,
   },
   rsvpButton: {
-    backgroundColor: Colors.light.info,
+    backgroundColor: theme.info,
   },
   seatingButton: { // Added for the new button
-    backgroundColor: Colors.light.tertiary, // Or any other distinct color
+    backgroundColor: theme.tertiary, // Or any other distinct color
   },
   centerContent: { 
     flex: 1,
@@ -200,7 +200,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   headerActions: {
     flexDirection: 'row',
@@ -215,41 +215,41 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.s, 
-     backgroundColor: Colors.light.background,
+     backgroundColor: theme.background,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     borderRadius: BorderRadius.s,
   },
   taskTitle: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text,
+    color: theme.text,
   },
   taskDescription: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   taskDueDate: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.warning, 
+    color: theme.warning, 
     marginTop: Spacing.xxs,
   },
   taskAssignedTo: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.info,
+    color: theme.info,
     marginTop: Spacing.xxs,
     fontStyle: 'italic',
   },
   taskSeparator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginLeft: Spacing.s, 
     marginRight: Spacing.s,
   },
   emptyListText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     paddingVertical: Spacing.l,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -259,9 +259,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.s,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     borderRadius: BorderRadius.s,
 
   },
@@ -272,17 +272,17 @@ export const styles = StyleSheet.create({
   ideaTitle: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.xxs,
   },
   ideaDescription: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
   },
   ideaSubmittedBy: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary, 
+    color: theme.textSecondary, 
     fontStyle: 'italic',
   },
   voteContainer: {
@@ -292,7 +292,7 @@ export const styles = StyleSheet.create({
   voteCount: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text,
+    color: theme.text,
     marginHorizontal: Spacing.s,
     minWidth: moderateScale(20), 
     textAlign: 'center',
@@ -300,9 +300,9 @@ export const styles = StyleSheet.create({
   teamItemContainer: {
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.s,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     borderRadius: BorderRadius.s,
   },
   teamHeader: {
@@ -314,7 +314,7 @@ export const styles = StyleSheet.create({
   teamName: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   teamMemberItem: {
     flexDirection: 'row',
@@ -323,16 +323,16 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     paddingLeft: Spacing.l, 
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
   
   },
   teamMemberName: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   emptyListTextSmall: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     paddingVertical: Spacing.s,
     fontSize: ResponsiveFontSizes.caption,
     fontStyle: 'italic',
@@ -341,7 +341,7 @@ export const styles = StyleSheet.create({
   modalSubtitle: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     paddingHorizontal: Spacing.l,
     marginTop: Spacing.l,
     marginBottom: Spacing.s,
@@ -357,17 +357,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
   },
   roleButtonSelected: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   roleButtonText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.body,
   },
   roleButtonTextSelected: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontWeight: Fonts.weights.bold,
   },
   // Re-add headerButton and headerButtonText if they were specific to the modal
@@ -379,7 +379,7 @@ export const styles = StyleSheet.create({
   },
   headerButtonText: { // Copied from EventTeamForm
     fontSize: 16,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: '600',
   },
   // Styles for Member Management Modal are already defined above.
@@ -391,7 +391,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     width: '80%',
@@ -400,32 +400,32 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.m,
     textAlign: 'center',
   },
   themeItem: {
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   themeItemSelected: {
-    backgroundColor: Colors.light.tint + '30', // Light tint for selected
+    backgroundColor: theme.tint + '30', // Light tint for selected
   },
   themeName: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     textAlign: 'center',
   },
   modalCloseButton: {
     marginTop: Spacing.m,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.m,
     borderRadius: BorderRadius.s,
     alignItems: 'center',
   },
   modalCloseButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
   },
@@ -433,15 +433,18 @@ export const styles = StyleSheet.create({
     marginVertical: Spacing.m,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.s,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.light.primary,
+    borderLeftColor: theme.primary,
   },
   sectionContainer: {
     marginTop: Spacing.m,
     paddingTop: Spacing.m,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createEventDetailsStyles(Colors.light);

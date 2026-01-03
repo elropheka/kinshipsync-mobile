@@ -2,14 +2,14 @@ import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { Layout } from 'constants/dimensions';
 
-export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boolean) => {
+export const createResponsiveLayoutStyles = (theme: typeof Colors.light, isTablet: boolean, isLandscape: boolean) => {
   // const basePadding = isTablet ? 24 : 16;
   // const maxWidth = isTablet ? 1200 : '100%';
-  
+
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: Colors.light?.background || '#FFFFFF',
+      backgroundColor: theme?.background || '#FFFFFF',
     },
     content: {
       flex: 1,
@@ -20,7 +20,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       paddingVertical: isTablet ? 20 : 16,
       // paddingHorizontal: basePadding,
       borderBottomWidth: 1,
-      borderBottomColor: Colors.light?.border || '#E5E5E5',
+      borderBottomColor: theme?.border || '#E5E5E5',
     },
     headerTitle: {
       fontSize: isTablet ? 28 : 24,
@@ -36,11 +36,11 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       marginBottom: isTablet ? 16 : 12,
     },
     card: {
-      backgroundColor: Colors.light?.background || '#FFFFFF',
+      backgroundColor: theme?.background || '#FFFFFF',
       borderRadius: 12,
       // padding: basePadding,
       marginBottom: 16,
-      shadowColor: Colors.light?.divider || '#000000',
+      shadowColor: theme?.divider || '#000000',
       shadowOffset: {
         width: 0,
         height: 2,
@@ -71,7 +71,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
     },
     input: {
       borderWidth: 1,
-      borderColor: Colors.light?.border || '#E5E5E5',
+      borderColor: theme?.border || '#E5E5E5',
       borderRadius: 8,
       paddingVertical: isTablet ? 16 : 12,
       paddingHorizontal: isTablet ? 20 : 16,
@@ -81,7 +81,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
     modal: {
       margin: isTablet ? 40 : 20,
       borderRadius: 12,
-      backgroundColor: Colors.light?.background || '#FFFFFF',
+      backgroundColor: theme?.background || '#FFFFFF',
       // padding: basePadding,
     },
     modalHeader: {
@@ -100,7 +100,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       paddingVertical: isTablet ? 16 : 12,
       // paddingHorizontal: basePadding,
       borderBottomWidth: 1,
-      borderBottomColor: Colors.light?.border || '#E5E5E5',
+      borderBottomColor: theme?.border || '#E5E5E5',
     },
     listItemText: {
       flex: 1,
@@ -116,7 +116,7 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       position: 'absolute',
       top: isTablet ? -4 : -2,
       right: isTablet ? -4 : -2,
-      backgroundColor: Colors.light?.primary || '#007AFF',
+      backgroundColor: theme?.primary || '#007AFF',
       borderRadius: isTablet ? 8 : 6,
       minWidth: isTablet ? 16 : 12,
       height: isTablet ? 16 : 12,
@@ -124,9 +124,12 @@ export const createResponsiveLayoutStyles = (isTablet: boolean, isLandscape: boo
       justifyContent: 'center',
     },
     badgeText: {
-      color: Colors.light?.background || '#FFFFFF',
+      color: theme?.background || '#FFFFFF',
       fontSize: isTablet ? 10 : 8,
       fontWeight: '600',
     },
   });
 };
+
+// For backwards compatibility, export the light theme styles
+export const styles = createResponsiveLayoutStyles(Colors.light, false, false);

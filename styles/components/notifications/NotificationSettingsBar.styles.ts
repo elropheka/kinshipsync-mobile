@@ -6,7 +6,7 @@ import {
   ResponsiveFontSizes,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createNotificationSettingsBarStyles = (theme: typeof Colors.light) => StyleSheet.create({
   notificationSettings: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -14,11 +14,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   settingsText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text,
+    color: theme.text,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createNotificationSettingsBarStyles(Colors.light);

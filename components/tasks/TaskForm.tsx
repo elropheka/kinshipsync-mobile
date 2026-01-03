@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Platform, SafeAreaView, StatusBar, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import MultiUserPicker from '../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useAlert } from '@/context/AlertContext';
@@ -25,6 +25,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   formTitle = 'Task Details',
 }) => {
+  const { currentColors } = useAppTheme();
   const { showError } = useAlert();
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
@@ -120,7 +121,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               value={item.value}
               onChangeText={item.onChangeText}
               placeholder={item.placeholder}
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
               multiline={item.multiline}
               numberOfLines={item.numberOfLines}
               onFocus={() => setShowDatePicker(false)}
@@ -135,7 +136,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <Text style={styles.dateText}>
                 {item.value ? item.value.toLocaleDateString() : 'Select a date'}
               </Text>
-              <Ionicons name="calendar-outline" size={22} color={Colors.light.icon} />
+              <Ionicons name="calendar-outline" size={22} color={currentColors.icon} />
             </TouchableOpacity>
             {showDatePicker && (
               <>
@@ -171,7 +172,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                           display="spinner"
                           onChange={onDateChange}
                           style={styles.iosPicker}
-                          textColor={Colors.light.primary}
+                          textColor={currentColors.primary}
                         />
                       </View>
                     </View>
@@ -243,13 +244,201 @@ const TaskForm: React.FC<TaskFormProps> = ({
     }
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+      backgroundColor: currentColors.background,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    headerButton: {
+      padding: 5,
+    },
+    headerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    fieldContainer: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      color: currentColors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    requiredStar: {
+      color: currentColors.error,
+    },
+    input: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    textArea: {
+      height: 80,
+      textAlignVertical: 'top',
+    },
+    dateDisplay: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+    },
+    dateText: {
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    placeholderText: {
+      fontSize: 14,
+      color: currentColors.textSecondary,
+      marginTop: 5,
+      fontStyle: 'italic',
+    },
+    segmentedControl: {
+      flexDirection: 'row',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: currentColors.tint,
+      overflow: 'hidden',
+    },
+    segmentButton: {
+      flex: 1,
+      paddingVertical: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    segmentButtonActive: {
+      backgroundColor: currentColors.tint,
+    },
+    segmentText: {
+      fontSize: 14,
+      color: currentColors.tint,
+      textTransform: 'capitalize',
+    },
+    segmentTextActive: {
+      color: currentColors.primaryContrastText,
+      fontWeight: 'bold',
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 30,
+    },
+    button: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    submitButton: {
+      backgroundColor: currentColors.primary,
+      marginLeft: 10,
+    },
+    cancelButton: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      marginRight: 10,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    submitButtonText: {
+      color: currentColors.primaryContrastText,
+    },
+    cancelButtonText: {
+      color: currentColors.textSecondary,
+    },
+    noUsersContainer: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      padding: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    noUsersText: {
+      fontSize: 14,
+      color: currentColors.textSecondary,
+      fontStyle: 'italic',
+    },
+    iosPickerModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    iosPickerModalContent: {
+      backgroundColor: currentColors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingVertical: 10,
+    },
+    iosPickerHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+    },
+    iosPickerTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: currentColors.primary,
+    },
+    iosPickerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    iosPicker: {
+      width: '100%',
+    },
+  }), [currentColors]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       {/* Custom Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
-          <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+          <Ionicons name="close-outline" size={28} color={currentColors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{formTitle}</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
@@ -270,193 +459,5 @@ const TaskForm: React.FC<TaskFormProps> = ({
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  headerButton: {
-    padding: 5,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  requiredStar: {
-    color: Colors.light.error,
-  },
-  input: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  dateDisplay: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  dateText: {
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  placeholderText: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-    marginTop: 5,
-    fontStyle: 'italic',
-  },
-  segmentedControl: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.tint,
-    overflow: 'hidden',
-  },
-  segmentButton: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  segmentButtonActive: {
-    backgroundColor: Colors.light.tint,
-  },
-  segmentText: {
-    fontSize: 14,
-    color: Colors.light.tint,
-    textTransform: 'capitalize',
-  },
-  segmentTextActive: {
-    color: Colors.light.primaryContrastText,
-    fontWeight: 'bold',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 30,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: Colors.light.primary,
-    marginLeft: 10,
-  },
-  cancelButton: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    marginRight: 10,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  submitButtonText: {
-    color: Colors.light.primaryContrastText,
-  },
-  cancelButtonText: {
-    color: Colors.light.textSecondary,
-  },
-  noUsersContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noUsersText: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-    fontStyle: 'italic',
-  },
-  iosPickerModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  iosPickerModalContent: {
-    backgroundColor: Colors.light.background,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingVertical: 10,
-  },
-  iosPickerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-  },
-  iosPickerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.primary,
-  },
-  iosPickerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  iosPicker: {
-    width: '100%',
-  },
-});
 
 export default TaskForm;

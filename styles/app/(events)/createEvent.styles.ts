@@ -9,10 +9,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createCreateEventStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
 
     paddingBottom: 20,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   backButton: {
 
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
     marginRight: 40,
   },
   tabContainer: {
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 30,
     marginBottom: 24,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     paddingVertical: 10,
   },
   scrollableContent: {
@@ -52,18 +52,18 @@ export const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
     borderTopWidth: 4,
-    borderTopColor: Colors.light.icon,
+    borderTopColor: theme.icon,
   },
   activeTab: {
-    borderTopColor: Colors.light.accent,
+    borderTopColor: theme.accent,
   },
   tabText: {
     fontSize: 14,
-    color: Colors.light.icon,
+    color: theme.icon,
     marginBottom: 8,
   },
   activeTabText: {
-    color: Colors.light.accent,
+    color: theme.accent,
     fontWeight: '500',
   },
   formContainer: {
@@ -75,18 +75,18 @@ export const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 16,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: Colors.light.icon,
+    borderColor: theme.icon,
     padding: 16,
     fontSize: 16,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   multilineInput: {
     height: 120,
@@ -98,10 +98,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   datePickerText: {
-    color: Colors.light.icon,
+    color: theme.icon,
   },
   datePickerTextSelected: {
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   dropdownContainer: {
     flexDirection: 'row',
@@ -109,10 +109,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dropdownText: {
-    color: Colors.light.icon,
+    color: theme.icon,
   },
   nextButton: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
@@ -123,7 +123,7 @@ export const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.light.neutralBg,
+    color: theme.neutralBg,
   },
   modalOverlay: {
     flex: 1,
@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 20,
@@ -143,12 +143,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.icon,
+    borderBottomColor: theme.icon,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   optionItem: {
     flexDirection: 'row',
@@ -156,11 +156,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.backgroundLight,
+    borderBottomColor: theme.backgroundLight,
   },
   optionText: {
     fontSize: 16,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
 
   iosPickerModalOverlay: {
@@ -169,7 +169,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   iosPickerModalContent: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingVertical: 20,
@@ -181,23 +181,23 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.icon,
+    borderBottomColor: theme.icon,
   },
   iosPickerTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   iosPickerButtonText: {
     fontSize: 16,
 
   },
   requiredStar: {
-    color: Colors.light.error,
+    color: theme.error,
     marginLeft: Spacing.xxs,
   },
   disabledButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
   },
 
   visibilitySelectorContainer: {
@@ -210,56 +210,59 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     alignItems: 'center',
     flex: 1,
     marginHorizontal: Spacing.xs,
   },
   visibilityOptionButtonSelected: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   visibilityOptionText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
   visibilityOptionTextSelected: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontWeight: Fonts.weights.bold,
   },
 
   themeItemButton: {
     padding: Spacing.m,
     borderWidth: 1,
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
     borderRadius: BorderRadius.s,
     marginBottom: Spacing.s,
     alignItems: 'center',
   },
   themeItemButtonSelected: {
-    borderColor: Colors.light.buttonPrimary,
-    backgroundColor: Colors.light.buttonPrimary + '20',
+    borderColor: theme.buttonPrimary,
+    backgroundColor: theme.buttonPrimary + '20',
   },
   themeItemText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   themeItemTextSelected: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.bold,
   },
 
   previousButton: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.backgroundPaper,
+    borderColor: theme.buttonPrimary,
     borderWidth: 1,
     marginRight: Spacing.m,
     flex: 1,
   },
   previousButtonText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createCreateEventStyles(Colors.light);

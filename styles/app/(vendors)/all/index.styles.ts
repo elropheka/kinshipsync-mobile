@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from '@/constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -33,11 +33,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
     marginRight: Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   tabBase: { // Base style for tabs
     paddingVertical: Spacing.m,
@@ -56,20 +56,20 @@ export const styles = StyleSheet.create({
   },
   tabText: {
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   tabTextActive: {
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   tabIndicator: { // Track for the indicator
     height: moderateScale(3),
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginHorizontal: Spacing.l,
   },
   indicatorBase: { // The moving indicator
     height: '100%',
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     width: '50%', // Assuming 2 tabs, adjust if more
     position: 'absolute',
     bottom: 0,
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginHorizontal: Spacing.l,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -100,19 +100,19 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
   locationContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
   },
   locationHeader: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
   },
   locationRow: {
@@ -123,7 +123,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   sectionContainer: {
     paddingHorizontal: Spacing.l,
@@ -138,11 +138,11 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   viewAllText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.success,
+    color: theme.success,
     fontWeight: Fonts.weights.medium,
   },
   vendorTypesContainer: {
@@ -160,7 +160,7 @@ export const styles = StyleSheet.create({
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.s,
@@ -168,16 +168,16 @@ export const styles = StyleSheet.create({
   vendorTypeName: {
     fontSize: ResponsiveFontSizes.caption,
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   vendorCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.l,
     overflow: 'hidden',
     marginBottom: Spacing.m,
     elevation: 2,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(2),
@@ -188,9 +188,9 @@ export const styles = StyleSheet.create({
     height: moderateScale(85),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     // borderRightWidth: 1, // Optional, if a separator is desired
-    // borderRightColor: Colors.light.divider,
+    // borderRightColor: theme.divider,
   },
   vendorContent: {
     flex: 1,
@@ -211,25 +211,25 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle - 1,
     fontWeight: Fonts.weights.bold,
     marginRight: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   sponsoredBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.warning,
+    backgroundColor: theme.warning,
     paddingHorizontal: Spacing.xs,
     paddingVertical: Spacing.xxs,
     borderRadius: BorderRadius.s,
   },
   sponsoredText: {
-    color: Colors.light.warningContrastText,
+    color: theme.warningContrastText,
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.bold,
     marginLeft: Spacing.xxs,
   },
   vendorCategory: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
   },
   ratingContainer: {
@@ -238,23 +238,23 @@ export const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.xs,
   },
   vendorPrice: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
     alignSelf: 'flex-start',
-    color: Colors.light.buttonPrimary, // Themed price
+    color: theme.buttonPrimary, // Themed price
   },
   itemPrice: { // Added style for item price
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text, // Or a specific color for price
+    color: theme.text, // Or a specific color for price
     marginTop: Spacing.xxs,
   },
   nextButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     marginHorizontal: Spacing.l,
     marginBottom: Spacing.l,
     paddingVertical: Spacing.l,
@@ -264,10 +264,10 @@ export const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.primaryContrastText, // Themed text
+    color: theme.primaryContrastText, // Themed text
   },
   addButton: { // This seems like a primary action button
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
     margin: Spacing.l,
@@ -276,7 +276,7 @@ export const styles = StyleSheet.create({
   addButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   loadMoreContainer: {
     flexDirection: 'row',
@@ -287,6 +287,9 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

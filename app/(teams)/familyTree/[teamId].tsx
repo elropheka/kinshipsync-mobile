@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FamilyMemberNodeComponent from '@/components/teams/FamilyMemberNode';
 import { FamilyMemberNode, Team } from '@/types/teamTypes';
 import { getTeamById, removeFamilyTreeNode } from '@/services/teamService';
-import { styles } from '@/styles/app/(teams)/familyTreeScreen.styles';
+import { createFamilyTreeScreenStyles } from '@/styles/app/(teams)/familyTreeScreen.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 
@@ -32,6 +33,10 @@ const findNodeById = (
 };
 
 const FamilyTreeScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createFamilyTreeScreenStyles(currentColors);
+
+
   const { teamId } = useLocalSearchParams();
   const router = useRouter();
   const navigation = useNavigation();
@@ -102,7 +107,7 @@ const FamilyTreeScreen = () => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={handleHeaderAddPress} style={{ marginRight: 15 }}>
-          <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+          <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
         </TouchableOpacity>
       ),
       title: teamName || (teamId ? `Team: ${teamId}` : 'Family Tree'),
@@ -197,7 +202,7 @@ const FamilyTreeScreen = () => {
     return (
       <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.container}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
+          <ActivityIndicator size="large" color={currentColors.primary} />
           <Text>Loading family tree...</Text>
         </View>
       </SafeAreaView>
@@ -228,7 +233,7 @@ const FamilyTreeScreen = () => {
 
   return (
     <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
         horizontal={true}
@@ -244,7 +249,7 @@ const FamilyTreeScreen = () => {
 const screenStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: currentColors.background,
   },
 });
 

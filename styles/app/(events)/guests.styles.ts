@@ -9,10 +9,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createGuestsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -21,19 +21,19 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
 
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
 
   },
   tabsContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundLight,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundLight,
   },
   tab: {
     flex: 1,
@@ -42,17 +42,17 @@ export const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: moderateScale(3),
-    borderBottomColor: Colors.light.accentHighlight,
+    borderBottomColor: theme.accentHighlight,
   },
   tabText: {
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     marginHorizontal: Spacing.m,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: Spacing.s,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
   filtersContainer: {
     flexDirection: 'row',
@@ -76,25 +76,25 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterButton: {
-    backgroundColor: Colors.light.buttonPrimary + '1A',
+    backgroundColor: theme.buttonPrimary + '1A',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
   },
   selectedFilter: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   filterText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   activeFilterText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   addEventButton: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
     paddingHorizontal: Spacing.s,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
@@ -103,7 +103,7 @@ export const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   addEventText: {
-    color: Colors.light.accentContrastText,
+    color: theme.accentContrastText,
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
@@ -116,17 +116,17 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   progressBar: {
     height: moderateScale(4),
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     borderRadius: BorderRadius.s,
   },
   progressFill: {
     width: '60%',
     height: '100%',
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.s,
   },
   guestList: {
@@ -141,17 +141,17 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
   },
   guestItemPressed: {
-    backgroundColor: Colors.light.border,
+    backgroundColor: theme.border,
   },
   guestName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   guestEvent: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   statusContainer: {
     flexDirection: 'row',
@@ -171,7 +171,7 @@ export const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
 
   eventListContainer: {
@@ -183,16 +183,19 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   eventName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.xxs,
   },
   eventDate: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createGuestsStyles(Colors.light);

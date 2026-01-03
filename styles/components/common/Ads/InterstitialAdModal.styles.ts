@@ -8,7 +8,7 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createInterstitialAdModalStyles = (theme: typeof Colors.light) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: Colors.dark.background + 'BF',
@@ -18,11 +18,11 @@ export const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     maxWidth: moderateScale(400),
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     alignItems: 'center',
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -40,11 +40,11 @@ export const styles = StyleSheet.create({
   },
   adTitle: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.m,
     alignSelf: 'flex-start',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
     width: '100%',
     paddingBottom: Spacing.xs,
   },
@@ -57,17 +57,20 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
     textAlign: 'center',
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.s,
   },
   adTextSmall: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
   closingText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.m,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createInterstitialAdModalStyles(Colors.light);

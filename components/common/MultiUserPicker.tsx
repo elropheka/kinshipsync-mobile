@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { UserProfile } from '@/types/userTypes';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { CommonTextStyles, BaseTextStyles } from '@/constants/textStyles';
 
 interface MultiUserPickerProps {
@@ -20,6 +20,48 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
   itemHeight = 50,
   listMaxHeight = 200,
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      marginVertical: 10,
+    },
+    pickerTitle: {
+      ...CommonTextStyles.sectionHeader,
+      marginBottom: 8,
+    },
+    listWrapper: {
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      backgroundColor: currentColors.background,
+    },
+    itemContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.divider,
+    },
+    checkboxContainer: {
+      backgroundColor: 'white',
+      borderRadius: 4,
+      padding: 2,
+      marginRight: 12,
+    },
+    checkboxIcon: {
+      marginRight: 0,
+    },
+    userNameText: {
+      ...BaseTextStyles.body,
+      flex: 1, 
+    },
+    selectedCountText: {
+      ...CommonTextStyles.captionText,
+      marginTop: 6,
+      textAlign: 'right',
+    },
+  }), [currentColors]);
+
   const handleToggleUser = (userId: string) => {
     const newSelectedIds = selectedUserIds.includes(userId)
       ? selectedUserIds.filter(id => id !== userId)
@@ -39,7 +81,7 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
           <Ionicons
             name={isSelected ? 'checkbox-outline' : 'square-outline'}
             size={24}
-            color={isSelected ? Colors.light.tint : Colors.light.icon}
+            color={isSelected ? currentColors.tint : currentColors.icon}
             style={styles.checkboxIcon}
           />
         </View>
@@ -67,46 +109,5 @@ const MultiUserPicker: React.FC<MultiUserPickerProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 10,
-  },
-  pickerTitle: {
-    ...CommonTextStyles.sectionHeader,
-    marginBottom: 8,
-  },
-  listWrapper: {
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    backgroundColor: Colors.light.background,
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-  },
-  checkboxContainer: {
-    backgroundColor: 'white',
-    borderRadius: 4,
-    padding: 2,
-    marginRight: 12,
-  },
-  checkboxIcon: {
-    marginRight: 0,
-  },
-  userNameText: {
-    ...BaseTextStyles.body,
-    flex: 1, 
-  },
-  selectedCountText: {
-    ...CommonTextStyles.captionText,
-    marginTop: 6,
-    textAlign: 'right',
-  },
-});
 
 export default MultiUserPicker;

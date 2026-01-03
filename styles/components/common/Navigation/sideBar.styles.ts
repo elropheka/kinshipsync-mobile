@@ -12,14 +12,14 @@ import {
 
 export const SIDEBAR_WIDTH = isTablet() ? Layout.SCREEN_WIDTH * 0.65 : Layout.SCREEN_WIDTH * 0.85;
 
-export const styles = StyleSheet.create({
+export const createSideBarStyles = (theme: typeof Colors.light) => StyleSheet.create({
   overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: Colors.dark.background + 'BF',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 998,
   },
   sidebar: {
@@ -28,9 +28,9 @@ export const styles = StyleSheet.create({
     left: 0,
     width: SIDEBAR_WIDTH,
     height: Layout.SCREEN_HEIGHT,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     zIndex: 999,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: moderateScale(2), height: 0 },
     shadowOpacity: 0.15,
     shadowRadius: moderateScale(5),
@@ -38,14 +38,14 @@ export const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   container: {
     flex: 1,
     paddingTop: Platform.OS === 'ios' ? (isTablet() ? Spacing.xxl * 2 : Spacing.xxl) : undefined,
     paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.l,
     flexDirection: 'column',
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   scrollContent: {
     flex: 1,
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.medium,
     fontFamily: Fonts.headerBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   profileSection: {
     flexDirection: 'row',
@@ -69,13 +69,13 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
     paddingBottom: Spacing.l,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   avatar: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -86,7 +86,7 @@ export const styles = StyleSheet.create({
 
   },
   avatarText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
   },
@@ -96,12 +96,12 @@ export const styles = StyleSheet.create({
   profileName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     fontFamily: Fonts.headerSemiBold,
   },
   profileEmail: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
     fontFamily: Fonts.bodyLight,
   },
@@ -110,7 +110,7 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.m,
     fontWeight: Fonts.weights.medium,
     fontFamily: Fonts.bodyLight,
@@ -124,13 +124,13 @@ export const styles = StyleSheet.create({
   menuText: {
     marginLeft: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     fontFamily: Fonts.bodyRegular,
   },
   logoutContainer: {
     paddingVertical: Spacing.l,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
     marginTop: 'auto',
   },
   logoutButton: {
@@ -141,7 +141,10 @@ export const styles = StyleSheet.create({
   logoutText: {
     marginLeft: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.error,
+    color: theme.error,
     fontFamily: Fonts.bodyRegular,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createSideBarStyles(Colors.light);

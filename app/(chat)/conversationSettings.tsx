@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOp
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '../../context/AppThemeContext';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { getConversationById, updateParticipantRole, removeParticipantFromGroupConversation } from '../../services/chatService'; // Added removeParticipantFromGroupConversation
 import { Conversation, ParticipantInfo, ChatRole } from '../../types/chatTypes';
@@ -10,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons'; // For icons
 import { useAlert } from '@/context/AlertContext';
 
 const ConversationSettingsScreen = () => {
+  const { currentColors } = useAppTheme();
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
   const { user: currentUser, token } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token;
@@ -129,10 +131,10 @@ const ConversationSettingsScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Loading Settings...' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
+          <ActivityIndicator size="large" color={currentColors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -141,10 +143,10 @@ const ConversationSettingsScreen = () => {
   if (error || !conversation) {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Error' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={{ color: Colors.light.error }}>{error || "Could not load conversation details."}</Text>
+          <Text style={{ color: currentColors.error }}>{error || "Could not load conversation details."}</Text>
         </View>
       </SafeAreaView>
     );
@@ -199,7 +201,7 @@ const ConversationSettingsScreen = () => {
         <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
       ) : (
         <View style={[styles.avatar, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Ionicons name="person-outline" size={24} color={Colors.light.background} />
+          <Ionicons name="person-outline" size={24} color={currentColors.background} />
         </View>
       )}
       <View style={styles.participantInfo}>
@@ -207,14 +209,14 @@ const ConversationSettingsScreen = () => {
         <Text style={styles.participantRole}>{item.role}</Text>
       </View>
       {isCurrentUserAdmin && item.userId !== currentUser?.uid && (
-        <Ionicons name="ellipsis-vertical" size={24} color={Colors.light.textSecondary} />
+        <Ionicons name="ellipsis-vertical" size={24} color={currentColors.textSecondary} />
       )}
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: conversation.name || 'Chat Settings' }} />
       <View style={styles.content}>
         <Text style={styles.title}>{conversation.name || 'Group Chat'} Settings</Text>
@@ -233,7 +235,7 @@ const ConversationSettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: currentColors.background,
   },
   content: {
     flex: 1,
@@ -247,28 +249,28 @@ const styles = StyleSheet.create({
   placeholder: {
     marginTop: 20,
     fontStyle: 'italic',
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
-    color: Colors.light.text,
+    color: currentColors.text,
   },
   participantItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: currentColors.divider,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
     marginRight: 12,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: currentColors.divider,
   },
   participantInfo: {
     flex: 1,
@@ -276,11 +278,11 @@ const styles = StyleSheet.create({
   participantName: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.light.text,
+    color: currentColors.text,
   },
   participantRole: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
     textTransform: 'capitalize',
   },
   manageRoleButton: {
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   errorText: {
-    color: Colors.light.error,
+    color: currentColors.error,
     textAlign: 'center',
   }
 });

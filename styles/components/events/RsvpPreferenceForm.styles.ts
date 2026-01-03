@@ -9,14 +9,14 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createRsvpPreferenceFormStyles = (theme: typeof Colors.light) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Standard overlay, keep as is or add to Colors
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderTopLeftRadius: BorderRadius.l,
     borderTopRightRadius: BorderRadius.l,
     paddingTop: Spacing.s,
@@ -31,16 +31,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingBottom: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   modalTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   eventNameText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginBottom: Spacing.m,
     fontWeight: Fonts.weights.medium,
@@ -54,19 +54,19 @@ export const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.s,
     fontWeight: Fonts.weights.medium,
   },
   input: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
   multilineInput: {
     minHeight: moderateScale(80),
@@ -82,17 +82,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
   },
   statusButtonSelected: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   statusButtonText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   statusButtonTextSelected: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   dietaryOptionsContainer: {
     flexDirection: 'row',
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
   dietaryOptionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.l,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
@@ -110,14 +110,14 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.s,
   },
   dietaryOptionButtonSelected: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   dietaryOptionText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   dietaryOptionTextSelected: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   checkIcon: {
     marginLeft: Spacing.xs,
@@ -129,7 +129,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
   },
   submitButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.m,
     paddingVertical: Spacing.m,
     alignItems: 'center',
@@ -138,6 +138,9 @@ export const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createRsvpPreferenceFormStyles(Colors.light);

@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createCreateNewTeamStyles = (theme: typeof Colors.light) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -23,8 +23,8 @@ export const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? Spacing.s : Spacing.s + Spacing.xs,
     paddingBottom: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.background,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     textAlign: 'center',
     flex: 1,
-    color: Colors.light.text,
+    color: theme.text,
   },
   headerSpacer: {
     width: IconSizes.xl,
@@ -49,36 +49,36 @@ export const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: Layout.inputHeight,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderWidth: 1,
     borderRadius: BorderRadius.m,
     paddingHorizontal: Spacing.m,
     marginBottom: Spacing.l,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
-    backgroundColor: Colors.light.backgroundLight,
+    color: theme.text,
+    backgroundColor: theme.backgroundLight,
   },
   sectionTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     alignSelf: 'flex-start',
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   contactSelectorPlaceholder: {
     width: '100%',
     minHeight: moderateScale(150),
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
     borderWidth: 1,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.xl,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   contactSelectorText: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginBottom: Spacing.m,
     fontSize: ResponsiveFontSizes.body,
@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     height: Layout.inputHeight,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderWidth: 1,
     borderRadius: BorderRadius.m,
     paddingHorizontal: Spacing.m,
@@ -105,15 +105,15 @@ export const styles = StyleSheet.create({
   },
   pickerInputText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   pickerInputIcon: {
     marginLeft: Spacing.s,
   },
   picker: {
     width: '100%',
-    backgroundColor: Colors.light.backgroundPaper,
-    color: Colors.light.text,
+    backgroundColor: theme.backgroundPaper,
+    color: theme.text,
   },
   iconPickerContainer: {
     flexDirection: 'row',
@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.l,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.xs,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderWidth: 1,
     borderRadius: BorderRadius.m,
     width: '100%',
@@ -133,7 +133,7 @@ export const styles = StyleSheet.create({
     padding: Spacing.xs,
   },
   errorText: {
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginVertical: Spacing.m,
     fontSize: ResponsiveFontSizes.body,
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderTopLeftRadius: BorderRadius.l,
     borderTopRightRadius: BorderRadius.l,
     padding: Spacing.m,
@@ -155,16 +155,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   modalTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   modalDoneButton: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.primary,
+    color: theme.primary,
     fontWeight: Fonts.weights.medium,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createCreateNewTeamStyles(Colors.light);

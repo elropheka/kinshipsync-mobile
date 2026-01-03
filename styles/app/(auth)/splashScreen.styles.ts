@@ -7,12 +7,12 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createSplashScreenStyles = (theme: typeof Colors.light) => StyleSheet.create({
   outerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
   },
   logoViewContainer: {
     width: moderateScale(1200),
@@ -28,7 +28,10 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     fontFamily: Fonts.headerBold,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createSplashScreenStyles(Colors.light);

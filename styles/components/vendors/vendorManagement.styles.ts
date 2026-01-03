@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createVendorManagementStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   backButton: {
     marginRight: Spacing.s,
@@ -33,12 +33,12 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginRight: Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   tabContainer: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.l,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     marginBottom: Spacing.m,
   },
   tabButton: {
@@ -51,16 +51,16 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   activeTabButton: {
-    borderColor: Colors.light.tint,
+    borderColor: theme.tint,
   },
   tabButtonText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   activeTabButtonText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.tint,
+    color: theme.tint,
   },
   summaryContainer: {
     flexDirection: 'row',
@@ -73,18 +73,18 @@ export const styles = StyleSheet.create({
     borderRadius: BorderRadius.m,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
   },
   summaryNumber: {
     fontSize: ResponsiveFontSizes.header1,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.accent,
+    color: theme.accent,
   },
   summaryLabel: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xs,
     textAlign: 'center',
   },
@@ -93,18 +93,18 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     marginHorizontal: Spacing.l,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   vendorList: {
     flex: 1,
     paddingHorizontal: Spacing.l,
   },
   vendorCard: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.l,
     marginBottom: Spacing.m,
     padding: Spacing.m,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderWidth: 1,
   },
   vendorHeader: {
@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     width: moderateScale(60),
     height: moderateScale(60),
     borderRadius: BorderRadius.m,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
@@ -128,11 +128,11 @@ export const styles = StyleSheet.create({
   vendorName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   vendorCategory: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   ratingContainer: {
@@ -143,14 +143,14 @@ export const styles = StyleSheet.create({
   ratingText: {
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   chevronButton: {
     padding: Spacing.xs,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginVertical: Spacing.m,
   },
   vendorFooter: {
@@ -180,18 +180,18 @@ export const styles = StyleSheet.create({
   },
   paymentText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.xs,
   },
   amountText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   homeIndicator: {
     width: moderateScale(100),
     height: moderateScale(5),
-    backgroundColor: Colors.light.text,
+    backgroundColor: theme.text,
     borderRadius: BorderRadius.s,
     alignSelf: 'center',
     marginBottom: Spacing.s,
@@ -201,13 +201,13 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: 'center',
-    color: Colors.light.error,
+    color: theme.error,
     margin: Spacing.l,
     fontSize: ResponsiveFontSizes.body,
   },
   emptyText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     margin: Spacing.l,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -221,12 +221,15 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.m,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
-    backgroundColor: Colors.light.tint,
+    backgroundColor: theme.tint,
     borderRadius: BorderRadius.m,
   },
   browseButtonText: {
-    color: Colors.light.background,
+    color: theme.background,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createVendorManagementStyles(Colors.light);

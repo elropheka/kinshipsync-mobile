@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../../types/eventTypes';
-import BudgetForm from '../../budget/BudgetForm'; // Path to existing BudgetForm
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
-import { Colors } from '../../../constants/Colors';
+import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '@/types/eventTypes';
+import BudgetForm from '@/components/budget/BudgetForm';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailBudgetProps {
@@ -22,6 +22,8 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
   onDeleteBudgetItem,
   isOrganizer = true
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const { showSuccess, showError, showConfirm } = useAlert();
   const [isBudgetFormVisible, setIsBudgetFormVisible] = useState(false);
   const [editingBudgetItem, setEditingBudgetItem] = useState<Partial<BudgetItem> & { id?: string } | undefined>(undefined);
@@ -90,7 +92,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
       </View>
       {isOrganizer && (
         <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
-          <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+          <Ionicons name="trash-outline" size={24} color={currentColors.error} />
         </TouchableOpacity>
       )}
     </TouchableOpacity>
@@ -102,7 +104,7 @@ const EventDetailBudget: React.FC<EventDetailBudgetProps> = ({
         <Text style={styles.sectionTitle}>Budget</Text>
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleOpenBudgetForm()}>
-            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+            <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
           </TouchableOpacity>
         )}
       </View>

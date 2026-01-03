@@ -3,12 +3,17 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'rea
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '@/styles/app/(main)/subscriptionPlans.styles';
+import { createSubscriptionPlansStyles } from '@/styles/app/(main)/subscriptionPlans.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '@/hooks/useUser';
 import { Colors } from '@/constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 
 const SubscriptionPlansScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createSubscriptionPlansStyles(currentColors);
+
+
   const { 
     availablePlans, 
     subscription: currentUserSubscription, 
@@ -88,7 +93,7 @@ const SubscriptionPlansScreen = () => {
   if (isLoadingPlans && availablePlans.length === 0) {
     return (
       <SafeAreaView style={[styles.outerContainer, styles.centered]}>
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading plans...</Text>
       </SafeAreaView>
     );
@@ -118,7 +123,7 @@ const SubscriptionPlansScreen = () => {
               onPress={handleCancelCurrentSubscription}
               disabled={isProcessing || isLoadingSubscription}
             >
-              {isProcessing ? <ActivityIndicator color={Colors.light.primaryContrastText} /> : <Text style={styles.selectButtonText}>Cancel Subscription</Text>}
+              {isProcessing ? <ActivityIndicator color={currentColors.primaryContrastText} /> : <Text style={styles.selectButtonText}>Cancel Subscription</Text>}
             </TouchableOpacity>
           </View>
         )}
@@ -153,7 +158,7 @@ const SubscriptionPlansScreen = () => {
                 onPress={() => handleSelectPlan(plan.id)}
                 disabled={isCurrent || isProcessing || isLoadingSubscription}
               >
-                {isProcessing && !isCurrent ? <ActivityIndicator color={Colors.light.primaryContrastText} /> :
+                {isProcessing && !isCurrent ? <ActivityIndicator color={currentColors.primaryContrastText} /> :
                 <Text style={styles.selectButtonText}>
                   {isCurrent ? 'Current Plan' : 'Choose Plan'}
                 </Text>}

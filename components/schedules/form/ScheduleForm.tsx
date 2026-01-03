@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Schedule, ScheduleFormData } from '../../../types/scheduleTypes';
 import { UserProfile } from '../../../types/userTypes';
-import { Colors } from '../../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import MultiUserPicker from '../../common/MultiUserPicker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useAlert } from '@/context/AlertContext';
@@ -33,6 +33,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   onCancel,
   formTitle = 'Schedule Details',
 }) => {
+  const { currentColors } = useAppTheme();
   const { showError } = useAlert();
   const [title, setTitle] = useState(initialSchedule?.title || '');
   const [description, setDescription] = useState(initialSchedule?.description || '');
@@ -113,12 +114,121 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
     return date ? date.toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Select date & time';
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+      backgroundColor: currentColors.background,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    headerButton: {
+      padding: 5,
+    },
+    headerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    fieldContainer: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      color: currentColors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    requiredStar: {
+      color: currentColors.error,
+    },
+    input: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    textArea: {
+      height: 80,
+      textAlignVertical: 'top',
+    },
+    dateDisplay: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+    },
+    dateText: {
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 30,
+    },
+    button: {
+      flex: 1,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    submitButton: {
+      backgroundColor: currentColors.primary,
+      marginLeft: 10,
+    },
+    cancelButton: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      marginRight: 10,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    submitButtonText: {
+      color: currentColors.primaryContrastText,
+    },
+    cancelButtonText: {
+      color: currentColors.textSecondary,
+    },
+  }), [currentColors]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
-          <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+          <Ionicons name="close-outline" size={28} color={currentColors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{formTitle}</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
@@ -134,7 +244,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             value={title}
             onChangeText={setTitle}
             placeholder="Enter schedule title"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -145,7 +255,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             value={description}
             onChangeText={setDescription}
             placeholder="Enter schedule description (optional)"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
             multiline
             numberOfLines={3}
           />
@@ -155,7 +265,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
           <Text style={styles.label}>Start Time <Text style={styles.requiredStar}>*</Text></Text>
           <TouchableOpacity onPress={() => setShowStartTimePicker(true)} style={styles.dateDisplay}>
             <Text style={styles.dateText}>{formatDate(startTime)}</Text>
-            <Ionicons name="time-outline" size={22} color={Colors.light.icon} />
+            <Ionicons name="time-outline" size={22} color={currentColors.icon} />
           </TouchableOpacity>
           {showStartTimePicker && (
             <DateTimePicker
@@ -171,7 +281,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
           <Text style={styles.label}>End Time <Text style={styles.requiredStar}>*</Text></Text>
           <TouchableOpacity onPress={() => setShowEndTimePicker(true)} style={styles.dateDisplay}>
             <Text style={styles.dateText}>{formatDate(endTime)}</Text>
-            <Ionicons name="time-outline" size={22} color={Colors.light.icon} />
+            <Ionicons name="time-outline" size={22} color={currentColors.icon} />
           </TouchableOpacity>
           {showEndTimePicker && (
             <DateTimePicker
@@ -207,114 +317,5 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  headerButton: {
-    padding: 5,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  requiredStar: {
-    color: Colors.light.error,
-  },
-  input: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  dateDisplay: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  dateText: {
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 30,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: Colors.light.primary,
-    marginLeft: 10,
-  },
-  cancelButton: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    marginRight: 10,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  submitButtonText: {
-    color: Colors.light.primaryContrastText,
-  },
-  cancelButtonText: {
-    color: Colors.light.textSecondary,
-  },
-});
 
 export default ScheduleForm;

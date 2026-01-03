@@ -3,12 +3,12 @@ import { View, Text, TouchableOpacity, Modal, Image, useWindowDimensions } from 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RenderHtml from 'react-native-render-html';
 import { Ionicons } from '@expo/vector-icons';
-import { WebsitePayload, UpdateEventWebsiteDetailsPayload } from '../../../types/eventTypes';
-import EventWebsiteForm from '../../website/EventWebsiteForm'; // Path to existing EventWebsiteForm
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
-import { Colors } from '../../../constants/Colors';
-import { getEventWebsiteUrl } from '../../../utils/eventWebsiteUtils';
-import * as Linking from 'expo-linking'; // For opening URLs
+import { WebsitePayload, UpdateEventWebsiteDetailsPayload } from '@/types/eventTypes';
+import EventWebsiteForm from '@/components/website/EventWebsiteForm';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { getEventWebsiteUrl } from '@/utils/eventWebsiteUtils';
+import * as Linking from 'expo-linking';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailWebsiteProps {
@@ -23,6 +23,8 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
   isOrganizer = true
 }) => {
   console.log('EventDetailWebsite - eventWebsite:', eventWebsite);
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const { width } = useWindowDimensions();
   const [isWebsiteFormVisible, setIsWebsiteFormVisible] = useState(false);
   const { showSuccess, showError, showInfo } = useAlert();
@@ -73,12 +75,12 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
         <View style={styles.headerActions}>
           {eventWebsite?.customUrlSlug && eventWebsite.published && (
             <TouchableOpacity onPress={handleViewLiveWebsite} style={styles.headerActionButton}>
-              <Ionicons name="globe-outline" size={24} color={Colors.light.primary} />
+              <Ionicons name="globe-outline" size={24} color={currentColors.primary} />
             </TouchableOpacity>
           )}
           {isOrganizer && (
             <TouchableOpacity onPress={handleOpenWebsiteForm} style={styles.headerActionButton}>
-              <Ionicons name="create-outline" size={28} color={Colors.light.primary} />
+              <Ionicons name="create-outline" size={28} color={currentColors.primary} />
             </TouchableOpacity>
           )}
         </View>

@@ -15,7 +15,8 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '@/styles/app/(events)/createNewTeam.styles';
+import { createCreateNewTeamStyles } from '@/styles/app/(events)/createNewTeam.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { Stack, useRouter } from 'expo-router';
 import { TeamType } from '@/types/teamTypes';
@@ -33,6 +34,10 @@ const availableIcons: (keyof typeof Ionicons.glyphMap)[] = [
 ];
 
 const CreateNewTeamScreen: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createCreateNewTeamStyles(currentColors);
+
+
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
@@ -136,7 +141,7 @@ const CreateNewTeamScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Team Type</Text>
             <TouchableOpacity onPress={() => setIsTeamTypePickerVisible(true)} style={styles.pickerInputContainer}>
               <Text style={styles.pickerInputText}>{teamType.charAt(0).toUpperCase() + teamType.slice(1)}</Text>
-              <Ionicons name="chevron-down" size={20} color={Colors.light.icon} style={styles.pickerInputIcon} />
+              <Ionicons name="chevron-down" size={20} color={currentColors.icon} style={styles.pickerInputIcon} />
             </TouchableOpacity>
           </>
         );
@@ -145,9 +150,9 @@ const CreateNewTeamScreen: React.FC = () => {
           <>
             <Text style={styles.sectionTitle}>Team Icon</Text>
             <TouchableOpacity onPress={() => setIsIconPickerVisible(true)} style={styles.iconPickerContainer}>
-              <Ionicons name={iconName} size={24} color={Colors.light.icon} style={styles.selectedIconPreview} />
+              <Ionicons name={iconName} size={24} color={currentColors.icon} style={styles.selectedIconPreview} />
               <Text style={styles.pickerInputText}>{iconName.replace('-outline', '').replace('-', ' ')}</Text>
-              <Ionicons name="chevron-down" size={20} color={Colors.light.icon} style={styles.pickerInputIcon} />
+              <Ionicons name="chevron-down" size={20} color={currentColors.icon} style={styles.pickerInputIcon} />
             </TouchableOpacity>
           </>
         );
@@ -156,7 +161,7 @@ const CreateNewTeamScreen: React.FC = () => {
           <>
             <Text style={styles.sectionTitle}>Add Members</Text>
             {isLoadingUsers ? (
-              <ActivityIndicator size="large" color={Colors.light.primary} />
+              <ActivityIndicator size="large" color={currentColors.primary} />
             ) : error && !allUsers.length ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : (
@@ -176,7 +181,7 @@ const CreateNewTeamScreen: React.FC = () => {
               title={isCreatingTeam ? "Creating..." : "Create Team"}
               onPress={handleCreateTeam}
               disabled={teamName.trim() === '' || isCreatingTeam || isLoadingUsers}
-              color={Colors.light.primary}
+              color={currentColors.primary}
             />
           </View>
         );
@@ -187,7 +192,7 @@ const CreateNewTeamScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: "Create New Team" }} />
       <FlatList
         data={formSections}
@@ -220,7 +225,7 @@ const CreateNewTeamScreen: React.FC = () => {
                     setIsTeamTypePickerVisible(false);
                   }}
                   style={styles.picker}
-                  itemStyle={{ color: Colors.light.text }}
+                  itemStyle={{ color: currentColors.text }}
                 >
                   {Object.values(TeamType).map((type) => (
                     <Picker.Item key={type} label={type.charAt(0).toUpperCase() + type.slice(1)} value={type} />
@@ -255,7 +260,7 @@ const CreateNewTeamScreen: React.FC = () => {
                     setIsIconPickerVisible(false);
                   }}
                   style={styles.picker}
-                  itemStyle={{ color: Colors.light.text }}
+                  itemStyle={{ color: currentColors.text }}
                 >
                   {availableIcons.map((icon) => (
                     <Picker.Item key={icon} label={icon.replace('-outline', '').replace('-', ' ')} value={icon} />

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Fla
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(events)/seating.styles'; // Styles will need to be adapted
+import { createSeatingStyles } from '../../styles/app/(events)/seating.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; // Styles will need to be adapted
 import { useEventDetail } from '../../hooks/useEvents';
 import { SeatingTable } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
@@ -11,6 +12,10 @@ import TableForm from '../../components/events/TableForm';
 import { useAlert } from '@/context/AlertContext'; 
 
   const SeatingChartScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createSeatingStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { showSuccess, showError, showConfirm, showInfo } = useAlert();
   
@@ -145,7 +150,7 @@ import { useAlert } from '@/context/AlertContext';
 
 
   if (isLoadingEventData) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color={Colors.light.primary} /><Text>Loading event data...</Text></View>;
+    return <View style={styles.centered}><ActivityIndicator size="large" color={currentColors.primary} /><Text>Loading event data...</Text></View>;
   }
 
   if (eventError) {
@@ -158,17 +163,17 @@ import { useAlert } from '@/context/AlertContext';
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       {/* Header */}
       <Stack.Screen options={{ title: `Seating - ${event.name}` }} />
       <View style={styles.headerControls}>
         <TouchableOpacity style={styles.controlButton} onPress={handleAddTable}>
-            <Ionicons name="add-circle-outline" size={24} color={Colors.light.primary} />
+            <Ionicons name="add-circle-outline" size={24} color={currentColors.primary} />
             <Text style={styles.controlButtonText}>Add Table</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.controlButton, styles.saveButton]} onPress={handleSaveChart} disabled={isLoading}>
-            <Ionicons name="save-outline" size={24} color={Colors.light.primaryContrastText} />
-            <Text style={[styles.controlButtonText, {color: Colors.light.primaryContrastText}]}>
+            <Ionicons name="save-outline" size={24} color={currentColors.primaryContrastText} />
+            <Text style={[styles.controlButtonText, {color: currentColors.primaryContrastText}]}>
                 {isLoading ? "Saving..." : "Save Chart"}
             </Text>
         </TouchableOpacity>
@@ -181,10 +186,10 @@ import { useAlert } from '@/context/AlertContext';
                 <Text style={styles.tableName}>{table.name} (Capacity: {table.capacity})</Text>
                 <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity onPress={() => handleEditTable(table)} style={{marginRight: 10}}>
-                        <Ionicons name="pencil-outline" size={20} color={Colors.light.tint} />
+                        <Ionicons name="pencil-outline" size={20} color={currentColors.tint} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDeleteTable(table.id)}>
-                        <Ionicons name="trash-outline" size={20} color={Colors.light.error} />
+                        <Ionicons name="trash-outline" size={20} color={currentColors.error} />
                     </TouchableOpacity>
                 </View>
             </View>

@@ -4,13 +4,15 @@ import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import BackButton from '@/components/common/Navigation/BackButton';
 import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 function EventsStack() {
+  const { currentColors } = useAppTheme();
 
   return (
     <>
-      <StatusBar 
-        backgroundColor={Platform.OS === 'android' ? Colors.light.backgroundSecondary : undefined} 
+      <StatusBar
+        backgroundColor={Platform.OS === 'android' ? currentColors.backgroundSecondary : undefined}
         style="dark"
         translucent={Platform.OS === 'android' ? false : undefined}
       />
@@ -24,7 +26,7 @@ function EventsStack() {
         },
         headerTintColor: 'white',
         headerStyle: {
-          backgroundColor: Colors.dark.accent,
+          backgroundColor: currentColors.accent,
         },
         headerBackVisible: false,
         presentation: 'card',

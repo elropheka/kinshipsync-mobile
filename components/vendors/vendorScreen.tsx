@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles, ITEM_WIDTH } from '../../styles/components/vendors/vendorScreen.styles';
-import { Colors } from '../../constants/Colors';
 import { DisplayVendorItem, useVendorItemsSearch } from '../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../types/vendorItemTypes';
 import { router } from 'expo-router';
@@ -26,6 +26,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 
 const VendorScreen: React.FC = () => {
+  const { currentColors } = useAppTheme();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const listRef = useRef<FlatList<DisplayVendorItem>>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -90,11 +91,11 @@ const VendorScreen: React.FC = () => {
               <Image source={{ uri: itemImage }} style={styles.image} />
             ) : (
               <View style={[styles.image, styles.imagePlaceholder]}>
-                <Ionicons name="storefront-outline" size={50} color={Colors.light.textSecondary} />
+                <Ionicons name="storefront-outline" size={50} color={currentColors.textSecondary} />
               </View>
             )}
             <TouchableOpacity style={styles.heartIcon} onPress={() => console.log('Favorite item:', item.id)}>
-              <Icon name="heart-o" size={20} color={Colors.light.textSecondary}/>
+              <Icon name="heart-o" size={20} color={currentColors.textSecondary}/>
             </TouchableOpacity>
           </View>
           <View style={styles.info}>
@@ -103,7 +104,7 @@ const VendorScreen: React.FC = () => {
             <Text style={styles.subheading} numberOfLines={1}>by {vendorName}</Text>
             {vendorRating !== undefined && vendorRating > 0 && (
               <View style={styles.rating}>
-                <Icon name="star" size={14} color={Colors.light.tint} />
+                <Icon name="star" size={14} color={currentColors.tint} />
                 <Text style={styles.ratingText}>{vendorRating.toFixed(1)}</Text>
               </View>
             )}
@@ -120,7 +121,7 @@ const VendorScreen: React.FC = () => {
         <View style={styles.header}>
           <Text style={styles.heading}>Local vendors & services</Text>
         </View>
-        <ActivityIndicator size="large" color={Colors.light.tint} style={{ flex: 1 }}/>
+        <ActivityIndicator size="large" color={currentColors.tint} style={{ flex: 1 }}/>
       </SafeAreaView>
     );
   }
@@ -131,7 +132,7 @@ const VendorScreen: React.FC = () => {
          <View style={styles.header}>
           <Text style={styles.heading}>Local vendors & services</Text>
         </View>
-        <Text style={{ textAlign: 'center', color: 'red', marginTop: 20 }}>Error: {error.message}</Text>
+        <Text style={{ textAlign: 'center', color: currentColors.error, marginTop: 20 }}>Error: {error.message}</Text>
       </SafeAreaView>
     );
   }
@@ -152,7 +153,7 @@ const VendorScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <View style={styles.header}>
         <Text style={styles.heading}>Local vendors & services</Text>
         <Text style={styles.subheading}>

@@ -5,14 +5,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from "@/context/AuthContext";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AppThemeProvider, useAppTheme } from "@/context/AppThemeContext";
 import { AlertProvider } from "@/context/AlertContext";
 
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../store/store';
 import AppCoreNav from "@/components/common/Navigation/AppCoreNav";
-import * as SplashScreen from 'expo-splash-screen'; 
-import { useFonts } from 'expo-font'; 
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import { Colors } from "@/constants/Colors";
 import * as Updates from 'expo-updates';
 import Constants from 'expo-constants';
@@ -22,6 +23,7 @@ import { OneSignal, LogLevel } from 'react-native-onesignal';
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout: React.FC = () => {
+  const { currentColors } = useAppTheme();
   
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
@@ -134,24 +136,26 @@ const RootLayout: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: Colors.light.backgroundSecondary }} onLayout={onLayoutRootView}>
-        <StatusBar 
-          barStyle="dark-content" 
-          backgroundColor={Colors.light.backgroundSecondary}
+      <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: currentColors.backgroundSecondary }} onLayout={onLayoutRootView}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor={currentColors.backgroundSecondary}
         />
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ErrorBoundary>
           <ReduxProvider store={store}>
             <AuthProvider>
-              <SidebarProvider>
-                <ThemeProvider>
-                  <AlertProvider>
+              <AppThemeProvider>
+                <SidebarProvider>
+                  <ThemeProvider>
+                    <AlertProvider>
                     {/* <ResponsiveContainer> */}
                       <AppCoreNav />
-                    {/* </ResponsiveContainer> */}
-                  </AlertProvider>
-                </ThemeProvider>
-              </SidebarProvider>
+                      {/* </ResponsiveContainer> */}
+                    </AlertProvider>
+                  </ThemeProvider>
+                </SidebarProvider>
+              </AppThemeProvider>
             </AuthProvider>
           </ReduxProvider>
           </ErrorBoundary>

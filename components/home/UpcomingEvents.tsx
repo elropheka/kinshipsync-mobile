@@ -3,15 +3,15 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Event as EventType } from '../../types/eventTypes';
-import { styles } from '../../styles/app/(main)/home.styles'; 
-import { Colors } from 'constants/Colors';
+import { createHomeStyles } from '../../styles/app/(main)/home.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 interface UpcomingEventItemProps {
   event: EventType;
   index: number;
 }
 
-const UpcomingEventItem: React.FC<UpcomingEventItemProps> = ({ event, index }) => {
+const UpcomingEventItem: React.FC<UpcomingEventItemProps & { currentColors: typeof import('constants/Colors').Colors.light; styles: ReturnType<typeof createHomeStyles> }> = ({ event, index, currentColors, styles }) => {
   const eventDate = new Date(event.date);
   const day = eventDate.getDate();
   const month = eventDate.toLocaleString('default', { month: 'short' }).toUpperCase();
@@ -39,13 +39,13 @@ const UpcomingEventItem: React.FC<UpcomingEventItemProps> = ({ event, index }) =
         <View style={styles.eventTimeLocation}>
           {time && (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon name="schedule" size={14} color={Colors.light.icon} />
+              <Icon name="schedule" size={14} color={currentColors.icon} />
               <Text style={styles.eventTime}>{time}</Text>
             </View>
           )}
           {location && (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: time ? 4 : 0 }}>
-              <Icon name="location-on" size={14} color={Colors.light.icon} />
+              <Icon name="location-on" size={14} color={currentColors.icon} />
               <Text style={styles.eventLocation} numberOfLines={1}>{location}</Text>
             </View>
           )}
@@ -62,6 +62,9 @@ interface UpcomingEventsProps {
 }
 
 const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events: allEvents, searchQuery, onSeeAllPress }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createHomeStyles(currentColors), [currentColors]);
+  
   const upcomingEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -97,7 +100,7 @@ const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events: allEvents, sear
       </View>
       {upcomingEvents.length > 0 ? (
         upcomingEvents.slice(0, 3).map((event, index) => (
-          <UpcomingEventItem key={event.id} event={event} index={index} />
+          <UpcomingEventItem key={event.id} event={event} index={index} currentColors={currentColors} styles={styles} />
         ))
       ) : (
         <Text style={styles.noItemsText}>No upcoming events found.</Text>

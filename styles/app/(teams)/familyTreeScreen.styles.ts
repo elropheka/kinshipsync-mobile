@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createFamilyTreeScreenStyles = (theme: typeof Colors.light) => StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     alignItems: 'center',
     paddingVertical: 20,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   container: {
     flex: 1,
@@ -49,18 +49,18 @@ export const styles = StyleSheet.create({
   },
   lineHorizontal: {
     height: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     width: 30,
     marginHorizontal: 5,
   },
   lineVertical: {
     width: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     height: 30,
   },
   lineHorizontalChildrenBar: {
     height: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     position: 'absolute',
     top: 0,
     left: '10%',
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
   },
   lineVerticalShort: {
     width: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     height: 15,
   },
   nodeAndSpouseContainer: {
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
   },
   lineVerticalShortToParent: {
     width: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     height: 15,
   },
   childrenContainerActual: {
@@ -87,12 +87,12 @@ export const styles = StyleSheet.create({
   },
   lineVerticalFromParent: {
     width: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     height: 20,
   },
   lineHorizontalForChildren: {
     height: 2,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     alignSelf: 'stretch',
     marginVertical: 0,
   },
@@ -106,3 +106,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 5,
   }
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createFamilyTreeScreenStyles(Colors.light);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import {
   Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { styles } from '../../styles/components/events/RsvpPreferenceForm.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { createRsvpPreferenceFormStyles } from '../../styles/components/events/RsvpPreferenceForm.styles';
 
 interface RsvpPreferences {
   dietaryRestrictions?: string[];
@@ -46,6 +47,8 @@ const RsvpPreferenceForm: React.FC<RsvpPreferenceFormProps> = ({
   onSubmit,
   initialRsvpData,
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createRsvpPreferenceFormStyles(currentColors), [currentColors]);
   const [status, setStatus] = useState<'Attending' | 'Not Attending' | 'Pending'>('Pending');
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [plusOne, setPlusOne] = useState(false);

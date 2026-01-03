@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import Fonts from '@/constants/fonts';
 import {
   Spacing,
@@ -57,6 +57,7 @@ const CustomAlert: React.FC<AlertProps> = ({
   showIcon = true,
   closable = true,
 }) => {
+  const { currentColors } = useAppTheme();
   const slideAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
@@ -102,45 +103,45 @@ const CustomAlert: React.FC<AlertProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, autoHide, autoHideDuration, onClose, onConfirm, showCancelButton]);
 
-  const getAlertStyles = () => {
+  const getAlertStyles = useMemo(() => {
     switch (type) {
       case 'success':
         return {
-          backgroundColor: Colors.light.success,
-          iconColor: Colors.light.successContrastText,
+          backgroundColor: currentColors.success,
+          iconColor: currentColors.successContrastText,
           iconName: 'checkmark-circle' as const,
-          textColor: Colors.light.successContrastText,
+          textColor: currentColors.successContrastText,
         };
       case 'error':
         return {
-          backgroundColor: Colors.light.error,
-          iconColor: Colors.light.errorContrastText,
+          backgroundColor: currentColors.error,
+          iconColor: currentColors.errorContrastText,
           iconName: 'close-circle' as const,
-          textColor: Colors.light.errorContrastText,
+          textColor: currentColors.errorContrastText,
         };
       case 'warning':
         return {
-          backgroundColor: Colors.light.warning,
-          iconColor: Colors.light.warningContrastText,
+          backgroundColor: currentColors.warning,
+          iconColor: currentColors.warningContrastText,
           iconName: 'warning' as const,
-          textColor: Colors.light.warningContrastText,
+          textColor: currentColors.warningContrastText,
         };
       case 'info':
         return {
-          backgroundColor: Colors.light.info,
-          iconColor: Colors.light.infoContrastText,
+          backgroundColor: currentColors.info,
+          iconColor: currentColors.infoContrastText,
           iconName: 'information-circle' as const,
-          textColor: Colors.light.infoContrastText,
+          textColor: currentColors.infoContrastText,
         };
       default:
         return {
-          backgroundColor: Colors.light.primary,
-          iconColor: Colors.light.primaryContrastText,
+          backgroundColor: currentColors.primary,
+          iconColor: currentColors.primaryContrastText,
           iconName: 'information-circle' as const,
-          textColor: Colors.light.primaryContrastText,
+          textColor: currentColors.primaryContrastText,
         };
     }
-  };
+  }, [type, currentColors]);
 
   const getPositionStyles = () => {
     switch (position) {
@@ -201,10 +202,115 @@ const CustomAlert: React.FC<AlertProps> = ({
     }
   };
 
-  const alertStyles = getAlertStyles();
+  const alertStyles = getAlertStyles;
   const positionStyles = getPositionStyles();
   const hasActions = onConfirm || showCancelButton;
   const isModal = position === 'center' || position === 'bottom';
+
+  const styles = useMemo(() => StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    alertContainer: {
+      position: 'absolute',
+      left: Spacing.l,
+      right: Spacing.l,
+      borderRadius: BorderRadius.m,
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.m,
+      zIndex: 9999,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    modalContainer: {
+      position: 'relative',
+      width: SCREEN_WIDTH * 0.85,
+      maxWidth: 400,
+      borderRadius: BorderRadius.l,
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.xl,
+      marginHorizontal: Spacing.l,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      flex: 1,
+    },
+    textContainer: {
+      flex: 1,
+    },
+    icon: {
+      marginRight: Spacing.s,
+      marginTop: moderateScale(2),
+    },
+    title: {
+      fontSize: ResponsiveFontSizes.subtitle,
+      fontFamily: Fonts.bodyMedium,
+      fontWeight: '600',
+      marginBottom: Spacing.xs,
+    },
+    message: {
+      fontSize: ResponsiveFontSizes.body,
+      fontFamily: Fonts.bodyMedium,
+      opacity: 0.9,
+      lineHeight: ResponsiveFontSizes.body * 1.4,
+    },
+    closeButton: {
+      padding: Spacing.xs,
+      marginLeft: Spacing.s,
+    },
+    actionsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      marginTop: Spacing.l,
+      gap: Spacing.s,
+    },
+    actionButton: {
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.m,
+      borderRadius: BorderRadius.m,
+      minWidth: 80,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cancelButton: {
+      borderWidth: 1,
+      backgroundColor: 'transparent',
+    },
+    confirmButton: {
+      // marginLeft will be set dynamically based on showCancelButton
+    },
+    actionButtonText: {
+      fontSize: ResponsiveFontSizes.body,
+      fontFamily: Fonts.bodyMedium,
+      fontWeight: '600',
+    },
+    confirmButtonText: {
+      // Color will be set dynamically
+    },
+  }), []);
 
   const handleConfirm = () => {
     if (onConfirm) {
@@ -337,110 +443,5 @@ const CustomAlert: React.FC<AlertProps> = ({
 
   return renderContent();
 };
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  alertContainer: {
-    position: 'absolute',
-    left: Spacing.l,
-    right: Spacing.l,
-    borderRadius: BorderRadius.m,
-    paddingHorizontal: Spacing.l,
-    paddingVertical: Spacing.m,
-    zIndex: 9999,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  modalContainer: {
-    position: 'relative',
-    width: SCREEN_WIDTH * 0.85,
-    maxWidth: 400,
-    borderRadius: BorderRadius.l,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xl,
-    marginHorizontal: Spacing.l,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flex: 1,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  icon: {
-    marginRight: Spacing.s,
-    marginTop: moderateScale(2),
-  },
-  title: {
-    fontSize: ResponsiveFontSizes.subtitle,
-    fontFamily: Fonts.bodyMedium,
-    fontWeight: '600',
-    marginBottom: Spacing.xs,
-  },
-  message: {
-    fontSize: ResponsiveFontSizes.body,
-    fontFamily: Fonts.bodyMedium,
-    opacity: 0.9,
-    lineHeight: ResponsiveFontSizes.body * 1.4,
-  },
-  closeButton: {
-    padding: Spacing.xs,
-    marginLeft: Spacing.s,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: Spacing.l,
-    gap: Spacing.s,
-  },
-  actionButton: {
-    paddingHorizontal: Spacing.l,
-    paddingVertical: Spacing.m,
-    borderRadius: BorderRadius.m,
-    minWidth: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButton: {
-    borderWidth: 1,
-    backgroundColor: 'transparent',
-  },
-  confirmButton: {
-    // marginLeft will be set dynamically based on showCancelButton
-  },
-  actionButtonText: {
-    fontSize: ResponsiveFontSizes.body,
-    fontFamily: Fonts.bodyMedium,
-    fontWeight: '600',
-  },
-  confirmButtonText: {
-    // Color will be set dynamically
-  },
-});
 
 export default CustomAlert;

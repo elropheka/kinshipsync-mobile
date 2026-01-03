@@ -14,9 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
-import { styles } from '@/styles/app/(auth)/createAccount.styles';
+import { createCreateAccountStyles } from '@/styles/app/(auth)/createAccount.styles';
 import { useAlert } from '@/context/AlertContext';
-import * as ImagePicker from 'expo-image-picker'; 
+import * as ImagePicker from 'expo-image-picker';
 import { Colors } from '@/constants/Colors'; 
 import { IconSizes } from '@/constants/dimensions';
 import GoogleIcon from '@/components/common/GoogleIcon';
@@ -37,6 +37,7 @@ interface FormData {
 }
 
 const CreateAccountScreen: React.FC = () => {
+    const styles = createCreateAccountStyles(Colors.light);
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -44,7 +45,7 @@ const CreateAccountScreen: React.FC = () => {
     location: '',
     password: '',
     acceptTerms: false,
-    avatarUri: null, 
+    avatarUri: null,
   });
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
   const [isLoading, setIsLoading] = useState(false); 

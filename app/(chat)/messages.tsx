@@ -3,8 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, S
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(chat)/messages.styles';
+import { createMessagesStyles } from '../../styles/app/(chat)/messages.styles';
 import { useConversations } from '../../hooks/useChat';
+import { useAppTheme } from '../../context/AppThemeContext';
 import { Conversation } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from 'constants/Colors';
@@ -15,9 +16,10 @@ interface ConversationItemProps {
   item: Conversation;
   currentUserId?: string;
   onPress: (conversationId: string) => void;
+  styles: any;
 }
 
-const ConversationItem: React.FC<ConversationItemProps> = React.memo(function ConversationItem({ item, currentUserId, onPress }) {
+const ConversationItem: React.FC<ConversationItemProps> = React.memo(function ConversationItem({ item, currentUserId, onPress, styles }) {
   // Find other participant - use stable reference by finding by ID
   const otherParticipant = item.participants.find(p => p.userId !== currentUserId);
   const otherUserId = otherParticipant?.userId;
@@ -93,6 +95,9 @@ const ConversationItem: React.FC<ConversationItemProps> = React.memo(function Co
 });
 
 const ChatListScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createMessagesStyles(currentColors);
+
   const router = useRouter();
   const { user: currentUser } = useAppAuth();
   const { conversations, isLoading, error, fetchConversations } = useConversations();
@@ -122,25 +127,26 @@ const ChatListScreen = () => {
 
   const renderConversationItem = useCallback(({ item }: { item: Conversation }) => {
     return (
-      <ConversationItem 
-        item={item} 
-        currentUserId={currentUser?.uid} 
-        onPress={handleConversationPress} 
+      <ConversationItem
+        item={item}
+        currentUserId={currentUser?.uid}
+        onPress={handleConversationPress}
+        styles={styles}
       />
     );
-  }, [currentUser?.uid, handleConversationPress]);
+  }, [currentUser?.uid, handleConversationPress, styles]);
 
   const handleNewChat = useCallback(() => {
     router.push('/(chat)/newChat');
   }, [router]);
 
-  const ItemSeparator = useCallback(() => <View style={styles.separator} />, []);
+  const ItemSeparator = useCallback(() => <View style={styles.separator} />, [styles.separator]);
 
   if (isLoading && conversations.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
         <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading conversations...</Text>
       </SafeAreaView>
     );
@@ -165,11 +171,11 @@ const ChatListScreen = () => {
       {/* Custom header View removed */}
 
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={Colors.light.textSecondary} style={styles.searchIcon} />
+        <Ionicons name="search" size={18} color={currentColors.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search chats"
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -197,7 +203,7 @@ const ChatListScreen = () => {
         style={styles.fab}
         onPress={handleNewChat}
       >
-        <Ionicons name="add-sharp" size={30} color={Colors.light.primaryContrastText} />
+        <Ionicons name="add-sharp" size={30} color={currentColors.primaryContrastText} />
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createChatAreaStyles = (theme: typeof Colors.light) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   container: {
     flex: 1,
@@ -26,12 +26,12 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     marginRight: Spacing.xl,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   centered: {
     flex: 1,
@@ -41,19 +41,19 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
   retryButton: {
     marginTop: Spacing.m,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.s,
   },
   retryButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -85,7 +85,7 @@ export const styles = StyleSheet.create({
     width: moderateScale(36),
     height: moderateScale(36),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.s,
@@ -97,11 +97,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
   },
   userMessage: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderBottomRightRadius: BorderRadius.xs,
   },
   otherMessage: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderBottomLeftRadius: BorderRadius.xs,
     elevation: 1,
   },
@@ -109,16 +109,16 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.semiBold,
     fontSize: ResponsiveFontSizes.small,
     marginBottom: Spacing.xxs,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   messageText: {
     fontSize: ResponsiveFontSizes.body,
   },
   userMessageText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   otherMessageText: {
-    color: Colors.light.text,
+    color: theme.text,
   },
   timestamp: {
     fontSize: ResponsiveFontSizes.small,
@@ -126,33 +126,33 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xxs,
   },
   userTimestamp: {
-    color: Colors.light.primaryContrastText + '99',
+    color: theme.primaryContrastText + '99',
   },
   otherTimestamp: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.m,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderTopColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   input: {
     flex: 1,
     minHeight: moderateScale(40),
     maxHeight: moderateScale(100),
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.m,
     paddingVertical: Platform.OS === 'ios' ? Spacing.s : Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     marginRight: Spacing.m,
   },
   sendButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.round,
     width: moderateScale(44),
     height: moderateScale(44),
@@ -160,11 +160,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   disabledSendButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
   },
   emptyChatText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xl,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -178,11 +178,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   uploadProgressText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginRight: Spacing.s,
   },
   attachmentPreviewContainer: {
@@ -191,10 +191,10 @@ export const styles = StyleSheet.create({
     padding: Spacing.s,
     marginHorizontal: Spacing.m,
     marginBottom: Spacing.s,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.s,
     borderWidth: 1,
-    borderColor: Colors.light.divider,
+    borderColor: theme.divider,
   },
   attachmentPreviewIcon: {
     marginRight: Spacing.s,
@@ -202,16 +202,16 @@ export const styles = StyleSheet.create({
   attachmentPreviewText: {
     flex: 1,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   removeAttachmentButton: {
     padding: Spacing.xs,
   },
   emojiPickerContainer: {
     height: moderateScale(250),
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
     paddingVertical: Spacing.s,
   },
   emojiCategory: {
@@ -220,7 +220,7 @@ export const styles = StyleSheet.create({
   emojiCategoryTitle: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.s,
     marginLeft: Spacing.m,
   },
@@ -249,7 +249,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.s,
-    backgroundColor: Colors.light.background + '80',
+    backgroundColor: theme.background + '80',
     borderRadius: BorderRadius.s,
     marginTop: Spacing.xs,
   },
@@ -259,11 +259,11 @@ export const styles = StyleSheet.create({
   fileName: {
     flex: 1,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   fileSize: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.s,
   },
   captionText: {
@@ -286,10 +286,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   acceptButton: {
-    backgroundColor: Colors.light.success,
+    backgroundColor: theme.success,
   },
   declineButton: {
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
   },
   rsvpButtonText: {
     color: Colors.dark.text,
@@ -298,7 +298,7 @@ export const styles = StyleSheet.create({
   },
   rsvpStatusText: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontStyle: 'italic',
   },
 
@@ -313,7 +313,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   dropdownMenu: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     paddingVertical: Spacing.s,
     marginTop: Platform.OS === 'ios' ? moderateScale(50) : moderateScale(60),
@@ -336,28 +336,31 @@ export const styles = StyleSheet.create({
   },
   dropdownMenuItemText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   searchInput: {
     flex: 1,
     height: moderateScale(40),
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.s,
     paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     marginRight: Spacing.s,
   },
   searchBarCloseButton: {
     padding: Spacing.xs,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createChatAreaStyles(Colors.light);

@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 import { deleteUserAccount, checkUserDataExists } from '@/services/accountDeletionService';
-import { styles } from '@/styles/app/(auth)/deleteAccount.styles';
+import { createDeleteAccountStyles } from '@/styles/app/(auth)/deleteAccount.styles';
 import { useAlert } from '@/context/AlertContext';
 
 interface DataCheckResult {
@@ -25,6 +25,8 @@ interface DataCheckResult {
 }
 
 const DeleteAccountScreen: React.FC = () => {
+    const styles = createDeleteAccountStyles(Colors.light);
+
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [isCheckingData, setIsCheckingData] = useState(true);

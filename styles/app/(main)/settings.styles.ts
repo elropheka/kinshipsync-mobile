@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, Layout, isTablet } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   centered: {
     flex: 1,
@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: isTablet() ? ResponsiveFontSizes.subtitle : ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
     paddingVertical: isTablet() ? Spacing.m : Spacing.s,
     paddingTop: Platform.OS === 'ios' ? (isTablet() ? Spacing.xxl : Spacing.l) : (isTablet() ? Spacing.xl : Spacing.m),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   backButton: {
     padding: isTablet() ? Spacing.m : Spacing.s,
@@ -36,14 +36,14 @@ export const styles = StyleSheet.create({
   header: {
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     flex: 1,
     textAlign: 'center',
   },
   sectionContainer: {
     marginTop: Spacing.l,
     marginBottom: Spacing.s,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: isTablet() ? Spacing.l : Spacing.m,
     shadowColor: '#000',
@@ -57,11 +57,11 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.m,
     paddingBottom: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   optionContainer: {
     flexDirection: 'row',
@@ -76,11 +76,11 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   optionDescription: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   linkOptionContainer: {
@@ -99,18 +99,18 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
     marginHorizontal: Spacing.xs,
   },
   themeButtonSelected: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   themeButtonText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.caption,
   },
   themeButtonTextSelected: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontWeight: Fonts.weights.bold,
   },
   button: {
@@ -123,27 +123,30 @@ export const styles = StyleSheet.create({
     alignSelf: isTablet() ? 'center' : 'stretch',
   },
   saveButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
   },
   logoutButton: {
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
     marginTop: Spacing.m,
   },
   buttonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.bold,
   },
   logoutButtonText: {
-     color: Colors.light.primaryContrastText,
+     color: theme.primaryContrastText,
   },
   deleteAccountButton: {
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
     marginTop: Spacing.m,
     borderWidth: 2,
-    borderColor: Colors.light.error,
+    borderColor: theme.error,
   },
   deleteAccountButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createCreateAccountStyles(Colors.light);

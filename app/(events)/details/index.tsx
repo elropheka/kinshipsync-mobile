@@ -3,9 +3,14 @@ import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(events)/details/index.styles';
+import { createIndexStyles } from '../../../styles/app/(events)/details/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 const WeddingDetailsPage: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   useLocalSearchParams(); // params not used in this component
   const [activeTab, setActiveTab] = useState('Details');
   const [popoverVisible, setPopoverVisible] = useState(false);

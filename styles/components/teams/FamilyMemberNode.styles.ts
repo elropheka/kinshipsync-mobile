@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createFamilyMemberNodeStyles = (theme: typeof Colors.light) => StyleSheet.create({
   nodeContainer: {
     alignItems: 'center',
     marginVertical: 10,
@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   },
   nodeContent: {
     borderWidth: 1,
-    borderColor: Colors.light.accent,
+    borderColor: theme.accent,
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -20,14 +20,14 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginBottom: 5,
-    backgroundColor: Colors.light.accent
+    backgroundColor: theme.accent
 
   },
   avatarPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.background,
-    color: Colors.light.accent,
+    backgroundColor: theme.background,
+    color: theme.accent,
   },
   nodeName: {
     fontSize: 14,
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   iconButton: {
     position: 'absolute',
     padding: 3,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: 15,
     zIndex: 1,
   },
@@ -54,3 +54,6 @@ export const styles = StyleSheet.create({
     right: -10,
   }
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createFamilyMemberNodeStyles(Colors.light);

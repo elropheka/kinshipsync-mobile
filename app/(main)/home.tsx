@@ -6,8 +6,9 @@ import { Colors } from 'constants/Colors';
 import { router } from 'expo-router';
 import UpcomingEvents from '@/components/home/UpcomingEvents';
 import RecentActivities from '@/components/home/RecentActivities';
-import { useSidebar } from '@/context/SidebarContext'; 
-import { styles } from '@/styles/app/(main)/home.styles'; 
+import { useSidebar } from '@/context/SidebarContext';
+import { createHomeStyles } from '@/styles/app/(main)/home.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; 
 
 import { useScrollHandler } from './_layout';
 import { useAllEvents } from '@/hooks/useEvents'; 
@@ -19,6 +20,9 @@ import { ResponsiveContainer } from '@/components/common/Layout/ResponsiveContai
 
 
 const DashboardScreen: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createHomeStyles(currentColors);
+
   const { toggleSidebar: globalToggleSidebar } = useSidebar();
   const { user: authUser } = useAppAuth();
   const { isTablet } = useResponsiveLayout();
@@ -88,7 +92,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top','left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <ResponsiveContainer>
         <View style={styles.header}>
           <TouchableOpacity onPress={globalToggleSidebar}>
@@ -97,11 +101,11 @@ const DashboardScreen: React.FC = () => {
           <View style={{ flex: 1 }} />
           <View style={styles.headerIcons}>
             <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} style={styles.headerIcon}>
-              <Icon name="search" size={isTablet ? 28 : 25} color={Colors.light.tint} />
+              <Icon name="search" size={isTablet ? 28 : 25} color={currentColors.tint} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.headerIcon}>
               <View style={styles.notificationIconContainer}>
-                <SecondaryIcon name="notifications-outline" size={isTablet ? 28 : 25} color={Colors.light.tint} />
+                <SecondaryIcon name="notifications-outline" size={isTablet ? 28 : 25} color={currentColors.tint} />
                 {(() => {
                   const unreadCount = notifications.filter(n => !n.isRead).length;
                   return unreadCount > 0 ? (
@@ -115,18 +119,18 @@ const DashboardScreen: React.FC = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={globalToggleSidebar} style={[styles.headerIcon, { paddingLeft: 4, paddingTop: 1 }]}>
-              <SecondaryIcon name="menu-outline" size={isTablet ? 28 : 25} color={Colors.light.tint} />
+              <SecondaryIcon name="menu-outline" size={isTablet ? 28 : 25} color={currentColors.tint} />
             </TouchableOpacity>
           </View>
         </View>
 
       {isSearchVisible && (
         <View style={styles.searchContainer}>
-          <Icon name="search" size={20} color={Colors.light.icon} style={styles.searchIcon} />
+          <Icon name="search" size={20} color={currentColors.icon} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search events"
-            placeholderTextColor={Colors.light.icon}
+            placeholderTextColor={currentColors.icon}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoFocus={true}
@@ -138,7 +142,7 @@ const DashboardScreen: React.FC = () => {
             }} 
             style={{ padding: 5 }}
           >
-            <SecondaryIcon name="close" size={22} color={Colors.light.icon} />
+            <SecondaryIcon name="close" size={22} color={currentColors.icon} />
           </TouchableOpacity>
         </View>
       )}
@@ -152,7 +156,7 @@ const DashboardScreen: React.FC = () => {
           onScroll={handleScroll} 
           scrollEventThrottle={16}
         >
-        {isLoadingEvents && allEvents.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="large" color={Colors.light.primary}/>}
+        {isLoadingEvents && allEvents.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="large" color={currentColors.primary}/>}
         {eventsError && <Text style={styles.errorText}>Could not load events.</Text>}
         <UpcomingEvents
           events={allEvents} 
@@ -160,7 +164,7 @@ const DashboardScreen: React.FC = () => {
           onSeeAllPress={() => router.push('/(events)/all')}
         />
 
-        {isLoadingUserContext && notifications.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="small" color={Colors.light.primary}/>}
+        {isLoadingUserContext && notifications.length === 0 && <ActivityIndicator style={{marginVertical: 20}} size="small" color={currentColors.primary}/>}
         {userContextError && <Text style={styles.errorText}>Could not load recent activity.</Text>}
         {!isLoadingUserContext && !userContextError && (
           <RecentActivities

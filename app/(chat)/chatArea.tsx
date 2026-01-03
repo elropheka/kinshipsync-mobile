@@ -21,7 +21,8 @@ import * as DocumentPicker from 'expo-document-picker'; // Added
 import * as FileSystem from 'expo-file-system'; // Added
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { styles } from '../../styles/app/(chat)/chatArea.styles'; // Ensure this path is correct
+import { createChatAreaStyles } from '../../styles/app/(chat)/chatArea.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; // Ensure this path is correct
 import { useChatMessages } from '../../hooks/useChat';
 import { Spacing } from '../../constants/dimensions'; // Added Spacing
 import { ChatMessage, ParticipantInfo } from '../../types/chatTypes';
@@ -43,9 +44,11 @@ interface MessageBubbleProps {
   senderId?: string; // Added senderId
   currentUserId?: string; // For RSVP actions
   isAuthenticated: boolean; // For service calls
+  styles: any; // Theme-aware styles
+  currentColors: any; // Theme colors
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderName: initialSenderName, senderAvatarUrl: initialSenderAvatarUrl, senderId, currentUserId, isAuthenticated }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderName: initialSenderName, senderAvatarUrl: initialSenderAvatarUrl, senderId, currentUserId, isAuthenticated, styles, currentColors }) => {
   const { showSuccess, showError } = useAlert();
   const [displayName, setDisplayName] = useState(initialSenderName || (isUser ? '' : 'User'));
   const [avatarUrl, setAvatarUrl] = useState(initialSenderAvatarUrl);
@@ -166,7 +169,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
 
         {message.contentType === 'file' && message.mediaUrl && (
           <TouchableOpacity onPress={() => message.mediaUrl && Linking.openURL(message.mediaUrl)} style={styles.fileMessageContainer}>
-            <Ionicons name="document-text-outline" size={24} color={isUser ? Colors.light.primaryContrastText : Colors.light.text} style={styles.fileIcon} />
+            <Ionicons name="document-text-outline" size={24} color={isUser ? currentColors.primaryContrastText : currentColors.text} style={styles.fileIcon} />
             <View style={{flex: 1}}>
               <Text style={[styles.fileName, isUser ? styles.userMessageText : styles.otherMessageText]} numberOfLines={1}>
                 {message.fileName || 'Attachment'}
@@ -194,6 +197,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
 };
 
 const ChatAreaScreen: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createChatAreaStyles(currentColors);
+
+
   const router = useRouter();
   const { conversationId, chatTitle } = useLocalSearchParams<{ conversationId: string, chatTitle?: string }>();
   const { user: currentUser } = useAppAuth();
@@ -362,7 +369,7 @@ const ChatAreaScreen: React.FC = () => {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
         <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
     );
@@ -387,12 +394,12 @@ const ChatAreaScreen: React.FC = () => {
             <View style={styles.headerRightContainer}>
               {conversationDetails?.type === 'group' && ( // Original settings button for group chats, now part of menu
                 <TouchableOpacity onPress={() => setIsMenuVisible(true)} style={{ marginRight: Spacing.m }}>
-                  <Ionicons name="ellipsis-vertical" size={24} color={Colors.light.text} />
+                  <Ionicons name="ellipsis-vertical" size={24} color={currentColors.text} />
                 </TouchableOpacity>
               )}
               {conversationDetails?.type !== 'group' && ( // Menu button for non-group chats
                 <TouchableOpacity onPress={() => setIsMenuVisible(true)} style={{ marginRight: Spacing.m }}>
-                  <Ionicons name="ellipsis-vertical" size={24} color={Colors.light.text} />
+                  <Ionicons name="ellipsis-vertical" size={24} color={currentColors.text} />
                 </TouchableOpacity>
               )}
             </View>
@@ -406,13 +413,13 @@ const ChatAreaScreen: React.FC = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search messages..."
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoFocus
           />
           <TouchableOpacity onPress={() => { setIsSearchBarVisible(false); setSearchQuery(''); }} style={styles.searchBarCloseButton}>
-            <Ionicons name="close-outline" size={24} color={Colors.light.text} />
+            <Ionicons name="close-outline" size={24} color={currentColors.text} />
           </TouchableOpacity>
         </View>
       )}
@@ -429,11 +436,11 @@ const ChatAreaScreen: React.FC = () => {
         <Pressable style={styles.modalOverlay} onPress={() => setIsMenuVisible(false)}>
           <View style={styles.dropdownMenu}>
             <TouchableOpacity style={styles.dropdownMenuItem} onPress={handleOpenChatSettings}>
-              <Ionicons name="settings-outline" size={22} color={Colors.light.text} style={styles.dropdownMenuItemIcon} />
+              <Ionicons name="settings-outline" size={22} color={currentColors.text} style={styles.dropdownMenuItemIcon} />
               <Text style={styles.dropdownMenuItemText}>Settings</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.dropdownMenuItem} onPress={handleToggleSearch}>
-              <Ionicons name="search-outline" size={22} color={Colors.light.text} style={styles.dropdownMenuItemIcon} />
+              <Ionicons name="search-outline" size={22} color={currentColors.text} style={styles.dropdownMenuItemIcon} />
               <Text style={styles.dropdownMenuItemText}>Search</Text>
             </TouchableOpacity>
           </View>
@@ -461,7 +468,7 @@ const ChatAreaScreen: React.FC = () => {
             const isUser = item.senderId === currentUser?.uid;
             const senderInfo = conversationDetails?.participants.find(p => p.userId === item.senderId);
             return (
-              <MessageBubble 
+              <MessageBubble
                 message={item}
                 isUser={isUser}
                 senderName={senderInfo?.displayName}
@@ -469,6 +476,8 @@ const ChatAreaScreen: React.FC = () => {
                 senderId={item.senderId}
                 currentUserId={currentUser?.uid}
                 isAuthenticated={!!currentUser}
+                styles={styles}
+                currentColors={currentColors}
               />
             );
           }}
@@ -482,20 +491,20 @@ const ChatAreaScreen: React.FC = () => {
 
         <View style={styles.inputContainer}>
           <TouchableOpacity onPress={() => setShowEmojiPicker(prev => !prev)} style={styles.iconButton}>
-            <Ionicons name="happy-outline" size={24} color={Colors.light.textSecondary} />
+            <Ionicons name="happy-outline" size={24} color={currentColors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handlePickImage} style={styles.iconButton}>
-            <Ionicons name="image-outline" size={24} color={Colors.light.textSecondary} />
+            <Ionicons name="image-outline" size={24} color={currentColors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handlePickDocument} style={styles.iconButton}>
-            <Ionicons name="attach-outline" size={24} color={Colors.light.textSecondary} />
+            <Ionicons name="attach-outline" size={24} color={currentColors.textSecondary} />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type a message..."
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
             multiline
             onFocus={() => setShowEmojiPicker(false)}
           />
@@ -505,9 +514,9 @@ const ChatAreaScreen: React.FC = () => {
             disabled={(inputText.trim() === '' && !selectedAttachment) || isSendingMessage || isUploadingFile}
           >
             {isSendingMessage || isUploadingFile ? (
-              <ActivityIndicator size="small" color={Colors.light.primaryContrastText} />
+              <ActivityIndicator size="small" color={currentColors.primaryContrastText} />
             ) : (
-              <Ionicons name="send" size={22} color={Colors.light.primaryContrastText} />
+              <Ionicons name="send" size={22} color={currentColors.primaryContrastText} />
             )}
           </TouchableOpacity>
         </View>
@@ -515,7 +524,7 @@ const ChatAreaScreen: React.FC = () => {
         {isUploadingFile && (
           <View style={styles.uploadProgressContainer}>
             <Text style={styles.uploadProgressText}>Uploading: {uploadProgress.toFixed(0)}%</Text>
-            <ActivityIndicator size="small" color={Colors.light.primary} />
+            <ActivityIndicator size="small" color={currentColors.primary} />
           </View>
         )}
 
@@ -524,14 +533,14 @@ const ChatAreaScreen: React.FC = () => {
             <Ionicons 
                 name={selectedAttachment.type === 'image' ? "image-outline" : "document-text-outline"} 
                 size={20} 
-                color={Colors.light.textSecondary} 
+                color={currentColors.textSecondary} 
                 style={styles.attachmentPreviewIcon}
             />
             <Text style={styles.attachmentPreviewText} numberOfLines={1}>
               {selectedAttachment.name || 'Attachment'}
             </Text>
             <TouchableOpacity onPress={() => setSelectedAttachment(null)} style={styles.removeAttachmentButton}>
-              <Ionicons name="close-circle" size={20} color={Colors.light.error} />
+              <Ionicons name="close-circle" size={20} color={currentColors.error} />
             </TouchableOpacity>
           </View>
         )}

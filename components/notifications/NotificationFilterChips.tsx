@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, TouchableOpacity, Text } from 'react-native';
-import { styles } from '../../styles/components/notifications/NotificationFilterChips.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { createNotificationFilterChipsStyles } from '../../styles/components/notifications/NotificationFilterChips.styles';
 
 export interface FilterChip {
   id: string;
@@ -18,6 +19,8 @@ const NotificationFilterChips: React.FC<NotificationFilterChipsProps> = ({
   activeFilter,
   setActiveFilter,
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createNotificationFilterChipsStyles(currentColors), [currentColors]);
   return (
     <ScrollView
       horizontal

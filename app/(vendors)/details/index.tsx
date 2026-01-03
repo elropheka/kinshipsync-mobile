@@ -12,7 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import ErrorBoundary from '../../../components/common/ErrorBoundary';
-import { styles } from '../../../styles/app/(vendors)/details/index.styles';
+import { createIndexStyles } from '../../../styles/app/(vendors)/details/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -107,7 +108,7 @@ const mockVendor: Vendor = {
   ],
 };
 
-const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
+const StarRating: React.FC<{ rating: number; styles: any }> = ({ rating, styles }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
@@ -127,6 +128,10 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 export default function VendorDetailsScreen() {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   useLocalSearchParams(); // params not used
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [expandedSection, setExpandedSection] = useState<string | null>('about');
@@ -204,7 +209,7 @@ export default function VendorDetailsScreen() {
                 <Text style={styles.vendorName}>{vendor.name}</Text>
                 <Text style={styles.vendorCategory}>{vendor.category}</Text>
               </View>
-              <StarRating rating={vendor.rating} />
+              <StarRating rating={vendor.rating} styles={styles} />
             </View>
 
             {/* Quick Contact Buttons */}
@@ -303,7 +308,7 @@ export default function VendorDetailsScreen() {
                   <View key={review.id} style={styles.reviewItem}>
                     <View style={styles.reviewHeader}>
                       <Text style={styles.reviewAuthor}>{review.author}</Text>
-                      <StarRating rating={review.rating} />
+                      <StarRating rating={review.rating} styles={styles} />
                     </View>
                     <Text style={styles.reviewDate}>{new Date(review.date).toLocaleDateString()}</Text>
                     <Text style={styles.reviewComment}>{review.comment}</Text>

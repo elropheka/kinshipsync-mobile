@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityI
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(events)/guests.styles';
+import { createGuestsStyles } from '../../../styles/app/(events)/guests.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { listenToGuestsWithRsvp, getEventById, addGuestToEvent, removeGuestFromEvent } from '../../../services/eventService';
@@ -17,6 +18,10 @@ const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'Attending', 'Declined', 'Maybe'
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
 
 const SpecificEventGuestListScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createGuestsStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
@@ -170,29 +175,29 @@ const SpecificEventGuestListScreen = () => {
           styles.statusDot,
           { 
             backgroundColor: 
-              item.status === 'accepted' ? Colors.light.success :
-              item.status === 'declined' ? Colors.light.error :
-              item.status === 'Invited' ? Colors.light.info :
-              item.status === 'pending' ? Colors.light.warning :
-              Colors.light.textSecondary
+              item.status === 'accepted' ? currentColors.success :
+              item.status === 'declined' ? currentColors.error :
+              item.status === 'Invited' ? currentColors.info :
+              item.status === 'pending' ? currentColors.warning :
+              currentColors.textSecondary
           }
         ]} />
         <Text style={[
           styles.statusText,
           { 
             color: 
-              item.status === 'accepted' ? Colors.light.success :
-              item.status === 'declined' ? Colors.light.error :
-              item.status === 'Invited' ? Colors.light.info :
-              item.status === 'pending' ? Colors.light.warning :
-              Colors.light.textSecondary
+              item.status === 'accepted' ? currentColors.success :
+              item.status === 'declined' ? currentColors.error :
+              item.status === 'Invited' ? currentColors.info :
+              item.status === 'pending' ? currentColors.warning :
+              currentColors.textSecondary
           }
         ]}>
           {item.status}
         </Text>
       </View>
       <TouchableOpacity onPress={() => handleRemoveGuest(item.id, item.name)} style={{ marginLeft: 10, padding: 5 }}>
-          <Ionicons name="trash-outline" size={22} color={Colors.light.error} />
+          <Ionicons name="trash-outline" size={22} color={currentColors.error} />
       </TouchableOpacity>
     </View>
   );
@@ -200,7 +205,7 @@ const SpecificEventGuestListScreen = () => {
   if (isLoading && fetchedGuests.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['left', 'right', 'bottom']}>
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text style={{ marginTop: 10 }}>Loading guests for {eventDetails?.name || 'event'}...</Text>
       </SafeAreaView>
     );
@@ -209,7 +214,7 @@ const SpecificEventGuestListScreen = () => {
   if (error && !isLoading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['left', 'right', 'bottom']}>
-        <Text style={{ color: Colors.light.error, textAlign: 'center', marginBottom: 10 }}>Error: {error.message}</Text>
+        <Text style={{ color: currentColors.error, textAlign: 'center', marginBottom: 10 }}>Error: {error.message}</Text>
         <TouchableOpacity onPress={() => {
             if (eventId && isAuthenticated) {
                 setIsLoading(true); 
@@ -217,8 +222,8 @@ const SpecificEventGuestListScreen = () => {
             } else {
                 showError("Cannot Retry", "Event ID or authentication is missing.");
             }
-        }} style={{ marginTop: 10, padding: 10, backgroundColor: Colors.light.tint, borderRadius: 5}}>
-           <Text style={{color: Colors.dark.text}}>Tap to Retry</Text>
+        }} style={{ marginTop: 10, padding: 10, backgroundColor: currentColors.tint, borderRadius: 5}}>
+           <Text style={{color: currentColors.text}}>Tap to Retry</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -226,7 +231,7 @@ const SpecificEventGuestListScreen = () => {
   
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen 
         options={{ 
           title: eventDetails ? `Guests: ${eventDetails.name}` : (eventId ? `Guests (ID: ${eventId.substring(0,6)}...)` : 'Guest List'),
@@ -289,16 +294,16 @@ const SpecificEventGuestListScreen = () => {
         <Text style={styles.guestCount}>{displayedGuests.length} Guests</Text>
       </View>
       
-      {isLoading && displayedGuests.length > 0 && <ActivityIndicator style={{marginVertical: 10}} size="small" color={Colors.light.primary}/>}
+      {isLoading && displayedGuests.length > 0 && <ActivityIndicator style={{marginVertical: 10}} size="small" color={currentColors.primary}/>}
       
       {displayedGuests.length === 0 && !isLoading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20}}>
-            <Text style={{fontSize: 16, color: Colors.light.textSecondary, textAlign: 'center'}}>
+            <Text style={{fontSize: 16, color: currentColors.textSecondary, textAlign: 'center'}}>
                 {searchQuery || selectedStatusFilter !== 'All' ? 'No guests match your criteria.' : `No guests found for ${eventDetails?.name || 'this event'}.`}
             </Text>
             {!(searchQuery || selectedStatusFilter !== 'All') && (
-                 <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{marginTop: 15, paddingVertical:10, paddingHorizontal: 20, backgroundColor: Colors.light.primary, borderRadius: 5}}>
-                    <Text style={{color: Colors.dark.text, fontWeight: 'bold'}}>Invite First Guest</Text>
+                 <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{marginTop: 15, paddingVertical:10, paddingHorizontal: 20, backgroundColor: currentColors.primary, borderRadius: 5}}>
+                    <Text style={{color: currentColors.text, fontWeight: 'bold'}}>Invite First Guest</Text>
                  </TouchableOpacity>
             )}
         </View>

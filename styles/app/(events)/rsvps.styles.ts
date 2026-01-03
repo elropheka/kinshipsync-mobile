@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,20 +22,20 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
     // flex: 1, // Add if title needs to take up space for centering with other elements
     // textAlign: 'center',
   },
   tabsContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundLight,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundLight,
   },
   tab: {
     flex: 1,
@@ -44,17 +44,17 @@ export const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: moderateScale(3),
-    borderBottomColor: Colors.light.accentHighlight,
+    borderBottomColor: theme.accentHighlight,
   },
   tabText: {
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginHorizontal: Spacing.m,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.subtitle,
   },
   filtersContainer: {
@@ -77,22 +77,22 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterButton: {
-    backgroundColor: Colors.light.info + '1A',
+    backgroundColor: theme.info + '1A',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
   },
   selectedFilter: {
-    backgroundColor: Colors.light.info,
+    backgroundColor: theme.info,
   },
   filterText: { // Text for non-selected filter
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.info,
+    color: theme.info,
   },
   // activeFilterText: { // Text for selected filter, if different
-  //   color: Colors.light.infoContrastText,
+  //   color: theme.infoContrastText,
   // },
   itemCountContainer: {
     paddingHorizontal: Spacing.m,
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   listContainer: {
     paddingHorizontal: Spacing.m,
@@ -123,11 +123,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   eventName: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
   },
   preferencesSummary: {
@@ -135,14 +135,14 @@ export const styles = StyleSheet.create({
   },
   preferenceText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     fontStyle: 'italic',
     marginBottom: Spacing.xxs,
   },
   reminderButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.accentHighlight,
+    backgroundColor: theme.accentHighlight,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.s,
     borderRadius: BorderRadius.l,
@@ -150,7 +150,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   reminderButtonText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.caption,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
@@ -173,7 +173,10 @@ export const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     // marginLeft: Spacing.m, // If separator should not span full width
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createRsvpsStyles(Colors.light);

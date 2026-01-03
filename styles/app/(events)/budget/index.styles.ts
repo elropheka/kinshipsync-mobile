@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
    
   },
   centered: {
@@ -17,12 +17,12 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
   },
   emptyText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginTop: Spacing.xl,
   },
@@ -34,8 +34,8 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   backButton: {
     padding: Spacing.s,
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     flex: 1,
     textAlign: 'center',
     marginHorizontal: Spacing.s, // Ensure title doesn't overlap buttons if too long
@@ -55,13 +55,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.l,
     paddingHorizontal: Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   eventItemSelectText: {
     fontSize: ResponsiveFontSizes.title,
-    color: Colors.light.text,
+    color: theme.text,
   },
   // Budget Management View
   scrollContainer: {
@@ -69,11 +69,11 @@ export const styles = StyleSheet.create({
     padding: Spacing.m,
   },
   section: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     marginBottom: Spacing.l,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -82,7 +82,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.m,
   },
   overallBudgetInputContainer: {
@@ -93,28 +93,28 @@ export const styles = StyleSheet.create({
   overallBudgetInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: BorderRadius.s,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     fontSize: ResponsiveFontSizes.body,
     marginRight: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   saveOverallBudgetButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.s + 2, // Adjust for alignment with input
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.s,
     justifyContent: 'center',
   },
   saveOverallBudgetButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontWeight: Fonts.weights.semiBold,
     fontSize: ResponsiveFontSizes.body,
   },
   disabledButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
     opacity: 0.7,
   },
   summaryRow: {
@@ -123,22 +123,22 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.s,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   summaryLabel: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   summaryValue: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   summaryRemainingLabel: {
     fontWeight: Fonts.weights.bold,
   },
   summaryValueNegative: {
-    color: Colors.light.error,
+    color: theme.error,
   },
   sectionHeaderAction: {
     flexDirection: 'row',
@@ -153,7 +153,7 @@ export const styles = StyleSheet.create({
   },
   addButtonText: {
     marginLeft: Spacing.xs,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -164,7 +164,7 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
   },
   budgetItemPressed: {
-    backgroundColor: Colors.light.border, // This is gray-300 (#D1D5DB)
+    backgroundColor: theme.border, // This is gray-300 (#D1D5DB)
   },
   budgetItemInfo: {
     flex: 1,
@@ -172,16 +172,16 @@ export const styles = StyleSheet.create({
   budgetItemName: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   budgetItemCategory: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   budgetItemCosts: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.xxs,
   },
   budgetItemActions: {
@@ -190,6 +190,9 @@ export const styles = StyleSheet.create({
   },
   itemSeparator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

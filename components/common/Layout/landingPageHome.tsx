@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '@/styles/components/common/Layout/landingPageHome.styles';
-import { Colors } from '@/constants/Colors';
 import Slider from '@/components/common/slider';
 import { Layout, Spacing } from '@/constants/dimensions';
 
@@ -22,6 +22,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   onLoginPress,
   onCreateAccountPress
 }) => {
+  const { currentColors } = useAppTheme();
 
   const featuresData: Feature[][] = [
     [
@@ -86,7 +87,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
         {features.map((item) => (
           <View key={item.id} style={styles.featureItem}>
             <View style={styles.featureIconContainer}>
-              <Icon name={item.icon} size={24} color={Colors.light.buttonPrimary} />
+              <Icon name={item.icon} size={24} color={currentColors.primary} />
             </View>
             <View style={styles.featureContent}>
               <Text style={styles.featureText}>{item.title}</Text>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload } from '../../types/eventTypes';
 import { UserProfile } from '../../types/userTypes';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import MultiUserPicker from '../common/MultiUserPicker';
 import { getAllUsersForPicker, searchUsersByName } from '../../services/userService';
 import { useAppAuth } from '../../hooks/useAppAuth'; // Assuming useAppAuth provides auth status
@@ -22,6 +22,7 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
 }) => {
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
+  const { currentColors } = useAppTheme();
   const { showError } = useAlert();
   const [name, setName] = useState(initialTeam?.name || '');
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(initialTeam?.members || []);
@@ -91,12 +92,78 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
     }
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+      backgroundColor: currentColors.background,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    headerButton: {
+      padding: 5,
+    },
+    headerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    fieldContainer: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      color: currentColors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    requiredStar: {
+      color: currentColors.error,
+    },
+    input: {
+      backgroundColor: currentColors.background,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      fontSize: 16,
+      color: currentColors.text,
+      marginBottom: 10,
+    },
+    noResultsText: {
+      textAlign: 'center',
+      color: currentColors.textSecondary,
+      marginTop: 15,
+      marginBottom: 10,
+      fontSize: 14,
+    },
+  }), [currentColors]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
-          <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+          <Ionicons name="close-outline" size={28} color={currentColors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{initialTeam?.id ? 'Edit Team Name' : 'Create New Team'}</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
@@ -112,7 +179,7 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
             value={name}
             onChangeText={setName}
             placeholder="e.g., Planning Committee, Volunteers"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -121,11 +188,11 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
           <TextInput
             style={styles.input} // Can reuse or create a new style for search input
             placeholder="Search users by name..."
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
             value={searchTerm}
             onChangeText={handleSearchUsers} // Debounce this in a real app
           />
-          {isLoadingUsers && <ActivityIndicator size="small" color={Colors.light.primary} style={{ marginTop: 10 }} />}
+          {isLoadingUsers && <ActivityIndicator size="small" color={currentColors.primary} style={{ marginTop: 10 }} />}
           {!isLoadingUsers && displayedUsers.length === 0 && searchTerm.length > 0 && (
             <Text style={styles.noResultsText}>No users found for &quot;{searchTerm}&quot;.</Text>
           )}
@@ -142,71 +209,5 @@ const EventTeamForm: React.FC<EventTeamFormProps> = ({
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.background,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  headerButton: {
-    padding: 5,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  requiredStar: {
-    color: Colors.light.error,
-  },
-  input: {
-    backgroundColor: Colors.light.background,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: Colors.light.text,
-    marginBottom: 10,
-  },
-  noResultsText: {
-    textAlign: 'center',
-    color: Colors.light.textSecondary,
-    marginTop: 15,
-    marginBottom: 10,
-    fontSize: 14,
-  },
-});
 
 export default EventTeamForm;

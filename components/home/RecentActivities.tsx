@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons as Icon, Ionicons as IconSecondary } from '@expo/vector-icons';
 import { Notification as NotificationType } from '../../types/userTypes';
-import { styles } from '../../styles/app/(main)/home.styles';
-import { Colors } from 'constants/Colors'; 
+import { createHomeStyles } from '../../styles/app/(main)/home.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; 
 
 const formatNotificationTime = (isoString: string): string => {
   const date = new Date(isoString);
@@ -18,7 +18,7 @@ const formatNotificationTime = (isoString: string): string => {
   return date.toLocaleDateString(); 
 };
 
-const getActivityIconDetails = (type: NotificationType['type']) => {
+const getActivityIconDetails = (type: NotificationType['type'], currentColors: typeof import('constants/Colors').Colors.light) => {
   let icon: JSX.Element;
   let bgColor: string;
 
@@ -34,110 +34,110 @@ const getActivityIconDetails = (type: NotificationType['type']) => {
 
   switch (type) {
     case 'event_invite':
-      icon = <IconSecondary name='mail-unread-outline' size={22} color={Colors.light.primary} />;
-      bgColor = Colors.light.primaryLight;
+      icon = <IconSecondary name='mail-unread-outline' size={22} color={currentColors.primary} />;
+      bgColor = currentColors.primaryLight;
       break;
     case 'event_update':
-      icon = <IconSecondary name='refresh-circle-outline' size={24} color={Colors.light.info} />;
-      bgColor = Colors.light.infoLight;
+      icon = <IconSecondary name='refresh-circle-outline' size={24} color={currentColors.info} />;
+      bgColor = currentColors.infoLight;
       break;
     case 'rsvp_update':
-      icon = <Icon name='how-to-reg' size={22} color={Colors.light.success} />;
-      bgColor = Colors.light.successLight;
+      icon = <Icon name='how-to-reg' size={22} color={currentColors.success} />;
+      bgColor = currentColors.successLight;
       break;
     case 'new_message':
-      icon = <IconSecondary name='chatbubble-ellipses-outline' size={22} color={Colors.light.secondary} />;
-      bgColor = Colors.light.secondaryLight;
+      icon = <IconSecondary name='chatbubble-ellipses-outline' size={22} color={currentColors.secondary} />;
+      bgColor = currentColors.secondaryLight;
       break;
     case 'task_assigned':
-      icon = <IconSecondary name='clipboard-outline' size={22} color={Colors.light.warning} />;
-      bgColor = Colors.light.warningLight;
+      icon = <IconSecondary name='clipboard-outline' size={22} color={currentColors.warning} />;
+      bgColor = currentColors.warningLight;
       break;
     case 'system_alert':
-      icon = <Icon name='error-outline' size={22} color={Colors.light.error} />;
-      bgColor = Colors.light.errorLight;
+      icon = <Icon name='error-outline' size={22} color={currentColors.error} />;
+      bgColor = currentColors.errorLight;
       break;
     case 'friend_request':
-      icon = <IconSecondary name='person-add-outline' size={22} color={Colors.light.tertiary} />;
-      bgColor = Colors.light.tertiaryLight;
+      icon = <IconSecondary name='person-add-outline' size={22} color={currentColors.tertiary} />;
+      bgColor = currentColors.tertiaryLight;
       break;
     
     case 'team_member_added':
-      icon = <IconSecondary name='people-outline' size={22} color={Colors.light.primary} />;
-      bgColor = Colors.light.primaryLight;
+      icon = <IconSecondary name='people-outline' size={22} color={currentColors.primary} />;
+      bgColor = currentColors.primaryLight;
       break;
     case 'family_tree_update':
-      icon = <Icon name='account-tree' size={22} color={Colors.light.tertiary} />;
-      bgColor = Colors.light.tertiaryLight;
+      icon = <Icon name='account-tree' size={22} color={currentColors.tertiary} />;
+      bgColor = currentColors.tertiaryLight;
       break;
     case 'team_task_update':
-      icon = <IconSecondary name='checkmark-done-outline' size={22} color={Colors.light.success} />;
-      bgColor = Colors.light.successLight;
+      icon = <IconSecondary name='checkmark-done-outline' size={22} color={currentColors.success} />;
+      bgColor = currentColors.successLight;
       break;
     
     case 'vendor_booking':
     case 'vendor_confirmation':
     case 'vendor_quote':
-      icon = <Icon name='store' size={22} color={Colors.light.info} />;
-      bgColor = Colors.light.infoLight;
+      icon = <Icon name='store' size={22} color={currentColors.info} />;
+      bgColor = currentColors.infoLight;
       break;
     case 'vendor_review':
-      icon = <Icon name='rate-review' size={22} color={Colors.light.warning} />;
-      bgColor = Colors.light.warningLight;
+      icon = <Icon name='rate-review' size={22} color={currentColors.warning} />;
+      bgColor = currentColors.warningLight;
       break;
     
     case 'budget_item_added':
     case 'payment_made':
     case 'budget_milestone':
-      icon = <IconSecondary name='cash-outline' size={22} color={Colors.light.success} />;
-      bgColor = Colors.light.successLight;
+      icon = <IconSecondary name='cash-outline' size={22} color={currentColors.success} />;
+      bgColor = currentColors.successLight;
       break;
     
     case 'rsvp_received':
     case 'guest_milestone':
     case 'dietary_preference':
-      icon = <IconSecondary name='people-circle-outline' size={22} color={Colors.light.primary} />;
-      bgColor = Colors.light.primaryLight;
+      icon = <IconSecondary name='people-circle-outline' size={22} color={currentColors.primary} />;
+      bgColor = currentColors.primaryLight;
       break;
     
     case 'schedule_added':
     case 'schedule_conflict':
     case 'schedule_reminder':
-      icon = <IconSecondary name='calendar-outline' size={22} color={Colors.light.warning} />;
-      bgColor = Colors.light.warningLight;
+      icon = <IconSecondary name='calendar-outline' size={22} color={currentColors.warning} />;
+      bgColor = currentColors.warningLight;
       break;
     
     case 'idea_submitted':
     case 'idea_popular':
     case 'idea_comment':
-      icon = <IconSecondary name='bulb-outline' size={22} color={Colors.light.tertiary} />;
-      bgColor = Colors.light.tertiaryLight;
+      icon = <IconSecondary name='bulb-outline' size={22} color={currentColors.tertiary} />;
+      bgColor = currentColors.tertiaryLight;
       break;
     
     case 'website_published':
     case 'website_updated':
     case 'website_stats':
-      icon = <IconSecondary name='globe-outline' size={22} color={Colors.light.info} />;
-      bgColor = Colors.light.infoLight;
+      icon = <IconSecondary name='globe-outline' size={22} color={currentColors.info} />;
+      bgColor = currentColors.infoLight;
       break;
     
     case 'event_countdown':
     case 'planning_progress':
-      icon = <IconSecondary name='trophy-outline' size={22} color={Colors.light.warning} />;
-      bgColor = Colors.light.warningLight;
+      icon = <IconSecondary name='trophy-outline' size={22} color={currentColors.warning} />;
+      bgColor = currentColors.warningLight;
       break;
     
     case 'vendor_suggestion':
     case 'theme_recommendation':
     case 'task_reminder':
-      icon = <IconSecondary name='sparkles-outline' size={22} color={Colors.light.tertiary} />;
-      bgColor = Colors.light.tertiaryLight;
+      icon = <IconSecondary name='sparkles-outline' size={22} color={currentColors.tertiary} />;
+      bgColor = currentColors.tertiaryLight;
       break;
     
     case 'generic':
     default:
-      icon = <IconSecondary name='notifications-outline' size={22} color={Colors.light.textSecondary} />;
-      bgColor = Colors.light.backgroundLight;
+      icon = <IconSecondary name='notifications-outline' size={22} color={currentColors.textSecondary} />;
+      bgColor = currentColors.backgroundLight;
       break;
   }
 
@@ -153,8 +153,8 @@ interface RecentActivityItemProps {
   onPress: () => void;
 }
 
-const RecentActivityItem: React.FC<RecentActivityItemProps> = ({ notification, onPress }) => {
-  const { icon, bgColor, isHighPriority } = getActivityIconDetails(notification.type);
+const RecentActivityItem: React.FC<RecentActivityItemProps & { currentColors: typeof import('constants/Colors').Colors.light; styles: ReturnType<typeof createHomeStyles> }> = ({ notification, onPress, currentColors, styles }) => {
+  const { icon, bgColor, isHighPriority } = getActivityIconDetails(notification.type, currentColors);
   const displayMessage = notification.message || notification.title;
 
   const showActionButtons = ['task_assigned', 'rsvp_update', 'event_invite', 'vendor_quote'].includes(notification.type);
@@ -163,7 +163,7 @@ const RecentActivityItem: React.FC<RecentActivityItemProps> = ({ notification, o
     <TouchableOpacity 
       style={[
         styles.activityItemCard, 
-        { backgroundColor: Colors.light.backgroundPaper },
+        { backgroundColor: currentColors.backgroundPaper },
         isHighPriority && styles.highPriorityActivityCard
       ]} 
       onPress={onPress}
@@ -295,6 +295,9 @@ interface RecentActivitiesProps {
 }
 
 const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onActivityPress }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createHomeStyles(currentColors), [currentColors]);
+  
   const [timeFilter, setTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
   const filteredNotifications = filterNotificationsByTime(notifications, timeFilter);
   const groupedNotifications = groupSimilarNotifications(filteredNotifications);
@@ -343,17 +346,20 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onAc
                   key={primaryNotification.id}
                   notification={primaryNotification}
                   onPress={() => {}} // Empty function since we don't want it clickable
+                  currentColors={currentColors}
+                  styles={styles}
                 />
               );
             }
             
+            const iconDetails = getActivityIconDetails(primaryNotification.type, currentColors);
             return (
               <View 
                 key={primaryNotification.id}
-                style={[styles.activityItemCard, { backgroundColor: Colors.light.backgroundPaper }]} 
+                style={[styles.activityItemCard, { backgroundColor: currentColors.backgroundPaper }]} 
               >
-                <View style={[styles.activityIconCircle, { backgroundColor: getActivityIconDetails(primaryNotification.type).bgColor }]}>
-                  {getActivityIconDetails(primaryNotification.type).icon}
+                <View style={[styles.activityIconCircle, { backgroundColor: iconDetails.bgColor }]}>
+                  {iconDetails.icon}
                 </View>
                 <View style={styles.activityTextContainer}>
                   <Text style={styles.activityDescriptionText} numberOfLines={2} ellipsizeMode="tail">

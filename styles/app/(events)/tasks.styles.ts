@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createTasksStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l, // Adjust as needed for status bar
     paddingBottom: Spacing.s,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   backButton: {
     padding: Spacing.xs,
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     // textAlign: 'center', // If you want it centered, ensure flex: 1 and adjust sibling spacing
     // marginLeft: Spacing.m, // Add margin if back button is present
   },
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginBottom: Spacing.l,
   },
   listContainer: {
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
   },
   categoryCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.l,
     padding: Spacing.l,
     marginBottom: Spacing.m,
@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
   },
   iconContainer: {
     marginRight: Spacing.m,
-    // backgroundColor: Colors.light.backgroundPrimary, // Optional: if you want a slightly different bg for icon
+    // backgroundColor: theme.backgroundPrimary, // Optional: if you want a slightly different bg for icon
     // padding: Spacing.s, // Optional
     // borderRadius: BorderRadius.m, // Optional
   },
@@ -67,11 +67,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   categoryDescription: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     lineHeight: ResponsiveFontSizes.body * 1.4,
   },
   bottomBar: {
@@ -79,12 +79,15 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // borderTopWidth: 1,
-    // borderTopColor: Colors.light.divider,
+    // borderTopColor: theme.divider,
   },
   bottomBarIndicator: {
     width: moderateScale(80),
     height: moderateScale(5),
-    backgroundColor: Colors.light.text,
+    backgroundColor: theme.text,
     borderRadius: BorderRadius.s,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createTasksStyles(Colors.light);

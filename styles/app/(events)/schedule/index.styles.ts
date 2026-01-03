@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,9 +22,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingTop: Platform.OS === 'android' ? Spacing.xl : Spacing.xxl,
     paddingBottom: Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   backButton: {
     padding: Spacing.xs,
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     textAlign: 'center',
     flex: 1,
-    color: Colors.light.text,
+    color: theme.text,
     // marginRight: Spacing.xl, // Add if there's an addButton to balance
   },
   addButton: {
@@ -44,12 +44,12 @@ export const styles = StyleSheet.create({
     padding: Spacing.s,
   },
   itemContainer: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.s,
     flexDirection: 'row',
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: moderateScale(1.41),
@@ -63,11 +63,11 @@ export const styles = StyleSheet.create({
   itemTimeText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   itemTimeTextSmall: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   itemDetails: {
     flex: 1,
@@ -76,11 +76,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   itemSubtitle: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xxs,
   },
   itemActions: {
@@ -96,6 +96,9 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: Spacing.xxl,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

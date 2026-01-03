@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Event } from '@/types/eventTypes';
-import { styles } from '@/styles/app/(events)/details/[id].styles';
-import { Colors } from '@/constants/Colors';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 interface EventDetailHeaderProps {
   event: Event;
@@ -17,6 +17,9 @@ interface EventDetailHeaderProps {
 }
 
 const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId, onEditEvent, isOrganizer }) => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
+  
   if (!event) {
     return null; 
   }
@@ -27,23 +30,23 @@ const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineIn
         <Text style={styles.title}>{event.name}</Text>
         {isOrganizer && onEditEvent && (
           <TouchableOpacity onPress={onEditEvent} style={styles.editButton}>
-            <Ionicons name="create-outline" size={24} color={Colors.light.primary} />
+            <Ionicons name="create-outline" size={24} color={currentColors.primary} />
           </TouchableOpacity>
         )}
       </View>
       <View style={styles.detailItem}>
-        <Ionicons name="calendar-outline" size={20} color="#555" style={styles.icon} />
+        <Ionicons name="calendar-outline" size={20} color={currentColors.textSecondary} style={styles.icon} />
         <Text style={styles.detailText}>{new Date(event.date).toLocaleDateString()}</Text>
       </View>
       {event.time && (
         <View style={styles.detailItem}>
-          <Ionicons name="time-outline" size={20} color="#555" style={styles.icon} />
+          <Ionicons name="time-outline" size={20} color={currentColors.textSecondary} style={styles.icon} />
           <Text style={styles.detailText}>{event.time}</Text>
         </View>
       )}
       {event.location && (
         <View style={styles.detailItem}>
-          <Ionicons name="location-outline" size={20} color="#555" style={styles.icon} />
+          <Ionicons name="location-outline" size={20} color={currentColors.textSecondary} style={styles.icon} />
           <Text style={styles.detailText}>{event.location}</Text>
         </View>
       )}

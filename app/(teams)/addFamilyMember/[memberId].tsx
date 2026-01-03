@@ -3,7 +3,8 @@ import { View, Text, TextInput, Button, ScrollView, FlatList, TouchableOpacity, 
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(teams)/addFamilyMemberScreen.styles'; 
+import { createAddFamilyMemberScreenStyles } from '../../../styles/app/(teams)/addFamilyMemberScreen.styles';
+import { useAppTheme } from '@/context/AppThemeContext'; 
 import { UserProfile } from '../../../types/userTypes';
 import { FamilyMemberNode } from '../../../types/teamTypes'; 
 import { useAppAuth } from '../../../hooks/useAppAuth';
@@ -42,6 +43,10 @@ const addChildNodeToTree = (
 };
 
 const AddFamilyMemberScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createAddFamilyMemberScreenStyles(currentColors);
+
+
   const params = useLocalSearchParams<{ 
     memberId: string, // For "add child" or "add spouse", this is the ID of the existing member
     teamId: string, 
@@ -212,28 +217,28 @@ const AddFamilyMemberScreen = () => {
   const renderUserItem = ({ item }: { item: UserProfile }) => ( /* ... same as before ... */ 
     <TouchableOpacity style={[styles.userItem, selectedUser?.userId === item.userId && styles.selectedUserItem]} onPress={() => setSelectedUser(item)}>
       {item.avatarUrl ? <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
-        : <View style={[styles.avatar, styles.avatarPlaceholder]}><Ionicons name="person" size={20} color={Colors.light.textSecondary} /></View>}
+        : <View style={[styles.avatar, styles.avatarPlaceholder]}><Ionicons name="person" size={20} color={currentColors.textSecondary} /></View>}
       <View style={styles.userInfo}><Text style={styles.userName}>{item.displayName || 'N/A'}</Text><Text style={styles.userEmail}>{item.email}</Text></View>
-      {selectedUser?.userId === item.userId && <Ionicons name="checkmark-circle" size={24} color={Colors.light.success} />}
+      {selectedUser?.userId === item.userId && <Ionicons name="checkmark-circle" size={24} color={currentColors.success} />}
     </TouchableOpacity>
   );
 
   if (isAddRootMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: 'Add Root Family Member' }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Root Family Member</Text>
           {teamId && <Text style={styles.subtitle}>For Team ID: {teamId}</Text>}
           <TextInput style={styles.input} placeholder="Member's Name" value={newRootMemberName} onChangeText={setNewRootMemberName} placeholderTextColor="#888"/>
           
-          {newRootMemberImageUrl ? <Image source={{ uri: newRootMemberImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={Colors.light.textSecondary} /></View>}
+          {newRootMemberImageUrl ? <Image source={{ uri: newRootMemberImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewRootMemberImageUrl, setIsUploadingRootImage)} disabled={isUploadingRootImage}>
             {isUploadingRootImage ? <ActivityIndicator color="#fff" /> : <Text style={styles.uploadButtonText}>Upload Image</Text>}
           </TouchableOpacity>
 
-          <Button title={isLoading ? "Adding..." : "Add Root Member"} onPress={handleCreateRootMember} disabled={isLoading || !newRootMemberName.trim()} color={Colors.light.primary}/>
+          <Button title={isLoading ? "Adding..." : "Add Root Member"} onPress={handleCreateRootMember} disabled={isLoading || !newRootMemberName.trim()} color={currentColors.primary}/>
         </ScrollView>
       </SafeAreaView>
     );
@@ -242,7 +247,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddChildMode) { /* ... same as before ... */ 
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: `Add Child ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Child</Text>
@@ -250,12 +255,12 @@ const AddFamilyMemberScreen = () => {
           {!targetMemberName && memberId && <Text style={styles.subtitle}>Parent ID: {memberId}</Text>}
           <TextInput style={styles.input} placeholder="Child's Name" value={newChildName} onChangeText={setNewChildName} placeholderTextColor="#888"/>
 
-          {newChildImageUrl ? <Image source={{ uri: newChildImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={Colors.light.textSecondary} /></View>}
+          {newChildImageUrl ? <Image source={{ uri: newChildImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewChildImageUrl, setIsUploadingChildImage)} disabled={isUploadingChildImage}>
             {isUploadingChildImage ? <ActivityIndicator color="#fff" /> : <Text style={styles.uploadButtonText}>Upload Image</Text>}
           </TouchableOpacity>
 
-          <Button title={isLoading ? "Adding..." : "Add Child"} onPress={handleAddChildMember} disabled={isLoading || !newChildName.trim()} color={Colors.light.primary}/>
+          <Button title={isLoading ? "Adding..." : "Add Child"} onPress={handleAddChildMember} disabled={isLoading || !newChildName.trim()} color={currentColors.primary}/>
         </ScrollView>
       </SafeAreaView>
     );
@@ -264,7 +269,7 @@ const AddFamilyMemberScreen = () => {
   if (isAddSpouseMode) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Stack.Screen options={{ title: `Add Spouse ${targetMemberName ? `to ${targetMemberName}` : ''}` }} />
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Spouse</Text>
@@ -272,12 +277,12 @@ const AddFamilyMemberScreen = () => {
           {!targetMemberName && memberId && <Text style={styles.subtitle}>Adding spouse to member ID: {memberId}</Text>}
           <TextInput style={styles.input} placeholder="Spouse's Name" value={newSpouseName} onChangeText={setNewSpouseName} placeholderTextColor="#888"/>
 
-          {newSpouseImageUrl ? <Image source={{ uri: newSpouseImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={Colors.light.textSecondary} /></View>}
+          {newSpouseImageUrl ? <Image source={{ uri: newSpouseImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewSpouseImageUrl, setIsUploadingSpouseImage)} disabled={isUploadingSpouseImage}>
             {isUploadingSpouseImage ? <ActivityIndicator color="#fff" /> : <Text style={styles.uploadButtonText}>Upload Image</Text>}
           </TouchableOpacity>
 
-          <Button title={isLoading ? "Adding..." : "Add Spouse"} onPress={handleAddSpouseMember} disabled={isLoading || !newSpouseName.trim()} color={Colors.light.primary}/>
+          <Button title={isLoading ? "Adding..." : "Add Spouse"} onPress={handleAddSpouseMember} disabled={isLoading || !newSpouseName.trim()} color={currentColors.primary}/>
         </ScrollView>
       </SafeAreaView>
     );
@@ -285,7 +290,7 @@ const AddFamilyMemberScreen = () => {
 
   return ( /* ... same as before ... */ 
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: 'Add to Team Roster' }} />
       <View style={styles.container}>
         <Text style={styles.title}>Add Existing User to Team Roster</Text>
@@ -298,7 +303,7 @@ const AddFamilyMemberScreen = () => {
                 <View style={styles.searchContainer}>
                 <TextInput style={styles.searchInput} placeholder="Search user by name..." value={searchQuery} onChangeText={setSearchQuery} placeholderTextColor="#888" onSubmitEditing={handleSearch}/>
                 <TouchableOpacity onPress={handleSearch} style={styles.searchButton} disabled={isLoadingSearch}>
-                    {isLoadingSearch ? <ActivityIndicator size="small" color={Colors.light.primary} /> : <Ionicons name="search" size={24} color={Colors.light.primary} />}
+                    {isLoadingSearch ? <ActivityIndicator size="small" color={currentColors.primary} /> : <Ionicons name="search" size={24} color={currentColors.primary} />}
                 </TouchableOpacity>
                 </View>
                 {isLoadingSearch && <ActivityIndicator />}
@@ -307,7 +312,7 @@ const AddFamilyMemberScreen = () => {
                 {selectedUser && (
                 <View style={styles.selectionConfirmation}>
                     <Text style={styles.selectedUserInfo}>Selected: {selectedUser.displayName} ({selectedUser.email})</Text>
-                    <Button title={isLoading ? "Adding..." : `Add to Roster`} onPress={handleAddExistingUserToTeam} disabled={isLoading} color={Colors.light.primary}/>
+                    <Button title={isLoading ? "Adding..." : `Add to Roster`} onPress={handleAddExistingUserToTeam} disabled={isLoading} color={currentColors.primary}/>
                 </View>
                 )}
             </>

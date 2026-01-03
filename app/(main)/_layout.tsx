@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback, createContext, useContext } from 
 import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
 import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import BackButton from '@/components/common/Navigation/BackButton';
 
 export const ScrollContext = createContext<{
@@ -16,6 +17,7 @@ export const ScrollContext = createContext<{
 export const useScrollHandler = () => useContext(ScrollContext);
 
 function MainTabsLayout() {
+  const { currentColors } = useAppTheme();
   const [isNavVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
   const scrollThreshold = 10;
@@ -42,9 +44,9 @@ function MainTabsLayout() {
               display: Platform.OS === 'web' ? 'none' : 'flex',
             },
              headerStyle: {
-                      backgroundColor: Colors.brown
+                      backgroundColor: currentColors.accent
                 },
-                headerTintColor: Colors.dark.text,
+                headerTintColor: currentColors.text,
           }}
           tabBar={props => {
             if (!props.state || !props.state.routes) {

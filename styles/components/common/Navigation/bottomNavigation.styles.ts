@@ -8,7 +8,7 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createBottomNavigationStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: Spacing.l,
@@ -17,11 +17,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     height: Layout.SCREEN_HEIGHT * 0.08,
     width: Layout.SCREEN_WIDTH * 0.85,
     borderRadius: moderateScale(35),
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
@@ -42,11 +42,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: '90%',
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: moderateScale(30),
     marginVertical: Spacing.xs,
     paddingVertical: Spacing.xs,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -61,11 +61,11 @@ export const styles = StyleSheet.create({
     width: Layout.SCREEN_WIDTH * 0.15,
     height: Layout.SCREEN_WIDTH * 0.15,
     borderRadius: (Layout.SCREEN_WIDTH * 0.15) / 2,
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 6,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -86,14 +86,14 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     borderTopLeftRadius: BorderRadius.l,
     borderTopRightRadius: BorderRadius.l,
     paddingVertical: Spacing.m,
     paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.l,
     elevation: 10,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -110,11 +110,14 @@ export const styles = StyleSheet.create({
   },
   addMenuItemText: {
     fontSize: ResponsiveFontSizes.title,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   menuDivider: {
     height: 1,
-    backgroundColor: Colors.light.icon,
+    backgroundColor: theme.icon,
     marginHorizontal: Spacing.m,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createBottomNavigationStyles(Colors.light);

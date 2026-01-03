@@ -2,11 +2,11 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/context/ThemeContext'; // Assuming you have a ThemeContext
+import { useAppTheme } from '@/context/AppThemeContext';
 
 const BackButton: React.FC = () => {
   const router = useRouter();
-  useTheme(); // Theme not used but may be needed for future styling
+  const { currentColors } = useAppTheme();
 
   if (!router.canGoBack()) {
     return null; // Don't render if there's no screen to go back to
@@ -17,7 +17,7 @@ const BackButton: React.FC = () => {
       <Ionicons
         name="chevron-back"
         size={28} // Slightly larger for better tap target
-        color="white" // White color to match header titles
+        color={currentColors.text} // Use theme color instead of hardcoded white
       />
     </TouchableOpacity>
   );

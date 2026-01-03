@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Colors } from '@/constants/Colors';
 import {
   View,
   Text,
@@ -14,8 +15,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
 import { IconSizes } from '@/constants/dimensions';
-import { styles } from '@/styles/app/(auth)/signIn.styles';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { createSignInStyles } from '@/styles/app/(auth)/signIn.styles';
 import GoogleIcon from '@/components/common/GoogleIcon';
 import { useAlert } from '@/context/AlertContext';
 
@@ -26,6 +26,7 @@ interface FormData {
 }
 
 const SignInScreen: React.FC = () => {
+    const styles = createSignInStyles(Colors.light);
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',

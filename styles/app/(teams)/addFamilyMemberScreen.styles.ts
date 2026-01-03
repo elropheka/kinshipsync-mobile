@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors'; // Assuming Colors is in constants
 
-export const styles = StyleSheet.create({
+export const createAddFamilyMemberScreenStyles = (theme: typeof Colors.light) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   container: { // General container for padding, used for the non-form part
     flex: 1,
@@ -18,25 +18,25 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: Colors.light.text,
+    color: theme.text,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: 20,
     textAlign: 'center',
   },
   input: { // Style for new member form inputs (name, image URL)
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
     marginBottom: 15,
-    backgroundColor: Colors.light.backgroundPaper, // Consistent background for inputs
-    color: Colors.light.text, // Ensure text color is also from theme
+    backgroundColor: theme.backgroundPaper, // Consistent background for inputs
+    color: theme.text, // Ensure text color is also from theme
   },
   searchContainer: {
     flexDirection: 'row',
@@ -46,14 +46,14 @@ export const styles = StyleSheet.create({
   searchInput: { // For user search input
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
     marginRight: 10,
-    backgroundColor: Colors.light.backgroundPaper,
-    color: Colors.light.text,
+    backgroundColor: theme.backgroundPaper,
+    color: theme.text,
   },
   searchButton: {
     padding: 10,
@@ -68,17 +68,17 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   selectedUserItem: {
-    backgroundColor: Colors.light.primaryLight, // A light shade of primary for selection
+    backgroundColor: theme.primaryLight, // A light shade of primary for selection
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: Colors.light.divider, // Placeholder background
+    backgroundColor: theme.divider, // Placeholder background
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -91,36 +91,36 @@ export const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.light.text,
+    color: theme.text,
   },
   userEmail: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   noResultsText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginVertical: 10,
   },
   selectionConfirmation: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
   },
   selectedUserInfo: {
     fontSize: 16,
     marginBottom: 10,
     textAlign: 'center',
-    color: Colors.light.text,
+    color: theme.text,
   },
   imagePreview: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     alignSelf: 'center',
     marginBottom: 10,
     marginTop: 10,
@@ -129,18 +129,18 @@ export const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: Colors.light.backgroundSecondary, // Slightly different from divider
+    backgroundColor: theme.backgroundSecondary, // Slightly different from divider
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderStyle: 'dashed',
   },
   uploadButton: {
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -150,8 +150,11 @@ export const styles = StyleSheet.create({
     minWidth: 150, // Give it some minimum width
   },
   uploadButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: 16,
     fontWeight: '500',
   }
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createAddFamilyMemberScreenStyles(Colors.light);

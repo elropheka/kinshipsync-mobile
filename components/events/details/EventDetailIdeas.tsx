@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Idea, CreateIdeaPayload, UpdateIdeaPayload } from '../../../types/eventTypes';
-import IdeaForm from '../../ideas/IdeaForm'; // Path to existing IdeaForm
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
-import { Colors } from '../../../constants/Colors';
+import { Idea, CreateIdeaPayload, UpdateIdeaPayload } from '@/types/eventTypes';
+import IdeaForm from '@/components/ideas/IdeaForm';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailIdeasProps {
@@ -26,6 +26,8 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
   onVoteForIdea,
   isOrganizer = true
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const [isIdeaFormVisible, setIsIdeaFormVisible] = useState(false);
   const [editingIdea, setEditingIdea] = useState<Partial<Idea> & { id?: string } | undefined>(undefined);
   const { showSuccess, showError, showConfirm } = useAlert();
@@ -84,7 +86,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
       await onVoteForIdea(ideaId, increment); 
     } catch (e) { 
       console.error("Error voting for idea:", e); 
-      showAlert("error", "Error", "Failed to record vote."); 
+      showError("Error", "Failed to record vote."); 
     }
   };
 
@@ -102,15 +104,15 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
       </View>
       <View style={styles.voteContainer}>
         <TouchableOpacity onPress={() => handleVote(item.id, 1)}>
-          <Ionicons name="arrow-up-circle-outline" size={28} color={Colors.light.success} />
+          <Ionicons name="arrow-up-circle-outline" size={28} color={currentColors.success} />
         </TouchableOpacity>
         <Text style={styles.voteCount}>{item.votes}</Text>
         <TouchableOpacity onPress={() => handleVote(item.id, -1)}>
-          <Ionicons name="arrow-down-circle-outline" size={28} color={Colors.light.error} />
+          <Ionicons name="arrow-down-circle-outline" size={28} color={currentColors.error} />
         </TouchableOpacity>
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 15 }}>
-            <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+            <Ionicons name="trash-outline" size={24} color={currentColors.error} />
           </TouchableOpacity>
         )}
       </View>
@@ -123,7 +125,7 @@ const EventDetailIdeas: React.FC<EventDetailIdeasProps> = ({
         <Text style={styles.sectionTitle}>Ideas</Text>
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleOpenIdeaForm()}>
-            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+            <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
           </TouchableOpacity>
         )}
       </View>

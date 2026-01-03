@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { Stack, router } from 'expo-router';
-import { styles } from '../../../styles/app/(vendors)/all/index.styles';
+import { createIndexStyles } from '../../../styles/app/(vendors)/all/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '../../../constants/Colors';
 import VendorManagement from '@/components/vendors/vendorManagement';
 import { VendorCategory } from '../../../types/vendorTypes';
@@ -21,6 +22,10 @@ import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 import { useVendorCategories, useVendorItemsSearch, DisplayVendorItem } from '../../../hooks/useVendors';
 
 const VendorsScreen: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const [activeTab, setActiveTab] = useState<string>('Find a Vendor');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -63,7 +68,7 @@ const VendorsScreen: React.FC = () => {
           <Ionicons 
             name={isSearchBarVisible ? "close-outline" : "search-outline"} 
             size={24} 
-            color={Colors.light.text}
+            color={currentColors.text}
           />
         </TouchableOpacity>
       ),
@@ -136,7 +141,7 @@ const VendorsScreen: React.FC = () => {
             )}
             {vendorRating !== undefined && vendorRating > 0 && (
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color={Colors.light.tint} />
+                <Ionicons name="star" size={16} color={currentColors.tint} />
                 <Text style={styles.ratingText}>{vendorRating.toFixed(1)} ({vendorReviews || 0} reviews)</Text>
               </View>
             )}
@@ -173,7 +178,7 @@ const VendorsScreen: React.FC = () => {
 
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Popular types of vendors</Text>
-          {isLoadingCategories && <ActivityIndicator color={Colors.light.tint} />}
+          {isLoadingCategories && <ActivityIndicator color={currentColors.tint} />}
           {errorCategories && <Text>Error loading categories: {errorCategories.message}</Text>}
           {!isLoadingCategories && !errorCategories && (
             <View style={styles.vendorTypesContainer}>
@@ -198,7 +203,7 @@ const VendorsScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Products & Services</Text>
           </View>
           {isLoadingItems && displayItems.length === 0 && (
-            <ActivityIndicator color={Colors.light.tint} style={{ marginTop: 20 }} />
+            <ActivityIndicator color={currentColors.tint} style={{ marginTop: 20 }} />
           )}
           {errorItems && <Text>Error loading items: {errorItems.message}</Text>}
           {!isLoadingItems && !errorItems && displayItems.length === 0 && (
@@ -211,7 +216,7 @@ const VendorsScreen: React.FC = () => {
           )}
           {isLoadingItems && displayItems.length > 0 && (
             <View style={styles.loadMoreContainer}>
-              <ActivityIndicator color={Colors.light.tint} size="small" />
+              <ActivityIndicator color={currentColors.tint} size="small" />
               <Text style={styles.loadingText}>Loading more items...</Text>
             </View>
           )}

@@ -9,7 +9,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(main)/notifications.styles';
+import { createNotificationsStyles } from '../../styles/app/(main)/notifications.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '../../hooks/useUser';
 import { Notification as UserNotification } from '../../types/userTypes';
 import { formatTimeToNow } from '../../utils/dateUtils';
@@ -22,6 +23,10 @@ import { useAlert } from '@/context/AlertContext';
 type Filter = FilterChipType;
 
 const NotificationsPage: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createNotificationsStyles(currentColors);
+
+
   const { 
     notifications: rawNotifications, 
     isLoadingNotifications, 

@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors'; // Adjust path as needed
+import { useAppTheme } from '@/context/AppThemeContext';
 // Styles imported from component-specific styles file
 import { CreateGuestPayload, GuestStatus } from '../../types/eventTypes'; // Adjust path
 import { useAlert } from '@/context/AlertContext';
@@ -32,6 +32,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
   const phoneInputRef = useRef<any>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentColors } = useAppTheme();
   const { showError } = useAlert();
 
   const handleFormSubmit = async () => {
@@ -115,6 +116,149 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
     setPlusOnes(0);
     onClose();
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      justifyContent: 'flex-end', // Aligns modal to bottom
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContainer: {
+      backgroundColor: currentColors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+      maxHeight: '85%', // Max height to ensure it doesn't cover entire screen
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.divider,
+      paddingBottom: 10,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    inputGroup: {
+      marginBottom: 15,
+    },
+    label: {
+      fontSize: 14,
+      color: currentColors.textSecondary,
+      marginBottom: 5,
+      fontWeight: '500',
+    },
+    input: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    textArea: {
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+    statusSelectionContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap', // Allow chips to wrap
+      justifyContent: 'flex-start', // Align chips to the start
+      marginBottom: 10,
+    },
+    statusChip: {
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 16,
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      marginRight: 8,
+      marginBottom: 8,
+    },
+    statusChipSelected: {
+      backgroundColor: currentColors.primary,
+      borderColor: currentColors.primary,
+    },
+    statusChipText: {
+      fontSize: 14,
+      color: currentColors.text,
+    },
+    statusChipTextSelected: {
+      color: currentColors.primaryContrastText,
+      fontWeight: 'bold',
+    },
+    submitButton: {
+      backgroundColor: currentColors.primary,
+      paddingVertical: 15,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 10,
+      marginBottom: 5,
+    },
+    submitButtonDisabled: {
+      backgroundColor: currentColors.primaryLight,
+    },
+    submitButtonText: {
+      color: currentColors.primaryContrastText,
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      backgroundColor: 'transparent',
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      borderColor: currentColors.textSecondary,
+      borderWidth: 1,
+      marginBottom: 10, // Space at the bottom
+    },
+    cancelButtonText: {
+      color: currentColors.textSecondary,
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    phoneInputContainer: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      width: '100%',
+    },
+    phoneInputTextContainer: {
+      backgroundColor: currentColors.backgroundPaper,
+      paddingVertical: 0,
+    },
+    phoneInputText: {
+      fontSize: 16,
+      color: currentColors.text,
+      padding: 10,
+    },
+    phoneInputCodeText: {
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    phoneInputFlagButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 8,
+    },
+    phoneInputCountryPicker: {
+      paddingVertical: 10,
+      paddingHorizontal: 8,
+    },
+  }), [currentColors]);
   
   return (
     <Modal
@@ -132,7 +276,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Invite Guest{currentEventName ? ` to ${currentEventName}` : ''}</Text>
               <TouchableOpacity onPress={handleClose} disabled={isSubmitting}>
-                <Ionicons name="close-circle-outline" size={28} color={Colors.light.textSecondary} />
+                <Ionicons name="close-circle-outline" size={28} color={currentColors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -143,7 +287,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 placeholder="Enter guest's full name"
                 value={name}
                 onChangeText={setName}
-                placeholderTextColor={Colors.light.grey}
+                placeholderTextColor={currentColors.grey}
               />
             </View>
 
@@ -156,7 +300,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor={Colors.light.grey}
+                placeholderTextColor={currentColors.grey}
               />
             </View>
 
@@ -183,7 +327,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 countryPickerButtonStyle={styles.phoneInputCountryPicker}
                 textInputProps={{
                   placeholder: "(Optional)",
-                  placeholderTextColor: Colors.light.grey,
+                  placeholderTextColor: currentColors.grey,
                 }}
               />
             </View>
@@ -196,7 +340,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 value={String(plusOnes)}
                 onChangeText={(text) => setPlusOnes(Number(text) || 0)}
                 keyboardType="number-pad"
-                placeholderTextColor={Colors.light.grey}
+                placeholderTextColor={currentColors.grey}
               />
             </View>
 
@@ -224,7 +368,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 onChangeText={setNotes}
                 multiline
                 numberOfLines={3}
-                placeholderTextColor={Colors.light.grey}
+                placeholderTextColor={currentColors.grey}
               />
             </View>
 
@@ -244,148 +388,5 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end', // Aligns modal to bottom
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContainer: {
-    backgroundColor: Colors.light.background,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '85%', // Max height to ensure it doesn't cover entire screen
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    paddingBottom: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  inputGroup: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-    marginBottom: 5,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  statusSelectionContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Allow chips to wrap
-    justifyContent: 'flex-start', // Align chips to the start
-    marginBottom: 10,
-  },
-  statusChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  statusChipSelected: {
-    backgroundColor: Colors.light.primary,
-    borderColor: Colors.light.primary,
-  },
-  statusChipText: {
-    fontSize: 14,
-    color: Colors.light.text,
-  },
-  statusChipTextSelected: {
-    color: Colors.dark.text, // Assuming primary contrast text is dark
-    fontWeight: 'bold',
-  },
-  submitButton: {
-    backgroundColor: Colors.light.primary,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  submitButtonDisabled: {
-    backgroundColor: Colors.light.primaryLight,
-  },
-  submitButtonText: {
-    color: Colors.dark.text, // Assuming primary contrast text is dark
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  cancelButton: {
-    backgroundColor: 'transparent',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderColor: Colors.light.textSecondary,
-    borderWidth: 1,
-    marginBottom: 10, // Space at the bottom
-  },
-  cancelButtonText: {
-    color: Colors.light.textSecondary,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  phoneInputContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    width: '100%',
-  },
-  phoneInputTextContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
-    paddingVertical: 0,
-  },
-  phoneInputText: {
-    fontSize: 16,
-    color: Colors.light.text,
-    padding: 10,
-  },
-  phoneInputCodeText: {
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  phoneInputFlagButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-  },
-  phoneInputCountryPicker: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-  },
-});
 
 export default InviteGuestModal;

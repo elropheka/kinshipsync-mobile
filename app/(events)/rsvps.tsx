@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams } from 'expo-router'; 
-import { styles } from '@/styles/app/(events)/rsvps.styles';
+import { createRsvpsStyles } from '@/styles/app/(events)/rsvps.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminderToGuest, addGuestToEvent } from '@/services/eventService';
@@ -19,6 +20,10 @@ const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
 
 const RsvpListScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createRsvpsStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
@@ -221,22 +226,22 @@ const RsvpListScreen = () => {
           styles.statusDot, 
           { 
             backgroundColor: 
-              guest.status === 'accepted' ? Colors.light.success :
-              guest.status === 'declined' ? Colors.light.error :
-              guest.status === 'Invited' ? Colors.light.info :
-              guest.status === 'pending' ? Colors.light.warning :
-              Colors.light.textSecondary 
+              guest.status === 'accepted' ? currentColors.success :
+              guest.status === 'declined' ? currentColors.error :
+              guest.status === 'Invited' ? currentColors.info :
+              guest.status === 'pending' ? currentColors.warning :
+              currentColors.textSecondary 
           }
         ]} />
         <Text style={[
           styles.statusText,
           { 
             color: 
-              guest.status === 'accepted' ? Colors.light.success :
-              guest.status === 'declined' ? Colors.light.error :
-              guest.status === 'Invited' ? Colors.light.info :
-              guest.status === 'pending' ? Colors.light.warning :
-              Colors.light.textSecondary
+              guest.status === 'accepted' ? currentColors.success :
+              guest.status === 'declined' ? currentColors.error :
+              guest.status === 'Invited' ? currentColors.info :
+              guest.status === 'pending' ? currentColors.warning :
+              currentColors.textSecondary
           }
         ]}>
           {guest.status}
@@ -255,7 +260,7 @@ const RsvpListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen 
         options={{ 
           title: eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'RSVPs'),
@@ -306,7 +311,7 @@ const RsvpListScreen = () => {
 
       {displayedGuests.length === 0 && !isLoading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontSize: 16, color: Colors.light.textSecondary}}>
+            <Text style={{fontSize: 16, color: currentColors.textSecondary}}>
                 {searchQuery || selectedStatusFilter !== 'All' ? 'No guests match your criteria.' : 'No RSVPs found for this event.'}
             </Text>
         </View>

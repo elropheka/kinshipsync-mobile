@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '../../../styles/components/common/Ads/InterstitialAdModal.styles';
 
 interface InterstitialAdModalProps {
@@ -14,6 +15,7 @@ const InterstitialAdModal: React.FC<InterstitialAdModalProps> = ({
   onClose,
   duration = 3000, // Default to 3 seconds
 }) => {
+  const { currentColors } = useAppTheme();
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     if (visible && duration) {
@@ -34,7 +36,7 @@ const InterstitialAdModal: React.FC<InterstitialAdModalProps> = ({
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Icon name="close" size={28} color="#333" />
+            <Icon name="close" size={28} color={currentColors.text} />
           </TouchableOpacity>
           <Text style={styles.adTitle}>Advertisement</Text>
           <View style={styles.adBody}>
@@ -44,7 +46,7 @@ const InterstitialAdModal: React.FC<InterstitialAdModalProps> = ({
             <Text style={styles.adTextSmall}>
               (This is a simulated interstitial ad)
             </Text>
-            <ActivityIndicator size="large" color="#007AFF" style={{marginTop: 20}}/>
+            <ActivityIndicator size="large" color={currentColors.primary} style={{marginTop: 20}}/>
           </View>
           <Text style={styles.closingText}>
             {duration ? `Closing in ${Math.ceil(duration/1000)}s...` : 'Tap X to close'}

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '../../../styles/components/common/Layout/teams.styles';
 import { Team, TeamType } from '../../../types/teamTypes';
 import { createGroupConversation } from '../../../services/chatService';
@@ -24,6 +25,7 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
+  const { currentColors } = useAppTheme();
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const { showError } = useAlert();
 
@@ -93,7 +95,7 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
     <TouchableOpacity onPress={() => router.push(`/(teams)/dashboard/${team.id}`)} style={styles.teamCard}>
       <View style={styles.teamHeader}>
         <View style={styles.teamIconContainer}>
-          <Ionicons name={team.iconName || 'help-circle-outline'} size={28} color="#555" />
+          <Ionicons name={team.iconName || 'help-circle-outline'} size={28} color={currentColors.textSecondary} />
         </View>
         <View style={styles.teamInfo}>
           <Text style={styles.teamName}>{team.name || 'Unnamed Team'}</Text>
@@ -105,9 +107,9 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
           disabled={isCreatingChat}
         >
           {isCreatingChat ? (
-            <ActivityIndicator size="small" color="#4050FF" />
+            <ActivityIndicator size="small" color={currentColors.primary} />
           ) : (
-            <Ionicons name="chatbubble-outline" size={20} color="#4050FF" />
+            <Ionicons name="chatbubble-outline" size={20} color={currentColors.primary} />
           )}
         </TouchableOpacity>
       </View>
@@ -144,7 +146,7 @@ const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {
                 router.push(`/(teams)/familyTree/${team.id}`);
               }}
             >
-              <Ionicons name="git-network-outline" size={16} color="#4050FF" style={{marginRight: 5}} />
+              <Ionicons name="git-network-outline" size={16} color={currentColors.primary} style={{marginRight: 5}} />
               <Text style={styles.actionButtonText}>Family Tree</Text>
             </TouchableOpacity>
           )}

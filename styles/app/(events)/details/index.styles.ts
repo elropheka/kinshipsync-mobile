@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,9 +22,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingBottom: Spacing.m,
     // paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.header3,
@@ -32,14 +32,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginHorizontal: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   headerBackButton: {
     padding: Spacing.xs,
   },
   banner: {
     height: moderateScale(220),
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -48,13 +48,13 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: Spacing.l,
     left: Spacing.l,
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.xl,
   },
   tagText: {
-    color: Colors.light.background,
+    color: theme.background,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -65,7 +65,7 @@ export const styles = StyleSheet.create({
     // position: 'absolute',
     // top: Spacing.l,
     // right: Spacing.l,
-    // backgroundColor: Colors.light.background + '80', // Semi-transparent white
+    // backgroundColor: theme.background + '80', // Semi-transparent white
     // padding: Spacing.s,
     // borderRadius: BorderRadius.round,
   },
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     marginTop: Spacing.l,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   detailsContainer: {
     marginBottom: Spacing.l,
@@ -90,7 +90,7 @@ export const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.s,
   },
   statusContainer: {
@@ -102,12 +102,12 @@ export const styles = StyleSheet.create({
     width: moderateScale(10),
     height: moderateScale(10),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.success,
+    backgroundColor: theme.success,
     marginRight: Spacing.xs,
   },
   statusText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     fontWeight: Fonts.weights.medium,
   },
   progressContainer: {
@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
   },
   progressBar: {
     height: moderateScale(12),
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.s,
     overflow: 'hidden',
     marginBottom: Spacing.s,
@@ -123,19 +123,19 @@ export const styles = StyleSheet.create({
   progressFill: {
     width: '75%', // Example progress
     height: '100%',
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     borderRadius: BorderRadius.s,
   },
   progressText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'right',
   },
   tabsContainer: {
     flexDirection: 'row',
     marginBottom: Spacing.l,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   tab: {
     paddingVertical: Spacing.m,
@@ -143,14 +143,14 @@ export const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: Colors.light.primary,
+    borderBottomColor: theme.primary,
   },
   tabText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   activeTabText: {
-    color: Colors.light.primary,
+    color: theme.primary,
     fontWeight: Fonts.weights.medium,
   },
   tabContent: {
@@ -163,16 +163,16 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   sectionText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     lineHeight: ResponsiveFontSizes.subtitle * 1.5,
   },
   venueCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
     alignItems: 'center',
@@ -180,7 +180,7 @@ export const styles = StyleSheet.create({
   venueImagePlaceholder: {
     width: moderateScale(80),
     height: moderateScale(80),
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     borderRadius: BorderRadius.m,
     justifyContent: 'center',
     alignItems: 'center',
@@ -193,33 +193,33 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   venueAddress: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.s,
   },
   directionButton: {
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.s,
     alignSelf: 'flex-start',
   },
   directionButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
   notesCard: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
   },
   notesText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     lineHeight: ResponsiveFontSizes.subtitle * 1.5,
   },
   timelineContainer: {
@@ -235,20 +235,20 @@ export const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   timelineDot: {
     width: moderateScale(16),
     height: moderateScale(16),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     marginRight: Spacing.m,
     marginTop: moderateScale(2),
   },
   timelineConnector: {
     width: moderateScale(2),
     height: moderateScale(30),
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginLeft: moderateScale(80) + moderateScale(16/2) - moderateScale(2/2), // Align with dot
     marginBottom: Spacing.s,
   },
@@ -259,11 +259,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   eventDescription: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   guestsStats: {
     flexDirection: 'row',
@@ -278,15 +278,15 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.primary,
+    color: theme.primary,
   },
   statLabel: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   addGuestButton: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.m,
@@ -295,7 +295,7 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
   },
   addGuestButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.s,
@@ -304,26 +304,26 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   guestItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   guestInitials: {
     width: moderateScale(40),
     height: moderateScale(40),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
   },
   initialsText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
   },
@@ -334,11 +334,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.medium,
     marginBottom: Spacing.xs,
-    color: Colors.light.text,
+    color: theme.text,
   },
   guestDetails: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   taskStats: {
     alignItems: 'center',
@@ -351,11 +351,11 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     marginBottom: Spacing.xs,
-    color: Colors.light.primary,
+    color: theme.primary,
   },
   taskProgressLabel: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   taskListContainer: {
     marginBottom: Spacing.xl,
@@ -367,7 +367,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   taskItem: {
     flexDirection: 'row',
@@ -376,18 +376,18 @@ export const styles = StyleSheet.create({
   },
   taskCompleted: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.m,
     textDecorationLine: 'line-through',
   },
   taskIncomplete: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     marginLeft: Spacing.m,
   },
   addTaskButton: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.m,
@@ -395,7 +395,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addTaskButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.s,
@@ -411,10 +411,10 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     paddingHorizontal: Spacing.s,
     borderRadius: BorderRadius.m,
-    // backgroundColor: Colors.light.backgroundPaper, // Optional
+    // backgroundColor: theme.backgroundPaper, // Optional
   },
   extraButtonText: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: Spacing.s,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -425,12 +425,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popoverContainer: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     width: '60%',
     alignItems: 'stretch',
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -443,13 +443,16 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.m,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   popoverButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.primary,
+    color: theme.primary,
   },
   lastPopoverButton: {
     borderBottomWidth: 0,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createTeamsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl,
     paddingBottom: Spacing.s,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: Spacing.xs,
@@ -33,13 +33,13 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
     marginRight: Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   tabContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.background,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.background,
   },
   tab: {
     flex: 1,
@@ -48,20 +48,20 @@ export const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: Colors.light.buttonPrimary,
+    borderBottomColor: theme.buttonPrimary,
   },
   tabText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   activeTabText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   createTeamButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     marginHorizontal: Spacing.l,
     marginTop: Spacing.m,
     marginBottom: Spacing.s,
@@ -75,7 +75,7 @@ export const styles = StyleSheet.create({
   createTeamText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   sectionLabel: {
     paddingHorizontal: Spacing.l,
@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     paddingBottom: Spacing.s,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.medium,
-    color: Colors.light.text,
+    color: theme.text,
   },
   teamsList: {},
   teamsListContent: {
@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
     paddingBottom: Spacing.l,
   },
   teamCard: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.l,
     overflow: 'hidden',
     marginBottom: Spacing.m,
@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: theme.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -116,11 +116,11 @@ export const styles = StyleSheet.create({
   teamName: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   teamMembers: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   chatButton: {
     width: IconSizes.xxl,
@@ -135,14 +135,14 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   actionButton: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
     borderRadius: BorderRadius.m,
@@ -150,11 +150,11 @@ export const styles = StyleSheet.create({
     marginHorizontal: Spacing.xs,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
   },
   actionButtonText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   suggestedTeamsList: {},
   suggestedTeamsListContent: {
@@ -162,7 +162,7 @@ export const styles = StyleSheet.create({
     paddingBottom: Spacing.l,
   },
   suggestedTeamCard: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
     marginBottom: Spacing.m,
@@ -171,16 +171,16 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   suggestedTeamDescription: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.m,
     lineHeight: ResponsiveFontSizes.body * 1.4,
   },
   createSuggestedTeamButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.m,
     borderRadius: BorderRadius.m,
     alignItems: 'center',
@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
   createSuggestedTeamButtonText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
   errorText: {
     color: 'red',
@@ -200,7 +200,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: Spacing.xl,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   emptyContainer: {
     flex: 1,
@@ -210,8 +210,11 @@ export const styles = StyleSheet.create({
   },
   debugInfoText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: Spacing.s,
     textAlign: 'center',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createTeamsStyles(Colors.light);

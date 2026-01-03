@@ -3,7 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityInd
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(main)/profile.styles';
+import { createProfileStyles } from '../../styles/app/(main)/profile.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '../../hooks/useUser';
 import { UpdateUserProfilePayload} from '../../types/userTypes';
 import { Colors } from 'constants/Colors';
@@ -28,6 +29,10 @@ type EditableProfileFields = {
 };
 
 const ProfileScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createProfileStyles(currentColors);
+
+
   const router = useRouter();
   const { 
     profile: currentUserProfile, 
@@ -185,8 +190,8 @@ const ProfileScreen = () => {
   if (isLoadingUser && !currentUserProfile) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading Profile...</Text>
       </SafeAreaView>
     );
@@ -195,7 +200,7 @@ const ProfileScreen = () => {
   if (userError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Text style={styles.errorText}>Error loading profile: {userError.message}</Text>
       </SafeAreaView>
     );
@@ -204,7 +209,7 @@ const ProfileScreen = () => {
   if (!currentUserProfile) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <Text>No profile data found.</Text>
          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/signIn')}>
             <Text style={styles.buttonText}>Go to Sign In</Text>
@@ -216,7 +221,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>
@@ -231,7 +236,7 @@ const ProfileScreen = () => {
           />
           {isEditing && (
             <TouchableOpacity style={styles.editImageButton} onPress={handleEditAvatar}>
-              <Ionicons name="camera-outline" size={20} color={Colors.light.primaryContrastText} />
+              <Ionicons name="camera-outline" size={20} color={currentColors.primaryContrastText} />
             </TouchableOpacity>
           )}
         </View>
@@ -278,7 +283,7 @@ const ProfileScreen = () => {
                 countryPickerButtonStyle={styles.phoneInputCountryPicker}
                 textInputProps={{
                   placeholder: "Your Phone Number",
-                  placeholderTextColor: Colors.light.textSecondary,
+                  placeholderTextColor: currentColors.textSecondary,
                 }}
               />
             ) : (

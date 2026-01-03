@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Modal,  StatusBar, Image, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImage } from '@/services/storageService';
 import { WebsitePayload, UpdateEventWebsiteDetailsPayload, EventWebsiteSection, Theme } from '@/types/eventTypes';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useTheme } from '@/context/ThemeContext';
 import { generateSlug, isValidSlug, suggestEventSlug } from '../../utils/eventWebsiteUtils';
 import { useAlert } from '@/context/AlertContext';
@@ -26,6 +26,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { currentColors } = useAppTheme();
   const { showError, showInfo } = useAlert();
   const [title, setTitle] = useState(initialWebsiteData?.title || '');
   const [customUrlSlug, setCustomUrlSlug] = useState(initialWebsiteData?.customUrlSlug || '');
@@ -141,13 +142,317 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
     onSubmit(payload);
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: currentColors.backgroundPaper,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: currentColors.border,
+      backgroundColor: currentColors.backgroundPrimary,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    headerButton: {
+      padding: 5,
+    },
+    headerButtonText: {
+      fontSize: 16,
+      color: currentColors.primary,
+      fontWeight: '600',
+    },
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: 20,
+    },
+    fieldContainer: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      color: currentColors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    requiredStar: {
+      color: currentColors.error,
+    },
+    input: {
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    textArea: {
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+    headerPreviewImage: {
+      width: '100%',
+      height: 180,
+      borderRadius: 8,
+      marginBottom: 10,
+      backgroundColor: currentColors.border, 
+    },
+    imagePlaceholder: {
+      width: '100%',
+      height: 180,
+      borderRadius: 8,
+      backgroundColor: currentColors.backgroundSecondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderStyle: 'dashed',
+    },
+    imagePlaceholderText: {
+      marginTop: 8,
+      color: currentColors.textSecondary,
+      fontSize: 14,
+    },
+    uploadButton: {
+      backgroundColor: currentColors.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 5,
+    },
+    uploadButtonText: {
+      color: currentColors.primaryContrastText,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    removeImageButton: {
+      backgroundColor: currentColors.error + '30',
+      marginTop: 8,
+    },
+    removeImageButtonText: {
+      color: currentColors.error,
+    },
+    sectionsHeader: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+      marginTop: 10,
+      marginBottom: 15,
+      borderTopWidth: 1,
+      borderTopColor: currentColors.divider,
+      paddingTop: 15,
+    },
+    sectionItem: {
+      marginBottom: 20,
+      padding: 15,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+    },
+    addSectionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: currentColors.tint + '30', 
+      paddingVertical: 12,
+      borderRadius: 8,
+      marginTop: 10,
+    },
+    addSectionButtonText: {
+      color: currentColors.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    removeSectionButton: {
+      marginTop: 10,
+      alignSelf: 'flex-end',
+    },
+    removeSectionButtonText: {
+      color: currentColors.error,
+      fontSize: 14,
+    },
+    themeSelectorButton: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 12, 
+      minHeight: 48, 
+    },
+    themeSelectorButtonText: {
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    toggleButton: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: currentColors.backgroundPaper,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      minHeight: 48,
+    },
+    toggleButtonText: {
+      fontSize: 16,
+      color: currentColors.text,
+    },
+    modalOverlay: {
+      flex: 1,
+      justifyContent: 'flex-end', 
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+      backgroundColor: currentColors.background, 
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+      paddingBottom: 30,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: -2, 
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: currentColors.text,
+      marginBottom: 15,
+      textAlign: 'center',
+    },
+    pickerInModal: {
+      width: '100%',
+ 
+      color: currentColors.text,
+      backgroundColor: currentColors.backgroundPaper, 
+      marginBottom: 20,
+    },
+    modalCloseButton: {
+      backgroundColor: currentColors.primary,
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    modalCloseButtonText: {
+      color: currentColors.primaryContrastText,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    dragHint: {
+      textAlign: 'center',
+      color: currentColors.textSecondary,
+      fontSize: 14,
+      marginBottom: 10,
+      fontStyle: 'italic',
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    sectionNumber: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: currentColors.text,
+    },
+    sectionItemDragging: {
+      shadowColor: currentColors.primary,
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 8,
+    },
+    dragHandle: {
+      position: 'absolute',
+      right: 15,
+      top: 15,
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    themePreviewContainer: {
+      marginTop: 15,
+      padding: 15,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: currentColors.border,
+      alignItems: 'center',
+    },
+    themePreviewTitle: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      marginBottom: 8,
+    },
+    themePreviewText: {
+      fontSize: 14,
+      textAlign: 'center',
+      marginBottom: 10,
+    },
+    themePreviewButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 5,
+      marginTop: 10,
+    },
+    themePreviewButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    richEditorContainer: {
+      minHeight: 200,
+      marginBottom: 10,
+    },
+    suggestButton: {
+      backgroundColor: currentColors.backgroundSecondary,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 6,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    suggestButtonText: {
+      color: currentColors.primary,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+  }), [currentColors]);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.headerButton}>
-          <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+          <Ionicons name="close-outline" size={28} color={currentColors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Event Website</Text>
         <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
@@ -163,7 +468,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
             value={title}
             onChangeText={setTitle}
             placeholder="My Awesome Event Page"
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
           />
         </View>
 
@@ -176,7 +481,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
               onChangeText={(text) => setCustomUrlSlug(generateSlug(text))}
               placeholder="e.g., my-event-2025"
               autoCapitalize="none"
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
             />
             {!customUrlSlug && title && (
               <TouchableOpacity 
@@ -198,13 +503,13 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
             <Image source={{ uri: headerImageUrl }} style={styles.headerPreviewImage} />
           ) : (
             <View style={styles.imagePlaceholder}>
-              <Ionicons name="image-outline" size={50} color={Colors.light.textSecondary} />
+              <Ionicons name="image-outline" size={50} color={currentColors.textSecondary} />
               <Text style={styles.imagePlaceholderText}>No header image selected</Text>
             </View>
           )}
           <TouchableOpacity style={styles.uploadButton} onPress={handlePickHeaderImage} disabled={isUploadingHeader}>
             {isUploadingHeader ? (
-              <ActivityIndicator size="small" color={Colors.light.primaryContrastText} />
+              <ActivityIndicator size="small" color={currentColors.primaryContrastText} />
             ) : (
               <Text style={styles.uploadButtonText}>Upload Header Image</Text>
             )}
@@ -237,7 +542,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
             <Text style={styles.themeSelectorButtonText}>
               {availableThemes.find(t => t.id === selectedWebsiteThemeId)?.name || 'Select a theme'}
             </Text>
-            <Ionicons name="chevron-down-outline" size={20} color={Colors.light.textSecondary} />
+            <Ionicons name="chevron-down-outline" size={20} color={currentColors.textSecondary} />
           </TouchableOpacity>
 
           {previewTheme && (
@@ -299,7 +604,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
             <Ionicons
               name={published ? 'toggle-sharp' : 'toggle-outline'} 
               size={32}
-              color={published ? Colors.light.primary : Colors.light.textSecondary}
+              color={published ? currentColors.primary : currentColors.textSecondary}
             />
           </TouchableOpacity>
         </View>
@@ -336,7 +641,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
                       value={item.title}
                       onChangeText={(text) => index !== undefined ? handleSectionChange(index, 'title', text) : null}
                       placeholder="e.g., Our Story, Schedule, Gallery"
-                      placeholderTextColor={Colors.light.textSecondary}
+                      placeholderTextColor={currentColors.textSecondary}
                     />
                     
                     <Text style={[styles.label, {marginTop: 10}]}>Content</Text>
@@ -350,7 +655,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
                     </View>
                     
                     <View style={styles.dragHandle}>
-                      <Ionicons name="menu" size={24} color={Colors.light.textSecondary} />
+                      <Ionicons name="menu" size={24} color={currentColors.textSecondary} />
                     </View>
                   </TouchableOpacity>
                 </ScaleDecorator>
@@ -358,7 +663,7 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
             }}
           />
           <TouchableOpacity onPress={addSection} style={styles.addSectionButton}>
-            <Ionicons name="add-circle-outline" size={24} color={Colors.light.primary} style={{marginRight: 5}}/>
+            <Ionicons name="add-circle-outline" size={24} color={currentColors.primary} style={{marginRight: 5}}/>
             <Text style={styles.addSectionButtonText}>Add Section</Text>
           </TouchableOpacity>
       </ScrollView>
@@ -366,309 +671,5 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
     </GestureHandlerRootView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-    backgroundColor: Colors.light.backgroundPrimary,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  headerButton: {
-    padding: 5,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  requiredStar: {
-    color: Colors.light.error,
-  },
-  input: {
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  headerPreviewImage: {
-    width: '100%',
-    height: 180,
-    borderRadius: 8,
-    marginBottom: 10,
-    backgroundColor: Colors.light.border, 
-  },
-  imagePlaceholder: {
-    width: '100%',
-    height: 180,
-    borderRadius: 8,
-    backgroundColor: Colors.light.backgroundSecondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderStyle: 'dashed',
-  },
-  imagePlaceholderText: {
-    marginTop: 8,
-    color: Colors.light.textSecondary,
-    fontSize: 14,
-  },
-  uploadButton: {
-    backgroundColor: Colors.light.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  uploadButtonText: {
-    color: Colors.light.primaryContrastText,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  removeImageButton: {
-    backgroundColor: Colors.light.error + '30',
-    marginTop: 8,
-  },
-  removeImageButtonText: {
-    color: Colors.light.error,
-  },
-  sectionsHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginTop: 10,
-    marginBottom: 15,
-    borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
-    paddingTop: 15,
-  },
-  sectionItem: {
-    marginBottom: 20,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-  },
-  addSectionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.light.tint + '30', 
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  addSectionButtonText: {
-    color: Colors.light.primary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  removeSectionButton: {
-    marginTop: 10,
-    alignSelf: 'flex-end',
-  },
-  removeSectionButtonText: {
-    color: Colors.light.error,
-    fontSize: 14,
-  },
-  themeSelectorButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12, 
-    minHeight: 48, 
-  },
-  themeSelectorButtonText: {
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  toggleButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 48,
-  },
-  toggleButtonText: {
-    fontSize: 16,
-    color: Colors.light.text,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end', 
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: Colors.light.background, 
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -2, 
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  pickerInModal: {
-    width: '100%',
- 
-    color: Colors.light.text,
-    backgroundColor: Colors.light.backgroundPaper, 
-    marginBottom: 20,
-  },
-  modalCloseButton: {
-    backgroundColor: Colors.light.primary,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  modalCloseButtonText: {
-    color: Colors.light.primaryContrastText,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  dragHint: {
-    textAlign: 'center',
-    color: Colors.light.textSecondary,
-    fontSize: 14,
-    marginBottom: 10,
-    fontStyle: 'italic',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  sectionNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.light.text,
-  },
-  sectionItemDragging: {
-    shadowColor: Colors.light.primary,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  dragHandle: {
-    position: 'absolute',
-    right: 15,
-    top: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  themePreviewContainer: {
-    marginTop: 15,
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    alignItems: 'center',
-  },
-  themePreviewTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  themePreviewText: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  themePreviewButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  themePreviewButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  richEditorContainer: {
-    minHeight: 200,
-    marginBottom: 10,
-  },
-  suggestButton: {
-    backgroundColor: Colors.light.backgroundSecondary,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  suggestButtonText: {
-    color: Colors.light.primary,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-});
 
 export default EventWebsiteForm;

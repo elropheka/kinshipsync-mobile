@@ -4,12 +4,14 @@ import { Platform } from 'react-native';
 import BackButton from '@/components/common/Navigation/BackButton';
 import { Colors } from '@/constants/Colors';
 import { StatusBar } from 'expo-status-bar';
+import { useAppTheme } from '@/context/AppThemeContext';
 
 function VendorsStack() {
+  const { currentColors } = useAppTheme();
   return (
     <>
-    <StatusBar 
-            backgroundColor={Platform.OS === 'android' ? Colors.light.backgroundSecondary : undefined} 
+    <StatusBar
+            backgroundColor={Platform.OS === 'android' ? currentColors.backgroundSecondary : undefined}
             style="dark"
             translucent={Platform.OS === 'android' ? false : undefined}
           />
@@ -21,7 +23,7 @@ function VendorsStack() {
           fontFamily: 'Poppins',
         },
          headerStyle: {
-                  backgroundColor: Colors.dark.accent,
+                  backgroundColor: currentColors.accent,
                 },
         headerBackVisible: false,
         presentation: 'card',

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, FlatList,  StatusBar, Platform} from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '@/styles/app/(events)/tasks.styles';
+import { createTasksStyles } from '@/styles/app/(events)/tasks.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 
 
@@ -15,6 +16,10 @@ interface TaskCategory {
 }
 
 const TasksTimelinePage: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createTasksStyles(currentColors);
+
+
  
   const taskCategories: TaskCategory[] = [
     {
@@ -58,7 +63,7 @@ const TasksTimelinePage: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
    
       <Stack.Screen options={{ title: "Tasks" }} /> 
      

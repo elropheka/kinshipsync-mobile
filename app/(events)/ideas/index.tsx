@@ -12,7 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { styles } from '../../../styles/app/(events)/ideas/index.styles';
+import { createIndexStyles } from '../../../styles/app/(events)/ideas/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { 
@@ -38,6 +39,10 @@ const formatDate = (isoString: string) => {
 
 
 const EventIdeasScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user: currentUser } = useAppAuth();
   const isAuthenticated = !!currentUser; // Correctly derive isAuthenticated
@@ -150,11 +155,11 @@ const EventIdeasScreen = () => {
         {item.description && <Text style={styles.ideaText}>{item.description}</Text>}
         <View style={styles.ideaActions}>
           <TouchableOpacity style={styles.voteButton} onPress={() => handleVote(item.id, 'up')}>
-            <Icon name="thumb-up-off-alt" size={20} color={Colors.light.primary} />
+            <Icon name="thumb-up-off-alt" size={20} color={currentColors.primary} />
             <Text style={styles.voteCount}>{item.votes}</Text>
           </TouchableOpacity>
           {/* <TouchableOpacity style={styles.voteButton} onPress={() => handleVote(item.id, 'down')}>
-            <Icon name="thumb-down-off-alt" size={20} color={Colors.light.error} />
+            <Icon name="thumb-down-off-alt" size={20} color={currentColors.error} />
             <Text style={styles.voteCount}>{item.downvotes}</Text> 
           </TouchableOpacity> */}
 
@@ -175,7 +180,7 @@ const EventIdeasScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: `Ideas: ${eventDetails?.name || 'Event'}` }} /> {/* Update title dynamically if needed */}
       {/* Custom header View removed - this diff just corrects the import location */}
 
@@ -194,7 +199,7 @@ const EventIdeasScreen = () => {
 
       {ideas.length === 0 && !isLoadingIdeas ? (
          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontSize: 16, color: Colors.light.textSecondary}}>No ideas posted yet. Be the first!</Text>
+            <Text style={{fontSize: 16, color: currentColors.textSecondary}}>No ideas posted yet. Be the first!</Text>
          </View>
       ) : (
         <FlatList

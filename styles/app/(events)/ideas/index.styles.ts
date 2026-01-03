@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -22,9 +22,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.m,
     paddingTop: Platform.OS === 'android' ? Spacing.xl : Spacing.xxl,
     paddingBottom: Spacing.m,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   backButton: {
     padding: Spacing.xs,
@@ -34,17 +34,17 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.bold,
     flex: 1,
     textAlign: 'center',
-    color: Colors.light.text,
+    color: theme.text,
     // marginRight: Spacing.xl, // To balance back button if it was on the left
   },
   newIdeaContainer: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     padding: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   newIdeaInput: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderRadius: BorderRadius.m,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
@@ -52,16 +52,16 @@ export const styles = StyleSheet.create({
     minHeight: moderateScale(60),
     textAlignVertical: 'top',
     marginBottom: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   postIdeaButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.m,
     borderRadius: BorderRadius.m,
     alignItems: 'center',
   },
   postIdeaButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.semiBold,
   },
@@ -72,14 +72,14 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: Spacing.xxl,
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   ideaItemContainer: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.s,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: moderateScale(2),
@@ -87,18 +87,18 @@ export const styles = StyleSheet.create({
   },
   ideaAuthor: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.xs,
   },
   ideaTitle: {
     fontSize: ResponsiveFontSizes.title, // Use existing 'title' size
     fontWeight: Fonts.weights.semiBold, // Bolder
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.xxs, // Less margin than description
   },
   ideaText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: Spacing.s,
     lineHeight: ResponsiveFontSizes.subtitle * 1.375,
   },
@@ -108,7 +108,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: Spacing.s,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.divider,
+    borderTopColor: theme.divider,
   },
   voteButton: {
     flexDirection: 'row',
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
   voteCount: {
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
   },
   commentToggleButton: {
     flexDirection: 'row',
@@ -128,13 +128,13 @@ export const styles = StyleSheet.create({
   commentToggleText: {
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   commentsSection: {
     marginTop: Spacing.s,
     paddingTop: Spacing.s,
     borderTopWidth: 1,
-    borderTopColor: Colors.light.backgroundPaper,
+    borderTopColor: theme.backgroundPaper,
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -144,47 +144,47 @@ export const styles = StyleSheet.create({
   },
   commentInput: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     fontSize: ResponsiveFontSizes.body,
     marginRight: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
   },
   postCommentButtonSmall: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.m,
   },
   postCommentButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.caption,
     fontWeight: Fonts.weights.medium,
   },
   commentContainer: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.s,
     padding: Spacing.s,
     marginTop: Spacing.s,
   },
   replyContainer: {
     marginLeft: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   commentAuthor: {
     fontSize: ResponsiveFontSizes.caption,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   commentTimestamp: {
     fontSize: ResponsiveFontSizes.small,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   commentText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.text,
+    color: theme.text,
     marginTop: Spacing.xxs,
     marginBottom: Spacing.xs,
   },
@@ -194,13 +194,16 @@ export const styles = StyleSheet.create({
   },
   replyButtonText: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   noCommentsText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     paddingVertical: Spacing.s,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createIndexStyles(Colors.light);

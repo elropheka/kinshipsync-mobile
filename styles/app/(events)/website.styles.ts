@@ -10,10 +10,10 @@ import {
   moderateScale,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createWebsiteStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.s : Spacing.m,
     paddingBottom: Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   backButton: {
     padding: Spacing.s,
@@ -32,14 +32,14 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
     marginRight: Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   tabItem: {
     flex: 1,
@@ -48,21 +48,21 @@ export const styles = StyleSheet.create({
     paddingTop: Spacing.s,
     paddingBottom: Spacing.s,
     borderBottomWidth: moderateScale(4),
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: theme.divider,
   },
   lastTab: {
     marginRight: 0,
   },
   activeTab: {
-    borderBottomColor: Colors.light.buttonPrimary,
+    borderBottomColor: theme.buttonPrimary,
   },
   tabText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.s,
   },
   activeTabText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.medium,
   },
   previewTitle: {
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.l,
     marginBottom: Spacing.m,
-    color: Colors.light.text,
+    color: theme.text,
   },
   previewContainer: {
     flex: 1,
@@ -81,10 +81,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     borderRadius: BorderRadius.l,
     overflow: 'hidden',
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
   },
   websiteHeader: {
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     paddingVertical: Spacing.m,
     alignItems: 'center',
   },
@@ -92,7 +92,7 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     letterSpacing: 2,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   weddingImage: {
     width: '100%',
@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
   },
   websiteFooter: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundPrimary,
+    backgroundColor: theme.backgroundPrimary,
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: Spacing.l,
@@ -116,21 +116,21 @@ export const styles = StyleSheet.create({
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     letterSpacing: 2,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   ampersand: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     paddingHorizontal: Spacing.m,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   weddingDate: {
     fontSize: ResponsiveFontSizes.subtitle,
     letterSpacing: 1,
-    color: Colors.light.textDarkContrast,
+    color: theme.textDarkContrast,
   },
   doneButton: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.l,
     marginHorizontal: Spacing.l,
@@ -141,6 +141,9 @@ export const styles = StyleSheet.create({
   doneButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createWebsiteStyles(Colors.light);

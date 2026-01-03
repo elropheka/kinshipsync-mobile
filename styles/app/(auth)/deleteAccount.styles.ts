@@ -2,10 +2,10 @@ import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 import { Spacing, BorderRadius, ResponsiveFontSizes } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   loadingContainer: {
     flex: 1,
@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   scrollView: {
     flex: 1,
@@ -25,26 +25,26 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 20,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 16,
     marginBottom: 24,
   },
   warningTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.light.error,
+    color: theme.error,
     marginTop: 16,
     marginBottom: 8,
     textAlign: 'center',
   },
   warningSubtitle: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
   dataSection: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: 16,
   },
   dataItem: {
@@ -62,32 +62,32 @@ export const styles = StyleSheet.create({
   },
   dataItemText: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: theme.text,
     marginLeft: 12,
   },
   noDataSection: {
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 20,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 16,
     marginBottom: 24,
   },
   noDataText: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.light.success,
+    color: theme.success,
     marginTop: 16,
     marginBottom: 8,
   },
   noDataSubtext: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   whatHappensSection: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 16,
     padding: 20,
     marginBottom: 32,
@@ -99,7 +99,7 @@ export const styles = StyleSheet.create({
   },
   whatHappensText: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: theme.text,
     marginLeft: 12,
   },
   buttonContainer: {
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
     marginBottom: 32,
   },
   deleteButton: {
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -125,14 +125,14 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cancelButton: {
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -148,7 +148,7 @@ export const styles = StyleSheet.create({
     padding: 20,
   },
   confirmationModal: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
@@ -158,14 +158,14 @@ export const styles = StyleSheet.create({
   confirmationTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.light.error,
+    color: theme.error,
     marginTop: 16,
     marginBottom: 16,
     textAlign: 'center',
   },
   confirmationText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 24,
@@ -177,7 +177,7 @@ export const styles = StyleSheet.create({
   },
   confirmDeleteButton: {
     flex: 1,
-    backgroundColor: Colors.light.error,
+    backgroundColor: theme.error,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
@@ -189,14 +189,17 @@ export const styles = StyleSheet.create({
   },
   cancelConfirmButton: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
   },
   cancelConfirmButtonText: {
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createDeleteAccountStyles(Colors.light);

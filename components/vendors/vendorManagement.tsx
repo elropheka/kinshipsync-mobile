@@ -8,13 +8,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { styles } from '../../styles/components/vendors/vendorManagement.styles';
-import { Colors } from '../../constants/Colors';
 import { Vendor } from '../../types/vendorTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useUserVendors } from '../../hooks/useVendors';
 import { router } from 'expo-router';
 const VendorManagementScreen = () => {
+  const { currentColors } = useAppTheme();
   const { user } = useAppAuth();
 
   const {
@@ -53,13 +54,13 @@ const VendorManagementScreen = () => {
             <Text style={styles.vendorCategory}>{categoryName}</Text>
             {vendor.averageRating !== undefined && vendor.averageRating > 0 && (
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color={Colors.light.tint} />
+                <Ionicons name="star" size={16} color={currentColors.tint} />
                 <Text style={styles.ratingText}>{vendor.averageRating.toFixed(1)}</Text>
               </View>
             )}
           </View>
           <TouchableOpacity style={styles.chevronButton} onPress={() => handleNavigateToDetails(vendor.id)}>
-            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            <Ionicons name="chevron-forward" size={24} color={currentColors.textSecondary} />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -69,7 +70,7 @@ const VendorManagementScreen = () => {
   if (isLoadingUserVendors) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={Colors.light.tint} style={styles.loader} />
+        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
       </SafeAreaView>
     );
   }

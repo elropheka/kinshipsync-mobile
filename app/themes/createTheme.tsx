@@ -4,6 +4,7 @@ import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
 import Fonts from '../../constants/fonts';
+import { useAppTheme } from '../../context/AppThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAlert } from '@/context/AlertContext';
@@ -11,18 +12,19 @@ import { useAlert } from '@/context/AlertContext';
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
 
 const CreateThemeScreen = () => {
+  const { currentColors } = useAppTheme();
   const { user, isAuthenticated } = useAuth();
   const { refreshAvailableThemes } = useTheme();
   const { showSuccess, showError } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [themeName, setThemeName] = useState('');
-  const [primaryColor, setPrimaryColor] = useState(Colors.light.primary);
-  const [secondaryColor, setSecondaryColor] = useState(Colors.light.accent);
-  const [accentColor, setAccentColor] = useState(Colors.light.accentHighlight);
-  const [backgroundColor, setBackgroundColor] = useState(Colors.light.background);
-  const [textColor, setTextColor] = useState(Colors.light.text);
-  const [cardBgColor, setCardBgColor] = useState(Colors.light.backgroundPaper);
-  const [borderColor, setBorderColor] = useState(Colors.light.border);
+  const [primaryColor, setPrimaryColor] = useState(currentColors.primary);
+  const [secondaryColor, setSecondaryColor] = useState(currentColors.accent);
+  const [accentColor, setAccentColor] = useState(currentColors.accentHighlight);
+  const [backgroundColor, setBackgroundColor] = useState(currentColors.background);
+  const [textColor, setTextColor] = useState(currentColors.text);
+  const [cardBgColor, setCardBgColor] = useState(currentColors.backgroundPaper);
+  const [borderColor, setBorderColor] = useState(currentColors.border);
 
   const [headingFont, setHeadingFont] = useState<FontSettings>({
     fontFamily: Fonts.headerMedium,
@@ -86,7 +88,7 @@ const CreateThemeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: 'Create New Theme' }} />
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.label}>Theme Name</Text>
@@ -139,9 +141,9 @@ const CreateThemeScreen = () => {
         
         <View style={styles.buttonContainer}>
           {isLoading ? (
-            <ActivityIndicator size="large" color={Colors.light.primary} />
+            <ActivityIndicator size="large" color={currentColors.primary} />
           ) : (
-            <Button title="Save Theme" onPress={handleSaveTheme} color={Colors.light.primary} />
+            <Button title="Save Theme" onPress={handleSaveTheme} color={currentColors.primary} />
           )}
         </View>
       </ScrollView>
@@ -152,36 +154,36 @@ const CreateThemeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: currentColors.background,
   },
   contentContainer: {
     padding: 20,
   },
   label: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: currentColors.textSecondary,
     marginBottom: 6,
     marginTop: 10,
   },
   input: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: currentColors.backgroundPaper,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: currentColors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: Colors.light.text,
+    color: currentColors.text,
     marginBottom: 15,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.light.primary,
+    color: currentColors.primary,
     marginTop: 20,
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
+    borderBottomColor: currentColors.divider,
     paddingBottom: 5,
   },
   buttonContainer: {

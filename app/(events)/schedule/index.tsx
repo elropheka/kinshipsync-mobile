@@ -3,7 +3,8 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, P
 import { Stack, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../../styles/app/(events)/schedule/index.styles';
+import { createIndexStyles } from '../../../styles/app/(events)/schedule/index.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import ScheduleItemForm from '@/components/events/ScheduleItemForm'; 
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
@@ -24,6 +25,10 @@ import { Colors } from '../../../constants/Colors';
 
 
 const EventScheduleScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createIndexStyles(currentColors);
+
+
   const { eventId } = useLocalSearchParams<{ eventId?: string }>();
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
@@ -176,10 +181,10 @@ const EventScheduleScreen = () => {
       {isPlannerMode && (
         <View style={styles.itemActions}>
           <TouchableOpacity onPress={() => handleEditItem(item)} style={styles.actionButton}>
-            <Icon name="edit" size={22} color={Colors.light.primary} />
+            <Icon name="edit" size={22} color={currentColors.primary} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleDeleteItem(item.id)} style={styles.actionButton}>
-            <Icon name="delete" size={22} color={Colors.light.error} />
+            <Icon name="delete" size={22} color={currentColors.error} />
           </TouchableOpacity>
         </View>
       )}
@@ -196,7 +201,7 @@ const EventScheduleScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen 
         options={{ 
           title: `Schedule: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'Details')}`,
@@ -213,7 +218,7 @@ const EventScheduleScreen = () => {
 
       {scheduleItems.length === 0 && !isLoading ? (
          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontSize: 16, color: Colors.light.textSecondary}}>No schedule items yet.</Text>
+            <Text style={{fontSize: 16, color: currentColors.textSecondary}}>No schedule items yet.</Text>
          </View>
       ) : (
         <FlatList

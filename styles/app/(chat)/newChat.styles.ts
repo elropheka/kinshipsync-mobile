@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createNewChatStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -16,8 +16,8 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   backButton: {
     padding: Spacing.s,
@@ -25,14 +25,14 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
     flex: 1,
     textAlign: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginHorizontal: Spacing.m,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.body,
   },
   list: {
@@ -56,21 +56,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   avatar: {
     width: moderateScale(44),
     height: moderateScale(44),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.m,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   avatarPlaceholder: {
     width: moderateScale(44),
     height: moderateScale(44),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
@@ -81,11 +81,11 @@ export const styles = StyleSheet.create({
   userName: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   userEmail: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   emptyListContainer: {
     flex: 1,
@@ -95,7 +95,10 @@ export const styles = StyleSheet.create({
   },
   emptyListText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createNewChatStyles(Colors.light);

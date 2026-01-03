@@ -4,7 +4,8 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { styles } from '@/styles/app/(events)/createEvent.styles';
+import { createCreateEventStyles } from '@/styles/app/(events)/createEvent.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from 'constants/Colors';
 import { useEventDetail } from '@/hooks/useEvents'; 
 import { 
@@ -29,6 +30,10 @@ const EventWebsiteFormFallback = ({ initialWebsiteData, onSubmit, onCancel }: an
 EventWebsiteFormFallback.displayName = 'EventWebsiteFormFallback';
 
 const EditEventScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createCreateEventStyles(currentColors);
+
+
   const router = useRouter();
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
@@ -281,7 +286,7 @@ const EditEventScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter event name..."
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           value={name}
           onChangeText={setName}
         />
@@ -294,7 +299,7 @@ const EditEventScreen = () => {
             <Text style={selectedDate ? styles.datePickerTextSelected : styles.datePickerText}>
               {selectedDate.toLocaleDateString() || 'Select Date'}
             </Text>
-            <Ionicons name="calendar-outline" size={20} color={Colors.light.icon} />
+            <Ionicons name="calendar-outline" size={20} color={currentColors.icon} />
           </View>
         </TouchableOpacity>
       </View>
@@ -306,7 +311,7 @@ const EditEventScreen = () => {
             <Text style={time ? styles.datePickerTextSelected : styles.datePickerText}>
               {time || 'Select Time'}
             </Text>
-            <Ionicons name="time-outline" size={20} color={Colors.light.icon} />
+            <Ionicons name="time-outline" size={20} color={currentColors.icon} />
           </View>
         </TouchableOpacity>
       </View>
@@ -323,7 +328,7 @@ const EditEventScreen = () => {
           />
           <TouchableOpacity 
             style={{ 
-              backgroundColor: Colors.light.primary, 
+              backgroundColor: currentColors.primary, 
               padding: 10, 
               borderRadius: 5, 
               marginTop: 10,
@@ -341,7 +346,7 @@ const EditEventScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Enter location or venue..."
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           value={location}
           onChangeText={setLocation}
         />
@@ -404,7 +409,7 @@ const EditEventScreen = () => {
         <TextInput
           style={[styles.input, styles.multilineInput]}
           placeholder="Add a description for your event..."
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           value={description}
           onChangeText={setDescription}
           multiline={true}
@@ -524,7 +529,7 @@ const EditEventScreen = () => {
   if (isLoadingEvent) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading event details...</Text>
       </View>
     );
@@ -533,9 +538,9 @@ const EditEventScreen = () => {
   if (!event) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: Colors.light.error, fontSize: 16 }}>Event not found.</Text>
+        <Text style={{ color: currentColors.error, fontSize: 16 }}>Event not found.</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-          <Text style={{ color: Colors.light.primary }}>Go Back</Text>
+          <Text style={{ color: currentColors.primary }}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -546,7 +551,7 @@ const EditEventScreen = () => {
       <Stack.Screen options={{ title: "Edit Event" }} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => currentStep === 1 ? router.back() : handlePreviousStep()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={Colors.light.tint} />
+          <Ionicons name="chevron-back" size={24} color={currentColors.tint} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Event - Step {currentStep}</Text>
         <View style={{width: 24}} />
@@ -631,15 +636,15 @@ const EditEventScreen = () => {
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setIsUserPickerVisible(false)} style={styles.backButton}>
-              <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+              <Ionicons name="close-outline" size={28} color={currentColors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Select Viewers</Text>
             <TouchableOpacity onPress={() => setIsUserPickerVisible(false)} style={styles.backButton} >
-              <Text style={{color: Colors.light.primary, fontSize: 16, fontWeight: '600'}}>Done</Text>
+              <Text style={{color: currentColors.primary, fontSize: 16, fontWeight: '600'}}>Done</Text>
             </TouchableOpacity>
           </View>
           {isLoadingUsers ? (
-            <ActivityIndicator style={{marginTop: 20}} size="large" color={Colors.light.primary} />
+            <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />
           ) : (
             <MultiUserPicker
               users={allUsersForPicker.filter(u => u.userId !== currentUser?.uid)}

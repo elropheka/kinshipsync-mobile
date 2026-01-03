@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createVendorDetailsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   scrollContentContainer: {
     paddingBottom: 20, // Ensure space for content at the bottom
@@ -17,13 +17,13 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: 'center',
-    color: Colors.light.error,
+    color: theme.error,
     margin: 16,
     fontSize: 16,
   },
   emptyText: {
     textAlign: 'center',
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     margin: 16,
     fontSize: 16,
   },
@@ -39,14 +39,14 @@ export const styles = StyleSheet.create({
     height: 200,
     borderRadius: 8,
     marginBottom: 16,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     justifyContent: 'center',
     alignItems: 'center',
   },
   vendorName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -59,41 +59,41 @@ export const styles = StyleSheet.create({
   ratingValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
     marginLeft: 4,
   },
   numberOfReviews: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
     marginTop: 20,
     marginBottom: 8,
     borderBottomWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     paddingBottom: 4,
   },
   descriptionText: {
     fontSize: 16,
     lineHeight: 24,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   infoText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   linkText: {
-    color: Colors.light.tint,
+    color: theme.tint,
     textDecorationLine: 'underline',
   },
   listItem: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginLeft: 8, // For bullet point effect
     marginBottom: 2,
   },
@@ -107,12 +107,12 @@ export const styles = StyleSheet.create({
     marginRight: 10,
   },
   reviewCard: {
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -123,7 +123,7 @@ export const styles = StyleSheet.create({
   reviewUser: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
   },
   ratingContainer: { // Re-used from category screen, ensure consistency or make specific
     flexDirection: 'row',
@@ -132,27 +132,27 @@ export const styles = StyleSheet.create({
   ratingText: { // Re-used
     marginLeft: 4,
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   reviewComment: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: 8,
   },
   reviewDate: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   // Styles for Vendor Item Cards within Vendor Details
   itemCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
   },
   itemImage: {
     width: 60,
@@ -165,7 +165,7 @@ export const styles = StyleSheet.create({
     height: 60,
     borderRadius: 4,
     marginRight: 10,
-    backgroundColor: Colors.light.backgroundSecondary, // Slightly different placeholder bg
+    backgroundColor: theme.backgroundSecondary, // Slightly different placeholder bg
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -175,16 +175,19 @@ export const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.light.text,
+    color: theme.text,
   },
   itemPriceText: {
     fontSize: 14,
-    color: Colors.light.primary,
+    color: theme.primary,
     marginTop: 4,
   },
   itemCategoryText: {
     fontSize: 12,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginTop: 2,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createVendorDetailsStyles(Colors.light);

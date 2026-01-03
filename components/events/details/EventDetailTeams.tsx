@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, TeamMember } from '../../../types/eventTypes';
-import { UserProfile } from '../../../types/userTypes';
-import EventTeamForm from '../../teams/EventTeamForm'; // Path to existing EventTeamForm
-import MultiUserPicker from '../../common/MultiUserPicker'; // Path to MultiUserPicker
-import { styles } from '../../../styles/app/(events)/details/[id].styles'; // Adjust path as needed
-import { Colors } from '../../../constants/Colors';
+import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, TeamMember } from '@/types/eventTypes';
+import { UserProfile } from '@/types/userTypes';
+import EventTeamForm from '@/components/teams/EventTeamForm';
+import MultiUserPicker from '@/components/common/MultiUserPicker';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailTeamsProps {
@@ -30,6 +30,8 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
   onRemoveTeamMember,
   isOrganizer = true
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const { showSuccess, showError, showConfirm } = useAlert();
   const [isEventTeamFormVisible, setIsEventTeamFormVisible] = useState(false);
   const [editingEventTeam, setEditingEventTeam] = useState<Partial<Omit<EventTeam, 'members'>> & { id?: string; members?: string[] } | undefined>(undefined);
@@ -151,10 +153,10 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
         {isOrganizer && (
           <View style={{flexDirection: 'row'}}>
             <TouchableOpacity onPress={() => handleOpenTeamMemberModal(team)} style={{ marginRight: 10 }}>
-              <Ionicons name="person-add-outline" size={24} color={Colors.light.primary} />
+              <Ionicons name="person-add-outline" size={24} color={currentColors.primary} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleDeleteTeamPress(team.id)}>
-              <Ionicons name="trash-outline" size={24} color={Colors.light.error} />
+              <Ionicons name="trash-outline" size={24} color={currentColors.error} />
             </TouchableOpacity>
           </View>
         )}
@@ -167,7 +169,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
               <Text style={styles.teamMemberName}>{memberProfile?.displayName || member.userId} ({member.role})</Text>
               {isOrganizer && (
                 <TouchableOpacity onPress={() => handleRemoveMemberPress(team.id, member.userId)}>
-                  <Ionicons name="remove-circle-outline" size={20} color={Colors.light.error} />
+                  <Ionicons name="remove-circle-outline" size={20} color={currentColors.error} />
                 </TouchableOpacity>
               )}
             </View>
@@ -185,7 +187,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
         <Text style={styles.sectionTitle}>Event Teams</Text>
         {isOrganizer && (
           <TouchableOpacity onPress={() => handleOpenEventTeamForm()}>
-            <Ionicons name="add-circle-outline" size={28} color={Colors.light.primary} />
+            <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -211,14 +213,14 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
 
       <Modal visible={isTeamMemberPickerVisible} animationType="slide" onRequestClose={() => setIsTeamMemberPickerVisible(false)}>
         <SafeAreaView style={{flex:1}}>
-          <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+          <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setIsTeamMemberPickerVisible(false)} style={styles.headerButton}>
-              <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+              <Ionicons name="close-outline" size={28} color={currentColors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Add Member to {managingTeamMembersFor?.name}</Text>
             <TouchableOpacity onPress={handleConfirmAddTeamMember} style={styles.headerButton} disabled={!selectedUserForTeam}>
-              <Text style={[styles.headerButtonText, !selectedUserForTeam && {color: Colors.light.textSecondary}]}>Add</Text>
+              <Text style={[styles.headerButtonText, !selectedUserForTeam && {color: currentColors.textSecondary}]}>Add</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.modalSubtitle}>Select User:</Text>

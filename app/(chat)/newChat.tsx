@@ -3,7 +3,8 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, I
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(chat)/newChat.styles';
+import { createNewChatStyles } from '../../styles/app/(chat)/newChat.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { UserProfile } from '../../types/userTypes';
 import * as userService from '../../services/userService';
 import { useConversations } from '../../hooks/useChat'; // To check existing and create new
@@ -13,6 +14,10 @@ import { Colors } from 'constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 
 const NewChatScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createNewChatStyles(currentColors);
+
+
   const router = useRouter();
   const { user: currentUser } = useAppAuth();
   const { isAuthenticated } = useAuth();
@@ -106,37 +111,37 @@ const NewChatScreen = () => {
         <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
       ) : (
         <View style={styles.avatarPlaceholder}>
-          <Ionicons name="person-outline" size={24} color={Colors.light.background} />
+          <Ionicons name="person-outline" size={24} color={currentColors.background} />
         </View>
       )}
       <View style={styles.userInfo}>
         <Text style={styles.userName}>{item.displayName}</Text>
         <Text style={styles.userEmail}>{item.email}</Text>
       </View>
-      {isCreatingChat && <ActivityIndicator size="small" color={Colors.light.primary} />}
+      {isCreatingChat && <ActivityIndicator size="small" color={currentColors.primary} />}
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: "New Chat" }} />
       {/* Custom header View removed */}
 
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={Colors.light.textSecondary} style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color={currentColors.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search for users..."
-          placeholderTextColor={Colors.light.textSecondary}
+          placeholderTextColor={currentColors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoFocus
         />
       </View>
 
-      {isLoadingSearch && searchQuery.trim().length > 1 && <ActivityIndicator style={{marginTop: 20}} size="large" color={Colors.light.primary} />}
-      {isLoadingInitialList && searchQuery.trim().length === 0 && <ActivityIndicator style={{marginTop: 20}} size="large" color={Colors.light.primary} />}
+      {isLoadingSearch && searchQuery.trim().length > 1 && <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />}
+      {isLoadingInitialList && searchQuery.trim().length === 0 && <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />}
       
       <FlatList
         data={searchQuery.trim().length > 1 ? searchResults : initialUserList}

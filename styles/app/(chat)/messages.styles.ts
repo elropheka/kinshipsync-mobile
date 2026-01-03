@@ -3,10 +3,10 @@ import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createMessagesStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: theme.background,
   },
   centered: {
     flex: 1,
@@ -16,19 +16,19 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
   retryButton: {
     marginTop: Spacing.m,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.s,
   },
   retryButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -40,13 +40,13 @@ export const styles = StyleSheet.create({
     paddingVertical: Spacing.s,
     paddingTop: Platform.OS === 'ios' ? Spacing.l : Spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light.divider,
-    backgroundColor: Colors.light.backgroundPaper,
+    borderBottomColor: theme.divider,
+    backgroundColor: theme.backgroundPaper,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   newMessageButton: {
     padding: Spacing.s,
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
     marginHorizontal: Spacing.m,
     marginVertical: Spacing.m,
     paddingHorizontal: Spacing.m,
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: Spacing.s,
-    color: Colors.light.text,
+    color: theme.text,
     fontSize: ResponsiveFontSizes.body,
   },
   messageList: {
@@ -77,20 +77,20 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.m,
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   avatar: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
     marginRight: Spacing.m,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
   },
   avatarPlaceholder: {
     width: moderateScale(50),
     height: moderateScale(50),
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.m,
@@ -107,18 +107,18 @@ export const styles = StyleSheet.create({
   senderName: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.semiBold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   messageTime: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   lastMessage: {
     fontSize: ResponsiveFontSizes.caption,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
   },
   unreadBadge: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     borderRadius: BorderRadius.round,
     paddingHorizontal: Spacing.xs,
     paddingVertical: Spacing.xxs,
@@ -129,31 +129,31 @@ export const styles = StyleSheet.create({
     marginLeft: Spacing.s,
   },
   unreadText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.small,
     fontWeight: Fonts.weights.bold,
   },
   separator: {
     height: 1,
-    backgroundColor: Colors.light.divider,
+    backgroundColor: theme.divider,
     marginLeft: Spacing.m + moderateScale(50) + Spacing.m,
   },
   emptyListText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     marginTop: Spacing.xl,
   },
   emptyListButton: {
     marginTop: Spacing.m,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: Spacing.s,
     paddingHorizontal: Spacing.l,
     borderRadius: BorderRadius.s,
     alignSelf: 'center',
   },
   emptyListButtonText: {
-    color: Colors.light.primaryContrastText,
+    color: theme.primaryContrastText,
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
   },
@@ -161,16 +161,19 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     right: Spacing.l,
     bottom: Spacing.l,
-    backgroundColor: Colors.light.primary,
+    backgroundColor: theme.primary,
     width: moderateScale(56),
     height: moderateScale(56),
     borderRadius: moderateScale(28),
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 8,
-    shadowColor: Colors.light.text,
+    shadowColor: theme.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createMessagesStyles(Colors.light);

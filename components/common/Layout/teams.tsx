@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router'; // Import useFocusEffect
-import { styles } from '../../../styles/components/common/Layout/teams.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
+import { createTeamsStyles } from '../../../styles/components/common/Layout/teams.styles';
 import { Team, SuggestedTeam } from '../../../types/teamTypes'; // Removed TeamType
 import { getTeamsForUser } from '../../../services/teamService'; // Import team service
 import { AuthContext } from '../../../context/AuthContext'; // To get current user ID
@@ -22,6 +23,8 @@ const CommunicationPage = () => {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const currentUser = authContext?.user as (BackendUser & { uid: string }) | undefined;
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => createTeamsStyles(currentColors), [currentColors]);
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +108,7 @@ const CommunicationPage = () => {
         style={styles.createTeamButton}
         onPress={() => router.push('/createNewTeam')} // Navigate on press
       >
-        <Ionicons name="person-add-outline" size={22} color="#000" style={styles.createTeamIcon} />
+        <Ionicons name="person-add-outline" size={22} color={currentColors.text} style={styles.createTeamIcon} />
         <Text style={styles.createTeamText}>Create New Team</Text>
       </TouchableOpacity>
 
@@ -113,7 +116,7 @@ const CommunicationPage = () => {
       <Text style={styles.sectionLabel}>Your Teams</Text>
 
       {/* Teams List */}
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />}
+      {isLoading && <ActivityIndicator size="large" color={currentColors.primary} style={{ marginTop: 20 }} />}
       {!isLoading && error && <Text style={styles.errorText}>{error}</Text>}
       {!isLoading && !error && teams.length === 0 && (
         <View style={styles.emptyContainer}>

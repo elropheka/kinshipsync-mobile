@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '@/styles/app/(events)/details/[id].styles';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useEventDetail } from '@/hooks/useEvents';
 import { UserProfile } from '@/types/userTypes';
-import { Colors } from '@/constants/Colors';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { getUserProfileById } from '@/services/userService'; 
 
@@ -25,6 +25,8 @@ export default function EventDetailsScreen() {
   const eventId = id || ''; 
   const { user: currentUser } = useAppAuth();
   const router = useRouter();
+  const { currentColors } = useAppTheme();
+  const styles = createEventDetailsStyles(currentColors);
   const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
   const lastRefetchRef = useRef<number>(0);
 
@@ -237,7 +239,7 @@ export default function EventDetailsScreen() {
   if (isLoadingEventDetails) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={Colors.light.primary} />
+        <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading event details...</Text>
       </View>
     );

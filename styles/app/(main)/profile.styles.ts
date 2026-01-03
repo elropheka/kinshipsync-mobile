@@ -10,17 +10,17 @@ import {
   isTablet,
 } from 'constants/dimensions';
 
-export const styles = StyleSheet.create({
+export const createProfileStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
     paddingBottom: isTablet() ? Spacing.xxl : Spacing.l,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   backButton: {
     padding: isTablet() ? Spacing.m : Spacing.s,
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
     fontWeight: Fonts.weights.bold,
     marginRight: isTablet() ? Spacing.xxl : Spacing.xl,
-    color: Colors.light.text,
+    color: theme.text,
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -41,8 +41,8 @@ export const styles = StyleSheet.create({
     width: isTablet() ? moderateScale(160) : moderateScale(120),
     borderRadius: isTablet() ? moderateScale(80) : moderateScale(60),
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    backgroundColor: Colors.light.neutralBg,
+    borderColor: theme.border,
+    backgroundColor: theme.neutralBg,
     justifyContent: 'center',
     marginHorizontal: 'auto',
     overflow: 'visible',
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     width: isTablet() ? moderateScale(50) : moderateScale(40),
     height: isTablet() ? moderateScale(50) : moderateScale(40),
     bottom: isTablet() ? -moderateScale(5) : -moderateScale(5),
@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
     elevation: 5,
   },
   editImageText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontSize: ResponsiveFontSizes.caption,
 
   },
@@ -93,18 +93,18 @@ export const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     marginBottom: Spacing.s,
     fontWeight: Fonts.weights.medium,
   },
   input: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderRadius: BorderRadius.l,
     padding: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    color: Colors.light.text,
+    borderColor: theme.border,
+    color: theme.text,
   },
   bioInput: {
     height: moderateScale(100),
@@ -122,10 +122,10 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: ResponsiveFontSizes.title,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.text,
+    color: theme.text,
   },
   addImageText: {
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     fontWeight: Fonts.weights.semiBold,
     fontSize: ResponsiveFontSizes.body,
   },
@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: Spacing.s,
     right: Spacing.s,
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     width: IconSizes.l,
     height: IconSizes.l,
     borderRadius: BorderRadius.round,
@@ -163,20 +163,20 @@ export const styles = StyleSheet.create({
     height: moderateScale(160),
     borderRadius: BorderRadius.l,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.light.backgroundPaper,
+    backgroundColor: theme.backgroundPaper,
   },
   emptyGalleryText: {
-    color: Colors.light.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
     paddingHorizontal: Spacing.s,
     fontSize: ResponsiveFontSizes.caption,
   },
   primaryButton: {
-    backgroundColor: Colors.light.accent,
+    backgroundColor: theme.accent,
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.l,
     alignItems: 'center',
@@ -185,7 +185,7 @@ export const styles = StyleSheet.create({
   buttonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.neutralBg,
+    color: theme.neutralBg,
   },
   centered: {
     flex: 1,
@@ -195,7 +195,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: ResponsiveFontSizes.body,
-    color: Colors.light.error,
+    color: theme.error,
     textAlign: 'center',
     marginBottom: Spacing.m,
   },
@@ -204,11 +204,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   disabledInput: {
-    backgroundColor: Colors.light.divider,
-    color: Colors.light.textSecondary,
+    backgroundColor: theme.divider,
+    color: theme.textSecondary,
   },
   disabledButton: {
-    backgroundColor: Colors.light.textSecondary,
+    backgroundColor: theme.textSecondary,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
@@ -217,32 +217,32 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.s,
     borderWidth: 1,
-    borderColor: Colors.light.buttonPrimary,
+    borderColor: theme.buttonPrimary,
   },
   secondaryButtonText: {
     fontSize: ResponsiveFontSizes.subtitle,
     fontWeight: Fonts.weights.bold,
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
   },
   phoneInputContainer: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     borderRadius: BorderRadius.l,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: theme.border,
     width: '100%',
   },
   phoneInputTextContainer: {
-    backgroundColor: Colors.light.neutralBg,
+    backgroundColor: theme.neutralBg,
     paddingVertical: 0,
   },
   phoneInputText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
     padding: Spacing.m,
   },
   phoneInputCodeText: {
     fontSize: ResponsiveFontSizes.subtitle,
-    color: Colors.light.text,
+    color: theme.text,
   },
   phoneInputFlagButton: {
     paddingVertical: Spacing.m,
@@ -253,3 +253,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.s,
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createProfileStyles(Colors.light);

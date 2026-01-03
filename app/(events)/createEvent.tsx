@@ -5,7 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import * as Clipboard from 'expo-clipboard';
-import { styles } from '@/styles/app/(events)/createEvent.styles';
+import { createCreateEventStyles } from '@/styles/app/(events)/createEvent.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from 'constants/Colors';
 import { useAllEvents } from '@/hooks/useEvents'; 
 import { 
@@ -24,6 +25,10 @@ import { getEventWebsiteUrl } from '@/utils/eventWebsiteUtils';
 import { useAlert } from '@/context/AlertContext';
 
 const CreateEventScreen = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createCreateEventStyles(currentColors);
+
+
   const router = useRouter();
   
   let addEvent: any = null;
@@ -312,7 +317,7 @@ const CreateEventScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Enter event name..."
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
               value={name}
               onChangeText={setName}
             />
@@ -325,7 +330,7 @@ const CreateEventScreen = () => {
                 <Text style={selectedDate ? styles.datePickerTextSelected : styles.datePickerText}>
                   {selectedDate.toLocaleDateString() || 'Select Date'}
                 </Text>
-                <Ionicons name="calendar-outline" size={20} color={Colors.light.icon} />
+                <Ionicons name="calendar-outline" size={20} color={currentColors.icon} />
               </View>
             </TouchableOpacity>
           </View>
@@ -337,7 +342,7 @@ const CreateEventScreen = () => {
                 <Text style={selectedTime ? styles.datePickerTextSelected : styles.datePickerText}>
                   {selectedTime ? selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Select Time'}
                 </Text>
-                <Ionicons name="time-outline" size={20} color={Colors.light.icon} />
+                <Ionicons name="time-outline" size={20} color={currentColors.icon} />
               </View>
             </TouchableOpacity>
           </View>
@@ -385,13 +390,13 @@ const CreateEventScreen = () => {
                         marginBottom: 20
                       }}>
                         <TouchableOpacity onPress={handlePickerDismiss}>
-                          <Text style={{ color: Colors.light.primary, fontSize: 16 }}>Cancel</Text>
+                          <Text style={{ color: currentColors.primary, fontSize: 16 }}>Cancel</Text>
                         </TouchableOpacity>
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
                           Select {showPicker === 'date' ? 'Date' : 'Time'}
                         </Text>
                         <TouchableOpacity onPress={handlePickerDismiss}>
-                          <Text style={{ color: Colors.light.primary, fontSize: 16, fontWeight: 'bold' }}>Done</Text>
+                          <Text style={{ color: currentColors.primary, fontSize: 16, fontWeight: 'bold' }}>Done</Text>
                         </TouchableOpacity>
                       </View>
                       <DateTimePicker
@@ -422,7 +427,7 @@ const CreateEventScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Enter location or venue..."
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
               value={location}
               onChangeText={setLocation}
             />
@@ -486,7 +491,7 @@ const CreateEventScreen = () => {
             <TextInput
               style={[styles.input, styles.multilineInput]}
               placeholder="Add a description for your event..."
-              placeholderTextColor={Colors.light.textSecondary}
+              placeholderTextColor={currentColors.textSecondary}
               value={description}
               onChangeText={setDescription}
               multiline={true}
@@ -588,9 +593,9 @@ const CreateEventScreen = () => {
       <ScrollView style={styles.scrollableContent}>
         <View style={styles.formContainer}>
           <View style={{ padding: 20, alignItems: 'center' }}>
-            <Ionicons name="checkmark-circle" size={64} color={Colors.light.primary} style={{ marginBottom: 20 }} />
+            <Ionicons name="checkmark-circle" size={64} color={currentColors.primary} style={{ marginBottom: 20 }} />
             <Text style={[styles.inputLabel, { fontSize: 20, marginBottom: 10 }]}>Ready to Create Event</Text>
-            <Text style={{ color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 30 }}>
+            <Text style={{ color: currentColors.textSecondary, textAlign: 'center', marginBottom: 30 }}>
               {hasWebsiteData && !skipWebsite 
                 ? 'Your event details and website have been configured. Click the button below to create your event.'
                 : 'Your event details have been configured. Click the button below to create your event.'}
@@ -618,7 +623,7 @@ const CreateEventScreen = () => {
       <Stack.Screen options={{ title: "Create New Event" }} />
        <View style={styles.header}>
          <TouchableOpacity onPress={() => currentStep === 1 ? router.back() : handlePreviousStep()} style={styles.backButton}>
-           <Ionicons name="chevron-back" size={24} color={Colors.light.tint} />
+           <Ionicons name="chevron-back" size={24} color={currentColors.tint} />
          </TouchableOpacity>
          <Text style={styles.headerTitle}>
            {currentStep === 4 ? 'Create Event' : `Create Event - Step ${currentStep}`}
@@ -676,7 +681,7 @@ const CreateEventScreen = () => {
               {currentStep === 2 ? (
                 <>
                   <TouchableOpacity 
-                    style={[styles.nextButton, { backgroundColor: Colors.light.textSecondary, marginRight: 10 }]} 
+                    style={[styles.nextButton, { backgroundColor: currentColors.textSecondary, marginRight: 10 }]} 
                     onPress={handleSkipWebsite}
                   >
                     <Text style={styles.nextButtonText}>Skip Website</Text>
@@ -704,15 +709,15 @@ const CreateEventScreen = () => {
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setIsUserPickerVisible(false)} style={styles.backButton}>
-              <Ionicons name="close-outline" size={28} color={Colors.light.text} />
+              <Ionicons name="close-outline" size={28} color={currentColors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Select Viewers</Text>
             <TouchableOpacity onPress={() => setIsUserPickerVisible(false)} style={styles.backButton} >
-                 <Text style={{color: Colors.light.primary, fontSize: 16, fontWeight: '600'}}>Done</Text>
+                 <Text style={{color: currentColors.primary, fontSize: 16, fontWeight: '600'}}>Done</Text>
             </TouchableOpacity>
           </View>
           {isLoadingUsers ? (
-            <ActivityIndicator style={{marginTop: 20}} size="large" color={Colors.light.primary} />
+            <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />
           ) : (
             <MultiUserPicker
               users={allUsersForPicker.filter(u => u.userId !== currentUser?.uid)}

@@ -1,38 +1,41 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../../constants/Colors';
 
-export const styles = StyleSheet.create({
+export const createPasswordResetEmailSentStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: Colors.light.backgroundLight,
+    backgroundColor: theme.backgroundLight,
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: Colors.light.buttonPrimary,
+    color: theme.buttonPrimary,
     textAlign: 'center',
     marginBottom: 15,
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: theme.text,
     textAlign: 'center',
     marginBottom: 30,
     lineHeight: 24,
   },
   button: {
-    backgroundColor: Colors.light.buttonPrimary,
+    backgroundColor: theme.buttonPrimary,
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: Colors.light.background,
+    color: theme.background,
     fontSize: 18,
     fontWeight: 'bold',
   },
 });
+
+// For backwards compatibility, export the light theme styles
+export const styles = createPasswordResetEmailSentStyles(Colors.light);

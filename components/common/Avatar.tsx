@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { Colors } from '../../constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { getInitials, getAvatarColor } from '../../utils/avatarUtils';
 import Fonts from '../../constants/fonts';
 import { moderateScale } from '../../constants/dimensions';
@@ -20,6 +20,22 @@ export const Avatar: React.FC<AvatarProps> = ({
   size = moderateScale(50),
   style,
 }) => {
+  const { currentColors } = useAppTheme();
+  const styles = useMemo(() => StyleSheet.create({
+    avatarImage: {
+      backgroundColor: currentColors.divider,
+    },
+    avatarContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    initialsText: {
+      color: currentColors.primaryContrastText,
+      fontWeight: Fonts.weights.bold,
+      textAlign: 'center',
+    },
+  }), [currentColors]);
+
   // Support both new avatarUrls array and legacy avatarUrl prop
   const urlsToTry = avatarUrls || (avatarUrl ? [avatarUrl] : []);
 
@@ -55,18 +71,3 @@ export const Avatar: React.FC<AvatarProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  avatarImage: {
-    backgroundColor: Colors.light.divider,
-  },
-  avatarContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  initialsText: {
-    color: Colors.light.primaryContrastText,
-    fontWeight: Fonts.weights.bold,
-    textAlign: 'center',
-  },
-});

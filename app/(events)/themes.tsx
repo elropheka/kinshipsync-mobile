@@ -4,13 +4,18 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 // If Icon is used elsewhere in the actual file for other purposes, it should be kept.
 import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '../../styles/app/(events)/themes.styles';
+import { createThemesStyles } from '../../styles/app/(events)/themes.styles';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { getAvailableThemes } from '../../services/eventService';
 import { Theme } from '../../types/eventTypes';
 import LoadingScreen from '../../components/common/LoadingScreen'; // Assuming this path is correct
 
 const ChooseThemePage: React.FC = () => {
+  const { currentColors } = useAppTheme();
+  const styles = createThemesStyles(currentColors);
+
+
   const { user, isAuthenticated } = useAuth();
   const [userThemes, setUserThemes] = useState<Theme[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null); // Store the whole theme object or just ID
