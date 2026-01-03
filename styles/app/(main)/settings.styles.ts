@@ -149,4 +149,4 @@ export const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
 });
 
 // For backwards compatibility, export the light theme styles
-export const styles = createCreateAccountStyles(Colors.light);
+export const styles = createStyles(Colors.light);
