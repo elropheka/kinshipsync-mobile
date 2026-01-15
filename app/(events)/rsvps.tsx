@@ -12,7 +12,6 @@ import { listenToGuestsWithRsvp, updateGuestRsvp, getEventById, sendRsvpReminder
 import { getUserProfileByEmail } from '@/services/userService';
 import { createDirectConversation, sendMessage } from '@/services/chatService';
 import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload, CreateGuestPayload } from '@/types/eventTypes';
-import { Colors } from '@/constants/Colors';
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
 import InviteGuestModal from '@/components/events/InviteGuestModal';
 
@@ -297,7 +296,10 @@ const RsvpListScreen = () => {
               ]}
               onPress={() => setSelectedStatusFilter(filterName)}
             >
-              <Text style={styles.filterText}>{filterName}</Text>
+              <Text style={[
+                styles.filterText,
+                selectedStatusFilter === filterName && { color: '#FFFFFF' }
+              ]}>{filterName}</Text>
             </TouchableOpacity>
           )}
           showsHorizontalScrollIndicator={false}
