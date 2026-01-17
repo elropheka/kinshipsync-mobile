@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Colors } from '@/constants/Colors';
 import {
   View,
