@@ -1,4 +1,5 @@
 const appJson = require('./app.json');
+const withIosXcode26SwiftModulesFix = require('./plugins/withIosXcode26SwiftModulesFix');
 
 const ONE_SIGNAL_APP_ID = '8d7630da-1b46-425d-a912-c9002e7c79a4';
 const GOOGLE_IOS_URL_SCHEME =
@@ -35,12 +36,16 @@ module.exports = ({ config }) => {
       [
         'expo-build-properties',
         {
+          ios: {
+            deploymentTarget: '15.1',
+          },
           android: {
             compileSdkVersion: 35,
             targetSdkVersion: 35,
           },
         },
       ],
+      withIosXcode26SwiftModulesFix,
       'expo-router',
       'expo-font',
       'expo-web-browser',
