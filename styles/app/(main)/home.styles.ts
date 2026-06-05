@@ -94,12 +94,19 @@ export const createHomeStyles = (theme: typeof Colors.light) => StyleSheet.creat
     paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.m,
   },
   dashboardTitle: {
-    fontSize: ResponsiveFontSizes.header3,
-    fontWeight: Fonts.weights.medium,
-    marginBottom: Spacing.m,
-    fontFamily: Fonts.headerSemiBold,
+    fontSize: ResponsiveFontSizes.header1,
+    lineHeight: ResponsiveFontSizes.header1 * 1.25,
+    fontWeight: Fonts.weights.bold,
+    marginBottom: Spacing.l,
+    fontFamily: Fonts.headerBold,
     marginHorizontal: Layout.SCREEN_WIDTH * 0.06,
     color: theme.textDarkContrast,
+  },
+  loadingSpinner: {
+    marginVertical: Spacing.l,
+  },
+  loadingSpinnerCompact: {
+    marginVertical: Spacing.m,
   },
   sectionHeader: {
     flexDirection: 'row',

@@ -18,6 +18,7 @@ import { FeaturedEventCard } from '@/components/home/FeaturedEventCard';
 import { AttendingMembersRow } from '@/components/home/AttendingMembersRow';
 import { PhotoGalleryStrip } from '@/components/home/PhotoGalleryStrip';
 import { FeatureGrid } from '@/components/home/FeatureGrid';
+import { HomeGettingStarted } from '@/components/home/HomeGettingStarted';
 import UpcomingEvents from '@/components/home/UpcomingEvents';
 
 const DashboardScreen: React.FC = () => {
@@ -26,12 +27,13 @@ const DashboardScreen: React.FC = () => {
   const { toggleSidebar } = useSidebar();
   const { user: authUser } = useAppAuth();
   const { events: allEvents, isLoading: isLoadingEvents, error: eventsError } = useAllEvents();
-  const { featured, members, photos, isLoadingExtras } = useHomeDashboard(allEvents);
+  const { featured, members, photos } = useHomeDashboard(allEvents);
   const { notifications, isLoading: isLoadingUserContext } = useCurrentUser();
   const { handleScroll } = useScrollHandler();
 
   const welcomeName = authUser?.displayName || authUser?.email || 'Family';
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const isNewUser = !isLoadingEvents && allEvents.length === 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -45,7 +47,7 @@ const DashboardScreen: React.FC = () => {
           notificationCount={unreadCount}
         />
 
-        <BrandText variant="h2" style={styles.dashboardTitle}>
+        <BrandText variant="h1" style={styles.dashboardTitle}>
           Welcome, {welcomeName}!
         </BrandText>
 
@@ -55,25 +57,29 @@ const DashboardScreen: React.FC = () => {
           onScroll={handleScroll}
           scrollEventThrottle={16}
         >
-          <FeaturedEventCard event={featured} />
+          {isLoadingEvents && allEvents.length === 0 ? (
+            <BrandLoadingSpinner size="small" style={styles.loadingSpinner} />
+          ) : isNewUser ? (
+            <HomeGettingStarted />
+          ) : (
+            <>
+              <FeaturedEventCard event={featured} />
 
-          {(isLoadingEvents || isLoadingExtras) && allEvents.length === 0 ? (
-            <BrandLoadingSpinner size="small" style={{ marginVertical: 20 }} />
-          ) : null}
+              <UpcomingEvents
+                events={allEvents}
+                onSeeAllPress={() => router.push('/(events)/all')}
+                horizontal
+              />
+
+              <AttendingMembersRow members={members} />
+              <PhotoGalleryStrip photos={photos} />
+              <FeatureGrid />
+            </>
+          )}
           {eventsError ? <BrandText color="accent">Could not load events.</BrandText> : null}
 
-          <UpcomingEvents
-            events={allEvents}
-            onSeeAllPress={() => router.push('/(events)/all')}
-            horizontal
-          />
-
-          <AttendingMembersRow members={members} />
-          <PhotoGalleryStrip photos={photos} />
-          <FeatureGrid />
-
           {isLoadingUserContext ? (
-            <BrandLoadingSpinner size="small" style={{ marginVertical: 12 }} />
+            <BrandLoadingSpinner size="small" style={styles.loadingSpinnerCompact} />
           ) : null}
         </ScrollView>
       </ResponsiveContainer>
