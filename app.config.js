@@ -5,6 +5,21 @@ const ONE_SIGNAL_APP_ID = '8d7630da-1b46-425d-a912-c9002e7c79a4';
 const GOOGLE_IOS_URL_SCHEME =
   'com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj';
 
+/**
+ * @param {Array<{ CFBundleURLSchemes?: string[] }> | undefined} existingTypes
+ * @param {string[]} schemesToEnsure
+ */
+function mergeUrlTypes(existingTypes, schemesToEnsure) {
+  const types = [...(existingTypes ?? [])];
+  for (const scheme of schemesToEnsure) {
+    const hasScheme = types.some((entry) => entry.CFBundleURLSchemes?.includes(scheme));
+    if (!hasScheme) {
+      types.push({ CFBundleURLSchemes: [scheme] });
+    }
+  }
+  return types;
+}
+
 /** @param {{ config: import('expo/config').ExpoConfig }} ctx */
 module.exports = ({ config }) => {
   const { expo } = appJson;
@@ -23,16 +38,21 @@ module.exports = ({ config }) => {
       ...ios,
       infoPlist: {
         ...ios.infoPlist,
-        CFBundleURLTypes: [
-          {
-            CFBundleURLSchemes: [GOOGLE_IOS_URL_SCHEME],
-          },
-        ],
+        CFBundleURLTypes: mergeUrlTypes(ios.infoPlist?.CFBundleURLTypes, [
+          GOOGLE_IOS_URL_SCHEME,
+          expoBase.scheme,
+        ].filter(Boolean)),
       },
     },
     android,
     plugins: [
-      ['onesignal-expo-plugin', { mode: oneSignalMode }],
+      [
+        'onesignal-expo-plugin',
+        {
+          mode: oneSignalMode,
+          iPhoneDeploymentTarget: '15.1',
+        },
+      ],
       [
         'expo-build-properties',
         {
