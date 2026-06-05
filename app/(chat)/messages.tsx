@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -10,7 +10,7 @@ import { useConversations } from '../../hooks/useChat';
 import { useAppTheme } from '../../context/AppThemeContext';
 import { Conversation } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
-import LoadingScreen from '@/components/common/LoadingScreen';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { getUserProfileById } from '../../services/userService';
 import { Avatar } from '../../components/common/Avatar';
 import { useErrorAlert } from '@/hooks/useErrorAlert';

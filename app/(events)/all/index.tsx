@@ -7,7 +7,7 @@ import { createIndexStyles } from '../../../styles/app/(events)/all/index.styles
 import { useAllEvents } from '../../../hooks/useEvents';
 import { useAppTheme } from '../../../context/AppThemeContext';
 import { Event as AppEvent } from '../../../types/eventTypes';
-import LoadingScreen from '@/components/common/LoadingScreen';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { BrandEmptyState } from '@/components/ui/BrandEmptyState';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 

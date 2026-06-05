@@ -54,4 +54,3 @@ const createStyles = (theme: typeof Colors.light) =>
     },
   });
 
-export default LoadingScreen;

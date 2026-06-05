@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import React from 'react';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 
 function VendorsStack() {
   const { currentColors } = useAppTheme();

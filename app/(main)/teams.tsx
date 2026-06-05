@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/context/AppThemeContext';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 
 const TeamsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();

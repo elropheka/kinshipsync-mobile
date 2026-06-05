@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';

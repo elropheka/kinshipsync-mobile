@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'; // Added useCallback
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 
 export default function VendorSelectionScreen() {
   const { currentColors } = useAppTheme();
-  const styles = createIndexStyles(currentColors);
+  const styles = useMemo(() => createIndexStyles(currentColors), [currentColors]);
 
 
   const {
@@ -71,7 +71,7 @@ export default function VendorSelectionScreen() {
         </View>
       </TouchableOpacity>
     );
-  }, [handleNavigateToVendorDetails]);
+  }, [handleNavigateToVendorDetails, styles, currentColors]);
 
   if (isLoading && displayItems.length === 0) {
     return (

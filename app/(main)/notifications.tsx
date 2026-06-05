@@ -18,8 +18,8 @@ import NotificationSearchBar from '../../components/notifications/NotificationSe
 import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips';
 import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
 import { useAlert } from '@/context/AlertContext';
-import LoadingScreen from '@/components/common/LoadingScreen';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 
 type Filter = FilterChipType;
 

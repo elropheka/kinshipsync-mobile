@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
-import LoadingScreen from '@/components/common/LoadingScreen';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
 import { isValidE164Format } from '../../utils/phoneUtils';
 import { Avatar } from '../../components/common/Avatar';

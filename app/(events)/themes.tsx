@@ -9,7 +9,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { getAvailableThemes } from '../../services/eventService';
 import { Theme } from '../../types/eventTypes';
-import LoadingScreen from '../../components/common/LoadingScreen'; // Assuming this path is correct
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const ChooseThemePage: React.FC = () => {
   const { currentColors } = useAppTheme();

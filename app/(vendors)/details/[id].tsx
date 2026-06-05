@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'; // Added useCallback
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 
 export default function VendorDetailsScreen() {
   const { currentColors } = useAppTheme();
-  const styles = createVendorDetailsStyles(currentColors);
+  const styles = useMemo(() => createVendorDetailsStyles(currentColors), [currentColors]);
 
 
   const { id: vendorIdFromRoute } = useLocalSearchParams<{ id: string }>();
@@ -73,7 +73,7 @@ export default function VendorDetailsScreen() {
         </View>
       </TouchableOpacity>
     );
-  }, []);
+  }, [styles, currentColors]);
 
 
   const renderReviewItem = ({ item }: { item: VendorReview }) => (

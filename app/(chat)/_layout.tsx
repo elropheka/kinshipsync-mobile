@@ -3,7 +3,7 @@ import React from 'react';
 import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 
 export default function ChatLayout() {
   const { currentColors } = useAppTheme();

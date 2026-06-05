@@ -15,7 +15,7 @@ const FILTERS = ['All', 'Upcoming', 'Past'];
 
 const EventListScreen = () => {
   const { currentColors } = useAppTheme();
-  const styles = createEventsStyles(currentColors);
+  const styles = useMemo(() => createEventsStyles(currentColors), [currentColors]);
 
 
   const [activeTab, setActiveTab] = useState('Events');
@@ -71,9 +71,9 @@ const EventListScreen = () => {
 
   const keyExtractor = useCallback((item: Event & { eventStatus: 'Upcoming' | 'Past' }) => item.id, []);
 
-  const ItemSeparator = useCallback(() => <View style={styles.separator} />, []);
+  const ItemSeparator = () => <View style={styles.separator} />;
 
-  const renderEventItem = useCallback(({ item }: { item: Event & { eventStatus: 'Upcoming' | 'Past' } }) => (
+  const renderEventItem = ({ item }: { item: Event & { eventStatus: 'Upcoming' | 'Past' } }) => (
     <View style={styles.eventItem}>
       <View>
         <Text style={styles.eventName}>{item.name}</Text>
@@ -97,7 +97,7 @@ const EventListScreen = () => {
         </Text>
       </View>
     </View>
-  ), []);
+  );
 
   const navigateToTab = useCallback((tabName: string) => {
     if (tabName === 'Guests') {

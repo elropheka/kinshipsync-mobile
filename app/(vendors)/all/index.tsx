@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,7 @@ import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonIt
 
 const VendorsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
-  const styles = createIndexStyles(currentColors);
+  const styles = useMemo(() => createIndexStyles(currentColors), [currentColors]);
 
 
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -144,7 +144,7 @@ const VendorsScreen: React.FC = () => {
         </View>
       </TouchableOpacity>
     );
-  }, [handleNavigateToVendorDetails]);
+  }, [handleNavigateToVendorDetails, styles, currentColors]);
 
   const renderFindAVendorTab = useCallback(() => {
     return (
@@ -228,7 +228,9 @@ const VendorsScreen: React.FC = () => {
     errorItems, 
     displayItems,
     handleNavigateToCategory, 
-    renderDisplayVendorItem
+    renderDisplayVendorItem,
+    styles,
+    currentColors,
   ]);
 
   const renderTabContent = useCallback((): JSX.Element => {

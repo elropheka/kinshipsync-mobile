@@ -32,4 +32,3 @@ const ColoredHeaderStatusBarInner: React.FC<ColoredHeaderStatusBarProps> = ({
   );
 };
 
-export default ColoredHeaderStatusBar;

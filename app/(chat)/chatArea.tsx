@@ -28,7 +28,7 @@ import { ChatMessage, ParticipantInfo } from '../../types/chatTypes';
 import { GuestStatus } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from '../../constants/Colors'; // Corrected path
-import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import { emojiCategories } from '../../constants/emojis'; // Added for emoji picker
 import { getUserProfileById } from '../../services/userService'; // Import userService function
