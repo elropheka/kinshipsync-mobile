@@ -1,12 +1,13 @@
 import React from 'react';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { createPasswordResetEmailSentStyles } from '../../styles/app/(auth)/passwordResetEmailSent.styles';
  // Assuming styles will be created
 
 const PasswordResetEmailSentScreen = () => {
-    const styles = createPasswordResetEmailSentStyles(Colors.light);
+  const { currentColors } = useAppTheme();
+  const styles = createPasswordResetEmailSentStyles(currentColors);
 
   const router = useRouter();
 

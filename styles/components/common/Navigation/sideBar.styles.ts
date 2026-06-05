@@ -63,6 +63,10 @@ export const createSideBarStyles = (theme: typeof Colors.light) => StyleSheet.cr
     fontFamily: Fonts.headerBold,
     color: theme.text,
   },
+  sidebarLogo: {
+    width: isTablet() ? 180 : 150,
+    height: isTablet() ? 44 : 36,
+  },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -53,7 +53,7 @@ function MainTabsLayout() {
               return null;
             }
             const routeName = props.state.routes[props.state.index]?.name ?? 'home';
-            const routesToHideTabBar = ['settings',  'teams', 'notifications', 'profile', 'guests', '(events)/guests'];
+            const routesToHideTabBar = ['settings', 'teams', 'notifications'];
             const hideTabBar = routesToHideTabBar.includes(routeName);
             return hideTabBar ? null : <BottomNavigation {...props} isVisible={isNavVisible} />;
           }}

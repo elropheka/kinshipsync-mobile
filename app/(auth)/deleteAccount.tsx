@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { deleteUserAccount, checkUserDataExists } from '@/services/accountDeletionService';
 import { createDeleteAccountStyles } from '@/styles/app/(auth)/deleteAccount.styles';
@@ -25,7 +25,8 @@ interface DataCheckResult {
 }
 
 const DeleteAccountScreen: React.FC = () => {
-    const styles = createDeleteAccountStyles(Colors.light);
+  const { currentColors } = useAppTheme();
+  const styles = createDeleteAccountStyles(currentColors);
 
   const router = useRouter();
   const { user, signOut } = useAuth();
@@ -128,9 +129,9 @@ const DeleteAccountScreen: React.FC = () => {
   if (isCheckingData) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
+          <ActivityIndicator size="large" color={currentColors.primary} />
           <Text style={styles.loadingText}>Checking your data...</Text>
         </View>
       </SafeAreaView>
@@ -142,21 +143,21 @@ const DeleteAccountScreen: React.FC = () => {
       <Stack.Screen 
         options={{ 
           title: "Delete Account",
-          headerStyle: { backgroundColor: Colors.light.background },
-          headerTintColor: Colors.light.text,
+          headerStyle: { backgroundColor: currentColors.background },
+          headerTintColor: currentColors.text,
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
+              <Ionicons name="arrow-back" size={24} color={currentColors.text} />
             </TouchableOpacity>
           )
         }} 
       />
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Warning Header */}
         <View style={styles.warningHeader}>
-          <Ionicons name="warning" size={48} color={Colors.light.error} />
+          <Ionicons name="warning" size={48} color={currentColors.error} />
           <Text style={styles.warningTitle}>Delete Your Account</Text>
           <Text style={styles.warningSubtitle}>
             This action cannot be undone. All your data will be permanently deleted.
@@ -169,7 +170,7 @@ const DeleteAccountScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Data That Will Be Deleted</Text>
             {getDataSummary().map((item, index) => (
               <View key={index} style={styles.dataItem}>
-                <Ionicons name="trash-outline" size={20} color={Colors.light.error} />
+                <Ionicons name="trash-outline" size={20} color={currentColors.error} />
                 <Text style={styles.dataItemText}>{item}</Text>
               </View>
             ))}
@@ -178,7 +179,7 @@ const DeleteAccountScreen: React.FC = () => {
 
         {!hasAnyData && (
           <View style={styles.noDataSection}>
-            <Ionicons name="checkmark-circle-outline" size={48} color={Colors.light.success} />
+            <Ionicons name="checkmark-circle-outline" size={48} color={currentColors.success} />
             <Text style={styles.noDataText}>No data found to delete</Text>
             <Text style={styles.noDataSubtext}>
               Your account appears to be clean with no associated data.
@@ -190,19 +191,19 @@ const DeleteAccountScreen: React.FC = () => {
         <View style={styles.whatHappensSection}>
           <Text style={styles.sectionTitle}>What Happens Next</Text>
           <View style={styles.whatHappensItem}>
-            <Ionicons name="close-circle-outline" size={20} color={Colors.light.error} />
+            <Ionicons name="close-circle-outline" size={20} color={currentColors.error} />
             <Text style={styles.whatHappensText}>Your account will be permanently deleted</Text>
           </View>
           <View style={styles.whatHappensItem}>
-            <Ionicons name="trash-outline" size={20} color={Colors.light.error} />
+            <Ionicons name="trash-outline" size={20} color={currentColors.error} />
             <Text style={styles.whatHappensText}>All your data will be removed</Text>
           </View>
           <View style={styles.whatHappensItem}>
-            <Ionicons name="log-out-outline" size={20} color={Colors.light.error} />
+            <Ionicons name="log-out-outline" size={20} color={currentColors.error} />
             <Text style={styles.whatHappensText}>You&apos;ll be logged out immediately</Text>
           </View>
           <View style={styles.whatHappensItem}>
-            <Ionicons name="information-circle-outline" size={20} color={Colors.light.warning} />
+            <Ionicons name="information-circle-outline" size={20} color={currentColors.warning} />
             <Text style={styles.whatHappensText}>This action cannot be undone</Text>
           </View>
         </View>
@@ -238,7 +239,7 @@ const DeleteAccountScreen: React.FC = () => {
       {showConfirmation && (
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModal}>
-            <Ionicons name="warning" size={48} color={Colors.light.error} />
+            <Ionicons name="warning" size={48} color={currentColors.error} />
             <Text style={styles.confirmationTitle}>Final Confirmation</Text>
             <Text style={styles.confirmationText}>
               Are you absolutely sure you want to delete your account? This action cannot be undone.

@@ -17,7 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createCreateAccountStyles } from '@/styles/app/(auth)/createAccount.styles';
 import { useAlert } from '@/context/AlertContext';
 import * as ImagePicker from 'expo-image-picker';
-import { Colors } from '@/constants/Colors'; 
+import { useAppTheme } from '@/context/AppThemeContext';
 import { IconSizes } from '@/constants/dimensions';
 import GoogleIcon from '@/components/common/GoogleIcon';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
@@ -37,7 +37,8 @@ interface FormData {
 }
 
 const CreateAccountScreen: React.FC = () => {
-    const styles = createCreateAccountStyles(Colors.light);
+  const { currentColors } = useAppTheme();
+  const styles = createCreateAccountStyles(currentColors);
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -144,7 +145,7 @@ const CreateAccountScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} >
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
@@ -172,11 +173,11 @@ const CreateAccountScreen: React.FC = () => {
                   <Image source={{ uri: formData.avatarUri }} style={styles.avatarImage} />
                 ) : (
                   <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person-outline" size={40} color={Colors.light.background} />
+                    <Ionicons name="person-outline" size={40} color={currentColors.background} />
                   </View>
                 )}
                 <View style={styles.cameraIconContainer}>
-                  <Ionicons name="camera" size={20} color={Colors.light.primaryContrastText} />
+                  <Ionicons name="camera" size={20} color={currentColors.primaryContrastText} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -243,7 +244,7 @@ const CreateAccountScreen: React.FC = () => {
                   countryPickerButtonStyle={styles.phoneInputCountryPicker}
                   textInputProps={{
                     placeholder: "Enter your phone number",
-                    placeholderTextColor: Colors.light.textSecondary,
+                    placeholderTextColor: currentColors.textSecondary,
                   }}
                 />
               </View>
@@ -292,7 +293,7 @@ const CreateAccountScreen: React.FC = () => {
                 >
                   {formData.acceptTerms ? (
                     <View style={styles.checkedBox}>
-                      <Ionicons name="checkmark" size={12} color={Colors.light.primaryContrastText} />
+                      <Ionicons name="checkmark" size={12} color={currentColors.primaryContrastText} />
                     </View>
                   ) : (
                     <View style={styles.uncheckedBox} />

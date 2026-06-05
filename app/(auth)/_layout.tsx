@@ -10,7 +10,7 @@ export default function AuthLayout() {
         gestureEnabled: false,
         animation: 'fade',
         contentStyle: {
-          backgroundColor: Colors.light.backgroundSecondary,
+          backgroundColor: Colors.light.background,
         },
       }}
     >

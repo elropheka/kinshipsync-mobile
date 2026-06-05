@@ -12,18 +12,21 @@ export const createSplashScreenStyles = (theme: typeof Colors.light) => StyleShe
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.backgroundPrimary,
+    backgroundColor: theme.background,
   },
   logoViewContainer: {
-    width: moderateScale(1200),
-    height: moderateScale(300),
+    width: moderateScale(280),
+    height: moderateScale(120),
     justifyContent: 'center',
     alignItems: 'center',
   },
   logo: {
     width: '100%',
-    height: '50%',
-    aspectRatio: 1, 
+    height: '100%',
+  },
+  spinner: {
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.s,
   },
   title: {
     fontSize: ResponsiveFontSizes.header2,

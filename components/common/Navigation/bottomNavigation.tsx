@@ -1,26 +1,21 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
+  Animated,
+  Dimensions,
+  Easing,
+  Pressable,
   Text,
   TouchableOpacity,
-  Dimensions,
-  Pressable,
-  Animated,
-  Easing,
+  View,
 } from 'react-native';
-import { AntDesign as SpecialIcon, Ionicons as SecondaryIcon, Feather, Entypo } from '@expo/vector-icons';
+import { Feather, Ionicons as SecondaryIcon } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { createBottomNavigationStyles } from '../../../styles/components/common/Navigation/bottomNavigation.styles';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const MENU_ESTIMATED_HEIGHT = 150;
 const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.09;
-const NAVBAR_BOTTOM_OFFSET = 15;
-const MENU_OFFSET_FROM_BOTTOM = 15;
-const MENU_START_TRANSLATE_Y = MENU_ESTIMATED_HEIGHT + MENU_OFFSET_FROM_BOTTOM;
-const MENU_END_TRANSLATE_Y = -MENU_OFFSET_FROM_BOTTOM;
 
 interface CustomBottomNavigationProps extends BottomTabBarProps {
   isVisible: boolean;
@@ -29,81 +24,29 @@ interface CustomBottomNavigationProps extends BottomTabBarProps {
 const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
   const { isVisible } = props;
   const { currentColors } = useAppTheme();
-
-  const routeName = props.state?.routes?.[props.state?.index]?.name || 'defaultRouteName';
-
+  const routeName = props.state?.routes?.[props.state?.index]?.name || 'home';
   const [isAddMenuVisible, setIsAddMenuVisible] = useState(false);
-  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
-  const menuAnim = useRef(new Animated.Value(MENU_START_TRANSLATE_Y)).current;
-
   const navBarAnim = useRef(new Animated.Value(0)).current;
-
-  const isLandscape = dimensions.width > dimensions.height;
-
-  // Create theme-aware styles
   const styles = useMemo(() => createBottomNavigationStyles(currentColors), [currentColors]);
 
-   const routes = {
-    home: '/home',
-    events: '/all',
-    guests: '/guests',
-    budget: '/budget',
-    chat: '/chatArea',
-    vendors: '(vendors)/all',
-    messages: '/messages',
-    newEvent: '/createEvent',
-    teams: '/(main)/teams',
-  } as const;
+  const tabs = [
+    { key: 'home', label: 'Home', icon: 'home', route: '/home' as const },
+    { key: 'events', label: 'Events', icon: 'calendar', route: '/all' as const },
+    { key: 'messages', label: 'Messages', icon: 'chatbubble-ellipses-outline', route: '/messages' as const },
+    { key: 'profile', label: 'Profile', icon: 'person-outline', route: '/profile' as const },
+  ];
 
-  type RouteKeys = keyof typeof routes;
-  type RouteNames = (typeof routes)[RouteKeys];
-
-  const isActiveRoute = (targetRouteName: RouteNames) => {
-    return routeName === targetRouteName;
+  const isActive = (tabKey: string) => {
+    if (tabKey === 'home') return routeName === 'home';
+    if (tabKey === 'events') return routeName.includes('events') || routeName === 'all';
+    if (tabKey === 'messages') return routeName === 'messages';
+    if (tabKey === 'profile') return routeName === 'profile';
+    return false;
   };
-
-  const getIconColor = (targetRouteName: RouteNames) => {
-    return isActiveRoute(targetRouteName) ? currentColors.primary : currentColors.text;
-  };
-
-  const getLabelColor = (targetRouteName: RouteNames) => {
-    return isActiveRoute(targetRouteName) ? currentColors.primary : currentColors.text;
-  };
-
-  const getTabButtonStyle = (targetRouteName: RouteNames) => {
-    return isActiveRoute(targetRouteName) ? styles.activeTabButton : styles.tabButton;
-  };
-
-  const handleTabPress = (targetRouteName: RouteNames) => {
-     router.push(targetRouteName as any);
-     setIsAddMenuVisible(false);
-  };
-
-  const handleNavigation = (path: string) => {
-     router.push(path as any);
-     setIsAddMenuVisible(false);
-  };
-
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
-      setDimensions(window);
-    });
-
-    return () => subscription?.remove();
-  }, []);
-
-  useEffect(() => {
-    Animated.timing(menuAnim, {
-      toValue: isAddMenuVisible ? MENU_END_TRANSLATE_Y : MENU_START_TRANSLATE_Y,
-      duration: 300,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-  }, [isAddMenuVisible, menuAnim]);
 
   useEffect(() => {
     Animated.timing(navBarAnim, {
-      toValue: isVisible ? 0 : NAVBAR_HEIGHT + NAVBAR_BOTTOM_OFFSET,
+      toValue: isVisible ? 0 : NAVBAR_HEIGHT,
       duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
@@ -114,117 +57,56 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
     }
   }, [isVisible, navBarAnim]);
 
-   const routesToHideTabBar = ['settings'];
-   if (routesToHideTabBar.includes(routeName)) {
-     return null;
-   }
-
-
-  const containerStyle = isLandscape
-    ? [
-        styles.container,
-        {
-          left: 0,
-          right: 0,
-          width: undefined,
-          marginHorizontal: 15,
-        },
-        { transform: [{ translateY: navBarAnim }] },
-      ]
-    : [styles.container, { transform: [{ translateY: navBarAnim }] }];
+  const routesToHideTabBar = ['settings', 'teams', 'notifications'];
+  if (routesToHideTabBar.includes(routeName)) {
+    return null;
+  }
 
   return (
     <>
-      <Animated.View style={containerStyle}>
-         <TouchableOpacity
-          style={getTabButtonStyle(routes.home)}
-          onPress={() => handleTabPress(routes.home)}
-        >
-          <SpecialIcon name="home" size={24} color={getIconColor(routes.home)} />
-          <Text style={[styles.tabLabel, { color: getLabelColor(routes.home) }]}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={getTabButtonStyle(routes.events)}
-          onPress={() => handleTabPress(routes.events)}
-        >
-          <Feather name="calendar" size={24} color={getIconColor(routes.events)} />
-          <Text style={[styles.tabLabel, { color: getLabelColor(routes.events) }]}>My Event</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => isVisible && setIsAddMenuVisible(!isAddMenuVisible)}
-        >
-          <SecondaryIcon name={isAddMenuVisible ? "close-outline" : "add-outline"} size={40} color={currentColors.neutralBg} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={getTabButtonStyle(routes.guests)}
-          onPress={() => handleTabPress(routes.guests)}
-        >
-          <SecondaryIcon name="person" size={24} color={getIconColor(routes.guests)} />
-          <Text style={[styles.tabLabel, { color: getLabelColor(routes.guests) }]}>Guests</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={getTabButtonStyle(routes.budget)}
-          onPress={() => handleTabPress(routes.budget)}
-        >
-          <Entypo name="wallet" size={24} color={getIconColor(routes.budget)} />
-          <Text style={[styles.tabLabel, { color: getLabelColor(routes.budget) }]}>Budget</Text>
-        </TouchableOpacity>
+      <Animated.View style={[styles.container, { transform: [{ translateY: navBarAnim }] }]}>
+        {tabs.map((tab) => {
+          const active = isActive(tab.key);
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              style={active ? styles.activeTabButton : styles.tabButton}
+              onPress={() => {
+                setIsAddMenuVisible(false);
+                router.push(tab.route as any);
+              }}
+            >
+              {tab.icon === 'calendar' ? (
+                <Feather name="calendar" size={22} color={active ? currentColors.tabBarIconActive : currentColors.tabBarIcon} />
+              ) : (
+                <SecondaryIcon
+                  name={tab.icon as any}
+                  size={22}
+                  color={active ? currentColors.tabBarIconActive : currentColors.tabBarIcon}
+                />
+              )}
+              <Text style={[styles.tabLabel, active && styles.activeTabLabel]}>{tab.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </Animated.View>
 
-      {isAddMenuVisible && isVisible && (
+      {isAddMenuVisible && isVisible ? (
         <>
-          <Pressable
-            style={styles.menuBackdrop}
-            onPress={() => setIsAddMenuVisible(false)}
-          />
-          <Animated.View style={[styles.addMenuContainer, { transform: [{ translateY: menuAnim }] }]}>
-             <TouchableOpacity
-              style={styles.addMenuItem}
-              onPress={() => handleNavigation('/createEvent')}
-            >
+          <Pressable style={styles.menuBackdrop} onPress={() => setIsAddMenuVisible(false)} />
+          <View style={styles.addMenuContainer}>
+            <TouchableOpacity style={styles.addMenuItem} onPress={() => router.push('/createEvent' as any)}>
               <SecondaryIcon name="calendar-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Create Event</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
-            <TouchableOpacity
-              style={styles.addMenuItem}
-              onPress={() => handleNavigation('/messages')}
-            >
-              <SecondaryIcon name="chatbox-ellipses-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
-              <Text style={styles.addMenuItemText}>Send Messages</Text>
-            </TouchableOpacity>
-            <View style={styles.menuDivider} />
-            <TouchableOpacity
-              style={styles.addMenuItem}
-              onPress={() => handleNavigation('/(vendors)/all')}
-            >
+            <TouchableOpacity style={styles.addMenuItem} onPress={() => router.push('/(vendors)/all' as any)}>
               <SecondaryIcon name="briefcase-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
               <Text style={styles.addMenuItemText}>Add Vendor</Text>
             </TouchableOpacity>
-             <View style={styles.menuDivider} />
-            <TouchableOpacity
-              style={styles.addMenuItem}
-              onPress={() => handleNavigation('/(main)/teams')}
-            >
-              <SecondaryIcon name="people-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
-              <Text style={styles.addMenuItemText}>Create Team</Text>
-            </TouchableOpacity>
-            <View style={styles.menuDivider} />
-            <TouchableOpacity
-              style={styles.addMenuItem}
-              onPress={() => handleNavigation('/themes/createTheme')}
-            >
-              <SecondaryIcon name="color-palette-outline" size={20} color={currentColors.icon} style={styles.addMenuItemIcon} />
-              <Text style={styles.addMenuItemText}>Create Theme</Text>
-            </TouchableOpacity>
-          </Animated.View>
+          </View>
         </>
-      )}
+      ) : null}
     </>
   );
 };

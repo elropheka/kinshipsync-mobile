@@ -25,11 +25,12 @@ export default function AppCoreNav() {
     async function loadFonts() {
       try {
         await Font.loadAsync({
-          'Poppins-Light': require('../../../assets/fonts/Poppins-Light.ttf'),
-          'Poppins-Regular': require('../../../assets/fonts/Poppins-Regular.ttf'),
-          'Poppins-Medium': require('../../../assets/fonts/Poppins-Medium.ttf'),
-          'Poppins-SemiBold': require('../../../assets/fonts/Poppins-SemiBold.ttf'),
-          'Poppins-Bold': require('../../../assets/fonts/Poppins-Bold.ttf'),
+          'Inter-Light': require('../../../assets/fonts/Inter_18pt-Light.ttf'),
+          'Inter-Regular': require('../../../assets/fonts/Inter_18pt-Regular.ttf'),
+          'Inter-Medium': require('../../../assets/fonts/Inter_18pt-Medium.ttf'),
+          'Inter-SemiBold': require('../../../assets/fonts/Inter_18pt-SemiBold.ttf'),
+          'Inter-Bold': require('../../../assets/fonts/Inter_18pt-Bold.ttf'),
+          'Inter-ExtraBold': require('../../../assets/fonts/Inter_18pt-ExtraBold.ttf'),
         });
     
       } catch (error) {
@@ -123,7 +124,7 @@ export default function AppCoreNav() {
     <Stack
       screenOptions={{
         headerShown: false,
-        headerTitleStyle: { fontFamily: 'Poppins-Regular' },
+        headerTitleStyle: { fontFamily: 'Inter-Regular' },
         gestureEnabled: process.env.NODE_ENV === 'development',
         contentStyle: { backgroundColor: currentColors.backgroundPrimary },
       }}

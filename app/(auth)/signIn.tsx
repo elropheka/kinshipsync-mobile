@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import {
   View,
   Text,
@@ -26,7 +26,8 @@ interface FormData {
 }
 
 const SignInScreen: React.FC = () => {
-    const styles = createSignInStyles(Colors.light);
+  const { currentColors } = useAppTheme();
+  const styles = createSignInStyles(currentColors);
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -77,7 +78,7 @@ const SignInScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.light.backgroundSecondary} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}

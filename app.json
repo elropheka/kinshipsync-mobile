@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F5EBDD"
+      "backgroundColor": "#F5EFE8"
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -55,7 +55,7 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#F5EFE8"
       },
       "package": "com.kinship.kinshipsync",
       "targetSdkVersion": 35,

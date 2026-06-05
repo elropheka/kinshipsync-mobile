@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Colors } from '@/constants/Colors';
+import { useAppTheme } from '@/context/AppThemeContext';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { sendPasswordReset } from '../../services/authService';
@@ -7,7 +7,8 @@ import { createForgotPasswordStyles } from '../../styles/app/(auth)/forgotPasswo
 import { useAlert } from '@/context/AlertContext';
 
 const ForgotPasswordScreen = () => {
-    const styles = createForgotPasswordStyles(Colors.light);
+  const { currentColors } = useAppTheme();
+  const styles = createForgotPasswordStyles(currentColors);
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);

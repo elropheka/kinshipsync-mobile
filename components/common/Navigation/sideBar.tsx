@@ -9,6 +9,7 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SecondaryIcon from 'react-native-vector-icons/Ionicons';
@@ -112,7 +113,11 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
           <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.container}>
               <View style={styles.sidebarHeader}>
-                <Text style={styles.sidebarTitle}>Kinship</Text>
+                <Image
+                  source={require('@/assets/branding/rusty-brown-logo.png')}
+                  style={styles.sidebarLogo}
+                  resizeMode="contain"
+                />
               </View>
 
               <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>

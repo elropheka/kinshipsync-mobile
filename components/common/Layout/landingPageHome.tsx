@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { Image, View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { styles } from '@/styles/components/common/Layout/landingPageHome.styles';
+import { createLandingPageHomeStyles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import Slider from '@/components/common/slider';
 import { Layout, Spacing } from '@/constants/dimensions';
 
@@ -23,6 +23,7 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   onCreateAccountPress
 }) => {
   const { currentColors } = useAppTheme();
+  const styles = createLandingPageHomeStyles(currentColors);
 
   const featuresData: Feature[][] = [
     [
@@ -102,14 +103,17 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   return (
     <View style={styles.pageContainer}>
       
-      <View style={styles.headerContainer}>
+      <View style={styles.heroBlock}>
         <View style={styles.logoContainer}>
-          
+          <Image
+            source={require('@/assets/branding/rusty-brown-logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.appName}>KINSHIP SYNC</Text>
+        <Text style={styles.heroTitle}>Welcome to Kinship Sync!</Text>
       </View>
 
-      
       <Text style={styles.tagline}>
         Your ultimate event planner and beyond!
       </Text>
