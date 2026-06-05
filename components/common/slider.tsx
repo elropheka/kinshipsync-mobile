@@ -12,6 +12,9 @@ interface SliderProps {
   showArrows?: boolean;
   height?: number;
   width?: number;
+  containerWidth?: number;
+  peekAdjacent?: boolean;
+  slideGap?: number;
   onSlideChange?: (index: number) => void;
   loop?: boolean;
   pauseOnHover?: boolean;
@@ -25,6 +28,9 @@ const Slider: React.FC<SliderProps> = ({
   showArrows = true,
   height = 200,
   width = Dimensions.get('window').width,
+  containerWidth,
+  peekAdjacent = false,
+  slideGap = Spacing.s,
   onSlideChange,
   loop = true,
   pauseOnHover = false,
@@ -36,6 +42,10 @@ const Slider: React.FC<SliderProps> = ({
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const totalSlides = children.length;
+  const viewportWidth = containerWidth ?? width;
+  const itemWidth = width;
+  const slideStride = peekAdjacent ? itemWidth + slideGap : itemWidth;
+  const sidePadding = peekAdjacent ? Math.max((viewportWidth - itemWidth) / 2, 0) : 0;
 
   const startAutoPlay = () => {
     if (!autoPlay || isPaused) return;
@@ -61,7 +71,7 @@ const Slider: React.FC<SliderProps> = ({
     
     setCurrentIndex(index);
     scrollViewRef.current?.scrollTo({
-      x: index * width,
+      x: index * slideStride,
       animated: true,
     });
     
@@ -86,7 +96,7 @@ const Slider: React.FC<SliderProps> = ({
 
   const handleScroll = (event: any) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffset / width);
+    const index = Math.round(contentOffset / slideStride);
     
     if (index !== currentIndex) {
       setCurrentIndex(index);
@@ -132,21 +142,42 @@ const Slider: React.FC<SliderProps> = ({
   }
 
   return (
-    <View style={[styles.container, { height, width }]}>
+    <View
+      style={[
+        styles.container,
+        peekAdjacent ? styles.containerPeek : null,
+        { height, width: viewportWidth },
+      ]}
+    >
       <ScrollView
         ref={scrollViewRef}
         horizontal
-        pagingEnabled
+        pagingEnabled={!peekAdjacent}
+        snapToInterval={peekAdjacent ? slideStride : undefined}
+        snapToAlignment={peekAdjacent ? 'start' : undefined}
+        decelerationRate={peekAdjacent ? 'fast' : undefined}
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         style={styles.scrollView}
+        contentContainerStyle={
+          peekAdjacent ? { paddingHorizontal: sidePadding } : undefined
+        }
       >
         {children.map((child, index) => (
-          <View key={index} style={[styles.slide, { width }]}>
-            {child}
+          <View
+            key={index}
+            style={[
+              styles.slide,
+              { width: peekAdjacent ? slideStride : itemWidth },
+              peekAdjacent ? styles.slidePeek : null,
+            ]}
+          >
+            <View style={[styles.slideContent, peekAdjacent ? { width: itemWidth } : null]}>
+              {child}
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -197,6 +228,10 @@ const SliderStyles = (currentColors: typeof import('constants/Colors').Colors.li
     paddingRight: Spacing.l,
     marginHorizontal: Spacing.s,
   },
+  containerPeek: {
+    paddingRight: 0,
+    marginHorizontal: 0,
+  },
   scrollView: {
     flex: 1,
   },
@@ -204,6 +239,14 @@ const SliderStyles = (currentColors: typeof import('constants/Colors').Colors.li
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  slidePeek: {
+    alignItems: 'flex-start',
+  },
+  slideContent: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
   },
   arrow: {
     position: 'absolute',

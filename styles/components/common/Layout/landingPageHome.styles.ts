@@ -53,6 +53,7 @@ export const createLandingPageHomeStyles = (theme: typeof Colors.light) =>
       justifyContent: 'center',
       minHeight: 300,
       paddingVertical: Spacing.s,
+      overflow: 'visible',
     },
     authButtonsContainer: {
       gap: Spacing.s,

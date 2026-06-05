@@ -6,13 +6,16 @@ import { BrandText } from '@/components/ui/BrandText';
 import { landingFeatures, type LandingFeature } from '@/constants/mock/landingFeatures';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
-import { BorderRadius, Spacing } from '@/constants/dimensions';
+import { BorderRadius, Spacing, isTablet } from '@/constants/dimensions';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SLIDE_WIDTH = SCREEN_WIDTH - Spacing.l * 2;
+const LANDING_HORIZONTAL_PADDING = isTablet() ? Spacing.xxl : Spacing.l;
+const CAROUSEL_VIEWPORT_WIDTH = SCREEN_WIDTH;
+const ACTIVE_CARD_WIDTH = Math.round(CAROUSEL_VIEWPORT_WIDTH * 0.78);
 const CAROUSEL_HEIGHT = Math.max(SCREEN_HEIGHT * 0.36, 280);
 const IMAGE_HEIGHT = Math.round(CAROUSEL_HEIGHT * 0.46);
+const SLIDE_GAP = Spacing.s;
 
 type SlidePalette = 'sand' | 'green' | 'orange' | 'rust';
 
@@ -37,7 +40,10 @@ const LandingFeatureCarouselInner: React.FC<LandingFeatureCarouselProps> = ({
     <View style={styles.wrapper}>
       <Slider
         height={CAROUSEL_HEIGHT}
-        width={SLIDE_WIDTH}
+        width={ACTIVE_CARD_WIDTH}
+        containerWidth={CAROUSEL_VIEWPORT_WIDTH}
+        peekAdjacent
+        slideGap={SLIDE_GAP}
         autoPlay
         autoPlayInterval={4500}
         showDots
@@ -171,12 +177,12 @@ const createSlideStyles = (theme: typeof Colors.light, palette: SlidePalette) =>
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: '100%',
-    alignItems: 'center',
+    width: CAROUSEL_VIEWPORT_WIDTH,
+    marginLeft: -LANDING_HORIZONTAL_PADDING,
+    alignSelf: 'center',
   },
   slide: {
-    width: SLIDE_WIDTH,
-    paddingHorizontal: Spacing.xs,
+    width: '100%',
   },
 });
 
