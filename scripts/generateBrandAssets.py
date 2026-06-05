@@ -16,8 +16,7 @@ CREAM = (245, 239, 232, 255)
 
 class BrandAssetGenerator:
     def __init__(self) -> None:
-        self.icon_mark = BRANDING / "icon-mark.png"
-        self.wordmark = BRANDING / "rusty-brown-logo.png"
+        self.logo = BRANDING / "rusty-brown-logo.png"
 
     def run(self) -> None:
         self._generate_app_icon()
@@ -26,7 +25,7 @@ class BrandAssetGenerator:
         self._sync_ios_assets()
 
     def _generate_app_icon(self) -> None:
-        mark = Image.open(self.icon_mark).convert("RGBA")
+        mark = Image.open(self.logo).convert("RGBA")
         size = 1024
         canvas = Image.new("RGBA", (size, size), CREAM)
         mark_size = int(size * 0.58)
@@ -38,7 +37,7 @@ class BrandAssetGenerator:
         icon.save(IMAGES / "adaptive-icon.png", format="PNG", optimize=True)
 
     def _generate_splash_icon(self) -> None:
-        mark = Image.open(self.icon_mark).convert("RGBA")
+        mark = Image.open(self.logo).convert("RGBA")
         target_width = 280
         mark = self._fit_within(mark, target_width, target_width)
         splash = Image.new("RGBA", (target_width, target_width), (0, 0, 0, 0))
@@ -47,7 +46,7 @@ class BrandAssetGenerator:
         splash.save(IMAGES / "splash-icon.png", format="PNG", optimize=True)
 
     def _generate_favicon(self) -> None:
-        mark = Image.open(self.icon_mark).convert("RGBA")
+        mark = Image.open(self.logo).convert("RGBA")
         size = 48
         canvas = Image.new("RGBA", (size, size), CREAM)
         mark = self._fit_within(mark, int(size * 0.72), int(size * 0.72))
@@ -64,7 +63,7 @@ class BrandAssetGenerator:
         if not splash_set.exists():
             return
 
-        mark = Image.open(self.icon_mark).convert("RGBA")
+        mark = Image.open(self.logo).convert("RGBA")
         for scale, filename in [(1, "image.png"), (2, "image@2x.png"), (3, "image@3x.png")]:
             box = 220 * scale
             resized = self._fit_within(mark, box, box)
