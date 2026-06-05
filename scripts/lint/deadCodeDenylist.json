@@ -1,0 +1,16 @@
+[
+  "components/vendors/vendorScreen.tsx",
+  "components/common/Ads/InterstitialAdModal.tsx",
+  "components/home/RecentActivities.tsx",
+  "components/common/ErrorState.tsx",
+  "context/SubscriptionContext.tsx",
+  "hooks/useEventWebsite.ts",
+  "hooks/useAllThemes.ts",
+  "services/axiosInstance.ts",
+  "constants/mock/homeDashboard.ts",
+  "constants/mock/landingFeatures.ts",
+  "app/(events)/details/index.tsx",
+  "app/(vendors)/details/index.tsx",
+  "styles/app/(events)/events.styles.ts",
+  "app/(auth)/deleteAccount.tsx"
+]

@@ -9,12 +9,18 @@ export type BackButtonContrast = 'onAccent' | 'onRust' | 'onLight';
 interface BackButtonProps {
   contrast?: BackButtonContrast;
   tintColor?: string;
+  fallbackRoute?: string;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ contrast = 'onLight', tintColor }) => {
+const BackButton: React.FC<BackButtonProps> = ({
+  contrast = 'onLight',
+  tintColor,
+  fallbackRoute = '/home',
+}) => {
   const { currentColors } = useAppTheme();
 
-  if (!router.canGoBack()) {
+  const canNavigateBack = router.canGoBack() || Boolean(fallbackRoute);
+  if (!canNavigateBack) {
     return null;
   }
 
@@ -22,9 +28,17 @@ const BackButton: React.FC<BackButtonProps> = ({ contrast = 'onLight', tintColor
     tintColor ??
     (contrast === 'onLight' ? currentColors.text : currentColors.accentContrastText);
 
+  const handlePress = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else if (fallbackRoute) {
+      router.replace(fallbackRoute as never);
+    }
+  };
+
   return (
     <Pressable
-      onPress={() => router.back()}
+      onPress={handlePress}
       style={styles.button}
       accessibilityRole="button"
       accessibilityLabel="Go back"

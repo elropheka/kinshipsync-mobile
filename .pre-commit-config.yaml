@@ -32,6 +32,13 @@ repos:
         files: \.(ts|tsx)$
         exclude: ^functions/
 
+      - id: mobile-clean-audit
+        name: mobile clean code audit (mock/brand/dead)
+        entry: pnpm audit:clean
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: trivy-vuln-scan
         name: Trivy vulnerability scan (HIGH/CRITICAL)
         entry: bash scripts/hooks/trivy-scan.sh

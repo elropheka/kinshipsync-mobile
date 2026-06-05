@@ -5,10 +5,10 @@ import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 import { BrandText } from '@/components/ui/BrandText';
 import { Avatar } from '@/components/common/Avatar';
-import { MockAttendingMember, mockAttendingMembers } from '@/constants/mock/homeDashboard';
+import type { HomeDashboardMember } from '@/hooks/useHomeDashboard';
 
 interface AttendingMembersRowProps {
-  members?: MockAttendingMember[];
+  members: HomeDashboardMember[];
   maxVisible?: number;
 }
 
@@ -19,11 +19,16 @@ export class AttendingMembersRow extends React.Component<AttendingMembersRowProp
 }
 
 const AttendingMembersRowInner: React.FC<AttendingMembersRowProps> = ({
-  members = mockAttendingMembers,
+  members,
   maxVisible = 4,
 }) => {
   const { currentColors } = useAppTheme();
   const styles = createStyles(currentColors);
+
+  if (members.length === 0) {
+    return null;
+  }
+
   const visible = members.slice(0, maxVisible);
   const overflow = Math.max(members.length - maxVisible, 0);
 

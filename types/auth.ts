@@ -49,10 +49,6 @@ export interface SignupResponse {
   token: string; 
 }
 
-export interface GetUserProfileResponse {
-  user: BackendUser;
-}
-
 export interface FirebaseSocialAuthPayload {
   firebaseIdToken: string;
 }

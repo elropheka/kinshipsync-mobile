@@ -42,12 +42,6 @@ function EventsStack() {
           }}
         />
         <Stack.Screen
-          name="chatArea"
-          options={{
-            title: 'Chat',
-          }}
-        />
-        <Stack.Screen
           name="createNewTeam"
           options={{
             title: 'Create Team',
@@ -81,6 +75,13 @@ function EventsStack() {
           name="createEvent"
           options={{
             title: 'Create Event',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="editEvent"
+          options={{
+            title: 'Edit Event',
             headerShown: false,
           }}
         />

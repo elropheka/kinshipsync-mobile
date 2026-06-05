@@ -23,6 +23,11 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     flexGrow: 1,
     paddingBottom: Spacing.xl,
   },
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: Spacing.xs,
+    marginBottom: Spacing.s,
+  },
   content: {
     flex: 1,
     paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.xl,

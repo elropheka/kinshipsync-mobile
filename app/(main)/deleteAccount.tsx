@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  StatusBar,
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,7 +43,7 @@ const DeleteAccountScreen: React.FC = () => {
 
   const checkUserData = async () => {
     if (!user?.uid) return;
-    
+
     try {
       setIsCheckingData(true);
       const result = await checkUserDataExists(user.uid);
@@ -78,7 +77,7 @@ const DeleteAccountScreen: React.FC = () => {
     setIsDeleting(true);
     try {
       const result = await deleteUserAccount(user.uid);
-      
+
       if (result.success) {
         showSuccess(
           'Account Deleted',
@@ -110,20 +109,20 @@ const DeleteAccountScreen: React.FC = () => {
 
   const getDataSummary = () => {
     if (!dataCheckResult) return [];
-    
+
     const summary = [];
     if (dataCheckResult.hasEvents) summary.push('Events you\'ve organized');
     if (dataCheckResult.hasTasks) summary.push('Tasks assigned to you');
     if (dataCheckResult.hasConversations) summary.push('Chat conversations');
     if (dataCheckResult.hasNotifications) summary.push('Notifications');
-    
+
     return summary;
   };
 
   const hasAnyData = dataCheckResult && (
-    dataCheckResult.hasEvents || 
-    dataCheckResult.hasTasks || 
-    dataCheckResult.hasConversations || 
+    dataCheckResult.hasEvents ||
+    dataCheckResult.hasTasks ||
+    dataCheckResult.hasConversations ||
     dataCheckResult.hasNotifications
   );
 
@@ -132,12 +131,10 @@ const DeleteAccountScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom', 'top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+      <Stack.Screen options={{ title: 'Delete Account' }} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Warning Header */}
         <View style={styles.logoWrap}>
           <Image
             source={require('@/assets/branding/rusty-brown-logo.png')}
@@ -153,7 +150,6 @@ const DeleteAccountScreen: React.FC = () => {
           </BrandText>
         </BrandCard>
 
-        {/* Data Summary */}
         {hasAnyData && (
           <BrandCard style={styles.dataSection}>
             <BrandText variant="title" style={styles.sectionTitle}>Data That Will Be Deleted</BrandText>
@@ -176,7 +172,6 @@ const DeleteAccountScreen: React.FC = () => {
           </BrandCard>
         )}
 
-        {/* What Happens Next */}
         <BrandCard style={styles.whatHappensSection}>
           <BrandText variant="title" style={styles.sectionTitle}>What Happens Next</BrandText>
           <View style={styles.whatHappensItem}>
@@ -197,7 +192,6 @@ const DeleteAccountScreen: React.FC = () => {
           </View>
         </BrandCard>
 
-        {/* Action Buttons */}
         <BrandCard style={styles.buttonContainer}>
           <BrandInput
             value={user?.email || 'No email on account'}
@@ -225,7 +219,6 @@ const DeleteAccountScreen: React.FC = () => {
         </BrandCard>
       </ScrollView>
 
-      {/* Confirmation Modal */}
       {showConfirmation && (
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModal}>
@@ -234,22 +227,22 @@ const DeleteAccountScreen: React.FC = () => {
             <BrandText variant="body" color="secondary" style={styles.confirmationText}>
               Are you absolutely sure you want to delete your account? This action cannot be undone.
             </BrandText>
-            
+
             <View style={styles.confirmationButtons}>
-              <TouchableOpacity 
-                style={styles.confirmDeleteButton} 
+              <TouchableOpacity
+                style={styles.confirmDeleteButton}
                 onPress={confirmDeleteAccount}
                 disabled={isDeleting}
               >
                 {isDeleting ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={currentColors.primaryContrastText} size="small" />
                 ) : (
                   <BrandText variant="button" color="light" style={styles.confirmDeleteButtonText}>Yes, Delete Forever</BrandText>
                 )}
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.cancelConfirmButton} 
+
+              <TouchableOpacity
+                style={styles.cancelConfirmButton}
                 onPress={() => setShowConfirmation(false)}
                 disabled={isDeleting}
               >
@@ -262,7 +255,5 @@ const DeleteAccountScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
-
-
 
 export default DeleteAccountScreen;

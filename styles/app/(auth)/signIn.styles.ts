@@ -22,6 +22,11 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
     flexGrow: 1,
     paddingBottom: Spacing.xl,
   },
+  backButton: {
+    alignSelf: 'flex-start',
+    paddingVertical: Spacing.xs,
+    marginBottom: Spacing.s,
+  },
   content: {
     flex: 1,
     paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.xl,

@@ -34,6 +34,22 @@ export class HeaderTheme {
     };
   }
 
+  /** Tab screens pushed from sidebar (subscription, delete account) need a back affordance. */
+  public static tabPushedScreenOptions(
+    currentColors: ThemeColors,
+    fallbackRoute: string = '/home',
+  ): BottomTabNavigationOptions {
+    return {
+      headerShown: true,
+      ...this.tabAccentOptions(currentColors),
+      ...HeaderButtonItems.headerLeftBackOptions(
+        currentColors.accentContrastText,
+        'onAccent',
+        fallbackRoute,
+      ),
+    };
+  }
+
   public static accentOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
     return {
       ...this.coloredHeaderBase(currentColors, currentColors.accent, 'onAccent'),

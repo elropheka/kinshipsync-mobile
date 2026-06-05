@@ -1,4 +1,5 @@
 import { Dimensions, PixelRatio, Platform } from 'react-native';
+import { brandRadius } from './brandTokens';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -55,12 +56,12 @@ export const Spacing = {
 
 export const BorderRadius = {
   xs: moderateScale(2),
-  s: moderateScale(4),
-  m: moderateScale(8),
-  l: moderateScale(12),
-  xl: moderateScale(16),
-  xxl: moderateScale(24),
-  round: 999,
+  s: moderateScale(brandRadius.sm),
+  m: moderateScale(brandRadius.md),
+  l: moderateScale(brandRadius.lg),
+  xl: moderateScale(brandRadius.xl),
+  xxl: moderateScale(brandRadius['2xl']),
+  round: brandRadius.full,
 };
 
 export const IconSizes = {

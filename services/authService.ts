@@ -1,17 +1,6 @@
-import axiosInstance from './axiosInstance';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import {
-  GetUserProfileResponse,
-} from '../types/auth';
 import { auth as firebaseAuth } from './firebaseConfig';
 import { getAuthErrorMessageWithContext } from '../utils/authErrorUtils';
-
-const API_URL = '/auth';
-
-export const getUserProfile = async (): Promise<GetUserProfileResponse> => {
-  const response = await axiosInstance.get<GetUserProfileResponse>(`${API_URL}/user`);
-  return response.data;
-};
 
 export const sendPasswordReset = async (email: string): Promise<void> => {
   try {
@@ -24,7 +13,6 @@ export const sendPasswordReset = async (email: string): Promise<void> => {
 };
 
 const authService = {
-  getUserProfile,
   sendPasswordReset,
 };
 

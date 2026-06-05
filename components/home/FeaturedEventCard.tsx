@@ -6,12 +6,10 @@ import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 import { BrandButton } from '@/components/ui/BrandButton';
 import { BrandText } from '@/components/ui/BrandText';
-import { mockFeaturedEvent } from '@/constants/mock/homeDashboard';
+import type { HomeFeaturedEvent } from '@/hooks/useHomeDashboard';
 
 interface FeaturedEventCardProps {
-  title?: string;
-  subtitle?: string;
-  imageUri?: string;
+  event?: HomeFeaturedEvent | null;
   preview?: boolean;
 }
 
@@ -22,42 +20,52 @@ export class FeaturedEventCard extends React.Component<FeaturedEventCardProps> {
 }
 
 const FeaturedEventCardInner: React.FC<FeaturedEventCardProps> = ({
-  title = mockFeaturedEvent.title,
-  subtitle = mockFeaturedEvent.subtitle,
-  imageUri = mockFeaturedEvent.imageUri,
+  event,
   preview = false,
 }) => {
   const { currentColors } = useAppTheme();
   const styles = createStyles(currentColors);
 
+  if (!event) {
+    return null;
+  }
+
+  const content = (
+    <View style={styles.overlay}>
+      <BrandText variant="h3" color="light">
+        {event.title}
+      </BrandText>
+      <BrandText variant="body" color="light" style={styles.subtitle}>
+        {event.subtitle}
+      </BrandText>
+      {!preview ? (
+        <View style={styles.actions}>
+          <BrandButton
+            label="RSVP"
+            variant="primary"
+            onPress={() => router.push('/(events)/rsvps')}
+            style={styles.actionButton}
+          />
+          <TouchableOpacity
+            style={[styles.actionButton, styles.scheduleButton]}
+            onPress={() => router.push('/(events)/schedule')}
+          >
+            <Text style={styles.scheduleButtonText}>Schedule</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+    </View>
+  );
+
   return (
     <View style={styles.card}>
-      <ImageBackground source={{ uri: imageUri }} style={styles.image} imageStyle={styles.imageRadius}>
-        <View style={styles.overlay}>
-          <BrandText variant="h3" color="light">
-            {title}
-          </BrandText>
-          <BrandText variant="body" color="light" style={styles.subtitle}>
-            {subtitle}
-          </BrandText>
-          {!preview ? (
-            <View style={styles.actions}>
-              <BrandButton
-                label="RSVP"
-                variant="primary"
-                onPress={() => router.push('/(events)/rsvps')}
-                style={styles.actionButton}
-              />
-              <TouchableOpacity
-                style={[styles.actionButton, styles.scheduleButton]}
-                onPress={() => router.push('/(events)/schedule')}
-              >
-                <Text style={styles.scheduleButtonText}>Schedule</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-        </View>
-      </ImageBackground>
+      {event.imageUri ? (
+        <ImageBackground source={{ uri: event.imageUri }} style={styles.image} imageStyle={styles.imageRadius}>
+          {content}
+        </ImageBackground>
+      ) : (
+        <View style={[styles.image, styles.fallbackBackground]}>{content}</View>
+      )}
       <Image
         source={require('@/assets/branding/rusty-brown-logo.png')}
         style={styles.watermark}
@@ -78,6 +86,9 @@ const createStyles = (theme: typeof Colors.light) =>
     image: {
       minHeight: 220,
       justifyContent: 'flex-end',
+    },
+    fallbackBackground: {
+      backgroundColor: theme.secondary,
     },
     imageRadius: {
       borderRadius: BorderRadius.xl,

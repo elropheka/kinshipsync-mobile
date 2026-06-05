@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,9 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '@/hooks/useUser';
 import { useAlert } from '@/context/AlertContext';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { BrandText } from '@/components/ui';
+
+const PAYMENTS_ENABLED = false;
 
 const SubscriptionPlansScreen = () => {
   const { currentColors } = useAppTheme();
@@ -28,16 +31,21 @@ const SubscriptionPlansScreen = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSelectPlan = async (planId: string) => {
-    const selectedPlan = availablePlans.find(p => p.id === planId);
+    if (!PAYMENTS_ENABLED) {
+      showError('Payment Unavailable', 'Online subscription payments are coming soon. Please check back later.');
+      return;
+    }
+
+    const selectedPlan = availablePlans.find((p) => p.id === planId);
     if (!selectedPlan) return;
 
     const handleConfirmPlanChange = async () => {
       setIsProcessing(true);
       try {
-        await changeSubscription({ newPlanId: planId, paymentMethodId: 'pm_mock_id' });
+        await changeSubscription({ newPlanId: planId, paymentMethodId: '' });
         showSuccess('Success!', `You have subscribed to the ${selectedPlan.name}.`);
       } catch (e) {
-        console.error("Failed to change subscription:", e);
+        console.error('Failed to change subscription:', e);
         showError('Error', (e as Error).message || 'Could not change subscription.');
       } finally {
         setIsProcessing(false);
@@ -97,7 +105,7 @@ const SubscriptionPlansScreen = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.outerContainer, styles.centered]}>
-        <Text style={styles.errorText}>Error: {error.message}</Text>
+        <BrandText color="accent">Error: {error.message}</BrandText>
       </SafeAreaView>
     );
   }
@@ -106,7 +114,14 @@ const SubscriptionPlansScreen = () => {
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Subscription Plans" }} />
       <ScrollView style={styles.container}>
-        <Text style={styles.introText}>Choose the plan that best fits your event planning needs.</Text>
+        <BrandText variant="body" style={styles.introText}>
+          Choose the plan that best fits your event planning needs.
+        </BrandText>
+        {!PAYMENTS_ENABLED ? (
+          <BrandText variant="caption" color="secondary" style={styles.introText}>
+            New subscriptions are temporarily unavailable while payment integration is finalized.
+          </BrandText>
+        ) : null}
         
         {currentUserSubscription && currentUserSubscription.status === 'active' && (
           <View style={styles.currentPlanInfoCard}>
@@ -118,7 +133,9 @@ const SubscriptionPlansScreen = () => {
               onPress={handleCancelCurrentSubscription}
               disabled={isProcessing || isLoadingSubscription}
             >
-              {isProcessing ? <ActivityIndicator color={currentColors.primaryContrastText} /> : <Text style={styles.selectButtonText}>Cancel Subscription</Text>}
+              <BrandText variant="button" color="light" style={styles.selectButtonText}>
+                {isProcessing ? 'Cancelling...' : 'Cancel Subscription'}
+              </BrandText>
             </TouchableOpacity>
           </View>
         )}
@@ -151,12 +168,11 @@ const SubscriptionPlansScreen = () => {
                   (isProcessing || isLoadingSubscription) && !isCurrent && styles.disabledButton
                 ]}
                 onPress={() => handleSelectPlan(plan.id)}
-                disabled={isCurrent || isProcessing || isLoadingSubscription}
+                disabled={isCurrent || isProcessing || isLoadingSubscription || !PAYMENTS_ENABLED}
               >
-                {isProcessing && !isCurrent ? <ActivityIndicator color={currentColors.primaryContrastText} /> :
-                <Text style={styles.selectButtonText}>
-                  {isCurrent ? 'Current Plan' : 'Choose Plan'}
-                </Text>}
+                <BrandText variant="button" color="light" style={styles.selectButtonText}>
+                  {isCurrent ? 'Current Plan' : PAYMENTS_ENABLED ? 'Choose Plan' : 'Coming Soon'}
+                </BrandText>
               </TouchableOpacity>
             </View>
           );

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@/components/common/slider';
 import { BrandText } from '@/components/ui/BrandText';
-import { landingFeatures, type LandingFeature } from '@/constants/mock/landingFeatures';
+import { landingFeatures, type LandingFeature } from '@/constants/branding/landingContent';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing, isTablet } from '@/constants/dimensions';
@@ -14,7 +14,6 @@ const LANDING_HORIZONTAL_PADDING = isTablet() ? Spacing.xxl : Spacing.l;
 const CAROUSEL_VIEWPORT_WIDTH = SCREEN_WIDTH;
 const ACTIVE_CARD_WIDTH = Math.round(CAROUSEL_VIEWPORT_WIDTH * 0.78);
 const CAROUSEL_HEIGHT = Math.max(SCREEN_HEIGHT * 0.36, 280);
-const IMAGE_HEIGHT = Math.round(CAROUSEL_HEIGHT * 0.46);
 const SLIDE_GAP = Spacing.s;
 
 type SlidePalette = 'sand' | 'green' | 'orange' | 'rust';
@@ -57,17 +56,11 @@ const LandingFeatureCarouselInner: React.FC<LandingFeatureCarouselProps> = ({
           return (
             <View key={feature.id} style={styles.slide}>
               <View style={slideStyles.card}>
-                <View style={slideStyles.imageWrap}>
-                  <Image
-                    source={{ uri: feature.imageUri }}
-                    style={slideStyles.image}
-                    resizeMode="cover"
-                  />
-                  <View style={slideStyles.imageOverlay} />
+                <View style={slideStyles.iconHero}>
                   <View style={slideStyles.iconBadge}>
                     <Ionicons
                       name={feature.icon as keyof typeof Ionicons.glyphMap}
-                      size={22}
+                      size={40}
                       color={slideStyles.iconColor.color}
                     />
                   </View>
@@ -121,31 +114,19 @@ const createSlideStyles = (theme: typeof Colors.light, palette: SlidePalette) =>
       shadowRadius: 16,
       elevation: 4,
     },
-    imageWrap: {
-      height: IMAGE_HEIGHT,
-      width: '100%',
-      position: 'relative',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-    },
-    imageOverlay: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(93, 36, 19, 0.18)',
+    iconHero: {
+      height: 140,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: isLightText ? 'rgba(255,255,255,0.08)' : theme.neutralBg,
     },
     iconBadge: {
-      position: 'absolute',
-      bottom: -Spacing.m,
-      left: Spacing.l,
-      width: 48,
-      height: 48,
-      borderRadius: BorderRadius.l,
+      width: 72,
+      height: 72,
+      borderRadius: BorderRadius.xl,
       backgroundColor: iconBg,
       alignItems: 'center',
       justifyContent: 'center',
-      borderWidth: 2,
-      borderColor: backgroundColor,
       shadowColor: theme.secondary,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.15,
@@ -157,9 +138,8 @@ const createSlideStyles = (theme: typeof Colors.light, palette: SlidePalette) =>
     },
     content: {
       flex: 1,
-      paddingTop: Spacing.l + Spacing.s,
       paddingHorizontal: Spacing.l,
-      paddingBottom: Spacing.l,
+      paddingVertical: Spacing.l,
       justifyContent: 'center',
     },
     title: {

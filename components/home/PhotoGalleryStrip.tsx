@@ -4,10 +4,10 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 import { BrandText } from '@/components/ui/BrandText';
-import { MockGalleryPhoto, mockGalleryPhotos } from '@/constants/mock/homeDashboard';
+import type { HomeGalleryPhoto } from '@/hooks/useHomeDashboard';
 
 interface PhotoGalleryStripProps {
-  photos?: MockGalleryPhoto[];
+  photos: HomeGalleryPhoto[];
 }
 
 export class PhotoGalleryStrip extends React.Component<PhotoGalleryStripProps> {
@@ -16,11 +16,13 @@ export class PhotoGalleryStrip extends React.Component<PhotoGalleryStripProps> {
   }
 }
 
-const PhotoGalleryStripInner: React.FC<PhotoGalleryStripProps> = ({
-  photos = mockGalleryPhotos,
-}) => {
+const PhotoGalleryStripInner: React.FC<PhotoGalleryStripProps> = ({ photos }) => {
   const { currentColors } = useAppTheme();
   const styles = createStyles(currentColors);
+
+  if (photos.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>
@@ -31,9 +33,11 @@ const PhotoGalleryStripInner: React.FC<PhotoGalleryStripProps> = ({
         {photos.map((photo) => (
           <View key={photo.id} style={styles.photoCard}>
             <Image source={{ uri: photo.uri }} style={styles.photo} />
-            <BrandText variant="caption" color="secondary" style={styles.caption}>
-              {photo.caption}
-            </BrandText>
+            {photo.caption ? (
+              <BrandText variant="caption" color="secondary" style={styles.caption}>
+                {photo.caption}
+              </BrandText>
+            ) : null}
           </View>
         ))}
       </ScrollView>

@@ -8,8 +8,11 @@ import BackButton, { type BackButtonContrast } from './BackButton';
 type IconName = keyof typeof Ionicons.glyphMap;
 
 export class HeaderButtonItems {
-  public static createBackButtonItems(tintColor?: string): NativeStackHeaderItem[] {
-    if (!router.canGoBack()) {
+  public static createBackButtonItems(
+    tintColor?: string,
+    fallbackRoute: string = '/home',
+  ): NativeStackHeaderItem[] {
+    if (!router.canGoBack() && !fallbackRoute) {
       return [];
     }
 
@@ -24,6 +27,8 @@ export class HeaderButtonItems {
         onPress: () => {
           if (router.canGoBack()) {
             router.back();
+          } else if (fallbackRoute) {
+            router.replace(fallbackRoute as never);
           }
         },
         accessibilityLabel: 'Go back',
@@ -51,17 +56,19 @@ export class HeaderButtonItems {
   public static headerLeftBackOptions(
     tintColor: string,
     contrast: BackButtonContrast = 'onAccent',
+    fallbackRoute: string = '/home',
   ): {
     unstable_headerLeftItems?: () => NativeStackHeaderItem[];
     headerLeft?: () => React.ReactNode;
     headerBackVisible: false;
   } {
     const backButton = () =>
-      React.createElement(BackButton, { contrast, tintColor });
+      React.createElement(BackButton, { contrast, tintColor, fallbackRoute });
 
     if (Platform.OS === 'ios') {
       return {
-        unstable_headerLeftItems: () => this.createBackButtonItems(tintColor),
+        unstable_headerLeftItems: () =>
+          this.createBackButtonItems(tintColor, fallbackRoute),
         headerLeft: backButton,
         headerBackVisible: false,
       };

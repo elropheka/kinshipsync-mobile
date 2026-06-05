@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { doc, updateDoc, arrayUnion, arrayRemove, getDoc, collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, writeBatch, Timestamp } from '@firebase/firestore';
+import { doc, updateDoc, arrayUnion, getDoc, collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, writeBatch, Timestamp } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { UserProfile } from '../types/userTypes';
 import { InAppNotification, NewNotificationPayload, } from '../types/notificationTypes';
@@ -64,29 +64,6 @@ export const getOneSignalSubscriptionId = async (): Promise<string | null> => {
 };
 
 /**
- * @deprecated Use getOneSignalSubscriptionId instead
- * Get Expo push token (legacy - kept for backward compatibility)
- */
-export const getPushToken = async (): Promise<string | null> => {
-  try {
-    const tokenData = await Notifications.getExpoPushTokenAsync({
-      projectId: 'ad4bb59d-fd0d-4396-af25-8c32f9c8bb42',
-    });
-    const token = tokenData.data;
-    console.log('✅ Expo Push Token obtained:', token);
-    console.log('Token type: Expo Push Token');
-    return token;
-  } catch (error) {
-    console.error('❌ Error getting push token:', error);
-    if (error instanceof Error) {
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
-    return null;
-  }
-};
-
-/**
  * Save OneSignal subscription ID to user profile
  */
 export const saveOneSignalSubscriptionIdToProfile = async (isAuthenticated: boolean, userId: string, subscriptionId: string): Promise<void> => {
@@ -122,62 +99,6 @@ export const saveOneSignalSubscriptionIdToProfile = async (isAuthenticated: bool
       console.error('Error details:', error.message);
     }
     throw error;
-  }
-};
-
-/**
- * @deprecated Use saveOneSignalSubscriptionIdToProfile instead
- * Save FCM/Expo token to user profile (legacy - kept for backward compatibility)
- */
-export const saveFcmTokenToProfile = async (isAuthenticated: boolean, userId: string, token: string): Promise<void> => {
-  if (!isAuthenticated) {
-    throw new Error("User not authenticated. Please sign in.");
-  }
-  if (!userId || !token) {
-    console.warn('⚠️ Cannot save token: missing userId or token', { userId, hasToken: !!token });
-    return;
-  }
-  try {
-    console.log(`💾 Saving push token for user ${userId}...`);
-    const userDocRef = doc(firestore, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
-      const userData = userDoc.data() as UserProfile;
-      if (userData.fcmTokens && userData.fcmTokens.includes(token)) {
-        console.log("✅ Token already exists for user:", userId);
-        return;
-      }
-      console.log(`📝 User currently has ${userData.fcmTokens?.length || 0} token(s)`);
-    } else {
-      console.warn(`⚠️ User document ${userId} does not exist yet`);
-    }
-    await updateDoc(userDocRef, {
-      fcmTokens: arrayUnion(token),
-    });
-    console.log('✅ Push token saved successfully for user:', userId);
-    console.log('Token preview:', token.substring(0, 30) + '...');
-  } catch (error) {
-    console.error('❌ Error saving push token:', error);
-    if (error instanceof Error) {
-      console.error('Error details:', error.message);
-    }
-    throw error;
-  }
-};
-
-export const removeFcmTokenFromProfile = async (isAuthenticated: boolean, userId: string, token: string): Promise<void> => {
-  if (!isAuthenticated) {
-    throw new Error("User not authenticated. Please sign in.");
-  }
-  if (!userId || !token) return;
-  try {
-    const userDocRef = doc(firestore, 'users', userId);
-    await updateDoc(userDocRef, {
-      fcmTokens: arrayRemove(token),
-    });
-    console.log('FCM token removed for user:', userId);
-  } catch (error) {
-    console.error('Error removing FCM token:', error);
   }
 };
 

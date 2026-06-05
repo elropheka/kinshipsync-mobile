@@ -1,0 +1,6 @@
+{
+  "mockData": { "maxViolations": 0 },
+  "brandCompliance": { "hexInApp": 0, "backgroundLightInStylesApp": 13 },
+  "deadCodePatterns": { "filesOnDisk": 0 },
+  "navigationBack": { "missingBackScreens": 0, "duplicateHeaderScreens": 0 }
+}

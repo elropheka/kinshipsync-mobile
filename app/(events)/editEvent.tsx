@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Modal } from 'react-native';
-import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -542,8 +542,7 @@ const EditEventScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: "Edit Event" }} />
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom', 'top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => currentStep === 1 ? router.back() : handlePreviousStep()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color={currentColors.tint} />

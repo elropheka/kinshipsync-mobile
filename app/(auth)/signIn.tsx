@@ -73,6 +73,14 @@ const SignInScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.replace('/(auth)/landingScreen')}
+              accessibilityRole="button"
+              accessibilityLabel="Back to landing"
+            >
+              <Ionicons name="chevron-back" size={24} color={currentColors.text} />
+            </TouchableOpacity>
             <Image
               source={require('@/assets/branding/rusty-brown-logo.png')}
               style={styles.logo}

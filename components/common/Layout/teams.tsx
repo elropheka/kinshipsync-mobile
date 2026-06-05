@@ -9,12 +9,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router'; // Import useFocusEffect
 import { useAppTheme } from '@/context/AppThemeContext';
 import { createTeamsStyles } from '../../../styles/components/common/Layout/teams.styles';
-import { Team, SuggestedTeam } from '../../../types/teamTypes'; // Removed TeamType
+import { Team } from '../../../types/teamTypes';
 import { getTeamsForUser } from '../../../services/teamService'; // Import team service
 import { AuthContext } from '../../../context/AuthContext'; // To get current user ID
 import { BackendUser } from '../../../types/auth'; // Import BackendUser
 import TeamListItem from '../../teams/list/TeamListItem'; // Import new component
-import SuggestedTeamListItem from '../../teams/list/SuggestedTeamListItem'; // Import new component
 import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 
 // Removed local Contact interface as it's not used with dynamic data
@@ -83,21 +82,8 @@ const CommunicationPage = () => {
     }, [currentUser]) // fetchTeams is stable and doesn't need to be in deps
   );
 
-  // Suggested teams can remain hard-coded for now or be fetched if dynamic
-  const suggestedTeams: SuggestedTeam[] = [
-    {
-      id: '1',
-      description: 'Create a team for your bridesmaids to coordinate dress fitting',
-      actionText: 'Create Bridesmaids Team',
-    },
-  ];
-
   const renderTeamItem = ({ item }: { item: Team }) => (
     <TeamListItem team={item} />
-  );
-
-  const renderSuggestedTeam = ({ item }: { item: SuggestedTeam }) => (
-    <SuggestedTeamListItem suggestedTeam={item} />
   );
 
 
@@ -136,16 +122,6 @@ const CommunicationPage = () => {
         />
       )}
 
-      {/* Suggested Teams - can remain as is or be made dynamic later */}
-      <FlatList
-        data={suggestedTeams}
-        renderItem={renderSuggestedTeam}
-        keyExtractor={item => item.id}
-        style={styles.suggestedTeamsList}
-        contentContainerStyle={styles.suggestedTeamsListContent}
-      />
-
-      {/* Removed Modal JSX */}
     </View>
   );
 };

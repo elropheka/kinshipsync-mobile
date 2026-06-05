@@ -13,6 +13,7 @@ import { setEventVisibility } from '../../store/slices/eventVisibilitySlice';
 import { useAlert } from '@/context/AlertContext';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { BrandText } from '@/components/ui';
 
 interface SettingOptionProps {
   title: string;
@@ -213,7 +214,7 @@ const SettingsScreen: React.FC = () => {
 
       <ScrollView>
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
+          <BrandText variant="title" style={styles.sectionTitle}>Appearance</BrandText>
           <ThemeOption
             title="Theme"
             currentTheme={displaySettings.theme!}
@@ -223,7 +224,7 @@ const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Email Notifications</Text>
+          <BrandText variant="title" style={styles.sectionTitle}>Email Notifications</BrandText>
           <SettingOption
             title="Event Invites"
             value={!!displaySettings.emailNotifications?.eventInvites}
@@ -248,7 +249,7 @@ const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Push Notifications</Text>
+          <BrandText variant="title" style={styles.sectionTitle}>Push Notifications</BrandText>
           <SettingOption
             title="Event Invites"
             value={!!displaySettings.pushNotifications?.eventInvites}
@@ -280,7 +281,7 @@ const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Event Visibility</Text>
+          <BrandText variant="title" style={styles.sectionTitle}>Event Visibility</BrandText>
           <SettingOption
             title="Show All Public Events"
             value={!!displaySettings.eventVisibility?.showAllPublicEvents}
@@ -301,7 +302,7 @@ const SettingsScreen: React.FC = () => {
 
         <TouchableOpacity 
           style={[styles.button, styles.deleteAccountButton]} 
-          onPress={() => router.push('/(auth)/deleteAccount')}
+          onPress={() => router.push('/(main)/deleteAccount')}
         >
           <Text style={[styles.buttonText, styles.deleteAccountButtonText]}>Delete Account</Text>
         </TouchableOpacity>

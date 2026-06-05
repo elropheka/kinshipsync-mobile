@@ -7,6 +7,7 @@ import { createHomeStyles } from '@/styles/app/(main)/home.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useScrollHandler } from './_layout';
 import { useAllEvents } from '@/hooks/useEvents';
+import { useHomeDashboard } from '@/hooks/useHomeDashboard';
 import { useCurrentUser } from '@/hooks/useUser';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useSidebar } from '@/context/SidebarContext';
@@ -25,6 +26,7 @@ const DashboardScreen: React.FC = () => {
   const { toggleSidebar } = useSidebar();
   const { user: authUser } = useAppAuth();
   const { events: allEvents, isLoading: isLoadingEvents, error: eventsError } = useAllEvents();
+  const { featured, members, photos, isLoadingExtras } = useHomeDashboard(allEvents);
   const { notifications, isLoading: isLoadingUserContext } = useCurrentUser();
   const { handleScroll } = useScrollHandler();
 
@@ -53,9 +55,9 @@ const DashboardScreen: React.FC = () => {
           onScroll={handleScroll}
           scrollEventThrottle={16}
         >
-          <FeaturedEventCard />
+          <FeaturedEventCard event={featured} />
 
-          {isLoadingEvents && allEvents.length === 0 ? (
+          {(isLoadingEvents || isLoadingExtras) && allEvents.length === 0 ? (
             <BrandLoadingSpinner size="small" style={{ marginVertical: 20 }} />
           ) : null}
           {eventsError ? <BrandText color="accent">Could not load events.</BrandText> : null}
@@ -66,8 +68,8 @@ const DashboardScreen: React.FC = () => {
             horizontal
           />
 
-          <AttendingMembersRow />
-          <PhotoGalleryStrip />
+          <AttendingMembersRow members={members} />
+          <PhotoGalleryStrip photos={photos} />
           <FeatureGrid />
 
           {isLoadingUserContext ? (

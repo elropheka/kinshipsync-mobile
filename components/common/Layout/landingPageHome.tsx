@@ -5,7 +5,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { createLandingPageHomeStyles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { BrandText } from '@/components/ui/BrandText';
 import { BrandButton } from '@/components/ui/BrandButton';
-import { landingBrandMessage, landingBrandName } from '@/constants/mock/landingFeatures';
+import { landingBrandMessage, landingBrandName } from '@/constants/branding/landingContent';
 import { LandingFeatureCarousel } from '@/components/common/Layout/LandingFeatureCarousel';
 
 interface LandingPageHomeProps {

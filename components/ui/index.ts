@@ -9,3 +9,4 @@ export { BrandLoadingSpinner } from './BrandLoadingSpinner';
 export { BrandSectionHeader } from './BrandSectionHeader';
 export { BrandSearchBar } from './BrandSearchBar';
 export { BrandSummaryCard } from './BrandSummaryCard';
+export { BrandLogo } from './BrandLogo';

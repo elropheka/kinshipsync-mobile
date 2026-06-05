@@ -18,6 +18,7 @@ export const Colors = {
   light: {
     text: rust,
     textSecondary: heritageGreen,
+    textMuted: '#7A7A7A',
     textLight: '#FFFFFF',
     textDarkContrast: heritageGreen,
 
@@ -71,6 +72,7 @@ export const Colors = {
   dark: {
     text: cream,
     textSecondary: sand,
+    textMuted: sand,
     textLight: '#FFFFFF',
     textDarkContrast: heritageGreen,
 

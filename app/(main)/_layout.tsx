@@ -19,6 +19,14 @@ function MainTabsLayout() {
       <Tabs.Screen name="profile" options={{ title: 'Profile', headerShown: true }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
       <Tabs.Screen name="teams" options={{ title: 'Teams', headerShown: true }} />
+      <Tabs.Screen
+        name="subscriptionPlans"
+        options={{ title: 'Subscription Plans', ...HeaderTheme.tabPushedScreenOptions(currentColors) }}
+      />
+      <Tabs.Screen
+        name="deleteAccount"
+        options={{ title: 'Delete Account', ...HeaderTheme.tabPushedScreenOptions(currentColors, '/settings') }}
+      />
     </Tabs>
   );
 }

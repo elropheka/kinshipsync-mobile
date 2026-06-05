@@ -249,7 +249,7 @@ const SpecificEventGuestListScreen = () => {
       
       {isSearchVisible && (
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color={currentColors.textMuted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search by name or email..."
