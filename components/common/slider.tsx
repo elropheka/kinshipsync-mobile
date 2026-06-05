@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { View, ScrollView, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/context/AppThemeContext';
@@ -40,68 +40,147 @@ const Slider: React.FC<SliderProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollIndexRef = useRef(0);
+  const isAdjustingLoopRef = useRef(false);
 
   const totalSlides = children.length;
+  const canLoop = loop && totalSlides > 1;
   const viewportWidth = containerWidth ?? width;
   const itemWidth = width;
   const slideStride = peekAdjacent ? itemWidth + slideGap : itemWidth;
   const sidePadding = peekAdjacent ? Math.max((viewportWidth - itemWidth) / 2, 0) : 0;
+  const initialScrollIndex = canLoop ? 1 : 0;
 
-  const startAutoPlay = () => {
-    if (!autoPlay || isPaused) return;
+  const renderedSlides = useMemo(() => {
+    if (!canLoop) {
+      return children;
+    }
+    return [children[totalSlides - 1], ...children, children[0]];
+  }, [canLoop, children, totalSlides]);
 
-    autoPlayTimerRef.current = setInterval(() => {
-      if (currentIndex < totalSlides - 1) {
-        goToSlide(currentIndex + 1);
-      } else if (loop) {
-        goToSlide(0);
+  const toLogicalIndex = useCallback(
+    (scrollIndex: number): number => {
+      if (!canLoop) {
+        return scrollIndex;
       }
-    }, autoPlayInterval);
-  };
+      if (scrollIndex === 0) {
+        return totalSlides - 1;
+      }
+      if (scrollIndex === totalSlides + 1) {
+        return 0;
+      }
+      return scrollIndex - 1;
+    },
+    [canLoop, totalSlides],
+  );
 
-  const stopAutoPlay = () => {
+  const scrollToIndex = useCallback(
+    (scrollIndex: number, animated: boolean) => {
+      scrollViewRef.current?.scrollTo({
+        x: scrollIndex * slideStride,
+        animated,
+      });
+      scrollIndexRef.current = scrollIndex;
+    },
+    [slideStride],
+  );
+
+  const setLogicalIndex = useCallback(
+    (scrollIndex: number) => {
+      const logicalIndex = toLogicalIndex(scrollIndex);
+      setCurrentIndex(logicalIndex);
+      onSlideChange?.(logicalIndex);
+    },
+    [onSlideChange, toLogicalIndex],
+  );
+
+  const stopAutoPlay = useCallback(() => {
     if (autoPlayTimerRef.current) {
       clearInterval(autoPlayTimerRef.current);
       autoPlayTimerRef.current = null;
     }
-  };
+  }, []);
 
-  const goToSlide = (index: number) => {
-    if (index < 0 || index >= totalSlides) return;
-    
-    setCurrentIndex(index);
-    scrollViewRef.current?.scrollTo({
-      x: index * slideStride,
-      animated: true,
-    });
-    
-    onSlideChange?.(index);
-  };
+  const goToScrollIndex = useCallback(
+    (scrollIndex: number, animated = true) => {
+      if (!canLoop && (scrollIndex < 0 || scrollIndex >= totalSlides)) {
+        return;
+      }
+      scrollToIndex(scrollIndex, animated);
+    },
+    [canLoop, scrollToIndex, totalSlides],
+  );
 
-  const goToNextSlide = () => {
-    if (currentIndex < totalSlides - 1) {
-      goToSlide(currentIndex + 1);
-    } else if (loop) {
-      goToSlide(0);
+  const goToSlide = useCallback(
+    (logicalIndex: number) => {
+      if (logicalIndex < 0 || logicalIndex >= totalSlides) {
+        return;
+      }
+      const targetScrollIndex = canLoop ? logicalIndex + 1 : logicalIndex;
+      goToScrollIndex(targetScrollIndex, true);
+      setLogicalIndex(targetScrollIndex);
+    },
+    [canLoop, goToScrollIndex, setLogicalIndex, totalSlides],
+  );
+
+  const goToNextSlide = useCallback(() => {
+    if (!canLoop && scrollIndexRef.current >= totalSlides - 1) {
+      return;
     }
-  };
+    goToScrollIndex(scrollIndexRef.current + 1, true);
+  }, [canLoop, goToScrollIndex, totalSlides]);
 
-  const goToPreviousSlide = () => {
-    if (currentIndex > 0) {
-      goToSlide(currentIndex - 1);
-    } else if (loop) {
-      goToSlide(totalSlides - 1);
+  const goToPreviousSlide = useCallback(() => {
+    if (!canLoop && scrollIndexRef.current <= 0) {
+      return;
     }
-  };
+    goToScrollIndex(scrollIndexRef.current - 1, true);
+  }, [canLoop, goToScrollIndex]);
 
-  const handleScroll = (event: any) => {
+  const handleScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+    if (isAdjustingLoopRef.current) {
+      return;
+    }
+
     const contentOffset = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffset / slideStride);
-    
-    if (index !== currentIndex) {
-      setCurrentIndex(index);
-      onSlideChange?.(index);
+
+    if (index !== scrollIndexRef.current) {
+      scrollIndexRef.current = index;
+      setLogicalIndex(index);
     }
+  };
+
+  const handleMomentumScrollEnd = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+    if (!canLoop) {
+      return;
+    }
+
+    const contentOffset = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffset / slideStride);
+
+    if (index === 0) {
+      isAdjustingLoopRef.current = true;
+      scrollToIndex(totalSlides, false);
+      setLogicalIndex(totalSlides);
+      requestAnimationFrame(() => {
+        isAdjustingLoopRef.current = false;
+      });
+      return;
+    }
+
+    if (index === totalSlides + 1) {
+      isAdjustingLoopRef.current = true;
+      scrollToIndex(1, false);
+      setLogicalIndex(1);
+      requestAnimationFrame(() => {
+        isAdjustingLoopRef.current = false;
+      });
+      return;
+    }
+
+    scrollIndexRef.current = index;
+    setLogicalIndex(index);
   };
 
   const handleTouchStart = () => {
@@ -114,26 +193,31 @@ const Slider: React.FC<SliderProps> = ({
   const handleTouchEnd = () => {
     if (pauseOnHover) {
       setIsPaused(false);
-      startAutoPlay();
     }
   };
 
   useEffect(() => {
-    if (autoPlay) {
-      startAutoPlay();
-    }
-
-    return () => {
-      stopAutoPlay();
-    };
+    scrollToIndex(initialScrollIndex, false);
+    setLogicalIndex(initialScrollIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, autoPlay, isPaused]); // startAutoPlay and stopAutoPlay are stable functions
+  }, [totalSlides, canLoop, slideStride]);
 
   useEffect(() => {
+    if (!autoPlay || isPaused || totalSlides <= 1) {
+      stopAutoPlay();
+      return undefined;
+    }
+
+    autoPlayTimerRef.current = setInterval(() => {
+      goToNextSlide();
+    }, autoPlayInterval);
+
     return () => {
       stopAutoPlay();
     };
-  }, []);
+  }, [autoPlay, autoPlayInterval, goToNextSlide, isPaused, stopAutoPlay, totalSlides]);
+
+  useEffect(() => () => stopAutoPlay(), [stopAutoPlay]);
 
   const styles = useMemo(() => SliderStyles(currentColors), [currentColors]);
 
@@ -158,6 +242,7 @@ const Slider: React.FC<SliderProps> = ({
         decelerationRate={peekAdjacent ? 'fast' : undefined}
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
         scrollEventThrottle={16}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -166,9 +251,9 @@ const Slider: React.FC<SliderProps> = ({
           peekAdjacent ? { paddingHorizontal: sidePadding } : undefined
         }
       >
-        {children.map((child, index) => (
+        {renderedSlides.map((child, index) => (
           <View
-            key={index}
+            key={`slide-${index}`}
             style={[
               styles.slide,
               { width: peekAdjacent ? slideStride : itemWidth },
@@ -182,8 +267,7 @@ const Slider: React.FC<SliderProps> = ({
         ))}
       </ScrollView>
 
-      {/* Navigation Arrows */}
-      {showArrows && totalSlides > 1 && (
+      {showArrows && totalSlides > 1 ? (
         <>
           <TouchableOpacity
             style={[styles.arrow, styles.leftArrow]}
@@ -192,7 +276,7 @@ const Slider: React.FC<SliderProps> = ({
           >
             <Ionicons name="chevron-back" size={24} color={currentColors.textLight} />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.arrow, styles.rightArrow]}
             onPress={goToNextSlide}
@@ -201,14 +285,13 @@ const Slider: React.FC<SliderProps> = ({
             <Ionicons name="chevron-forward" size={24} color={currentColors.textLight} />
           </TouchableOpacity>
         </>
-      )}
+      ) : null}
 
-      {/* Dots Indicator */}
-      {showDots && totalSlides > 1 && (
+      {showDots && totalSlides > 1 ? (
         <View style={styles.dotsContainer}>
           {children.map((_, index) => (
             <TouchableOpacity
-              key={index}
+              key={`dot-${index}`}
               style={[
                 styles.dot,
                 index === currentIndex ? styles.activeDot : styles.inactiveDot,
@@ -217,7 +300,7 @@ const Slider: React.FC<SliderProps> = ({
             />
           ))}
         </View>
-      )}
+      ) : null}
     </View>
   );
 };
@@ -285,7 +368,7 @@ const SliderStyles = (currentColors: typeof import('constants/Colors').Colors.li
     backgroundColor: currentColors.textLight,
   },
   inactiveDot: {
-    backgroundColor: currentColors.backgroundPaper + '80', // 50% opacity
+    backgroundColor: currentColors.backgroundPaper + '80',
   },
 });
 
