@@ -19,6 +19,8 @@ import MultiUserPicker from '@/components/common/MultiUserPicker';
 import * as userService from '@/services/userService';
 import { useAlert } from '@/context/AlertContext';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventCoverImagePicker } from '@/components/events/EventCoverImagePicker';
+import { getEventCoverImageUrl } from '@/utils/eventCoverUtils';
 
 const EventWebsiteFormFallback = ({ initialWebsiteData: _initialWebsiteData, onSubmit: _onSubmit, onCancel: _onCancel }: any) => (
   <View style={{ padding: 20, alignItems: 'center' }}>
@@ -45,6 +47,7 @@ const EditEventScreen = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
  
+  const [coverImageUrl, setCoverImageUrl] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -70,6 +73,7 @@ const EditEventScreen = () => {
 
   useEffect(() => {
     if (event) {
+      setCoverImageUrl(getEventCoverImageUrl(event) || '');
       setName(event.name || '');
       setDescription(event.description || '');
       setLocation(event.location || '');
@@ -223,6 +227,7 @@ const EditEventScreen = () => {
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
       themeId: selectedThemeId,
+      coverImageUrl: coverImageUrl.trim() || undefined,
     };
     
     console.log('Updating event with payload:', payload);
@@ -281,6 +286,13 @@ const EditEventScreen = () => {
   
   const renderStep1Details = () => (
     <>
+      <EventCoverImagePicker
+        coverImageUrl={coverImageUrl || undefined}
+        onCoverImageUrlChange={setCoverImageUrl}
+        eventId={eventId}
+        organizerId={currentUser?.uid}
+        disabled={isUpdating}
+      />
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Event Name <Text style={styles.requiredStar}>*</Text></Text>
         <TextInput

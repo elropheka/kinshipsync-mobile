@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Event } from '@/types/eventTypes';
 import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { getEventCoverImageUrl } from '@/utils/eventCoverUtils';
 
 interface EventDetailHeaderProps {
   event: Event;
@@ -24,8 +25,15 @@ const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineIn
     return null; 
   }
 
+  const coverImageUrl = getEventCoverImageUrl(event);
+
   return (
     <View style={styles.card}>
+      {coverImageUrl ? (
+        <Image source={{ uri: coverImageUrl }} style={styles.detailHeaderImage} resizeMode="cover" />
+      ) : (
+        <View style={styles.detailHeaderImage} />
+      )}
       <View style={styles.headerTitleContainer}>
         <Text style={styles.title}>{event.name}</Text>
         {isOrganizer && onEditEvent && (

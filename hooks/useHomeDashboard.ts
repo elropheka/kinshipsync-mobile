@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs, limit, orderBy, query } from '@firebase/firestore';
 import { firestore } from '@/services/firebaseConfig';
 import { Event } from '@/types/eventTypes';
+import { getEventCoverImageUrl } from '@/utils/eventCoverUtils';
 
 export interface HomeFeaturedEvent {
   title: string;
@@ -38,7 +39,7 @@ export class HomeDashboardDataLoader {
     return {
       title: event.name,
       subtitle: event.location ?? 'Location TBD',
-      imageUri: event.website?.headerImageUrl,
+      imageUri: getEventCoverImageUrl(event),
       eventId: event.id,
     };
   }

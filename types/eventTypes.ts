@@ -20,6 +20,7 @@ export interface Event {
   totalAttendees?: number;
   guestEmails?: string[];
   status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  coverImageUrl?: string;
   website?: WebsitePayload;
   searchableKeywords?: string[];
 }

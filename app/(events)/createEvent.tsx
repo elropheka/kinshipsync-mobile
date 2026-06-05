@@ -19,6 +19,7 @@ import { useTheme } from '@/context/ThemeContext';
 import MultiUserPicker from '@/components/common/MultiUserPicker';
 import * as userService from '@/services/userService';
 import EventWebsiteForm from '@/components/website/EventWebsiteForm';
+import { EventCoverImagePicker } from '@/components/events/EventCoverImagePicker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getEventWebsiteUrl } from '@/utils/eventWebsiteUtils';
 import { useAlert } from '@/context/AlertContext';
@@ -54,6 +55,7 @@ const CreateEventScreen = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
 
+  const [coverImageUrl, setCoverImageUrl] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -204,6 +206,7 @@ const CreateEventScreen = () => {
       visibility: visibility,
       allowedUserIds: finalAllowedUserIds,
       themeId: selectedThemeId,
+      ...(coverImageUrl ? { coverImageUrl } : {}),
     };
 
 
@@ -311,6 +314,11 @@ const CreateEventScreen = () => {
   
   const renderStep1Details = () => (
     <>
+      <EventCoverImagePicker
+        coverImageUrl={coverImageUrl || undefined}
+        onCoverImageUrlChange={setCoverImageUrl}
+        organizerId={currentUser?.uid}
+      />
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Event Name <Text style={styles.requiredStar}>*</Text></Text>
             <TextInput
