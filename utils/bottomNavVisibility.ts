@@ -18,7 +18,11 @@ const BOTTOM_NAV_VISIBLE_SUFFIXES = [
   '/settings',
 ];
 
-export function normalizePathname(pathname: string): string {
+export function normalizePathname(pathname: unknown): string {
+  if (typeof pathname !== 'string' || pathname.length === 0) {
+    return '/';
+  }
+
   const path = pathname.split('?')[0].replace(/\/$/, '') || '/';
   return path;
 }
@@ -27,12 +31,12 @@ function pathMatchesSuffix(path: string, suffix: string): boolean {
   return path === suffix || path.endsWith(suffix);
 }
 
-export function shouldShowBottomNav(pathname: string): boolean {
+export function shouldShowBottomNav(pathname: unknown): boolean {
   const path = normalizePathname(pathname);
   return BOTTOM_NAV_VISIBLE_SUFFIXES.some((suffix) => pathMatchesSuffix(path, suffix));
 }
 
-export function getActiveBottomNavTab(pathname: string): BottomNavTabKey | null {
+export function getActiveBottomNavTab(pathname: unknown): BottomNavTabKey | null {
   const path = normalizePathname(pathname);
 
   if (path.includes('/messages') || path.includes('/chatArea') || path.includes('/newChat')) {
@@ -51,7 +55,7 @@ export function getActiveBottomNavTab(pathname: string): BottomNavTabKey | null 
   return null;
 }
 
-export function isTabRootPath(pathname: string, tab: BottomNavTabKey): boolean {
+export function isTabRootPath(pathname: unknown, tab: BottomNavTabKey): boolean {
   const path = normalizePathname(pathname);
   return TAB_ROOT_PATHS[tab].some((root) => path === root || path.endsWith(root));
 }

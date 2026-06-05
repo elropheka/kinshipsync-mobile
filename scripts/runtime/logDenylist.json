@@ -1,0 +1,24 @@
+{
+  "patterns": [
+    {
+      "id": "error_boundary",
+      "pattern": "ErrorBoundary caught an error",
+      "message": "App hit an uncaught render crash"
+    },
+    {
+      "id": "symbol_type_error",
+      "pattern": "Cannot convert Symbol to string",
+      "message": "Native or navigation Symbol coercion failure"
+    },
+    {
+      "id": "type_error",
+      "pattern": "TypeError:",
+      "message": "Runtime type error in JavaScript"
+    },
+    {
+      "id": "unhandled_rejection",
+      "pattern": "Unhandled promise rejection",
+      "message": "Unhandled async rejection"
+    }
+  ]
+}

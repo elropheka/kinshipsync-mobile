@@ -1,58 +1,11 @@
 import React from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import type { NativeStackHeaderItem } from '@react-navigation/native-stack';
 import BackButton, { type BackButtonContrast } from './BackButton';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
 export class HeaderButtonItems {
-  public static createBackButtonItems(
-    tintColor?: string,
-    fallbackRoute: string = '/home',
-  ): NativeStackHeaderItem[] {
-    if (!router.canGoBack() && !fallbackRoute) {
-      return [];
-    }
-
-    return [
-      {
-        type: 'button',
-        label: 'Back',
-        icon: { type: 'sfSymbol', name: 'chevron.left' },
-        tintColor: tintColor ?? '#FFFFFF',
-        hidesSharedBackground: true,
-        variant: 'plain',
-        onPress: () => {
-          if (router.canGoBack()) {
-            router.back();
-          } else if (fallbackRoute) {
-            router.replace(fallbackRoute as never);
-          }
-        },
-        accessibilityLabel: 'Go back',
-      },
-    ];
-  }
-
-  public static createIconButtonItem(params: {
-    label: string;
-    sfSymbol: string;
-    onPress: () => void;
-    tintColor?: string;
-  }): NativeStackHeaderItem {
-    return {
-      type: 'button',
-      label: params.label,
-      icon: { type: 'sfSymbol', name: params.sfSymbol as never },
-      tintColor: params.tintColor ?? '#FFFFFF',
-      hidesSharedBackground: true,
-      variant: 'plain',
-      onPress: params.onPress,
-    };
-  }
-
   public static headerLeftBackOptions(
     tintColor: string,
     contrast: BackButtonContrast = 'onAccent',
@@ -77,26 +30,9 @@ export class HeaderButtonItems {
       onPress: () => void;
       size?: number;
     }>,
-  ): {
-    unstable_headerRightItems?: () => NativeStackHeaderItem[];
-    headerRight?: () => React.ReactNode;
-  } {
+  ): { headerRight: () => React.ReactNode } {
     if (actions.length === 0) {
-      return {};
-    }
-
-    if (Platform.OS === 'ios') {
-      return {
-        unstable_headerRightItems: () =>
-          actions.map((action) =>
-            this.createIconButtonItem({
-              label: action.label,
-              sfSymbol: action.sfSymbol,
-              onPress: action.onPress,
-              tintColor,
-            }),
-          ),
-      };
+      return { headerRight: () => null };
     }
 
     return {
@@ -141,31 +77,13 @@ export class HeaderButtonItems {
     ionicon: IconName;
     onPress: () => void;
     tintColor: string;
-  }): {
-    unstable_headerRightItems?: () => NativeStackHeaderItem[];
-    headerRight?: () => React.ReactNode;
-  } {
-    if (Platform.OS === 'ios') {
-      return {
-        unstable_headerRightItems: () => [
-          this.createIconButtonItem({
-            label: params.label,
-            sfSymbol: params.sfSymbol,
-            onPress: params.onPress,
-            tintColor: params.tintColor,
-          }),
-        ],
-      };
-    }
-
-    return {
-      headerRight: () =>
-        React.createElement(HeaderIconButtonInner, {
-          name: params.ionicon,
-          onPress: params.onPress,
-          tintColor: params.tintColor,
-        }),
-    };
+  }): { headerRight: () => React.ReactNode } {
+    return this.headerRightIconComponent({
+      label: params.label,
+      ionicon: params.ionicon,
+      onPress: params.onPress,
+      tintColor: params.tintColor,
+    });
   }
 }
 

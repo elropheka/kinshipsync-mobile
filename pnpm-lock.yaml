@@ -186,6 +186,9 @@ importers:
       '@babel/core':
         specifier: ^7.25.2
         version: 7.29.7
+      '@expo/config-plugins':
+        specifier: ^55.0.10
+        version: 55.0.10
       '@react-native-community/cli':
         specifier: ^15.0.0
         version: 15.1.3(typescript@5.9.3)

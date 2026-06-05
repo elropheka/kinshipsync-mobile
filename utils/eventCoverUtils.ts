@@ -1,9 +1,60 @@
-import { Event } from '@/types/eventTypes';
+import { Event, WebsitePayload } from '@/types/eventTypes';
 
 export class EventCoverUtils {
+  public static coerceHttpUrl(value: unknown): string | undefined {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+
+    if (!/^https?:\/\//i.test(trimmed)) {
+      return undefined;
+    }
+
+    if (typeof URL !== 'undefined' && typeof URL.canParse === 'function' && !URL.canParse(trimmed)) {
+      return undefined;
+    }
+
+    return trimmed;
+  }
+
+  public static normalizeEventCoverFields<
+    T extends { coverImageUrl?: string; website?: WebsitePayload },
+  >(event: T): T {
+    const coverImageUrl = this.coerceHttpUrl(event.coverImageUrl);
+    const website = this.normalizeWebsiteCover(event.website);
+
+    return {
+      ...event,
+      coverImageUrl,
+      website,
+    };
+  }
+
   public static getEventCoverImageUrl(event: Pick<Event, 'coverImageUrl' | 'website'>): string | undefined {
-    return event.coverImageUrl ?? event.website?.headerImageUrl;
+    return (
+      this.coerceHttpUrl(event.coverImageUrl) ?? this.coerceHttpUrl(event.website?.headerImageUrl)
+    );
+  }
+
+  private static normalizeWebsiteCover(website: WebsitePayload | undefined): WebsitePayload | undefined {
+    if (!website) {
+      return undefined;
+    }
+
+    const headerImageUrl = this.coerceHttpUrl(website.headerImageUrl);
+
+    return {
+      ...website,
+      ...(headerImageUrl ? { headerImageUrl } : { headerImageUrl: undefined }),
+    };
   }
 }
 
-export const getEventCoverImageUrl = EventCoverUtils.getEventCoverImageUrl;
+export const coerceHttpUrl = EventCoverUtils.coerceHttpUrl.bind(EventCoverUtils);
+export const normalizeEventCoverFields = EventCoverUtils.normalizeEventCoverFields.bind(EventCoverUtils);
+export const getEventCoverImageUrl = EventCoverUtils.getEventCoverImageUrl.bind(EventCoverUtils);

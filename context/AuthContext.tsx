@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import * as SecureStore from 'expo-secure-store';
@@ -89,8 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: authError,
     isInitialized: isAuthInitialized, 
   } = useAppAuth();
-  const dispatch = useDispatch(); 
-
+  const dispatch = useDispatch();
+  const hasDispatchedInitRef = useRef(false);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -160,8 +160,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           dispatch(clearAuthData());
       }
 
-      if (!isAuthInitialized) {
-        console.log('[AuthContext] Dispatching setAuthIsInitialized(true). Current isAuthInitialized (from Redux):', isAuthInitialized);
+      if (!hasDispatchedInitRef.current) {
+        hasDispatchedInitRef.current = true;
+        console.log('[AuthContext] Dispatching setAuthIsInitialized(true).');
         dispatch(setAuthIsInitialized(true));
       }
     });
@@ -170,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[AuthContext] Unsubscribing from onAuthStateChanged.');
       unsubscribe();
     };
-  }, [dispatch, isAuthInitialized]); 
+  }, [dispatch]); 
 
   const handleSignIn = useCallback(async (credentials: LoginCredentials) => {
     dispatch(setAuthIsLoading(true));

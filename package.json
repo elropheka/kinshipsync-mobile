@@ -1,7 +1,7 @@
 {
   "name": "kinshipsync",
   "main": "index.js",
-  "version": "1.0.15",
+  "version": "2.0.0",
   "scripts": {
     "build": "pnpm install --frozen-lockfile",
     "start": "REACT_NATIVE_PACKAGER_HOSTNAME=localhost npx expo start",
@@ -11,6 +11,7 @@
     "ios": "REACT_NATIVE_PACKAGER_HOSTNAME=localhost npx expo run:ios",
     "web": "npx expo start --web",
     "test": "jest --watchAll",
+    "test:ci": "jest --ci --coverage=false",
     "generate:assets": ".venv-assets/bin/python scripts/generateBrandAssets.py",
     "lint": "npx expo lint",
     "lint:ci": "npx expo lint -- --max-warnings 0",
@@ -20,10 +21,18 @@
     "precommit:run": "pre-commit run --all-files",
     "audit:clean": "tsx scripts/lint/runCleanAudit.ts",
     "audit:clean:strict": "tsx scripts/lint/runCleanAudit.ts --strict",
-    "validate": "pnpm run lint:ci && pnpm run typecheck && pnpm run audit:clean"
+    "audit:runtime:logs": "tsx scripts/runtime/runLogSmokeAudit.ts",
+    "audit:runtime:ios": "tsx scripts/runtime/runIosBootSmoke.ts",
+    "validate:static": "pnpm run lint:ci && pnpm run typecheck && pnpm run audit:clean",
+    "validate:runtime": "pnpm run test:ci && pnpm run audit:runtime:ios",
+    "validate": "pnpm run validate:static && pnpm run test:ci",
+    "validate:full": "pnpm run validate:static && pnpm run validate:runtime"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    }
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.11",
@@ -86,6 +95,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@expo/config-plugins": "^55.0.10",
     "@react-native-community/cli": "^15.0.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native-stack": "^7.3.10",

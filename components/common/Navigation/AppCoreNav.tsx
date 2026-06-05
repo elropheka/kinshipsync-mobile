@@ -131,18 +131,13 @@ export default function AppCoreNav() {
         contentStyle: { backgroundColor: currentColors.backgroundPrimary },
       }}
     >
-      {!isAuthenticated ? (
-        <Stack.Screen name="(auth)" options={{ gestureEnabled: false }} />
-      ) : (
-        <>
-          <Stack.Screen name="(main)" options={{ gestureEnabled: false }} />
-          <Stack.Screen name="(events)" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="(vendors)" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="(chat)" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="(teams)" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="themes" options={{ gestureEnabled: true }} />
-        </>
-      )}
+      <Stack.Screen name="(auth)" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(main)" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="(events)" options={{ gestureEnabled: true }} />
+      <Stack.Screen name="(vendors)" options={{ gestureEnabled: true }} />
+      <Stack.Screen name="(chat)" options={{ gestureEnabled: true }} />
+      <Stack.Screen name="(teams)" options={{ gestureEnabled: true }} />
+      <Stack.Screen name="themes" options={{ gestureEnabled: true }} />
     </Stack>
   );
 
@@ -155,5 +150,5 @@ export default function AppCoreNav() {
     </>
   );
 
-  return isAuthenticated ? <ScrollNavProvider>{shell}</ScrollNavProvider> : shell;
+  return <ScrollNavProvider>{shell}</ScrollNavProvider>;
 }

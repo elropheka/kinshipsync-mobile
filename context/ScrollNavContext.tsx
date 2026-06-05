@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -24,13 +25,7 @@ interface ScrollNavProviderProps {
   children: ReactNode;
 }
 
-export class ScrollNavProvider extends React.Component<ScrollNavProviderProps> {
-  public render(): React.ReactNode {
-    return <ScrollNavProviderInner {...this.props} />;
-  }
-}
-
-const ScrollNavProviderInner: React.FC<ScrollNavProviderProps> = ({ children }) => {
+export const ScrollNavProvider: React.FC<ScrollNavProviderProps> = ({ children }) => {
   const [isNavVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
   const scrollThreshold = 10;
@@ -47,11 +42,15 @@ const ScrollNavProviderInner: React.FC<ScrollNavProviderProps> = ({ children }) 
     lastScrollY.current = currentScrollY;
   }, []);
 
-  return (
-    <ScrollNavContext.Provider value={{ handleScroll, isNavVisible }}>
-      {children}
-    </ScrollNavContext.Provider>
+  const value = useMemo(
+    () => ({
+      handleScroll,
+      isNavVisible,
+    }),
+    [handleScroll, isNavVisible],
   );
+
+  return <ScrollNavContext.Provider value={value}>{children}</ScrollNavContext.Provider>;
 };
 
 export default ScrollNavContext;

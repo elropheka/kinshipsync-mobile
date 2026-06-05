@@ -10,13 +10,14 @@ function MainTabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        lazy: true,
         tabBarStyle: { display: 'none' },
         ...HeaderTheme.tabAccentOptions(currentColors),
       }}
     >
       <Tabs.Screen name="home" options={{ title: 'Home', headerShown: false }} />
       <Tabs.Screen name="notifications" options={{ title: 'Notifications', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', headerShown: true }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile', headerShown: false }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
       <Tabs.Screen name="teams" options={{ title: 'Teams', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
       <Tabs.Screen

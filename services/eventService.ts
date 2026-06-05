@@ -20,6 +20,7 @@ import {
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { handleSnapshotError } from '@/utils/firestoreListeners';
+import { normalizeEventCoverFields } from '@/utils/eventCoverUtils';
 import { getEventWebsiteUrl, isValidSlug, withSlugCollisionSuffix } from '../utils/eventWebsiteUtils';
 import { getUserProfileById, getUserProfileByEmail } from './userService';
 import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification } from '../services/notificationService';
@@ -113,7 +114,7 @@ export const getEventsPaginated = async (
       const allowedUserIds = Array.isArray(data.allowedUserIds) ? data.allowedUserIds : [];
       const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
       
-      return {
+      return normalizeEventCoverFields({
         id: docSnap.id,
         name: data.name,
         name_lowercase: data.name_lowercase,
@@ -136,7 +137,7 @@ export const getEventsPaginated = async (
         guestEmails,
         createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
         updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      } as Event;
+      } as Event);
     });
     const events = await Promise.all(eventsPromises);
     return events;
@@ -160,7 +161,7 @@ export const getEventById = async (isAuthenticated: boolean, eventId: string): P
       const teamIds = Array.isArray(data.teamIds) ? data.teamIds : [];
       const searchableKeywords = Array.isArray(data.searchableKeywords) ? data.searchableKeywords : [];
       
-      return {
+      return normalizeEventCoverFields({
         id: docSnap.id,
         ...data,
         allowedUserIds,
@@ -168,7 +169,7 @@ export const getEventById = async (isAuthenticated: boolean, eventId: string): P
         searchableKeywords,
         createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
         updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      } as Event;
+      } as Event);
     } else {
       console.log(`Event ${eventId} not found.`);
       return null;
@@ -1773,12 +1774,12 @@ export const getEventBySlug = async (isAuthenticated: boolean, slug: string): Pr
     if (!eventDoc) return null;
 
     const data = eventDoc.data();
-    return {
+    return normalizeEventCoverFields({
       id: eventDoc.id,
       ...data,
       createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
       updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as Event;
+    } as Event);
   } catch (error) {
     console.error(`Error fetching event by slug ${slug}:`, error);
     throw error;
