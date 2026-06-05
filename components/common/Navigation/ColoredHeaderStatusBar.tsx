@@ -1,7 +1,5 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useAppTheme } from '@/context/AppThemeContext';
 
 export type StatusBarContentStyle = 'light' | 'dark';
 
@@ -17,18 +15,8 @@ export class ColoredHeaderStatusBar extends React.Component<ColoredHeaderStatusB
 }
 
 const ColoredHeaderStatusBarInner: React.FC<ColoredHeaderStatusBarProps> = ({
-  backgroundColor,
   contentStyle = 'light',
-}) => {
-  const { currentColors } = useAppTheme();
-  const bg = backgroundColor ?? currentColors.accent;
-
-  return (
-    <StatusBar
-      style={contentStyle}
-      backgroundColor={Platform.OS === 'android' ? bg : undefined}
-      translucent={Platform.OS === 'android' ? false : undefined}
-    />
-  );
-};
+}) => (
+  <StatusBar style={contentStyle} />
+);
 

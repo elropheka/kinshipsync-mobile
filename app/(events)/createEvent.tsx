@@ -224,7 +224,7 @@ const CreateEventScreen = () => {
       if (newEvent) {
         const eventServiceRef = await import('../../services/eventService');
         let websiteUrl: string | null = null;
-        let customUrlSlug: string | null = null;
+        let isWebsitePublished = false;
         
         // Create website if we have website data and didn't skip it
         if (newEvent.id && hasWebsiteData && !skipWebsite) {
@@ -249,11 +249,10 @@ const CreateEventScreen = () => {
 
             await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, websitePayload);
             
-            // Get the customUrlSlug from the payload (we just set it)
-            customUrlSlug = websitePayload.customUrlSlug || null;
+            isWebsitePublished = websitePayload.published ?? false;
+            const customUrlSlug = websitePayload.customUrlSlug || null;
             
-            // Generate the website URL if we have a slug
-            if (customUrlSlug) {
+            if (customUrlSlug && isWebsitePublished) {
               websiteUrl = getEventWebsiteUrl(customUrlSlug);
             }
           } catch (websiteError) {
@@ -265,7 +264,6 @@ const CreateEventScreen = () => {
         // Route to event details page immediately after successful creation
         router.replace({ pathname: '/(events)/details/[id]', params: { id: newEvent.id } });
         
-        // Show success alert with website URL if available
         if (websiteUrl) {
           showSuccess(
             'Event Created Successfully!',
@@ -274,9 +272,8 @@ const CreateEventScreen = () => {
               confirmText: 'OK',
             }
           );
-          // Copy URL option - show info alert
           try {
-            await Clipboard.setStringAsync(websiteUrl!);
+            await Clipboard.setStringAsync(websiteUrl);
             setTimeout(() => {
               showInfo('Copied!', 'Website URL copied to clipboard.');
             }, 500);
@@ -286,6 +283,11 @@ const CreateEventScreen = () => {
               showError('Error', 'Could not copy URL to clipboard.');
             }, 500);
           }
+        } else if (hasWebsiteData && !skipWebsite) {
+          showSuccess(
+            'Event Created Successfully!',
+            'Your event website was saved as a draft. Publish it from event details to share the link.',
+          );
         } else {
           showSuccess('Success', 'Event created successfully!');
         }

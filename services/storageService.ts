@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Platform } from 'react-native';
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -121,7 +121,7 @@ const handleStorageError = (error: any, details: Record<string, any>): string =>
 
 const getFileInfo = async (localFileUri: string): Promise<FileInfo> => {
   try {
-    const fileInfo = await FileSystem.getInfoAsync(localFileUri, { size: true });
+    const fileInfo = await FileSystem.getInfoAsync(localFileUri);
     if (!fileInfo.exists) {
       throw new Error('File does not exist at the given URI.');
     }

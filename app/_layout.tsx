@@ -70,7 +70,9 @@ const RootLayout: React.FC = () => {
           if (__DEV__) {
             OneSignal.Debug.setLogLevel(LogLevel.Verbose);
           }
-          OneSignal.initialize('8d7630da-1b46-425d-a912-c9002e7c79a4');
+          const oneSignalAppId =
+            Constants.expoConfig?.extra?.oneSignalAppId ?? '8d7630da-1b46-425d-a912-c9002e7c79a4';
+          OneSignal.initialize(oneSignalAppId);
           console.log('✅ OneSignal SDK initialized');
 
           const canRequest = await OneSignal.Notifications.canRequestPermission();

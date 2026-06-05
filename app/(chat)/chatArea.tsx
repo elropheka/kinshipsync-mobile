@@ -17,7 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker'; // Added
 import * as DocumentPicker from 'expo-document-picker'; // Added
-import * as FileSystem from 'expo-file-system'; // Added
+import * as FileSystem from 'expo-file-system/legacy';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { createChatAreaStyles } from '../../styles/app/(chat)/chatArea.styles';

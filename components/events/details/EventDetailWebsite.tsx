@@ -76,6 +76,11 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
       return;
     }
 
+    if (!eventWebsite.published) {
+      showInfo("Website Not Published", "Publish the event website before sharing the link.");
+      return;
+    }
+
     const url = getEventWebsiteUrl(eventWebsite.customUrlSlug);
     await Clipboard.setStringAsync(url);
     showSuccess('Copied', 'Website link copied to clipboard.');

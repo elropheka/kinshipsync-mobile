@@ -53,7 +53,9 @@ export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) 
   const { settings } = useCurrentUser();
   const { isAuthenticated } = useAuth();
   const [theme, setThemeState] = useState<AppTheme>(defaultTheme);
-  const [systemTheme, setSystemTheme] = useState<ColorSchemeName>(Appearance.getColorScheme());
+  const [systemTheme, setSystemTheme] = useState<ColorSchemeName>(
+    Appearance.getColorScheme() ?? 'light',
+  );
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasSyncedUserSettings, setHasSyncedUserSettings] = useState(false);
 
@@ -73,7 +75,7 @@ export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) 
   // Listen for system theme changes
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setSystemTheme(colorScheme);
+      setSystemTheme(colorScheme ?? 'light');
     });
 
     return () => subscription?.remove();
