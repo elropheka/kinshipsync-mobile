@@ -23,6 +23,8 @@ import {
     Event as EventType 
 } from '../../../types/eventTypes';
 import { Colors } from '../../../constants/Colors';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 
 const EventScheduleScreen = () => {
@@ -39,6 +41,10 @@ const EventScheduleScreen = () => {
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [metadataError, setMetadataError] = useState<Error | null>(null);
+
+  useErrorAlert(error);
+  useErrorAlert(metadataError, { title: 'Could not load event details' });
   
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<ScheduleItemType | null>(null);
@@ -75,7 +81,10 @@ const EventScheduleScreen = () => {
 
     getEventById(isAuthenticated, eventId)
         .then(details => setEventDetails(details))
-        .catch(err => console.error("Error fetching event details for schedule:", err));
+        .catch(err => {
+          console.error("Error fetching event details for schedule:", err);
+          setMetadataError(err instanceof Error ? err : new Error(getErrorMessage(err)));
+        });
 
     const unsubscribe = listenToSchedule(
       isAuthenticated,
@@ -83,7 +92,12 @@ const EventScheduleScreen = () => {
       (itemsFromDb) => {
         setScheduleItems(itemsFromDb.sort((a, b) => a.startTime.localeCompare(b.startTime)));
         setIsLoading(false);
-      }
+        setError(null);
+      },
+      (listenerError) => {
+        setError(listenerError);
+        setIsLoading(false);
+      },
     );
     return () => unsubscribe();
   }, [eventId, isAuthenticated, user]);

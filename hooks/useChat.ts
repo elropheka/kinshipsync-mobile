@@ -42,7 +42,11 @@ export const useConversations = () => {
         setIsLoading(false);
         setError(null);
       },
-      50 // Increased limit for real-time list
+      50,
+      (listenerError) => {
+        setError(listenerError);
+        setIsLoading(false);
+      },
     );
 
     return () => {
@@ -163,11 +167,16 @@ export const useChatMessages = (conversationId?: string) => {
         (newMessages) => {
           setMessages(newMessages);
           setIsLoading(false);
+          setError(null);
           if (newMessages.length > 0) {
             chatService.markConversationAsRead(true, { conversationId }, currentUserId);
           }
         },
-        30
+        30,
+        (listenerError) => {
+          setError(listenerError);
+          setIsLoading(false);
+        },
       );
 
       return () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, ScrollView, StatusBar, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -203,7 +203,7 @@ const FamilyTreeScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.container}>
           <ActivityIndicator size="large" color={currentColors.primary} />
           <Text>Loading family tree...</Text>
@@ -214,7 +214,7 @@ const FamilyTreeScreen = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.container}>
           <Text style={styles.title}>Error</Text>
           <Text>{error}</Text>
@@ -225,7 +225,7 @@ const FamilyTreeScreen = () => {
 
   if (!familyTreeData) {
     return (
-      <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.container}>
           <Text style={styles.title}>Family Tree: {teamId}</Text>
           <Text>No family tree data available for this team.</Text>
@@ -235,7 +235,7 @@ const FamilyTreeScreen = () => {
   }
 
   return (
-    <SafeAreaView style={screenStyles.safeArea} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <ScrollView 
         contentContainerStyle={styles.scrollViewContainer}
@@ -248,12 +248,5 @@ const FamilyTreeScreen = () => {
     </SafeAreaView>
   );
 };
-
-const screenStyles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: currentColors.background,
-  },
-});
 
 export default FamilyTreeScreen;

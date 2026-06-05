@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { router } from 'expo-router';
+import { getApiErrorMessage } from '@/utils/errorUtils';
 
 const PROD_API_URL = 'https://kinshipsync.vercel.app/api/v1';
 const DEV_API_URL = 'http://localhost:5001/api/v1';
@@ -31,26 +32,16 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     console.error('API Error:', error.response?.data || error.message);
 
     if (error.response) {
-      const { data, status } = error.response;
-      let errorMessage = 'An unexpected error occurred.';
+      const { status } = error.response;
+      const errorMessage = getApiErrorMessage(error);
 
-      if (status === 401 || status === 400) {
-        errorMessage = (data as any)?.message || 'Authentication failed. Please log in again.';
-       router.replace('/(auth)/signIn'); 
-      } else if (status === 403) {
-        errorMessage = "You don't have permission to access this resource.";
-      } else if (status === 404) {
-        errorMessage = 'The requested resource was not found.';
-      } else if (status >= 500) {
-        errorMessage = 'A server error occurred. Please try again later.';
-      } else if (data && typeof (data as any).message === 'string') {
-        errorMessage = (data as any).message;
-      } else if (typeof data === 'string' && data.length > 0 && data.length < 100) {
-        errorMessage = data;
+      if (status === 401) {
+        await SecureStore.deleteItemAsync('authToken');
+        router.replace('/(auth)/signIn');
       }
 
       Toast.show({

@@ -22,6 +22,7 @@ import {
   FieldValue, // Added FieldValue
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
+import { handleSnapshotError } from '@/utils/firestoreListeners';
 
 export const getUserProfile = async (isAuthenticated: boolean, userId: string): Promise<UserProfile | null> => {
   if (!isAuthenticated) {
@@ -271,7 +272,8 @@ export const listenToUserNotifications = (
   userId: string,
   callback: (notifications: UserNotification[]) => void,
   limitCount: number = 20,
-  unreadOnly: boolean = false
+  unreadOnly: boolean = false,
+  onError?: (error: Error) => void,
 ) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to notifications.");
@@ -302,9 +304,7 @@ export const listenToUserNotifications = (
       } as UserNotification);
     });
     callback(notifications);
-  }, (error) => {
-    console.error("Error listening to user notifications:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to user notifications'));
 
   return unsubscribe;
 };

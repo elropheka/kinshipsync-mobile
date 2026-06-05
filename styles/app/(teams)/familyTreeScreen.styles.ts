@@ -2,6 +2,10 @@ import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 export const createFamilyTreeScreenStyles = (theme: typeof Colors.light) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
   scrollViewContainer: {
     flexGrow: 1,
     alignItems: 'center',

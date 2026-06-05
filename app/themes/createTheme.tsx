@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import { Colors } from '../../constants/Colors';
@@ -8,11 +8,13 @@ import { useAppTheme } from '../../context/AppThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAlert } from '@/context/AlertContext';
+import { createCreateThemeStyles } from '@/styles/app/themes/createTheme.styles';
 
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
 
 const CreateThemeScreen = () => {
   const { currentColors } = useAppTheme();
+  const styles = createCreateThemeStyles(currentColors);
   const { user, isAuthenticated } = useAuth();
   const { refreshAvailableThemes } = useTheme();
   const { showSuccess, showError } = useAlert();
@@ -37,11 +39,11 @@ const CreateThemeScreen = () => {
 
   const handleSaveTheme = async () => {
     if (!isAuthenticated || !user?.uid) {
-      showAlert('error', 'Error', 'You must be logged in to save a theme.');
+      showError('Error', 'You must be logged in to save a theme.');
       return;
     }
     if (!themeName.trim()) {
-      showAlert('error', 'Error', 'Theme name is required.');
+      showError('Error', 'Theme name is required.');
       return;
     }
 
@@ -150,46 +152,5 @@ const CreateThemeScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: currentColors.background,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: currentColors.textSecondary,
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  input: {
-    backgroundColor: currentColors.backgroundPaper,
-    borderWidth: 1,
-    borderColor: currentColors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: currentColors.text,
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: currentColors.primary,
-    marginTop: 20,
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: currentColors.divider,
-    paddingBottom: 5,
-  },
-  buttonContainer: {
-    marginTop: 30,
-    marginBottom: 20,
-  },
-});
 
 export default CreateThemeScreen;

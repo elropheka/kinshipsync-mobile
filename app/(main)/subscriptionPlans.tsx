@@ -142,7 +142,7 @@ const SubscriptionPlansScreen = () => {
                 </Text>
               </View>
               <View style={styles.featuresContainer}>
-                {plan.features.map((feature, index) => (
+                {(plan.features ?? []).map((feature, index) => (
                   <View key={index} style={styles.featureItem}>
                     <Ionicons name="checkmark-circle-outline" size={18} color={planColor} style={styles.featureIcon} />
                     <Text style={styles.featureText}>{feature}</Text>

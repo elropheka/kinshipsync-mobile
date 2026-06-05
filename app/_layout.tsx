@@ -22,28 +22,57 @@ import { OneSignal, LogLevel } from 'react-native-onesignal';
 
 SplashScreen.preventAutoHideAsync();
 
-const RootLayout: React.FC = () => {
+const AppShell: React.FC<{ onLayoutRootView: () => void }> = ({ onLayoutRootView }) => {
   const { currentColors } = useAppTheme();
-  
-  const [fontsLoaded, fontError] = useFonts(FontAssets.interFontMap);
 
+  return (
+    <View
+      style={{ flex: 1, width: '100%', height: '100%', backgroundColor: currentColors.backgroundSecondary }}
+      onLayout={onLayoutRootView}
+    >
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={currentColors.backgroundSecondary}
+      />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ErrorBoundary>
+          <SidebarProvider>
+            <ThemeProvider>
+              <AlertProvider>
+                <AppCoreNav />
+              </AlertProvider>
+            </ThemeProvider>
+          </SidebarProvider>
+        </ErrorBoundary>
+      </GestureHandlerRootView>
+    </View>
+  );
+};
+
+const ThemedApp: React.FC<{ onLayoutRootView: () => void }> = ({ onLayoutRootView }) => (
+  <ReduxProvider store={store}>
+    <AuthProvider>
+      <AppThemeProvider>
+        <AppShell onLayoutRootView={onLayoutRootView} />
+      </AppThemeProvider>
+    </AuthProvider>
+  </ReduxProvider>
+);
+
+const RootLayout: React.FC = () => {
+  const [fontsLoaded, fontError] = useFonts(FontAssets.interFontMap);
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
     async function prepare() {
       try {
-        // Initialize OneSignal SDK
         try {
-          // Enable verbose logging for debugging (only in development)
           if (__DEV__) {
             OneSignal.Debug.setLogLevel(LogLevel.Verbose);
           }
-          // Initialize with your OneSignal App ID
           OneSignal.initialize('8d7630da-1b46-425d-a912-c9002e7c79a4');
           console.log('✅ OneSignal SDK initialized');
-          
-          // Request push notification permissions
-          // Check if we can request permission (hasn't been prompted before)
+
           const canRequest = await OneSignal.Notifications.canRequestPermission();
           if (canRequest) {
             const permissionGranted = await OneSignal.Notifications.requestPermission(false);
@@ -53,7 +82,6 @@ const RootLayout: React.FC = () => {
               console.log('ℹ️ Push notification permission denied');
             }
           } else {
-            // Permission was already requested, check current status
             const hasPermission = await OneSignal.Notifications.getPermissionAsync();
             if (hasPermission) {
               console.log('✅ Push notification permission already granted');
@@ -63,17 +91,13 @@ const RootLayout: React.FC = () => {
           }
         } catch (oneSignalError) {
           console.warn('⚠️ Error initializing OneSignal SDK:', oneSignalError);
-          // Don't block app startup if OneSignal initialization fails
         }
 
-        // Initialize messaging API token from environment or app config
         try {
           const tokenFromEnv = typeof process !== 'undefined' && process.env?.MESSAGING_API_TOKEN;
           const tokenFromConfig = Constants.expoConfig?.extra?.messagingApiToken;
-          
-          // Use token from environment first, then from app.json config
           const messagingToken = tokenFromEnv || tokenFromConfig;
-          
+
           if (messagingToken && messagingToken !== 'null' && messagingToken !== 'undefined') {
             await setMessagingApiToken(messagingToken);
             console.log('✅ Messaging API token initialized from environment/config');
@@ -82,7 +106,6 @@ const RootLayout: React.FC = () => {
           }
         } catch (tokenError) {
           console.warn('⚠️ Error initializing messaging API token:', tokenError);
-          // Don't block app startup if token initialization fails
         }
 
         if (!__DEV__) {
@@ -91,13 +114,13 @@ const RootLayout: React.FC = () => {
             await Updates.fetchUpdateAsync();
           }
         }
-        
+
         if (fontsLoaded || fontError) {
           setAppIsReady(true);
         }
       } catch (e) {
         console.warn("Error during app preparation:", e);
-        setAppIsReady(true); 
+        setAppIsReady(true);
       }
     }
     prepare();
@@ -110,37 +133,12 @@ const RootLayout: React.FC = () => {
   }, [appIsReady]);
 
   if (!appIsReady) {
-   
     return null;
   }
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: currentColors.backgroundSecondary }} onLayout={onLayoutRootView}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={currentColors.backgroundSecondary}
-        />
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <ErrorBoundary>
-          <ReduxProvider store={store}>
-            <AuthProvider>
-              <AppThemeProvider>
-                <SidebarProvider>
-                  <ThemeProvider>
-                    <AlertProvider>
-                    {/* <ResponsiveContainer> */}
-                      <AppCoreNav />
-                      {/* </ResponsiveContainer> */}
-                    </AlertProvider>
-                  </ThemeProvider>
-                </SidebarProvider>
-              </AppThemeProvider>
-            </AuthProvider>
-          </ReduxProvider>
-          </ErrorBoundary>
-        </GestureHandlerRootView>
-      </View>
+      <ThemedApp onLayoutRootView={onLayoutRootView} />
     </SafeAreaProvider>
   );
 };

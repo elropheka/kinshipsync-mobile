@@ -104,7 +104,7 @@ export default function EventDetailsScreen() {
       try {
         const allUserIds = new Set<string>();
         eventTeams.forEach(team => {
-          team.members.forEach(member => {
+          (team.members ?? []).forEach(member => {
             allUserIds.add(member.userId);
           });
         });
@@ -146,7 +146,7 @@ export default function EventDetailsScreen() {
   );
 
   const taskAssignableUsers: UserProfile[] = eventTeams.flatMap(team => 
-    team.members.map((member: { userId: string }) => {
+    (team.members ?? []).map((member: { userId: string }) => {
       const memberProfile = uniqueAssignableUsers.find(user => user.userId === member.userId);
       return memberProfile;
     }).filter((profile): profile is UserProfile => profile !== undefined)

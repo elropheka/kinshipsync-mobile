@@ -18,6 +18,7 @@ import {
   arrayRemove,
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
+import { handleSnapshotError } from '@/utils/firestoreListeners';
 import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
 import { getUserProfileById, getUserProfileByEmail } from './userService';
 import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification } from '../services/notificationService';
@@ -320,7 +321,8 @@ export const updateEventOverallBudget = async (isAuthenticated: boolean, eventId
 export const listenToGuestsWithRsvp = (
   isAuthenticated: boolean,
   eventId: string,
-  callback: (guests: Guest[]) => void
+  callback: (guests: Guest[]) => void,
+  onError?: (error: Error) => void,
 ) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to guests.");
@@ -355,9 +357,7 @@ export const listenToGuestsWithRsvp = (
       } as Guest);
     });
     callback(guests);
-  }, (error) => {
-    console.error("Error listening to guests:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to guests'));
 
   return unsubscribe;
 };
@@ -607,7 +607,12 @@ export const removeGuestFromEvent = async (isAuthenticated: boolean, eventId: st
   }
 };
 
-export const listenToSchedule = (isAuthenticated: boolean, eventId: string, callback: (schedule: ScheduleItem[]) => void) => {
+export const listenToSchedule = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (schedule: ScheduleItem[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to schedule.");
     return () => {};
@@ -629,9 +634,7 @@ export const listenToSchedule = (isAuthenticated: boolean, eventId: string, call
       });
     });
     callback(scheduleItems);
-  }, (error) => {
-    console.error("Error listening to schedule:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to schedule'));
 
   return unsubscribe;
 };
@@ -667,7 +670,12 @@ export const getEventTheme = async (isAuthenticated: boolean, eventId: string, u
   }
 };
 
-export const listenToEventTasks = (isAuthenticated: boolean, eventId: string, callback: (tasks: Task[]) => void) => {
+export const listenToEventTasks = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (tasks: Task[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to tasks.");
     return () => {};
@@ -689,14 +697,17 @@ export const listenToEventTasks = (isAuthenticated: boolean, eventId: string, ca
       });
     });
     callback(tasks);
-  }, (error) => {
-    console.error("Error listening to tasks:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to tasks'));
 
   return unsubscribe;
 };
 
-export const listenToBudgetItems = (isAuthenticated: boolean, eventId: string, callback: (budgetItems: BudgetItem[]) => void) => {
+export const listenToBudgetItems = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (budgetItems: BudgetItem[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to budget items.");
     return () => {};
@@ -718,14 +729,17 @@ export const listenToBudgetItems = (isAuthenticated: boolean, eventId: string, c
       });
     });
     callback(items);
-  }, (error) => {
-    console.error("Error listening to budget items:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to budget items'));
 
   return unsubscribe;
 };
 
-export const listenToIdeas = (isAuthenticated: boolean, eventId: string, callback: (ideas: Idea[]) => void) => {
+export const listenToIdeas = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (ideas: Idea[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to ideas.");
     return () => {};
@@ -747,14 +761,17 @@ export const listenToIdeas = (isAuthenticated: boolean, eventId: string, callbac
       });
     });
     callback(ideas);
-  }, (error) => {
-    console.error("Error listening to ideas:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to ideas'));
 
   return unsubscribe;
 };
 
-export const listenToEventTeams = (isAuthenticated: boolean, eventId: string, callback: (teams: EventTeam[]) => void) => {
+export const listenToEventTeams = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (teams: EventTeam[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to teams.");
     return () => {};
@@ -769,21 +786,26 @@ export const listenToEventTeams = (isAuthenticated: boolean, eventId: string, ca
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     const teams: EventTeam[] = [];
     querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data() as Omit<EventTeam, 'id' | 'eventId'>;
       teams.push({
         id: docSnap.id,
         eventId,
-        ...(docSnap.data() as Omit<EventTeam, 'id' | 'eventId'>),
+        ...data,
+        members: data.members ?? [],
       });
     });
     callback(teams);
-  }, (error) => {
-    console.error("Error listening to teams:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to teams'));
 
   return unsubscribe;
 };
 
-export const listenToEventMessages = (isAuthenticated: boolean, eventId: string, callback: (messages: EventMessage[]) => void) => {
+export const listenToEventMessages = (
+  isAuthenticated: boolean,
+  eventId: string,
+  callback: (messages: EventMessage[]) => void,
+  onError?: (error: Error) => void,
+) => {
   if (!isAuthenticated) {
     console.error("User not authenticated. Cannot listen to messages.");
     return () => {};
@@ -805,9 +827,7 @@ export const listenToEventMessages = (isAuthenticated: boolean, eventId: string,
       });
     });
     callback(messages);
-  }, (error) => {
-    console.error("Error listening to messages:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to event messages'));
 
   return unsubscribe;
 };

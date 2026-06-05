@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ const ErrorBoundaryContent: React.FC<{
     <View style={styles.container}>
       <Text style={styles.title}>Something went wrong</Text>
       <Text style={styles.message}>
-        {error?.message || 'Unknown error'}
+        {getErrorMessage(error)}
       </Text>
       <Button 
         title="Try Again" 

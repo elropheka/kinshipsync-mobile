@@ -36,6 +36,8 @@ import { updateGuestRsvp } from '../../services/eventService'; // Added for RSVP
 import { updateMessageRsvpStatus } from '../../services/chatService'; // Added for updating message state
 import { useAlert } from '@/context/AlertContext';
 import { Avatar } from '../../components/common/Avatar';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -55,6 +57,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
   const [avatarUrl, setAvatarUrl] = useState(initialSenderAvatarUrl);
   const [rsvpProcessed, setRsvpProcessed] = useState(message.rsvpStatus !== 'pending');
   const [isProcessingRsvp, setIsProcessingRsvp] = useState(false);
+  const [profileFetchError, setProfileFetchError] = useState<Error | null>(null);
+
+  useErrorAlert(profileFetchError, { title: 'Could not load profile' });
 
   useEffect(() => {
     if (!isUser && senderId && (displayName === 'User' || displayName === 'Unknown User' || !displayName)) {
@@ -67,7 +72,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isUser, senderNa
             setAvatarUrl(profile.avatarUrl);
           }
         })
-        .catch(err => console.error("Failed to fetch profile for message bubble:", err));
+        .catch(err => {
+          console.error("Failed to fetch profile for message bubble:", err);
+          setProfileFetchError(err instanceof Error ? err : new Error(getErrorMessage(err)));
+        });
     } else if (!isUser) {
       setDisplayName(initialSenderName || 'User');
       setAvatarUrl(initialSenderAvatarUrl);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
+import { View, Text, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,11 +18,11 @@ import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonIt
 import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, removeMemberFromTeam, deleteTaskForTeam } from '../../../services/teamService';
 import * as scheduleService from '../../../services/scheduleService'; // Added scheduleService
 import { getUserProfile } from '../../../services/userService';
-
-// Mock data removed
+import { createDashboardScreenStyles } from '@/styles/app/(teams)/dashboardScreen.styles';
 
 const TeamDashboardScreen = () => {
   const { currentColors } = useAppTheme();
+  const styles = createDashboardScreenStyles(currentColors);
   const router = useRouter();
   const { teamId, initialTab } = useLocalSearchParams<{ teamId: string; initialTab?: string }>();
   const { user: currentUser, token, isInitialized } = useAppAuth();
@@ -480,87 +480,5 @@ const TeamDashboardScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: currentColors.backgroundLight, 
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: currentColors.background, 
-    borderBottomWidth: 1,
-    borderBottomColor: currentColors.divider,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: currentColors.primary,
-  },
-  tabText: {
-    fontSize: 16,
-    color: currentColors.textSecondary,
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: currentColors.primary,
-  },
-  listHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: currentColors.text, 
-    padding: 15,
-    backgroundColor: currentColors.backgroundPaper,
-    borderBottomWidth: 1,
-    borderBottomColor: currentColors.divider,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    backgroundColor: currentColors.background,
-  },
-  itemIcon: {
-    marginRight: 15,
-  },
-  avatarImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 15,
-    backgroundColor: currentColors.divider, // Placeholder bg
-  },
-  itemTextContainer: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: currentColors.text,
-  },
-  itemSubtitle: {
-    fontSize: 14,
-    color: currentColors.textSecondary,
-    marginTop: 2,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: currentColors.divider,
-    marginLeft: 15 + 40 + 15, 
-  },
-  emptyListText: {
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 16,
-    color: currentColors.textSecondary,
-  }
-});
 
 export default TeamDashboardScreen;

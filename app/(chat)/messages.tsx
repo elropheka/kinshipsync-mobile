@@ -13,6 +13,8 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { getUserProfileById } from '../../services/userService';
 import { Avatar } from '../../components/common/Avatar';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 interface ConversationItemProps {
   item: Conversation;
@@ -23,12 +25,15 @@ interface ConversationItemProps {
 
 const ConversationItem: React.FC<ConversationItemProps> = React.memo(function ConversationItem({ item, currentUserId, onPress, styles }) {
   // Find other participant - use stable reference by finding by ID
-  const otherParticipant = item.participants.find(p => p.userId !== currentUserId);
+  const otherParticipant = (item.participants ?? []).find(p => p.userId !== currentUserId);
   const otherUserId = otherParticipant?.userId;
   
   const [displayName, setDisplayName] = useState(otherParticipant?.displayName || 'Unknown User');
   const [avatarUrl, setAvatarUrl] = useState(otherParticipant?.avatarUrl);
   const [hasFetchedProfile, setHasFetchedProfile] = useState(false);
+  const [profileFetchError, setProfileFetchError] = useState<Error | null>(null);
+
+  useErrorAlert(profileFetchError, { title: 'Could not load profile' });
 
   // Update from participant data when it changes
   useEffect(() => {
@@ -55,7 +60,10 @@ const ConversationItem: React.FC<ConversationItemProps> = React.memo(function Co
             setAvatarUrl(profile.avatarUrl);
           }
         })
-        .catch(err => console.error("Failed to fetch profile for item:", err));
+        .catch(err => {
+          console.error("Failed to fetch profile for item:", err);
+          setProfileFetchError(err instanceof Error ? err : new Error(getErrorMessage(err)));
+        });
     }
   }, [otherUserId, otherParticipant?.displayName, hasFetchedProfile]);
 
@@ -104,6 +112,8 @@ const ChatListScreen = () => {
   const { user: currentUser } = useAppAuth();
   const { conversations, isLoading, error, fetchConversations } = useConversations();
 
+  useErrorAlert(error);
+
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredConversations = useMemo(() => conversations.filter(conv => {
@@ -113,12 +123,12 @@ const ChatListScreen = () => {
     const lowercasedQuery = searchQuery.toLowerCase();
     if (conv.type === 'group') {
       const nameMatch = conv.name?.toLowerCase().includes(lowercasedQuery);
-      const participantMatch = conv.participants.some(
+      const participantMatch = (conv.participants ?? []).some(
         p => p.displayName?.toLowerCase().includes(lowercasedQuery)
       );
       return nameMatch || participantMatch;
     } else {
-      const otherParticipant = conv.participants.find(p => p.userId !== currentUser?.uid);
+      const otherParticipant = (conv.participants ?? []).find(p => p.userId !== currentUser?.uid);
       return otherParticipant?.displayName?.toLowerCase().includes(lowercasedQuery);
     }
   }), [conversations, searchQuery, currentUser?.uid]);

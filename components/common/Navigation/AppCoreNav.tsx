@@ -137,6 +137,8 @@ export default function AppCoreNav() {
           <Stack.Screen name="(events)" options={{ gestureEnabled: true }} />
           <Stack.Screen name="(vendors)" options={{ gestureEnabled: true }} />
           <Stack.Screen name="(chat)" options={{ gestureEnabled: true }} />
+          <Stack.Screen name="(teams)" options={{ gestureEnabled: true }} />
+          <Stack.Screen name="themes" options={{ gestureEnabled: true }} />
         </>
       )}
     </Stack>

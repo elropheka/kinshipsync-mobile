@@ -8,8 +8,7 @@ import { createEventsStyles } from '@/styles/app/(events)/events.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAllEvents } from '@/hooks/useEvents';
 import { Event } from '@/types/eventTypes';
-import { Colors } from '@/constants/Colors';
-import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];

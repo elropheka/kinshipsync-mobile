@@ -15,6 +15,8 @@ import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPP
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import InviteGuestModal from '@/components/events/InviteGuestModal';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -33,6 +35,10 @@ const RsvpListScreen = () => {
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [metadataError, setMetadataError] = useState<Error | null>(null);
+
+  useErrorAlert(error);
+  useErrorAlert(metadataError, { title: 'Could not load event details' });
   
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<GuestStatusFilterType>('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,7 +65,10 @@ const RsvpListScreen = () => {
 
     getEventById(isAuthenticated, eventId)
       .then(details => setEventDetails(details))
-      .catch(err => console.error("Error fetching event details for RSVP screen:", err));
+      .catch(err => {
+        console.error("Error fetching event details for RSVP screen:", err);
+        setMetadataError(err instanceof Error ? err : new Error(getErrorMessage(err)));
+      });
 
     const unsubscribe = listenToGuestsWithRsvp(
       isAuthenticated,
@@ -67,7 +76,12 @@ const RsvpListScreen = () => {
       (guestsFromDb) => {
         setFetchedGuests(guestsFromDb);
         setIsLoading(false);
-      }
+        setError(null);
+      },
+      (listenerError) => {
+        setError(listenerError);
+        setIsLoading(false);
+      },
     );
     return () => unsubscribe();
   }, [eventId, isAuthenticated, user]);

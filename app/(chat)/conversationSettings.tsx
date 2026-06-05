@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar, Platform } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar, Platform } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -9,9 +9,13 @@ import { getConversationById, updateParticipantRole, removeParticipantFromGroupC
 import { Conversation, ParticipantInfo, ChatRole } from '../../types/chatTypes';
 import { Ionicons } from '@expo/vector-icons'; // For icons
 import { useAlert } from '@/context/AlertContext';
+import { createConversationSettingsStyles } from '@/styles/app/(chat)/conversationSettings.styles';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 const ConversationSettingsScreen = () => {
   const { currentColors } = useAppTheme();
+  const styles = createConversationSettingsStyles(currentColors);
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>();
   const { user: currentUser, token } = useAppAuth();
   const isAuthenticated = !!currentUser && !!token;
@@ -20,6 +24,8 @@ const ConversationSettingsScreen = () => {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useErrorAlert(error);
 
   useEffect(() => {
     if (conversationId && currentUser?.uid && isAuthenticated) {
@@ -31,7 +37,7 @@ const ConversationSettingsScreen = () => {
         })
         .catch(err => {
           console.error("Error fetching conversation details:", err);
-          setError(err.message || "Failed to fetch conversation details.");
+          setError(getErrorMessage(err));
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -231,79 +237,5 @@ const ConversationSettingsScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: currentColors.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  placeholder: {
-    marginTop: 20,
-    fontStyle: 'italic',
-    color: currentColors.textSecondary,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: currentColors.text,
-  },
-  participantItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: currentColors.divider,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-    backgroundColor: currentColors.divider,
-  },
-  participantInfo: {
-    flex: 1,
-  },
-  participantName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: currentColors.text,
-  },
-  participantRole: {
-    fontSize: 14,
-    color: currentColors.textSecondary,
-    textTransform: 'capitalize',
-  },
-  manageRoleButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  errorText: {
-    color: currentColors.error,
-    textAlign: 'center',
-  }
-});
 
 export default ConversationSettingsScreen;

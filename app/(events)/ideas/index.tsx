@@ -30,6 +30,8 @@ import {
 import { Colors } from '../../../constants/Colors';
 import { UserProfile } from '../../../types/userTypes';
 import { getUserProfile } from '../../../services/userService';
+import { useErrorAlert } from '@/hooks/useErrorAlert';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 const formatDate = (isoString: string) => {
   if (!isoString) return 'Unknown date';
@@ -51,6 +53,9 @@ const EventIdeasScreen = () => {
   const [eventDetails, setEventDetails] = useState<EventType | null>(null);
   const [isLoadingIdeas, setIsLoadingIdeas] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [metadataError, setMetadataError] = useState<Error | null>(null);
+
+  useErrorAlert(metadataError, { title: 'Could not load event details' });
   
   const [newIdeaText, setNewIdeaText] = useState('');
   const [userDetailsCache, setUserDetailsCache] = useState<Record<string, Pick<UserProfile, 'displayName' | 'avatarUrl'>>>({});
@@ -59,7 +64,10 @@ const EventIdeasScreen = () => {
     if (eventId && isAuthenticated) {
       getEventById(isAuthenticated, eventId)
         .then(setEventDetails)
-        .catch(err => console.error("Error fetching event details for ideas screen:", err));
+        .catch(err => {
+          console.error("Error fetching event details for ideas screen:", err);
+          setMetadataError(err instanceof Error ? err : new Error(getErrorMessage(err)));
+        });
     }
   }, [eventId, isAuthenticated]);
 
@@ -93,6 +101,9 @@ const EventIdeasScreen = () => {
         }
         if (cacheUpdated) setUserDetailsCache(newCache);
       }
+    }, (listenerError) => {
+      setError(getErrorMessage(listenerError));
+      setIsLoadingIdeas(false);
     });
     return () => unsubscribe();
   }, [eventId, isAuthenticated, userDetailsCache]);

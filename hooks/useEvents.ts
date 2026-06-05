@@ -301,41 +301,45 @@ export const useEventDetail = (eventId?: string) => {
           setIsLoadingSubEntities(false);
         }
       };
+      const handleListenerError = (listenerError: Error) => {
+        setError(listenerError);
+        setIsLoadingSubEntities(false);
+      };
       
       unsubscribeGuests = eventService.listenToGuestsWithRsvp(isAuthenticated, eventId, (updatedGuests) => {
         setGuests(updatedGuests);
         loadedFlags.guests = true; checkAllLoaded();
-      });
+      }, handleListenerError);
       
       unsubscribeSchedule = eventService.listenToSchedule(isAuthenticated, eventId, (updatedSchedule) => {
         setSchedule(updatedSchedule);
         loadedFlags.schedule = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
       unsubscribeTasks = eventService.listenToEventTasks(isAuthenticated, eventId, (updatedTasks) => {
         setTasks(updatedTasks);
         loadedFlags.tasks = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
       unsubscribeBudgetItems = eventService.listenToBudgetItems(isAuthenticated, eventId, (updatedBudgetItems) => {
         setBudgetItems(updatedBudgetItems);
         loadedFlags.budget = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
       unsubscribeIdeas = eventService.listenToIdeas(isAuthenticated, eventId, (updatedIdeas) => {
         setIdeas(updatedIdeas);
         loadedFlags.ideas = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
       unsubscribeEventTeams = eventService.listenToEventTeams(isAuthenticated, eventId, (updatedTeams) => {
         setEventTeams(updatedTeams);
         loadedFlags.teams = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
       unsubscribeEventMessages = eventService.listenToEventMessages(isAuthenticated, eventId, (updatedMessages) => {
         setEventMessages(updatedMessages);
         loadedFlags.messages = true; checkAllLoaded();
-      });
+      }, handleListenerError);
 
     } else {
       setEvent(null);

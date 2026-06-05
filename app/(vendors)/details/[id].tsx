@@ -118,7 +118,7 @@ export default function VendorDetailsScreen() {
     );
   }
 
-  const categoryNames = vendor.categories.map(cat => cat.name).join(', ') || 'N/A';
+  const categoryNames = (vendor.categories ?? []).map(cat => cat.name).join(', ') || 'N/A';
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>

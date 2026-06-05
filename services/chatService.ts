@@ -28,6 +28,26 @@ import { UserProfile } from '../types/userTypes';
 import { getUserProfileById } from '../services/userService';
 import { sendNotification } from '../services/notificationService';
 import { NewNotificationPayload } from '../types/notificationTypes';
+import { handleSnapshotError } from '@/utils/firestoreListeners';
+
+const mapConversationFromFirestore = (
+  docId: string,
+  data: Record<string, unknown>,
+): Conversation => ({
+  id: docId,
+  ...(data as Omit<Conversation, 'id' | 'createdAt' | 'updatedAt' | 'lastMessage' | 'participants'>),
+  participants: Array.isArray(data.participants) ? (data.participants as ParticipantInfo[]) : [],
+  createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
+  updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
+  lastMessage: data.lastMessage
+    ? {
+        content: (data.lastMessage as { text?: string }).text ?? '',
+        senderId: (data.lastMessage as { senderId?: string }).senderId ?? '',
+        timestamp:
+          ((data.lastMessage as { timestamp?: Timestamp }).timestamp as Timestamp)?.toDate().toISOString() || '',
+      }
+    : undefined,
+});
 
 const getSenderProfileDetails = async (userId: string): Promise<Pick<UserProfile, 'displayName' | 'avatarUrl'>> => {
   if (!userId) {
@@ -91,7 +111,7 @@ export const sendMessage = async (isAuthenticated: boolean, payload: SendMessage
     const conversationSnap = await getDoc(conversationRef);
     if (conversationSnap.exists()) {
       const conversationData = conversationSnap.data() as Conversation;
-      conversationData.participants.forEach(participant => {
+      (conversationData.participants ?? []).forEach(participant => {
         if (participant.userId !== senderId) {
           const notificationPayload: NewNotificationPayload = {
             recipientId: participant.userId,
@@ -134,7 +154,8 @@ export const listenToMessages = (
   isAuthenticated: boolean,
   conversationId: string,
   callback: (messages: ChatMessage[]) => void,
-  limitCount: number = 20
+  limitCount: number = 20,
+  onError?: (error: Error) => void,
 ) => {
   if (!isAuthenticated) return () => console.warn("Attempted to listen while unauthenticated.");
   if (!conversationId) return () => console.error("Conversation ID required for listenToMessages.");
@@ -154,7 +175,7 @@ export const listenToMessages = (
       } as ChatMessage);
     });
     callback(messages.reverse());
-  }, (error) => console.error("Error listening to messages:", error));
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to messages'));
 };
 
 export const getConversations = async (
@@ -200,7 +221,8 @@ export const listenToConversations = (
   isAuthenticated: boolean,
   userId: string,
   callback: (conversations: Conversation[]) => void,
-  limitNum: number = 20
+  limitNum: number = 20,
+  onError?: (error: Error) => void,
 ): (() => void) => {
   if (!isAuthenticated || !userId) {
     return () => {};
@@ -215,24 +237,11 @@ export const listenToConversations = (
   );
 
   return onSnapshot(q, (querySnapshot) => {
-    const conversations: Conversation[] = querySnapshot.docs.map(docSnap => {
-      const data = docSnap.data();
-      return {
-        id: docSnap.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
-        updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
-        lastMessage: data.lastMessage ? {
-          content: data.lastMessage.text,
-          senderId: data.lastMessage.senderId,
-          timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-        } : undefined,
-      } as Conversation;
-    });
+    const conversations: Conversation[] = querySnapshot.docs.map(docSnap =>
+      mapConversationFromFirestore(docSnap.id, docSnap.data() as Record<string, unknown>),
+    );
     callback(conversations);
-  }, (error) => {
-    console.error("Error listening to conversations:", error);
-  });
+  }, (error) => handleSnapshotError(error, onError, 'Error listening to conversations'));
 };
 
 export const getConversationById = async (isAuthenticated: boolean, conversationId: string, currentUserId: string): Promise<Conversation | null> => {
@@ -245,17 +254,7 @@ export const getConversationById = async (isAuthenticated: boolean, conversation
     if (docSnap.exists()) {
       const data = docSnap.data();
       if ((data.participantIds as string[]).includes(currentUserId)) {
-        return {
-          id: docSnap.id,
-          ...data,
-          createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || '',
-          updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || '',
-          lastMessage: data.lastMessage ? {
-            content: data.lastMessage.text,
-            senderId: data.lastMessage.senderId,
-            timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || '',
-          } : undefined,
-        } as Conversation;
+        return mapConversationFromFirestore(docSnap.id, data as Record<string, unknown>);
       }
       return null;
     }
@@ -394,7 +393,9 @@ export const markConversationAsRead = async (isAuthenticated: boolean, payload: 
     const docSnap = await getDoc(conversationRef);
     if (!docSnap.exists()) return false;
     const conversationData = docSnap.data() as Conversation;
-    const participants = conversationData.participants.map(p => p.userId === userId ? { ...p, lastReadTimestamp: new Date().toISOString() } : p);
+    const participants = (conversationData.participants ?? []).map(p =>
+      p.userId === userId ? { ...p, lastReadTimestamp: new Date().toISOString() } : p,
+    );
     await updateDoc(conversationRef, { participants });
     return true;
   } catch (error) {
@@ -551,18 +552,7 @@ export const listenToConversationDetails = (
     if (docSnap.exists()) {
       const data = docSnap.data();
       if (data.participantIds && (data.participantIds as string[]).includes(currentUserId)) {
-        const conversationData = {
-          id: docSnap.id,
-          ...data,
-          createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          lastMessage: data.lastMessage ? {
-            content: data.lastMessage.text,
-            senderId: data.lastMessage.senderId,
-            timestamp: (data.lastMessage.timestamp as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-          } : undefined,
-        } as Conversation;
-        callback(conversationData);
+        callback(mapConversationFromFirestore(docSnap.id, data as Record<string, unknown>));
       } else {
         console.warn(`User ${currentUserId} is not a participant of conversation ${conversationId}. Access denied for real-time details.`);
         callback(null); 
@@ -571,10 +561,7 @@ export const listenToConversationDetails = (
       console.log(`Conversation ${conversationId} not found for real-time listening.`);
       callback(null); 
     }
-  }, (error) => {
-    console.error(`Error listening to conversation details for ${conversationId}:`, error);
-    onError(error);
-  });
+  }, (error) => handleSnapshotError(error, onError, `Error listening to conversation details for ${conversationId}`));
 };
 
 export const updateMessageRsvpStatus = async (
