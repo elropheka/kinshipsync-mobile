@@ -20,6 +20,7 @@ import NotificationSettingsBar from '../../components/notifications/Notification
 import { useAlert } from '@/context/AlertContext';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { BrandCard } from '@/components/ui/BrandCard';
 
 type Filter = FilterChipType;
 
@@ -187,10 +188,12 @@ const NotificationsPage: React.FC = () => {
       <FlatList
         data={filteredNotifications}
         renderItem={({ item }) => (
-          <NotificationListItem
-            item={item}
-            onPress={handleNotificationPress}
-          />
+          <BrandCard style={{ marginHorizontal: 12 }}>
+            <NotificationListItem
+              item={item}
+              onPress={handleNotificationPress}
+            />
+          </BrandCard>
         )}
         keyExtractor={item => item.id}
         style={styles.notificationList}

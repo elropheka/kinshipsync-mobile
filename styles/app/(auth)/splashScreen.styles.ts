@@ -1,11 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
-import {
-  Spacing,
-  ResponsiveFontSizes,
-  moderateScale,
-} from 'constants/dimensions';
+import { ResponsiveFontSizes, moderateScale, Spacing } from 'constants/dimensions';
 
 export const createSplashScreenStyles = (theme: typeof Colors.light) => StyleSheet.create({
   outerContainer: {
@@ -24,15 +20,14 @@ export const createSplashScreenStyles = (theme: typeof Colors.light) => StyleShe
     width: '100%',
     height: '100%',
   },
-  spinner: {
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.s,
-  },
   title: {
     fontSize: ResponsiveFontSizes.header2,
     fontWeight: Fonts.weights.bold,
     color: theme.text,
     fontFamily: Fonts.headerBold,
+  },
+  tagline: {
+    marginTop: Spacing.m,
   },
 });
 

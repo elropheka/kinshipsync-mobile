@@ -10,6 +10,7 @@ import {
   moderateScale,
   isTablet,
 } from 'constants/dimensions';
+import { BOTTOM_NAV_HEIGHT } from '@/styles/components/common/Navigation/bottomNavigation.styles';
 
 export const createHomeStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
@@ -87,6 +88,7 @@ export const createHomeStyles = (theme: typeof Colors.light) => StyleSheet.creat
   },
   dashboardContent: {
     flex: 1,
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.m,
   },
   dashboardTitle: {
     fontSize: ResponsiveFontSizes.header3,

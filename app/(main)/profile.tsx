@@ -16,6 +16,8 @@ import { LoadingScreen } from '@/components/common/LoadingScreen';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
 import { isValidE164Format } from '../../utils/phoneUtils';
 import { Avatar } from '../../components/common/Avatar';
+import { BrandInput } from '@/components/ui/BrandInput';
+import { BrandButton } from '@/components/ui/BrandButton';
 
 // Type assertion to fix React 19 compatibility issue with class components
 const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
@@ -239,7 +241,7 @@ const ProfileScreen = () => {
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Display Name</Text>
-            <TextInput
+            <BrandInput
               style={styles.input}
               value={editableProfile.displayName}
               onChangeText={(text) => handleInputChange('displayName', text)}
@@ -250,7 +252,7 @@ const ProfileScreen = () => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
+            <BrandInput
               style={[styles.input, !isEditing && styles.disabledInput]}
               value={currentUserProfile.email}
               editable={false}
@@ -293,7 +295,7 @@ const ProfileScreen = () => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>City</Text>
-            <TextInput
+            <BrandInput
               style={styles.input}
               value={editableProfile.city}
               onChangeText={(text) => handleInputChange('city', text)}
@@ -304,7 +306,7 @@ const ProfileScreen = () => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Bio</Text>
-            <TextInput
+            <BrandInput
               style={[styles.input, styles.bioInput]}
               value={editableProfile.bio}
               onChangeText={(text) => handleInputChange('bio', text)}
@@ -318,17 +320,20 @@ const ProfileScreen = () => {
 
 
           {isEditing ? (
-            <TouchableOpacity 
-              style={[styles.primaryButton, isSaving && styles.disabledButton]} 
+            <BrandButton
+              label={isSaving ? 'Saving...' : 'SAVE CHANGES'}
+              loading={isSaving}
+              fullWidth
+              style={[styles.primaryButton, isSaving && styles.disabledButton]}
               onPress={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>SAVE CHANGES</Text>}
-            </TouchableOpacity>
+            />
           ) : (
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setIsEditing(true)}>
-              <Text style={styles.buttonText}>EDIT PROFILE</Text>
-            </TouchableOpacity>
+            <BrandButton
+              label="EDIT PROFILE"
+              fullWidth
+              style={styles.primaryButton}
+              onPress={() => setIsEditing(true)}
+            />
           )}
           {isEditing && (
             <TouchableOpacity style={[styles.secondaryButton, {marginTop: 10}]} onPress={() => {

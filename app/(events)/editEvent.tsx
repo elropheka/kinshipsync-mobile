@@ -18,6 +18,7 @@ import { useTheme } from '@/context/ThemeContext';
 import MultiUserPicker from '@/components/common/MultiUserPicker';
 import * as userService from '@/services/userService';
 import { useAlert } from '@/context/AlertContext';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const EventWebsiteFormFallback = ({ initialWebsiteData: _initialWebsiteData, onSubmit: _onSubmit, onCancel: _onCancel }: any) => (
   <View style={{ padding: 20, alignItems: 'center' }}>
@@ -526,12 +527,7 @@ const EditEventScreen = () => {
   };
 
   if (isLoadingEvent) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading event details...</Text>
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   if (!event) {

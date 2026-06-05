@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { sendPasswordReset } from '../../services/authService';
 import { createForgotPasswordStyles } from '../../styles/app/(auth)/forgotPassword.styles';
 import { useAlert } from '@/context/AlertContext';
+import { Ionicons } from '@expo/vector-icons';
+import { BrandButton, BrandInput, BrandText } from '@/components/ui';
 
 const ForgotPasswordScreen = () => {
   const { currentColors } = useAppTheme();
@@ -34,11 +36,14 @@ const ForgotPasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password</Text>
-      <Text style={styles.subtitle}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={22} color={currentColors.text} />
+      </TouchableOpacity>
+      <BrandText variant="h2" style={styles.title}>Forgot Password</BrandText>
+      <BrandText variant="body" color="secondary" style={styles.subtitle}>
         Enter your email address below and we&apos;ll send you a link to reset your password.
-      </Text>
-      <TextInput
+      </BrandText>
+      <BrandInput
         style={styles.input}
         placeholder="Enter your email"
         value={email}
@@ -46,15 +51,16 @@ const ForgotPasswordScreen = () => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TouchableOpacity
+      <BrandButton
+        label={loading ? 'Sending...' : 'Send Reset Link'}
+        loading={loading}
+        fullWidth
         style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handlePasswordReset}
         disabled={loading}
-      >
-        <Text style={styles.buttonText}>{loading ? 'Sending...' : 'Send Reset Link'}</Text>
-      </TouchableOpacity>
+      />
       <TouchableOpacity onPress={() => router.back()}>
-        <Text style={styles.backLink}>Back to Sign In</Text>
+        <BrandText variant="body" style={styles.backLink}>Back to Sign In</BrandText>
       </TouchableOpacity>
     </View>
   );

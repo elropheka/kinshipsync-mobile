@@ -13,6 +13,7 @@ import { createIndexStyles } from '../../../styles/app/(vendors)/selection/index
 import { useAppTheme } from '@/context/AppThemeContext';
 import { DisplayVendorItem, useVendorItemsSearch } from '../../../hooks/useVendors'; // Use new hook and type
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 export default function VendorSelectionScreen() {
   const { currentColors } = useAppTheme();
@@ -46,9 +47,9 @@ export default function VendorSelectionScreen() {
       >
         <View style={styles.vendorImageContainer}>
           {itemImage ? (
-            <Ionicons name="image-outline" size={40} color="#333" />
+            <Ionicons name="image-outline" size={40} color={currentColors.textSecondary} />
           ) : (
-            <Ionicons name={iconName} size={40} color="#333" />
+            <Ionicons name={iconName} size={40} color={currentColors.textSecondary} />
           )}
         </View>
         <View style={styles.vendorContent}>
@@ -74,12 +75,7 @@ export default function VendorSelectionScreen() {
   }, [handleNavigateToVendorDetails, styles, currentColors]);
 
   if (isLoading && displayItems.length === 0) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <Stack.Screen options={{ title: 'Select Service/Product' }} />
-        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

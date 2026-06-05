@@ -1,39 +1,20 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../../constants/Colors';
+import { Spacing } from 'constants/dimensions';
 
 export const createPasswordResetEmailSentStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: theme.backgroundLight,
+    alignItems: 'stretch',
+    paddingHorizontal: Spacing.l,
+    backgroundColor: theme.background,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: theme.buttonPrimary,
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: theme.text,
-    textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 24,
+  emptyState: {
+    marginBottom: Spacing.l,
   },
   button: {
-    backgroundColor: theme.buttonPrimary,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: theme.background,
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginTop: Spacing.s,
   },
 });
 

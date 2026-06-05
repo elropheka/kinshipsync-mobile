@@ -14,7 +14,7 @@ import {
 export const createNotificationsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     paddingTop: isTablet() ? Spacing.l : Spacing.m,
   },
   header: {
@@ -23,7 +23,7 @@ export const createNotificationsStyles = (theme: typeof Colors.light) => StyleSh
     justifyContent: 'space-between',
     paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
     paddingVertical: isTablet() ? Spacing.l : Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: isTablet() ? Spacing.m : Spacing.s,
@@ -107,7 +107,7 @@ export const createNotificationsStyles = (theme: typeof Colors.light) => StyleSh
     alignItems: 'center',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   unreadItem: {
     backgroundColor: theme.info + '1A',

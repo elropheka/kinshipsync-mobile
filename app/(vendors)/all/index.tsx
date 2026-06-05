@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   ActivityIndicator,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -20,6 +19,7 @@ import { VendorCategory } from '../../../types/vendorTypes';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 import { useVendorCategories, useVendorItemsSearch, DisplayVendorItem } from '../../../hooks/useVendors';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { BrandSearchBar } from '@/components/ui/BrandSearchBar';
 
 const VendorsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
@@ -111,9 +111,9 @@ const VendorsScreen: React.FC = () => {
       >
         <View style={styles.vendorImageContainer}>
           {itemImage ? (
-            <Ionicons name="image-outline" size={40} color="#333" /> // Placeholder for actual image
+            <Ionicons name="image-outline" size={40} color={currentColors.textSecondary} /> // Placeholder for actual image
           ) : (
-            <Ionicons name={iconName} size={40} color="#333" />
+            <Ionicons name={iconName} size={40} color={currentColors.textSecondary} />
           )}
         </View>
         <View style={styles.vendorContent}>
@@ -150,23 +150,20 @@ const VendorsScreen: React.FC = () => {
     return (
       <>
         {isSearchBarVisible && (
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search Products or Services"
-              placeholderTextColor="#888"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus={true}
-            />
-          </View>
+          <BrandSearchBar
+            placeholder="Search Products or Services"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoFocus
+            containerStyle={styles.searchContainer}
+            style={styles.searchInput}
+          />
         )}
 
         <View style={styles.locationContainer}>
           <Text style={styles.locationHeader}>Reception venues near</Text>
           <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={20} color="#333" />
+            <Ionicons name="location-outline" size={20} color={currentColors.textSecondary} />
             <Text style={styles.locationText}>New York City</Text>
           </View>
         </View>
@@ -184,7 +181,7 @@ const VendorsScreen: React.FC = () => {
                   onPress={() => handleNavigateToCategory(type.slug)}
                 >
                   <View style={styles.vendorTypeIconContainer}>
-                    <Ionicons name={(type.iconUrl as keyof typeof Ionicons.glyphMap) || 'apps-outline'} size={24} color="#333" />
+                    <Ionicons name={(type.iconUrl as keyof typeof Ionicons.glyphMap) || 'apps-outline'} size={24} color={currentColors.textSecondary} />
                   </View>
                   <Text style={styles.vendorTypeName}>{type.name}</Text>
                 </TouchableOpacity>

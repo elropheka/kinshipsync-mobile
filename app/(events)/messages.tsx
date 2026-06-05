@@ -11,6 +11,7 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { getUserProfile } from '../../services/userService';
 import { useAlert } from '@/context/AlertContext';
 import { Avatar } from '../../components/common/Avatar';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 interface SenderDetails {
   name: string;
@@ -146,7 +147,7 @@ const EventMessagesScreen = () => {
   };
 
   if (isLoadingEventData && !event) { // Show loading only if event data isn't there yet
-    return <View style={styles.centered}><ActivityIndicator size="large" color={currentColors.primary} /><Text>Loading messages...</Text></View>;
+    return <LoadingScreen />;
   }
 
   if (eventError) {

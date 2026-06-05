@@ -6,7 +6,7 @@ import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'const
 export const createNewChatStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.background,
+    backgroundColor: theme.neutralBg,
   },
   header: {
     flexDirection: 'row',

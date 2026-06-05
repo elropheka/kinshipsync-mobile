@@ -9,6 +9,7 @@ import { useEventDetail } from '../../hooks/useEvents';
 import { SeatingTable } from '../../types/eventTypes';
 import TableForm from '../../components/events/TableForm';
 import { useAlert } from '@/context/AlertContext'; 
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
   const SeatingChartScreen = () => {
   const { currentColors } = useAppTheme();
@@ -149,7 +150,7 @@ import { useAlert } from '@/context/AlertContext';
 
 
   if (isLoadingEventData) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color={currentColors.primary} /><Text>Loading event data...</Text></View>;
+    return <LoadingScreen />;
   }
 
   if (eventError) {

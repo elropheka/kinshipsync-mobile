@@ -1,5 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, ScrollView, StatusBar } from 'react-native';
+import { ScrollView, StatusBar } from 'react-native';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { createHomeStyles } from '@/styles/app/(main)/home.styles';
@@ -54,7 +55,7 @@ const DashboardScreen: React.FC = () => {
           <FeaturedEventCard />
 
           {isLoadingEvents && allEvents.length === 0 ? (
-            <ActivityIndicator style={{ marginVertical: 20 }} size="large" color={currentColors.primary} />
+            <BrandLoadingSpinner size="small" style={{ marginVertical: 20 }} />
           ) : null}
           {eventsError ? <BrandText color="accent">Could not load events.</BrandText> : null}
 
@@ -69,7 +70,7 @@ const DashboardScreen: React.FC = () => {
           <FeatureGrid />
 
           {isLoadingUserContext ? (
-            <ActivityIndicator style={{ marginVertical: 12 }} size="small" color={currentColors.primary} />
+            <BrandLoadingSpinner size="small" style={{ marginVertical: 12 }} />
           ) : null}
         </ScrollView>
       </ResponsiveContainer>

@@ -13,14 +13,14 @@ import {
 export const createProfileStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
     paddingBottom: isTablet() ? Spacing.xxl : Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: isTablet() ? Spacing.m : Spacing.s,

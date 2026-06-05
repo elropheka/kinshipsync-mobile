@@ -5,7 +5,8 @@ import {
   TouchableOpacity, 
   ScrollView, 
   ActivityIndicator, 
-  StatusBar
+  StatusBar,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -15,6 +16,8 @@ import { useAuth } from '@/context/AuthContext';
 import { deleteUserAccount, checkUserDataExists } from '@/services/accountDeletionService';
 import { createDeleteAccountStyles } from '@/styles/app/(auth)/deleteAccount.styles';
 import { useAlert } from '@/context/AlertContext';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { BrandButton, BrandCard, BrandInput, BrandText } from '@/components/ui';
 
 interface DataCheckResult {
   hasEvents: boolean;
@@ -126,15 +129,7 @@ const DeleteAccountScreen: React.FC = () => {
   );
 
   if (isCheckingData) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={currentColors.primary} />
-          <Text style={styles.loadingText}>Checking your data...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -155,83 +150,91 @@ const DeleteAccountScreen: React.FC = () => {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Warning Header */}
-        <View style={styles.warningHeader}>
-          <Ionicons name="warning" size={48} color={currentColors.error} />
-          <Text style={styles.warningTitle}>Delete Your Account</Text>
-          <Text style={styles.warningSubtitle}>
-            This action cannot be undone. All your data will be permanently deleted.
-          </Text>
+        <View style={styles.logoWrap}>
+          <Image
+            source={require('@/assets/branding/rusty-brown-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
+        <BrandCard style={styles.warningHeader}>
+          <Ionicons name="warning" size={48} color={currentColors.error} />
+          <BrandText variant="h3" style={styles.warningTitle}>Delete Your Account</BrandText>
+          <BrandText variant="body" color="secondary" style={styles.warningSubtitle}>
+            This action cannot be undone. All your data will be permanently deleted.
+          </BrandText>
+        </BrandCard>
 
         {/* Data Summary */}
         {hasAnyData && (
-          <View style={styles.dataSection}>
-            <Text style={styles.sectionTitle}>Data That Will Be Deleted</Text>
+          <BrandCard style={styles.dataSection}>
+            <BrandText variant="title" style={styles.sectionTitle}>Data That Will Be Deleted</BrandText>
             {getDataSummary().map((item, index) => (
               <View key={index} style={styles.dataItem}>
                 <Ionicons name="trash-outline" size={20} color={currentColors.error} />
-                <Text style={styles.dataItemText}>{item}</Text>
+                <BrandText variant="body" style={styles.dataItemText}>{item}</BrandText>
               </View>
             ))}
-          </View>
+          </BrandCard>
         )}
 
         {!hasAnyData && (
-          <View style={styles.noDataSection}>
+          <BrandCard style={styles.noDataSection}>
             <Ionicons name="checkmark-circle-outline" size={48} color={currentColors.success} />
-            <Text style={styles.noDataText}>No data found to delete</Text>
-            <Text style={styles.noDataSubtext}>
+            <BrandText variant="title" style={styles.noDataText}>No data found to delete</BrandText>
+            <BrandText variant="body" color="secondary" style={styles.noDataSubtext}>
               Your account appears to be clean with no associated data.
-            </Text>
-          </View>
+            </BrandText>
+          </BrandCard>
         )}
 
         {/* What Happens Next */}
-        <View style={styles.whatHappensSection}>
-          <Text style={styles.sectionTitle}>What Happens Next</Text>
+        <BrandCard style={styles.whatHappensSection}>
+          <BrandText variant="title" style={styles.sectionTitle}>What Happens Next</BrandText>
           <View style={styles.whatHappensItem}>
             <Ionicons name="close-circle-outline" size={20} color={currentColors.error} />
-            <Text style={styles.whatHappensText}>Your account will be permanently deleted</Text>
+            <BrandText variant="body" style={styles.whatHappensText}>Your account will be permanently deleted</BrandText>
           </View>
           <View style={styles.whatHappensItem}>
             <Ionicons name="trash-outline" size={20} color={currentColors.error} />
-            <Text style={styles.whatHappensText}>All your data will be removed</Text>
+            <BrandText variant="body" style={styles.whatHappensText}>All your data will be removed</BrandText>
           </View>
           <View style={styles.whatHappensItem}>
             <Ionicons name="log-out-outline" size={20} color={currentColors.error} />
-            <Text style={styles.whatHappensText}>You&apos;ll be logged out immediately</Text>
+            <BrandText variant="body" style={styles.whatHappensText}>You&apos;ll be logged out immediately</BrandText>
           </View>
           <View style={styles.whatHappensItem}>
             <Ionicons name="information-circle-outline" size={20} color={currentColors.warning} />
-            <Text style={styles.whatHappensText}>This action cannot be undone</Text>
+            <BrandText variant="body" style={styles.whatHappensText}>This action cannot be undone</BrandText>
           </View>
-        </View>
+        </BrandCard>
 
         {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.deleteButton, isDeleting && styles.deleteButtonDisabled]} 
+        <BrandCard style={styles.buttonContainer}>
+          <BrandInput
+            value={user?.email || 'No email on account'}
+            editable={false}
+            style={styles.readOnlyInput}
+          />
+          <BrandButton
+            label={isDeleting ? 'Deleting Account...' : 'Delete My Account'}
+            loading={isDeleting}
+            variant="secondary"
+            fullWidth
+            style={[styles.deleteButton, isDeleting && styles.deleteButtonDisabled]}
             onPress={handleDeleteAccount}
             disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <>
-                <Ionicons name="trash" size={20} color="#fff" />
-                <Text style={styles.deleteButtonText}>Delete My Account</Text>
-              </>
-            )}
-          </TouchableOpacity>
+          />
 
-          <TouchableOpacity 
-            style={styles.cancelButton} 
+          <BrandButton
+            label="Cancel"
+            variant="outline"
+            fullWidth
+            style={styles.cancelButton}
             onPress={() => router.back()}
             disabled={isDeleting}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+          />
+        </BrandCard>
       </ScrollView>
 
       {/* Confirmation Modal */}
@@ -239,10 +242,10 @@ const DeleteAccountScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModal}>
             <Ionicons name="warning" size={48} color={currentColors.error} />
-            <Text style={styles.confirmationTitle}>Final Confirmation</Text>
-            <Text style={styles.confirmationText}>
+            <BrandText variant="h4" style={styles.confirmationTitle}>Final Confirmation</BrandText>
+            <BrandText variant="body" color="secondary" style={styles.confirmationText}>
               Are you absolutely sure you want to delete your account? This action cannot be undone.
-            </Text>
+            </BrandText>
             
             <View style={styles.confirmationButtons}>
               <TouchableOpacity 
@@ -253,7 +256,7 @@ const DeleteAccountScreen: React.FC = () => {
                 {isDeleting ? (
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <Text style={styles.confirmDeleteButtonText}>Yes, Delete Forever</Text>
+                  <BrandText variant="button" color="light" style={styles.confirmDeleteButtonText}>Yes, Delete Forever</BrandText>
                 )}
               </TouchableOpacity>
               
@@ -262,7 +265,7 @@ const DeleteAccountScreen: React.FC = () => {
                 onPress={() => setShowConfirmation(false)}
                 disabled={isDeleting}
               >
-                <Text style={styles.cancelConfirmButtonText}>Cancel</Text>
+                <BrandText variant="button" style={styles.cancelConfirmButtonText}>Cancel</BrandText>
               </TouchableOpacity>
             </View>
           </View>

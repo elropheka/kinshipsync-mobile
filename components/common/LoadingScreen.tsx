@@ -1,8 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BrandText } from '@/components/ui/BrandText';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 import { Spacing } from '@/constants/dimensions';
 
 export class LoadingScreen extends React.Component {
@@ -17,18 +18,8 @@ const LoadingScreenInner: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('@/assets/branding/rusty-brown-logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-        accessibilityLabel="Kinship Sync"
-      />
-      <ActivityIndicator
-        size="large"
-        color={currentColors.primary}
-        style={styles.spinner}
-      />
-      <BrandText variant="body" color="secondary">
+      <BrandLoadingSpinner size="large" />
+      <BrandText variant="body" color="secondary" style={styles.label}>
         Loading...
       </BrandText>
     </View>
@@ -44,13 +35,7 @@ const createStyles = (theme: typeof Colors.light) =>
       backgroundColor: theme.background,
       paddingHorizontal: Spacing.xl,
     },
-    logo: {
-      width: 220,
-      height: 72,
-      marginBottom: Spacing.xl,
-    },
-    spinner: {
-      marginBottom: Spacing.m,
+    label: {
+      marginTop: Spacing.m,
     },
   });
-

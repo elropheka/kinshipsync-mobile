@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAlert } from '@/context/AlertContext';
 import { createCreateThemeStyles } from '@/styles/app/themes/createTheme.styles';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const generateId = () => `user-custom-${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
 
@@ -35,6 +36,10 @@ const CreateThemeScreen = () => {
     fontFamily: Fonts.bodyRegular,
     fontWeight: '400',
   });
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   const handleSaveTheme = async () => {
     if (!isAuthenticated || !user?.uid) {
@@ -141,11 +146,7 @@ const CreateThemeScreen = () => {
         />
         
         <View style={styles.buttonContainer}>
-          {isLoading ? (
-            <ActivityIndicator size="large" color={currentColors.primary} />
-          ) : (
-            <Button title="Save Theme" onPress={handleSaveTheme} color={currentColors.primary} />
-          )}
+          <Button title="Save Theme" onPress={handleSaveTheme} color={currentColors.primary} />
         </View>
       </ScrollView>
     </SafeAreaView>

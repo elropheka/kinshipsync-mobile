@@ -1,8 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, Image, View } from 'react-native';
+import { View } from 'react-native';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { createSplashScreenStyles } from '../../styles/app/(auth)/splashScreen.styles';
 import { BrandText } from '@/components/ui/BrandText';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 
 const SplashScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
@@ -10,16 +11,8 @@ const SplashScreen: React.FC = () => {
 
   return (
     <View style={styles.outerContainer}>
-      <View style={styles.logoViewContainer}>
-        <Image
-          source={require('@/assets/branding/rusty-brown-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-          accessibilityLabel="Kinship Sync"
-        />
-      </View>
-      <ActivityIndicator size="large" color={currentColors.primary} style={styles.spinner} />
-      <BrandText variant="caption" color="secondary">
+      <BrandLoadingSpinner size="large" />
+      <BrandText variant="caption" color="secondary" style={styles.tagline}>
         Bringing families together
       </BrandText>
     </View>

@@ -13,7 +13,7 @@ import {
 export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     paddingHorizontal: Spacing.m,
     paddingTop: Platform.OS === 'android' ? Spacing.xl : Spacing.xxl,
     paddingBottom: Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },
@@ -38,7 +38,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     // marginRight: Spacing.xl, // To balance back button if it was on the left
   },
   newIdeaContainer: {
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     padding: Spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
@@ -75,7 +75,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     color: theme.textSecondary,
   },
   ideaItemContainer: {
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.s,
@@ -171,7 +171,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
   },
   replyContainer: {
     marginLeft: Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.backgroundPaper,
   },
   commentAuthor: {
     fontSize: ResponsiveFontSizes.caption,

@@ -18,6 +18,7 @@ import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, rem
 import * as scheduleService from '../../../services/scheduleService'; // Added scheduleService
 import { getUserProfile } from '../../../services/userService';
 import { createDashboardScreenStyles } from '@/styles/app/(teams)/dashboardScreen.styles';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const TeamDashboardScreen = () => {
   const { currentColors } = useAppTheme();
@@ -289,13 +290,7 @@ const TeamDashboardScreen = () => {
   }, [initialTab]);
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text style={{marginTop: 10}}>Loading team data...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

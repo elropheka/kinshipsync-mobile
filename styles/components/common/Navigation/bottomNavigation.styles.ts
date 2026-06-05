@@ -8,6 +8,8 @@ import {
 } from 'constants/dimensions';
 import Fonts from 'constants/fonts';
 
+export const BOTTOM_NAV_HEIGHT = Layout.SCREEN_HEIGHT * 0.09;
+
 export const createBottomNavigationStyles = (theme: typeof Colors.light) =>
   StyleSheet.create({
     container: {
@@ -19,7 +21,7 @@ export const createBottomNavigationStyles = (theme: typeof Colors.light) =>
       justifyContent: 'space-around',
       alignItems: 'center',
       backgroundColor: theme.tabBarBackground,
-      height: Layout.SCREEN_HEIGHT * 0.09,
+      height: BOTTOM_NAV_HEIGHT,
       paddingBottom: Spacing.s,
       paddingTop: Spacing.xs,
       borderTopLeftRadius: BorderRadius.xl,

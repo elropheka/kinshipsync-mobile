@@ -12,7 +12,7 @@ import {
 export const createGuestsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const createGuestsStyles = (theme: typeof Colors.light) => StyleSheet.cre
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
 
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
@@ -33,7 +33,7 @@ export const createGuestsStyles = (theme: typeof Colors.light) => StyleSheet.cre
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   tab: {
     flex: 1,
@@ -183,7 +183,7 @@ export const createGuestsStyles = (theme: typeof Colors.light) => StyleSheet.cre
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   eventName: {
     fontSize: ResponsiveFontSizes.subtitle,

@@ -13,7 +13,7 @@ import {
 export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     width: '100%',
   },
   keyboardAvoidingView: {
@@ -36,6 +36,12 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     maxWidth: isTablet() ? 600 : '100%',
     alignSelf: isTablet() ? 'center' : 'stretch',
     width: '100%',
+  },
+  logo: {
+    width: isTablet() ? 190 : 170,
+    height: isTablet() ? 58 : 52,
+    alignSelf: isTablet() ? 'center' : 'flex-start',
+    marginBottom: Spacing.m,
   },
   title: {
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
@@ -87,6 +93,12 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   form: {
     marginTop: Spacing.s,
   },
+  formCard: {
+    marginTop: Spacing.s,
+    backgroundColor: theme.background,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
   formNote: {
     fontSize: ResponsiveFontSizes.body,
     color: theme.textSecondary,
@@ -97,13 +109,9 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     marginBottom: Spacing.m,
   },
   inputContainer: {
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: BorderRadius.m,
-    backgroundColor: theme.background,
     flexDirection: 'row',
     alignItems: 'center',
-    color: theme.text,
+    position: 'relative',
   },
   requiredLabel: {
     fontSize: ResponsiveFontSizes.body,
@@ -119,14 +127,13 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   },
   input: {
     flex: 1,
-    paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
     color: theme.text,
+    paddingRight: moderateScale(44),
   },
   inputIcon: {
-    paddingRight: Spacing.m,
-    color: theme.icon,
+    position: 'absolute',
+    right: Spacing.m,
   },
   termsContainer: {
     flexDirection: 'row',
@@ -160,23 +167,6 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   termsLink: {
     color: theme.success,
     textDecorationLine: 'underline',
-  },
-  signUpButton: {
-    backgroundColor: theme.backgroundPrimary,
-    borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing.l,
-    alignItems: 'center',
-    marginTop: Spacing.s,
-    elevation: 1,
-    shadowColor: theme.text,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: moderateScale(1),
-  },
-  signUpButtonText: {
-    fontSize: ResponsiveFontSizes.subtitle,
-    fontWeight: Fonts.weights.bold,
-    color: theme.buttonPrimary,
   },
   disabledButton: {
     opacity: 0.5,
@@ -249,9 +239,13 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     fontSize: ResponsiveFontSizes.body,
   },
   passwordVisibilityToggle: {
+    position: 'absolute',
+    right: Spacing.s,
+    top: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: Spacing.s,
+    paddingHorizontal: Spacing.xs,
   },
   avatarContainer: {
     alignSelf: 'center',

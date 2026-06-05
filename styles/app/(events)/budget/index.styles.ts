@@ -6,7 +6,7 @@ import { Spacing, BorderRadius, ResponsiveFontSizes, moderateScale } from 'const
 export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
    
   },
   centered: {
@@ -55,7 +55,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     alignItems: 'center',
     paddingVertical: Spacing.l,
     paddingHorizontal: Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },

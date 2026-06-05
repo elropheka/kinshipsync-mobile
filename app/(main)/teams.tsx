@@ -8,7 +8,7 @@ import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHe
 
 const TeamsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
-  const styles = TeamsScreenStyles(currentColors.background);
+  const styles = TeamsScreenStyles(currentColors.neutralBg);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>

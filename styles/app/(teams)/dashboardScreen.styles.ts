@@ -5,7 +5,7 @@ export const createDashboardScreenStyles = (theme: typeof Colors.light) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.backgroundLight,
+      backgroundColor: theme.background,
     },
     tabsContainer: {
       flexDirection: 'row',

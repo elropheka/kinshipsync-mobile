@@ -13,7 +13,7 @@ import {
 export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -35,6 +35,12 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
     maxWidth: isTablet() ? 600 : '100%',
     alignSelf: isTablet() ? 'center' : 'stretch',
     width: '100%',
+  },
+  logo: {
+    width: isTablet() ? 190 : 170,
+    height: isTablet() ? 58 : 52,
+    alignSelf: isTablet() ? 'center' : 'flex-start',
+    marginBottom: Spacing.m,
   },
   title: {
     fontSize: isTablet() ? ResponsiveFontSizes.header1 : ResponsiveFontSizes.header2,
@@ -85,27 +91,29 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   },
   form: {
     marginTop: Spacing.s,
+    gap: Spacing.s,
   },
-  inputContainer: {
-    marginBottom: Spacing.m,
+  formCard: {
+    marginTop: Spacing.s,
+    backgroundColor: theme.background,
     borderWidth: 1,
     borderColor: theme.border,
-    borderRadius: BorderRadius.m,
-    backgroundColor: theme.background,
+  },
+  inputContainer: {
+    marginBottom: Spacing.s,
     flexDirection: 'row',
     alignItems: 'center',
-    color: theme.text,
+    position: 'relative',
   },
   input: {
     flex: 1,
-    paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.m,
     fontSize: ResponsiveFontSizes.subtitle,
     color: theme.text,
+    paddingRight: moderateScale(44),
   },
   inputIcon: {
-    paddingRight: Spacing.m,
-    color: theme.icon,
+    position: 'absolute',
+    right: Spacing.m,
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
@@ -116,24 +124,7 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
     fontSize: ResponsiveFontSizes.body,
   },
   signInButton: {
-    backgroundColor: theme.backgroundPrimary,
-    borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing.l,
-    alignItems: 'center',
     marginTop: Spacing.s,
-    shadowColor: theme.text,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.20,
-    shadowRadius: moderateScale(2.62),
-    elevation: 4,
-  },
-  signInButtonText: {
-    fontSize: ResponsiveFontSizes.subtitle,
-    fontWeight: Fonts.weights.bold,
-    color: theme.buttonPrimary,
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -204,9 +195,13 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
     opacity: 0.5,
   },
   passwordVisibilityToggle: {
+    position: 'absolute',
+    right: Spacing.s,
+    top: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: Spacing.s,
+    paddingHorizontal: Spacing.xs,
   },
 });
 

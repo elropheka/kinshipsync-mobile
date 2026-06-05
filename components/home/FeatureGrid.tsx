@@ -32,13 +32,17 @@ const tiles: FeatureTile[] = [
   },
 ];
 
-export class FeatureGrid extends React.Component {
+interface FeatureGridProps {
+  preview?: boolean;
+}
+
+export class FeatureGrid extends React.Component<FeatureGridProps> {
   public render(): React.ReactNode {
-    return <FeatureGridInner />;
+    return <FeatureGridInner {...this.props} />;
   }
 }
 
-const FeatureGridInner: React.FC = () => {
+const FeatureGridInner: React.FC<FeatureGridProps> = ({ preview = false }) => {
   const { currentColors } = useAppTheme();
   const styles = createStyles(currentColors);
 
@@ -48,7 +52,9 @@ const FeatureGridInner: React.FC = () => {
         <TouchableOpacity
           key={tile.id}
           style={[styles.tile, tile.variant === 'orange' ? styles.orangeTile : styles.rustTile]}
-          onPress={() => router.push(tile.route as any)}
+          onPress={preview ? undefined : () => router.push(tile.route as any)}
+          disabled={preview}
+          activeOpacity={preview ? 1 : 0.7}
         >
           <Ionicons name={tile.icon} size={28} color={currentColors.textLight} />
           <BrandText variant="body" color="light" style={styles.tileLabel}>

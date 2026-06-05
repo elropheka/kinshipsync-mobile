@@ -24,6 +24,7 @@ import {
 } from '../../../types/eventTypes';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 
 const EventScheduleScreen = () => {
@@ -206,7 +207,7 @@ const EventScheduleScreen = () => {
   );
 
   if (isLoading && scheduleItems.length === 0) {
-    return <SafeAreaView style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading schedule...</Text></SafeAreaView>;
+    return <LoadingScreen />;
   }
 
   if (error) {

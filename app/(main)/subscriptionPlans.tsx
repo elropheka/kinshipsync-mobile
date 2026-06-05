@@ -7,6 +7,7 @@ import { createSubscriptionPlansStyles } from '@/styles/app/(main)/subscriptionP
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '@/hooks/useUser';
 import { useAlert } from '@/context/AlertContext';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const SubscriptionPlansScreen = () => {
   const { currentColors } = useAppTheme();
@@ -90,12 +91,7 @@ const SubscriptionPlansScreen = () => {
   };
   
   if (isLoadingPlans && availablePlans.length === 0) {
-    return (
-      <SafeAreaView style={[styles.outerContainer, styles.centered]}>
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading plans...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

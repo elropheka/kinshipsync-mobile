@@ -13,7 +13,7 @@ import {
 export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.m,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   headerTitle: {
     fontSize: ResponsiveFontSizes.title,
@@ -35,7 +35,7 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   tab: {
     flex: 1,

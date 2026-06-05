@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,9 @@ import { getUserProfileById } from '../../services/userService';
 import { Avatar } from '../../components/common/Avatar';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { BrandSearchBar } from '@/components/ui/BrandSearchBar';
+import { BrandCard } from '@/components/ui/BrandCard';
+import { BrandEmptyState } from '@/components/ui/BrandEmptyState';
 
 interface ConversationItemProps {
   item: Conversation;
@@ -77,29 +80,30 @@ const ConversationItem: React.FC<ConversationItemProps> = React.memo(function Co
 
   return (
     <TouchableOpacity
-      style={styles.messageItem}
       onPress={() => onPress(item.id)}
     >
-      <Avatar
-        name={displayName}
-        avatarUrls={avatarUrl ? [avatarUrl] : []}
-        size={50}
-        style={styles.avatar}
-      />
-      <View style={styles.messageContent}>
-        <View style={styles.messageHeader}>
-          <Text style={styles.senderName}>{displayName}</Text>
-          <Text style={styles.messageTime}>{formatTimestamp(item.lastMessageTimestamp)}</Text>
+      <BrandCard style={styles.messageItem}>
+        <Avatar
+          name={displayName}
+          avatarUrls={avatarUrl ? [avatarUrl] : []}
+          size={50}
+          style={styles.avatar}
+        />
+        <View style={styles.messageContent}>
+          <View style={styles.messageHeader}>
+            <Text style={styles.senderName}>{displayName}</Text>
+            <Text style={styles.messageTime}>{formatTimestamp(item.lastMessageTimestamp)}</Text>
+          </View>
+          <Text style={styles.lastMessage} numberOfLines={1}>
+            {item.lastMessage?.senderId === currentUserId ? "You: " : ""}{item.lastMessage?.content || 'No messages yet'}
+          </Text>
         </View>
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          {item.lastMessage?.senderId === currentUserId ? "You: " : ""}{item.lastMessage?.content || 'No messages yet'}
-        </Text>
-      </View>
-      {item.unreadCount && item.unreadCount > 0 && (
-        <View style={styles.unreadBadge}>
-          <Text style={styles.unreadText}>{item.unreadCount}</Text>
-        </View>
-      )}
+        {item.unreadCount && item.unreadCount > 0 && (
+          <View style={styles.unreadBadge}>
+            <Text style={styles.unreadText}>{item.unreadCount}</Text>
+          </View>
+        )}
+      </BrandCard>
     </TouchableOpacity>
   );
 });
@@ -161,7 +165,7 @@ const ChatListScreen = () => {
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.secondary} contentStyle="light" />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -172,20 +176,15 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
+      <ColoredHeaderStatusBar backgroundColor={currentColors.secondary} contentStyle="light" />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={currentColors.textSecondary} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search chats"
-          placeholderTextColor={currentColors.textSecondary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
+      <BrandSearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search chats"
+      />
 
       <FlatList
         data={filteredConversations}
@@ -195,10 +194,13 @@ const ChatListScreen = () => {
         ItemSeparatorComponent={ItemSeparator}
         ListEmptyComponent={
             <View style={styles.centered}>
-                <Text style={styles.emptyListText}>No conversations yet.</Text>
-                <TouchableOpacity onPress={handleNewChat} style={styles.emptyListButton}>
-                    <Text style={styles.emptyListButtonText}>Start a new Chat</Text>
-                </TouchableOpacity>
+              <BrandEmptyState
+                title="No conversations yet"
+                message="Start a chat to connect with your family and team."
+                actionLabel="Start a new chat"
+                onActionPress={handleNewChat}
+                iconName="chatbubbles-outline"
+              />
             </View>
         }
         refreshing={isLoading}

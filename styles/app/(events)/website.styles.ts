@@ -13,7 +13,7 @@ import {
 export const createWebsiteStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const createWebsiteStyles = (theme: typeof Colors.light) => StyleSheet.cr
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.s : Spacing.m,
     paddingBottom: Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: Spacing.s,
@@ -39,7 +39,7 @@ export const createWebsiteStyles = (theme: typeof Colors.light) => StyleSheet.cr
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   tabItem: {
     flex: 1,

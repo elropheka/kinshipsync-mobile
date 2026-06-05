@@ -10,6 +10,7 @@ import { createFamilyTreeScreenStyles } from '@/styles/app/(teams)/familyTreeScr
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const findNodeById = (
   node: FamilyMemberNode | null | undefined, 
@@ -200,14 +201,7 @@ const FamilyTreeScreen = () => {
   };
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-        <View style={styles.container}>
-          <ActivityIndicator size="large" color={currentColors.primary} />
-          <Text>Loading family tree...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

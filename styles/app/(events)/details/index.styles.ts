@@ -13,7 +13,7 @@ import {
 export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     paddingHorizontal: Spacing.m,
     paddingBottom: Spacing.m,
     // paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },

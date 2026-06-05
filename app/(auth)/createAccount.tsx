@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
 import {
   View,
-  Text,
-  TextInput,
   TouchableOpacity,
   StatusBar,
   Image,
@@ -22,6 +20,7 @@ import { IconSizes } from '@/constants/dimensions';
 import GoogleIcon from '@/components/common/GoogleIcon';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
 import { isValidE164Format } from '@/utils/phoneUtils';
+import { BrandButton, BrandCard, BrandInput, BrandText } from '@/components/ui';
 
 // Type assertion to fix React 19 compatibility issue with class components
 const PhoneInput = PhoneInputLibrary as any as React.ComponentType<any>;
@@ -154,20 +153,27 @@ const CreateAccountScreen: React.FC = () => {
          
           <View style={styles.header}>
             <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={24} color="black" />
+              <Ionicons name="chevron-back" size={24} color={currentColors.text} />
             </TouchableOpacity>
           </View>
 
          
           <View style={styles.content}>
-            <Text style={styles.title}>Create an Account</Text>
-            <Text style={styles.subtitle}>
+            <Image
+              source={require('@/assets/branding/rusty-brown-logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <BrandText variant="h2" style={styles.title}>Create an Account</BrandText>
+            <BrandText variant="body" color="secondary" style={styles.subtitle}>
               Sign up to unlock exclusive features and a seamless experience on Kinship.
-            </Text>
+            </BrandText>
 
            
             <View style={styles.avatarContainer}>
-              <Text style={styles.optionalLabel}>Profile Picture (Optional)</Text>
+              <BrandText variant="caption" color="secondary" style={styles.optionalLabel}>
+                Profile Picture (Optional)
+              </BrandText>
               <TouchableOpacity onPress={handlePickAvatar}>
                 {formData.avatarUri ? (
                   <Image source={{ uri: formData.avatarUri }} style={styles.avatarImage} />
@@ -185,140 +191,141 @@ const CreateAccountScreen: React.FC = () => {
            
             <View style={styles.toggleContainer}>
               <TouchableOpacity style={styles.toggleButtonActive}>
-                <Text style={styles.toggleTextActive}>Sign Up</Text>
+                <BrandText variant="button" style={styles.toggleTextActive}>Sign Up</BrandText>
               </TouchableOpacity>
               <TouchableOpacity style={styles.toggleButtonInactive} onPress={handleSignIn}>
-                <Text style={styles.toggleTextInactive}>Sign In</Text>
+                <BrandText variant="button" color="secondary" style={styles.toggleTextInactive}>Sign In</BrandText>
               </TouchableOpacity>
             </View>
 
-           
-            <View style={styles.form}>
-              <Text style={styles.formNote}>Fields marked with * are required</Text>
+            <BrandCard style={styles.formCard}>
+              <View style={styles.form}>
+                <BrandText variant="caption" color="secondary" style={styles.formNote}>Fields marked with * are required</BrandText>
               
-              <View style={styles.inputWrapper}>
-                <Text style={styles.requiredLabel}>Full name *</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your full name"
-                    autoCapitalize="words"
-                    value={formData.fullName}
-                    onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                  />
-                  <Ionicons name="person-outline" size={20} color="#888" style={styles.inputIcon} />
-                </View>
-              </View>
-
-              <View style={styles.inputWrapper}>
-                <Text style={styles.requiredLabel}>Email *</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email address"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={formData.email}
-                    onChangeText={(text) => setFormData({ ...formData, email: text })}
-                  />
-                  <Ionicons name="mail-outline" size={20} color="#888" style={styles.inputIcon} />
-                </View>
-              </View>
-
-              <View style={styles.inputWrapper}>
-                <Text style={styles.optionalLabel}>Phone Number (Optional)</Text>
-                <PhoneInput
-                  ref={phoneInputRef}
-                  defaultValue={formData.phoneNumber}
-                  defaultCode={defaultCountryCode}
-                  layout="first"
-                  onChangeText={(text: string) => setFormData({ ...formData, phoneNumber: text })}
-                  onChangeFormattedText={(formattedText: string) => {
-                    setFormData({ ...formData, phoneNumber: formattedText });
-                  }}
-                  containerStyle={styles.phoneInputContainer}
-                  textContainerStyle={styles.phoneInputTextContainer}
-                  textInputStyle={styles.phoneInputText}
-                  codeTextStyle={styles.phoneInputCodeText}
-                  flagButtonStyle={styles.phoneInputFlagButton}
-                  countryPickerButtonStyle={styles.phoneInputCountryPicker}
-                  textInputProps={{
-                    placeholder: "Enter your phone number",
-                    placeholderTextColor: currentColors.textSecondary,
-                  }}
-                />
-              </View>
-
-              <View style={styles.inputWrapper}>
-                <Text style={styles.optionalLabel}>Location (Optional)</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g., City, Country"
-                    autoCapitalize="sentences"
-                    value={formData.location}
-                    onChangeText={(text) => setFormData({ ...formData, location: text })}
-                  />
-                  <Ionicons name="location-outline" size={20} color="#888" style={styles.inputIcon} />
-                </View>
-              </View>
-
-              <View style={styles.inputWrapper}>
-                <Text style={styles.requiredLabel}>Password *</Text>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Create a strong password"
-                    secureTextEntry={!isPasswordVisible}
-                    autoCapitalize="none"
-                    value={formData.password}
-                    onChangeText={(text) => setFormData({ ...formData, password: text })}
-                  />
-                  <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.passwordVisibilityToggle}>
-                    <Ionicons
-                      name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
-                      size={24}
-                      color="#888"
-                      style={styles.inputIcon} 
+                <View style={styles.inputWrapper}>
+                  <BrandText variant="body" style={styles.requiredLabel}>Full name *</BrandText>
+                  <View style={styles.inputContainer}>
+                    <BrandInput
+                      style={styles.input}
+                      placeholder="Enter your full name"
+                      autoCapitalize="words"
+                      value={formData.fullName}
+                      onChangeText={(text) => setFormData({ ...formData, fullName: text })}
                     />
-                  </TouchableOpacity>
+                    <Ionicons name="person-outline" size={20} color={currentColors.icon} style={styles.inputIcon} />
+                  </View>
                 </View>
-              </View>
+
+                <View style={styles.inputWrapper}>
+                  <BrandText variant="body" style={styles.requiredLabel}>Email *</BrandText>
+                  <View style={styles.inputContainer}>
+                    <BrandInput
+                      style={styles.input}
+                      placeholder="Enter your email address"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      value={formData.email}
+                      onChangeText={(text) => setFormData({ ...formData, email: text })}
+                    />
+                    <Ionicons name="mail-outline" size={20} color={currentColors.icon} style={styles.inputIcon} />
+                  </View>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <BrandText variant="body" color="secondary" style={styles.optionalLabel}>Phone Number (Optional)</BrandText>
+                  <PhoneInput
+                    ref={phoneInputRef}
+                    defaultValue={formData.phoneNumber}
+                    defaultCode={defaultCountryCode}
+                    layout="first"
+                    onChangeText={(text: string) => setFormData({ ...formData, phoneNumber: text })}
+                    onChangeFormattedText={(formattedText: string) => {
+                      setFormData({ ...formData, phoneNumber: formattedText });
+                    }}
+                    containerStyle={styles.phoneInputContainer}
+                    textContainerStyle={styles.phoneInputTextContainer}
+                    textInputStyle={styles.phoneInputText}
+                    codeTextStyle={styles.phoneInputCodeText}
+                    flagButtonStyle={styles.phoneInputFlagButton}
+                    countryPickerButtonStyle={styles.phoneInputCountryPicker}
+                    textInputProps={{
+                      placeholder: 'Enter your phone number',
+                      placeholderTextColor: currentColors.textSecondary,
+                    }}
+                  />
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <BrandText variant="body" color="secondary" style={styles.optionalLabel}>Location (Optional)</BrandText>
+                  <View style={styles.inputContainer}>
+                    <BrandInput
+                      style={styles.input}
+                      placeholder="e.g., City, Country"
+                      autoCapitalize="sentences"
+                      value={formData.location}
+                      onChangeText={(text) => setFormData({ ...formData, location: text })}
+                    />
+                    <Ionicons name="location-outline" size={20} color={currentColors.icon} style={styles.inputIcon} />
+                  </View>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <BrandText variant="body" style={styles.requiredLabel}>Password *</BrandText>
+                  <View style={styles.inputContainer}>
+                    <BrandInput
+                      style={styles.input}
+                      placeholder="Create a strong password"
+                      secureTextEntry={!isPasswordVisible}
+                      autoCapitalize="none"
+                      value={formData.password}
+                      onChangeText={(text) => setFormData({ ...formData, password: text })}
+                    />
+                    <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.passwordVisibilityToggle}>
+                      <Ionicons
+                        name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                        size={24}
+                        color={currentColors.icon}
+                        style={styles.inputIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
            
-              <View style={styles.termsContainer}>
-                <TouchableOpacity
-                  style={styles.checkbox}
-                  onPress={() => setFormData({ ...formData, acceptTerms: !formData.acceptTerms })}
-                >
-                  {formData.acceptTerms ? (
-                    <View style={styles.checkedBox}>
-                      <Ionicons name="checkmark" size={12} color={currentColors.primaryContrastText} />
-                    </View>
-                  ) : (
-                    <View style={styles.uncheckedBox} />
-                  )}
-                </TouchableOpacity>
-                <Text style={styles.termsText}>
-                  Accept{' '}
-                  <Text style={styles.termsLink}>Terms & Conditions</Text>
-                </Text>
-              </View>
+                <View style={styles.termsContainer}>
+                  <TouchableOpacity
+                    style={styles.checkbox}
+                    onPress={() => setFormData({ ...formData, acceptTerms: !formData.acceptTerms })}
+                  >
+                    {formData.acceptTerms ? (
+                      <View style={styles.checkedBox}>
+                        <Ionicons name="checkmark" size={12} color={currentColors.primaryContrastText} />
+                      </View>
+                    ) : (
+                      <View style={styles.uncheckedBox} />
+                    )}
+                  </TouchableOpacity>
+                  <BrandText variant="body" color="secondary" style={styles.termsText}>
+                    Accept{' '}
+                    <BrandText variant="body" style={styles.termsLink}>Terms & Conditions</BrandText>
+                  </BrandText>
+                </View>
 
         
-              <TouchableOpacity 
-                style={[styles.signUpButton, isLoading && styles.disabledButton]} 
-                onPress={handleSignUp}
-                disabled={isLoading}
-              >
-                <Text style={styles.signUpButtonText}>{isLoading ? 'CREATING ACCOUNT...' : 'SIGN UP'}</Text>
-              </TouchableOpacity>
-            </View>
+                <BrandButton
+                  label={isLoading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
+                  onPress={handleSignUp}
+                  disabled={isLoading}
+                  loading={isLoading}
+                  fullWidth
+                />
+              </View>
+            </BrandCard>
 
           
             <View style={styles.dividerContainer}>
               <View style={styles.divider} />
-              <Text style={styles.dividerText}>or sign up with</Text>
+              <BrandText variant="body" color="secondary" style={styles.dividerText}>or sign up with</BrandText>
               <View style={styles.divider} />
             </View>
 
@@ -330,7 +337,9 @@ const CreateAccountScreen: React.FC = () => {
                 disabled={isGoogleLoading}
               >
                 <GoogleIcon size={IconSizes.m} style={styles.socialIcon} />
-                <Text style={styles.socialButtonText}>{isGoogleLoading ? 'Signing Up...' : 'Google'}</Text>
+                <BrandText variant="body" style={styles.socialButtonText}>
+                  {isGoogleLoading ? 'Signing Up...' : 'Google'}
+                </BrandText>
               </TouchableOpacity>
               
               {Platform.OS === 'ios' && (
@@ -339,17 +348,19 @@ const CreateAccountScreen: React.FC = () => {
                   onPress={handleAppleSignUp}
                   disabled={isAppleLoading}
                 >
-                  <Ionicons name="logo-apple" size={20} color="black" />
-                  <Text style={styles.socialButtonText}>{isAppleLoading ? 'Signing Up...' : 'Apple'}</Text>
+                  <Ionicons name="logo-apple" size={20} color={currentColors.text} />
+                  <BrandText variant="body" style={styles.socialButtonText}>
+                    {isAppleLoading ? 'Signing Up...' : 'Apple'}
+                  </BrandText>
                 </TouchableOpacity>
               )}
             </View>
 
            
             <View style={styles.signInContainer}>
-              <Text style={styles.signInText}>Already have an account? </Text>
+              <BrandText variant="body" color="secondary" style={styles.signInText}>Already have an account? </BrandText>
               <TouchableOpacity onPress={handleSignIn}>
-                <Text style={styles.signInLink}>Sign in</Text>
+                <BrandText variant="body" style={styles.signInLink}>Sign in</BrandText>
               </TouchableOpacity>
             </View>
           </View>

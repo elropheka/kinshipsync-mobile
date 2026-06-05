@@ -20,6 +20,7 @@ import { styles, ITEM_WIDTH } from '../../styles/components/vendors/vendorScreen
 import { DisplayVendorItem, useVendorItemsSearch } from '../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../types/vendorItemTypes';
 import { router } from 'expo-router';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -115,14 +116,7 @@ const VendorScreen: React.FC = () => {
   }, [handleNavigateToDetails]); // scrollX is an animation value, not a dependency
 
   if (isLoading && (!displayItems || displayItems.length === 0)) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <Text style={styles.heading}>Local vendors & services</Text>
-        </View>
-        <ActivityIndicator size="large" color={currentColors.tint} style={{ flex: 1 }}/>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

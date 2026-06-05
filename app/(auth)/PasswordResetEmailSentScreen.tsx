@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { createPasswordResetEmailSentStyles } from '../../styles/app/(auth)/passwordResetEmailSent.styles';
- // Assuming styles will be created
+import { BrandButton, BrandEmptyState } from '@/components/ui';
 
 const PasswordResetEmailSentScreen = () => {
   const { currentColors } = useAppTheme();
@@ -13,16 +13,18 @@ const PasswordResetEmailSentScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Check Your Email</Text>
-      <Text style={styles.subtitle}>
-        We&apos;ve sent a password reset link to your email address. Please check your inbox (and spam folder) to continue.
-      </Text>
-      <TouchableOpacity
+      <BrandEmptyState
+        title="Check Your Email"
+        message="We&apos;ve sent a password reset link to your email address. Please check your inbox (and spam folder) to continue."
+        iconName="mail-open-outline"
+        style={styles.emptyState}
+      />
+      <BrandButton
+        label="Back to Sign In"
+        fullWidth
         style={styles.button}
         onPress={() => router.replace('/(auth)/signIn')}
-      >
-        <Text style={styles.buttonText}>Back to Sign In</Text>
-      </TouchableOpacity>
+      />
     </View>
   );
 };

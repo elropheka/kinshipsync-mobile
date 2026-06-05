@@ -11,6 +11,7 @@ import { useAllEvents, useEventDetail } from '../../../hooks/useEvents';
 import { Event as EventType, BudgetItem as BudgetItemType, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../../types/eventTypes';
 import BudgetForm from '../../../components/budget/BudgetForm'; // Re-use BudgetForm
 import { Spacing } from 'constants/dimensions'; // Import Spacing
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const EventBudgetScreen = () => {
   const { currentColors } = useAppTheme();
@@ -137,7 +138,7 @@ const EventBudgetScreen = () => {
 
 
   if (isLoadingAllEvents && eventsOrganizedByUser.length === 0 && !selectedEventId) {
-    return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading your events...</Text></SafeAreaView>;
+    return <LoadingScreen />;
   }
 
   if (!selectedEventId) {
@@ -163,7 +164,7 @@ const EventBudgetScreen = () => {
   }
 
   if (isLoadingEventDetail && !selectedEvent) {
-     return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading budget details...</Text></SafeAreaView>;
+     return <LoadingScreen />;
   }
   if (!selectedEvent) {
     return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><Text style={styles.errorText}>Event details not found.</Text></SafeAreaView>;

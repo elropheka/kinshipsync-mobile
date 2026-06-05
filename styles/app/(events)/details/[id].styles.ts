@@ -19,7 +19,7 @@ export const createEventDetailsStyles = (theme: typeof Colors.light) => StyleShe
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.m,
     paddingBottom: Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },
@@ -38,7 +38,7 @@ export const createEventDetailsStyles = (theme: typeof Colors.light) => StyleShe
     flex: 1,
   },
   card: {
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderRadius: BorderRadius.m,
     padding: Spacing.l,
     margin: Spacing.m,

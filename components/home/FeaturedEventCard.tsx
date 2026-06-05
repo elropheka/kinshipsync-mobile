@@ -12,6 +12,7 @@ interface FeaturedEventCardProps {
   title?: string;
   subtitle?: string;
   imageUri?: string;
+  preview?: boolean;
 }
 
 export class FeaturedEventCard extends React.Component<FeaturedEventCardProps> {
@@ -24,6 +25,7 @@ const FeaturedEventCardInner: React.FC<FeaturedEventCardProps> = ({
   title = mockFeaturedEvent.title,
   subtitle = mockFeaturedEvent.subtitle,
   imageUri = mockFeaturedEvent.imageUri,
+  preview = false,
 }) => {
   const { currentColors } = useAppTheme();
   const styles = createStyles(currentColors);
@@ -38,20 +40,22 @@ const FeaturedEventCardInner: React.FC<FeaturedEventCardProps> = ({
           <BrandText variant="body" color="light" style={styles.subtitle}>
             {subtitle}
           </BrandText>
-          <View style={styles.actions}>
-            <BrandButton
-              label="RSVP"
-              variant="primary"
-              onPress={() => router.push('/(events)/rsvps')}
-              style={styles.actionButton}
-            />
-            <TouchableOpacity
-              style={[styles.actionButton, styles.scheduleButton]}
-              onPress={() => router.push('/(events)/schedule')}
-            >
-              <Text style={styles.scheduleButtonText}>Schedule</Text>
-            </TouchableOpacity>
-          </View>
+          {!preview ? (
+            <View style={styles.actions}>
+              <BrandButton
+                label="RSVP"
+                variant="primary"
+                onPress={() => router.push('/(events)/rsvps')}
+                style={styles.actionButton}
+              />
+              <TouchableOpacity
+                style={[styles.actionButton, styles.scheduleButton]}
+                onPress={() => router.push('/(events)/schedule')}
+              >
+                <Text style={styles.scheduleButtonText}>Schedule</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </ImageBackground>
       <Image

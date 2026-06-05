@@ -172,7 +172,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
   },
   vendorCard: {
     flexDirection: 'row',
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.l,
     overflow: 'hidden',
     marginBottom: Spacing.m,

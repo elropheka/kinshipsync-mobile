@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator, // Added for loading state
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router'; // Import useFocusEffect
@@ -16,6 +15,7 @@ import { AuthContext } from '../../../context/AuthContext'; // To get current us
 import { BackendUser } from '../../../types/auth'; // Import BackendUser
 import TeamListItem from '../../teams/list/TeamListItem'; // Import new component
 import SuggestedTeamListItem from '../../teams/list/SuggestedTeamListItem'; // Import new component
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 
 // Removed local Contact interface as it's not used with dynamic data
 
@@ -116,7 +116,7 @@ const CommunicationPage = () => {
       <Text style={styles.sectionLabel}>Your Teams</Text>
 
       {/* Teams List */}
-      {isLoading && <ActivityIndicator size="large" color={currentColors.primary} style={{ marginTop: 20 }} />}
+      {isLoading && <BrandLoadingSpinner size="large" style={{ marginTop: 20 }} />}
       {!isLoading && error && <Text style={styles.errorText}>{error}</Text>}
       {!isLoading && !error && teams.length === 0 && (
         <View style={styles.emptyContainer}>

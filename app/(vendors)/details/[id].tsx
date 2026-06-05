@@ -17,6 +17,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { VendorReview } from '../../../types/vendorTypes';
 import { DisplayVendorItem, useVendorDetail, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 export default function VendorDetailsScreen() {
   const { currentColors } = useAppTheme();
@@ -91,12 +92,7 @@ export default function VendorDetailsScreen() {
   );
 
   if (isLoadingVendor || (isLoadingVendorDetails && !vendor)) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <Stack.Screen options={{ title: 'Loading Vendor...' }} />
-        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (errorVendorDetails) {

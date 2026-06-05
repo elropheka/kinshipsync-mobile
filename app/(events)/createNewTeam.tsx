@@ -24,6 +24,7 @@ import { useAlert } from '@/context/AlertContext';
 import { createTeam } from '@/services/teamService';
 import { getAllUsersForPicker } from '@/services/userService';
 import { AuthContext } from '@/context/AuthContext';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 
 const availableIcons: Array<keyof typeof Ionicons.glyphMap> = [
   'people-outline', 'people-circle-outline', 'school-outline', 'book-outline', 
@@ -158,7 +159,7 @@ const CreateNewTeamScreen: React.FC = () => {
           <>
             <Text style={styles.sectionTitle}>Add Members</Text>
             {isLoadingUsers ? (
-              <ActivityIndicator size="large" color={currentColors.primary} />
+              <BrandLoadingSpinner size="large" />
             ) : error && !allUsers.length ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : (

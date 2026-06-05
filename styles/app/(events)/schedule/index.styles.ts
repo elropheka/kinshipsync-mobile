@@ -13,7 +13,7 @@ import {
 export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -22,7 +22,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     paddingHorizontal: Spacing.m,
     paddingTop: Platform.OS === 'android' ? Spacing.xl : Spacing.xxl,
     paddingBottom: Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },
@@ -44,7 +44,7 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     padding: Spacing.s,
   },
   itemContainer: {
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.backgroundPaper,
     borderRadius: BorderRadius.m,
     padding: Spacing.m,
     marginBottom: Spacing.s,

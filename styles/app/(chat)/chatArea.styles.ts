@@ -101,7 +101,7 @@ export const createChatAreaStyles = (theme: typeof Colors.light) => StyleSheet.c
     borderBottomRightRadius: BorderRadius.xs,
   },
   otherMessage: {
-    backgroundColor: theme.backgroundPaper,
+    backgroundColor: theme.neutralBg,
     borderBottomLeftRadius: BorderRadius.xs,
     elevation: 1,
   },

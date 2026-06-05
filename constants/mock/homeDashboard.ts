@@ -31,6 +31,47 @@ export const mockAttendingMembers: MockAttendingMember[] = [
   { id: 'e5f6a7b8-c9d0-1234-ef01-345678901234', name: 'Noah' },
 ];
 
+import { Event } from '@/types/eventTypes';
+
+export const mockUpcomingEvents: Event[] = [
+  {
+    id: 'd1e2f3a4-b5c6-7890-def1-234567890abc',
+    name: 'Note',
+    date: '2025-10-28',
+    time: '11:03 PM',
+    location: 'Accra',
+    description: 'Family gathering',
+    organizerId: 'mock-organizer',
+    visibility: 'private',
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z',
+  },
+  {
+    id: 'e2f3a4b5-c6d7-8901-ef12-345678901bcd',
+    name: 'Summer BBQ',
+    date: '2025-11-15',
+    time: '2:00 PM',
+    location: 'Backyard',
+    description: 'Annual family BBQ',
+    organizerId: 'mock-organizer',
+    visibility: 'private',
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z',
+  },
+  {
+    id: 'f3a4b5c6-d7e8-9012-f123-456789012cde',
+    name: 'Holiday Dinner',
+    date: '2025-12-24',
+    time: '6:00 PM',
+    location: 'Home',
+    description: 'Christmas Eve dinner',
+    organizerId: 'mock-organizer',
+    visibility: 'private',
+    createdAt: '2025-01-01T00:00:00Z',
+    updatedAt: '2025-01-01T00:00:00Z',
+  },
+];
+
 export const mockGalleryPhotos: MockGalleryPhoto[] = [
   {
     id: 'f6a7b8c9-d0e1-2345-f012-456789012345',

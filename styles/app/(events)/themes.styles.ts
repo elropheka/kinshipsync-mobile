@@ -11,7 +11,7 @@ import {
 export const createThemesStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -19,7 +19,7 @@ export const createThemesStyles = (theme: typeof Colors.light) => StyleSheet.cre
     paddingHorizontal: Spacing.l,
     paddingTop: Platform.OS === 'ios' ? Spacing.xxl : Spacing.xl,
     paddingBottom: Spacing.l,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   backButton: {
     padding: Spacing.s,
@@ -37,7 +37,7 @@ export const createThemesStyles = (theme: typeof Colors.light) => StyleSheet.cre
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   tabItem: {
     flex: 1,

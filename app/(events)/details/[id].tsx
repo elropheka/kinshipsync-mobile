@@ -19,6 +19,7 @@ import EventDetailTeams from '@/components/events/details/EventDetailTeams';
 import EventDetailTheme from '@/components/events/details/EventDetailTheme';
 import EventDetailWebsite from '@/components/events/details/EventDetailWebsite';
 import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, WebsitePayload } from '@/types/eventTypes';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -237,12 +238,7 @@ export default function EventDetailsScreen() {
   };
 
   if (isLoadingEventDetails) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading event details...</Text>
-      </View>
-    );
+    return <LoadingScreen />;
   }
   if (eventError) {
     return (

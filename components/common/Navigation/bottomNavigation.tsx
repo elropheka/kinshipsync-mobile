@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   Easing,
   Pressable,
   Text,
@@ -9,22 +8,22 @@ import {
   View,
 } from 'react-native';
 import { Feather, Ionicons as SecondaryIcon } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { router, usePathname } from 'expo-router';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { createBottomNavigationStyles } from '../../../styles/components/common/Navigation/bottomNavigation.styles';
+import {
+  BOTTOM_NAV_HEIGHT,
+  createBottomNavigationStyles,
+} from '../../../styles/components/common/Navigation/bottomNavigation.styles';
+import { getActiveBottomNavTab } from '@/utils/bottomNavVisibility';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const NAVBAR_HEIGHT = SCREEN_HEIGHT * 0.09;
-
-interface CustomBottomNavigationProps extends BottomTabBarProps {
-  isVisible: boolean;
+interface BottomNavigationProps {
+  isVisible?: boolean;
 }
 
-const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
-  const { isVisible } = props;
+const BottomNavigation: React.FC<BottomNavigationProps> = ({ isVisible = true }) => {
   const { currentColors } = useAppTheme();
-  const routeName = props.state?.routes?.[props.state?.index]?.name || 'home';
+  const pathname = usePathname();
+  const activeTab = getActiveBottomNavTab(pathname);
   const [isAddMenuVisible, setIsAddMenuVisible] = useState(false);
   const navBarAnim = useRef(new Animated.Value(0)).current;
   const styles = useMemo(() => createBottomNavigationStyles(currentColors), [currentColors]);
@@ -36,17 +35,11 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
     { key: 'profile', label: 'Profile', icon: 'person-outline', route: '/profile' as const },
   ];
 
-  const isActive = (tabKey: string) => {
-    if (tabKey === 'home') return routeName === 'home';
-    if (tabKey === 'events') return routeName.includes('events') || routeName === 'all';
-    if (tabKey === 'messages') return routeName === 'messages';
-    if (tabKey === 'profile') return routeName === 'profile';
-    return false;
-  };
+  const isActive = (tabKey: string): boolean => activeTab === tabKey;
 
   useEffect(() => {
     Animated.timing(navBarAnim, {
-      toValue: isVisible ? 0 : NAVBAR_HEIGHT,
+      toValue: isVisible ? 0 : BOTTOM_NAV_HEIGHT,
       duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: true,
@@ -56,11 +49,6 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
       setIsAddMenuVisible(false);
     }
   }, [isVisible, navBarAnim]);
-
-  const routesToHideTabBar = ['settings', 'teams', 'notifications'];
-  if (routesToHideTabBar.includes(routeName)) {
-    return null;
-  }
 
   return (
     <>
@@ -77,7 +65,11 @@ const BottomNavigation: React.FC<CustomBottomNavigationProps> = (props) => {
               }}
             >
               {tab.icon === 'calendar' ? (
-                <Feather name="calendar" size={22} color={active ? currentColors.tabBarIconActive : currentColors.tabBarIcon} />
+                <Feather
+                  name="calendar"
+                  size={22}
+                  color={active ? currentColors.tabBarIconActive : currentColors.tabBarIcon}
+                />
               ) : (
                 <SecondaryIcon
                   name={tab.icon as any}

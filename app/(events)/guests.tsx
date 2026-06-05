@@ -9,6 +9,7 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { useAllEvents } from '../../hooks/useEvents'; // Use the filtered events hook
 import { Event as EventType } from '../../types/eventTypes'; // Only EventType needed here
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const EventSelectionForGuestsScreen = () => {
   const { currentColors } = useAppTheme();
@@ -36,12 +37,7 @@ const EventSelectionForGuestsScreen = () => {
   );
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['left', 'right', 'bottom']}>
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text style={{ marginTop: 10 }}>Loading events...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

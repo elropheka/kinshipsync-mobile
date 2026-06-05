@@ -13,6 +13,7 @@ import { createCategoryStyles } from '../../../styles/app/(vendors)/category/[na
 import { useAppTheme } from '@/context/AppThemeContext';
 import { DisplayVendorItem, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 export default function VendorCategoryScreen() {
   const { currentColors } = useAppTheme();
@@ -48,9 +49,9 @@ export default function VendorCategoryScreen() {
       >
         <View style={styles.vendorImageContainer}>
           {itemImage ? (
-            <Ionicons name="image-outline" size={40} color="#333" />
+            <Ionicons name="image-outline" size={40} color={currentColors.textSecondary} />
           ) : (
-            <Ionicons name={iconName} size={40} color="#333" />
+            <Ionicons name={iconName} size={40} color={currentColors.textSecondary} />
           )}
         </View>
         <View style={styles.vendorContent}>
@@ -76,12 +77,7 @@ export default function VendorCategoryScreen() {
   }, [handleNavigateToVendorDetails, styles, currentColors]);
 
   if (isLoading && displayItems.length === 0) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <Stack.Screen options={{ title: vendorCategorySlug || 'Category Items' }} />
-        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

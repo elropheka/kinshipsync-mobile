@@ -21,12 +21,18 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     flex: 1,
     padding: 20,
   },
+  logoWrap: {
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  logo: {
+    width: 170,
+    height: 52,
+  },
   warningHeader: {
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 20,
-    backgroundColor: theme.backgroundLight,
-    borderRadius: 16,
     marginBottom: 24,
   },
   warningTitle: {
@@ -44,8 +50,6 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     lineHeight: 22,
   },
   dataSection: {
-    backgroundColor: theme.backgroundLight,
-    borderRadius: 16,
     padding: 20,
     marginBottom: 24,
   },
@@ -69,8 +73,6 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 20,
-    backgroundColor: theme.backgroundLight,
-    borderRadius: 16,
     marginBottom: 24,
   },
   noDataText: {
@@ -87,8 +89,6 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     lineHeight: 20,
   },
   whatHappensSection: {
-    backgroundColor: theme.backgroundLight,
-    borderRadius: 16,
     padding: 20,
     marginBottom: 32,
   },
@@ -106,15 +106,11 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     gap: 16,
     marginBottom: 32,
   },
+  readOnlyInput: {
+    opacity: 0.85,
+  },
   deleteButton: {
     backgroundColor: theme.error,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
   },
   deleteButtonDisabled: {
     opacity: 0.6,
@@ -125,11 +121,7 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
     fontWeight: '600',
   },
   cancelButton: {
-    backgroundColor: theme.backgroundLight,
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   cancelButtonText: {
     color: theme.text,
@@ -189,7 +181,7 @@ export const createDeleteAccountStyles = (theme: typeof Colors.light) => StyleSh
   },
   cancelConfirmButton: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

@@ -27,7 +27,6 @@ import { Spacing } from '../../constants/dimensions'; // Added Spacing
 import { ChatMessage, ParticipantInfo } from '../../types/chatTypes';
 import { GuestStatus } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
-import { Colors } from '../../constants/Colors'; // Corrected path
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import { emojiCategories } from '../../constants/emojis'; // Added for emoji picker
@@ -38,6 +37,7 @@ import { useAlert } from '@/context/AlertContext';
 import { Avatar } from '../../components/common/Avatar';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -375,19 +375,13 @@ const ChatAreaScreen: React.FC = () => {
   };
   
   if (isLoadingMessages && messages.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading messages...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.secondary} contentStyle="light" />
         <Text style={styles.errorText}>Error: {error.message}</Text>
       </SafeAreaView>
     );
@@ -395,7 +389,7 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
+      <ColoredHeaderStatusBar backgroundColor={currentColors.secondary} contentStyle="light" />
       <Stack.Screen
         options={{
           title: screenTitle,

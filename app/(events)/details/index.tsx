@@ -36,7 +36,7 @@ const WeddingDetailsPage: React.FC = () => {
           <TouchableOpacity style={styles.extraButton}
             onPress={() => setPopoverVisible(true)}
           >
-            <Ionicons name="ellipsis-vertical" size={24} color="#666" />
+            <Ionicons name="ellipsis-vertical" size={24} color={currentColors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -80,22 +80,22 @@ const WeddingDetailsPage: React.FC = () => {
 
         <View style={styles.detailsContainer}>
           <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={20} color="#666" />
+            <Ionicons name="calendar-outline" size={20} color={currentColors.textSecondary} />
             <Text style={styles.detailText}>May 15, 2025</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Ionicons name="time-outline" size={20} color="#666" />
+            <Ionicons name="time-outline" size={20} color={currentColors.textSecondary} />
             <Text style={styles.detailText}>3:00 PM - 10:00 PM</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Ionicons name="location-outline" size={20} color="#666" />
+            <Ionicons name="location-outline" size={20} color={currentColors.textSecondary} />
             <Text style={styles.detailText}>Golden Garden Resort</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Ionicons name="people-outline" size={20} color="#666" />
+            <Ionicons name="people-outline" size={20} color={currentColors.textSecondary} />
             <Text style={styles.detailText}>120 Guests</Text>
             <View style={styles.statusContainer}>
               <View style={styles.statusDot} />

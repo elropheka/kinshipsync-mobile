@@ -12,7 +12,7 @@ import {
 export const createCreateEventStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.neutralBg,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const createCreateEventStyles = (theme: typeof Colors.light) => StyleShee
     paddingVertical: Spacing.m,
 
     paddingBottom: 20,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   backButton: {
 
@@ -39,7 +39,7 @@ export const createCreateEventStyles = (theme: typeof Colors.light) => StyleShee
     justifyContent: 'space-between',
     paddingHorizontal: 30,
     marginBottom: 24,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     paddingVertical: 10,
   },
   scrollableContent: {
@@ -69,6 +69,7 @@ export const createCreateEventStyles = (theme: typeof Colors.light) => StyleShee
   formContainer: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+    backgroundColor: theme.neutralBg,
   },
   inputContainer: {
     marginBottom: 16,

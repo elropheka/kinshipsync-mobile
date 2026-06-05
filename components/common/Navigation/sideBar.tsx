@@ -20,6 +20,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { createSideBarStyles, SIDEBAR_WIDTH } from '../../../styles/components/common/Navigation/sideBar.styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '../Avatar';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -74,7 +75,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
         onRequestClose={onClose}
       >
         <View style={styles.overlay}>
-          <ActivityIndicator size="large" color={currentColors.primary} />
+          <BrandLoadingSpinner size="large" />
         </View>
       </Modal>
     );

@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { setEventVisibility } from '../../store/slices/eventVisibilitySlice';
 import { useAlert } from '@/context/AlertContext';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 interface SettingOptionProps {
   title: string;
@@ -184,13 +185,7 @@ const SettingsScreen: React.FC = () => {
   };
   
   if (isLoadingSettings && !currentSettings) {
-    return (
-      <SafeAreaView style={[styles.container, styles.centered]}>
-        <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading Settings...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (settingsError) {

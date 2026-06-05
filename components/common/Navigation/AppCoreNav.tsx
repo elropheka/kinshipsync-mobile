@@ -9,6 +9,8 @@ import * as notificationService from '@/services/notificationService';
 import { OneSignal } from 'react-native-onesignal';
 
 import Toast from 'react-native-toast-message';
+import GlobalBottomNavigation from './GlobalBottomNavigation';
+import { ScrollNavProvider } from '@/context/ScrollNavContext';
 
 
 export default function AppCoreNav() {
@@ -144,11 +146,14 @@ export default function AppCoreNav() {
     </Stack>
   );
 
-  return (
+  const shell = (
     <>
       {navigator}
+      <GlobalBottomNavigation />
       <SidebarComponent isVisible={isSidebarVisible} onClose={handleCloseSidebar} />
       <Toast />
     </>
   );
+
+  return isAuthenticated ? <ScrollNavProvider>{shell}</ScrollNavProvider> : shell;
 }

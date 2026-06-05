@@ -1,58 +1,40 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from '../../../constants/Colors';
+import { BorderRadius, Spacing } from 'constants/dimensions';
 
 export const createForgotPasswordStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: theme.backgroundLight,
+    paddingHorizontal: Spacing.l,
+    backgroundColor: theme.background,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.m,
+    padding: Spacing.xs,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: theme.buttonPrimary,
-    textAlign: 'center',
-    marginBottom: 10,
+    textAlign: 'left',
+    marginBottom: Spacing.s,
   },
   subtitle: {
-    fontSize: 16,
-    color: theme.text,
-    textAlign: 'center',
-    marginBottom: 30,
-    paddingHorizontal: 20,
+    textAlign: 'left',
+    marginBottom: Spacing.l,
   },
   input: {
-    height: 50,
-    borderColor: theme.grey,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 20,
-    fontSize: 16,
-    backgroundColor: theme.backgroundPaper,
-    color: theme.text,
+    marginBottom: Spacing.m,
   },
   button: {
-    backgroundColor: theme.buttonPrimary,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.m,
+    borderRadius: BorderRadius.round,
   },
   buttonDisabled: {
-    backgroundColor: theme.grey,
-  },
-  buttonText: {
-    color: theme.background,
-    fontSize: 18,
-    fontWeight: 'bold',
+    opacity: 0.6,
   },
   backLink: {
-    fontSize: 16,
-    color: theme.buttonPrimary,
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: Spacing.s,
   },
 });
 

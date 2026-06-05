@@ -13,6 +13,7 @@ import { createDirectConversation, sendMessage } from '../../../services/chatSer
 import { Guest as GuestType, Event as EventType, CreateGuestPayload } from '../../../types/eventTypes';
 import InviteGuestModal from '../../../components/events/InviteGuestModal';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'Attending', 'Declined', 'Maybe'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -203,12 +204,7 @@ const SpecificEventGuestListScreen = () => {
   );
 
   if (isLoading && fetchedGuests.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['left', 'right', 'bottom']}>
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text style={{ marginTop: 10 }}>Loading guests for {eventDetails?.name || 'event'}...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error && !isLoading) {

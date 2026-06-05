@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,8 @@ import { useConversations } from '../../hooks/useChat'; // To check existing and
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAuth } from '../../context/AuthContext'; // Added to get isAuthenticated
 import { useAlert } from '@/context/AlertContext';
+import { BrandSearchBar } from '@/components/ui/BrandSearchBar';
+import { BrandEmptyState } from '@/components/ui/BrandEmptyState';
 
 const NewChatScreen = () => {
   const { currentColors } = useAppTheme();
@@ -127,17 +129,14 @@ const NewChatScreen = () => {
       <Stack.Screen options={{ title: "New Chat" }} />
       {/* Custom header View removed */}
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={currentColors.textSecondary} style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for users..."
-          placeholderTextColor={currentColors.textSecondary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoFocus
-        />
-      </View>
+      <BrandSearchBar
+        containerStyle={styles.searchContainer}
+        style={styles.searchInput}
+        placeholder="Search for users..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        autoFocus
+      />
 
       {isLoadingSearch && searchQuery.trim().length > 1 && <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />}
       {isLoadingInitialList && searchQuery.trim().length === 0 && <ActivityIndicator style={{marginTop: 20}} size="large" color={currentColors.primary} />}
@@ -152,17 +151,23 @@ const NewChatScreen = () => {
             if (searchQuery.trim().length > 1) { // Search is active
               if (isLoadingSearch) return null; // Loading indicator handled above
               return (
-                <View style={styles.emptyListContainer}>
-                  <Text style={styles.emptyListText}>No users found matching &quot;{searchQuery}&quot;.</Text>
-                </View>
+                <BrandEmptyState
+                  style={styles.emptyListContainer}
+                  iconName="search-outline"
+                  title="No users found"
+                  message={`No users found matching "${searchQuery}".`}
+                />
               );
             } else { // Initial list view
               if (isLoadingInitialList) return null; // Loading indicator handled above
               if (initialUserList.length === 0) {
                 return (
-                  <View style={styles.emptyListContainer}>
-                    <Text style={styles.emptyListText}>No users to display. Try searching.</Text>
-                  </View>
+                  <BrandEmptyState
+                    style={styles.emptyListContainer}
+                    iconName="people-outline"
+                    title="No users to display"
+                    message="Try searching to start a new chat."
+                  />
                 );
               }
             }

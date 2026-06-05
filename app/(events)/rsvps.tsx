@@ -17,6 +17,7 @@ import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonIt
 import InviteGuestModal from '@/components/events/InviteGuestModal';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -265,7 +266,7 @@ const RsvpListScreen = () => {
   );
   
   if (isLoading && fetchedGuests.length === 0) {
-    return <SafeAreaView style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}><ActivityIndicator size="large" /><Text>Loading RSVPs...</Text></SafeAreaView>;
+    return <LoadingScreen />;
   }
 
   if (error) {

@@ -12,7 +12,7 @@ import {
 export const createSubscriptionPlansStyles = (theme: typeof Colors.light) => StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
   },
   header: {
     flexDirection: 'row',
@@ -21,7 +21,7 @@ export const createSubscriptionPlansStyles = (theme: typeof Colors.light) => Sty
     paddingHorizontal: isTablet() ? Spacing.xl : Spacing.m,
     paddingTop: Platform.OS === 'android' ? (isTablet() ? Spacing.xxl * 2 : Spacing.xl) : (isTablet() ? Spacing.xxl * 2 : Spacing.xxl),
     paddingBottom: isTablet() ? Spacing.l : Spacing.m,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
     borderBottomWidth: 1,
     borderBottomColor: theme.divider,
   },

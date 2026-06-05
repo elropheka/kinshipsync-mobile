@@ -11,6 +11,7 @@ import { useAlert } from '@/context/AlertContext';
 import { createConversationSettingsStyles } from '@/styles/app/(chat)/conversationSettings.styles';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 const ConversationSettingsScreen = () => {
   const { currentColors } = useAppTheme();
@@ -134,15 +135,7 @@ const ConversationSettingsScreen = () => {
   };
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-        <Stack.Screen options={{ title: 'Loading Settings...' }} />
-        <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
-          <ActivityIndicator size="large" color={currentColors.primary} />
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error || !conversation) {

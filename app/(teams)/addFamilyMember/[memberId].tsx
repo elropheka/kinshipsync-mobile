@@ -230,7 +230,7 @@ const AddFamilyMemberScreen = () => {
         <ScrollView contentContainerStyle={styles.formContainer}>
           <Text style={styles.title}>Add Root Family Member</Text>
           {teamId && <Text style={styles.subtitle}>For Team ID: {teamId}</Text>}
-          <TextInput style={styles.input} placeholder="Member's Name" value={newRootMemberName} onChangeText={setNewRootMemberName} placeholderTextColor="#888"/>
+          <TextInput style={styles.input} placeholder="Member's Name" value={newRootMemberName} onChangeText={setNewRootMemberName} placeholderTextColor={currentColors.textSecondary}/>
           
           {newRootMemberImageUrl ? <Image source={{ uri: newRootMemberImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewRootMemberImageUrl, setIsUploadingRootImage)} disabled={isUploadingRootImage}>
@@ -252,7 +252,7 @@ const AddFamilyMemberScreen = () => {
           <Text style={styles.title}>Add Child</Text>
           {targetMemberName && <Text style={styles.subtitle}>Child of: {targetMemberName}</Text>}
           {!targetMemberName && memberId && <Text style={styles.subtitle}>Parent ID: {memberId}</Text>}
-          <TextInput style={styles.input} placeholder="Child's Name" value={newChildName} onChangeText={setNewChildName} placeholderTextColor="#888"/>
+          <TextInput style={styles.input} placeholder="Child's Name" value={newChildName} onChangeText={setNewChildName} placeholderTextColor={currentColors.textSecondary}/>
 
           {newChildImageUrl ? <Image source={{ uri: newChildImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewChildImageUrl, setIsUploadingChildImage)} disabled={isUploadingChildImage}>
@@ -274,7 +274,7 @@ const AddFamilyMemberScreen = () => {
           <Text style={styles.title}>Add Spouse</Text>
           {targetMemberName && <Text style={styles.subtitle}>Spouse for: {targetMemberName}</Text>}
           {!targetMemberName && memberId && <Text style={styles.subtitle}>Adding spouse to member ID: {memberId}</Text>}
-          <TextInput style={styles.input} placeholder="Spouse's Name" value={newSpouseName} onChangeText={setNewSpouseName} placeholderTextColor="#888"/>
+          <TextInput style={styles.input} placeholder="Spouse's Name" value={newSpouseName} onChangeText={setNewSpouseName} placeholderTextColor={currentColors.textSecondary}/>
 
           {newSpouseImageUrl ? <Image source={{ uri: newSpouseImageUrl }} style={styles.imagePreview} /> : <View style={styles.imagePlaceholder}><Ionicons name="person-add-outline" size={50} color={currentColors.textSecondary} /></View>}
           <TouchableOpacity style={styles.uploadButton} onPress={() => pickImageAndUpdateState(setNewSpouseImageUrl, setIsUploadingSpouseImage)} disabled={isUploadingSpouseImage}>
@@ -300,7 +300,7 @@ const AddFamilyMemberScreen = () => {
         {memberId !== 'new' && !relationshipType && ( // Existing member ID but no relationshipType means roster add
             <>
                 <View style={styles.searchContainer}>
-                <TextInput style={styles.searchInput} placeholder="Search user by name..." value={searchQuery} onChangeText={setSearchQuery} placeholderTextColor="#888" onSubmitEditing={handleSearch}/>
+                <TextInput style={styles.searchInput} placeholder="Search user by name..." value={searchQuery} onChangeText={setSearchQuery} placeholderTextColor={currentColors.textSecondary} onSubmitEditing={handleSearch}/>
                 <TouchableOpacity onPress={handleSearch} style={styles.searchButton} disabled={isLoadingSearch}>
                     {isLoadingSearch ? <ActivityIndicator size="small" color={currentColors.primary} /> : <Ionicons name="search" size={24} color={currentColors.primary} />}
                 </TouchableOpacity>

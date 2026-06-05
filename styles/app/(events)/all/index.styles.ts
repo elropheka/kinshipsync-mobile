@@ -8,12 +8,22 @@ import {
   IconSizes,
   Layout,
   moderateScale,
-} from '@/constants/dimensions'; // Assuming dimensions.ts is in constants
+} from '@/constants/dimensions';
+import { BOTTOM_NAV_HEIGHT } from '@/styles/components/common/Navigation/bottomNavigation.styles';
 
 export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.backgroundLight,
+    backgroundColor: theme.background,
+  },
+  searchBar: {
+    marginTop: Spacing.m,
+    marginBottom: Spacing.s,
+  },
+  createButtonContainer: {
+    paddingHorizontal: Spacing.l,
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.m,
+    paddingTop: Spacing.s,
   },
   // header: {
   //   flexDirection: 'row',
@@ -82,45 +92,30 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
   tabContainer: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.l,
-    // marginTop: Spacing.s, // Removed to reduce space if it's the first element
-    borderBottomWidth: 1, // Added border for tab container itself
-    borderBottomColor: theme.divider, // Added border for tab container
+    marginBottom: Spacing.m,
+    gap: Spacing.xs,
   },
   tab: {
-    paddingVertical: Spacing.m,
     flex: 1,
+    paddingVertical: Spacing.s,
     alignItems: 'center',
+    borderRadius: BorderRadius.round,
+    backgroundColor: theme.backgroundSecondary,
   },
   activeTab: {
-    // borderBottomWidth: 2, // Handled by tabIndicator
-    // borderBottomColor: 'transparent',
+    backgroundColor: theme.primary,
   },
   tabText: {
-    fontSize: ResponsiveFontSizes.subtitle,
     color: theme.textSecondary,
   },
   activeTabText: {
-    color: theme.buttonPrimary,
-    fontWeight: Fonts.weights.medium,
-  },
-  tabIndicatorContainer: {
-    position: 'relative',
-    height: moderateScale(3),
-    backgroundColor: theme.divider,
-    marginHorizontal: Spacing.l,
-  },
-  tabIndicator: {
-    position: 'absolute',
-    width: '33.3%',
-    height: moderateScale(3),
-    backgroundColor: theme.buttonPrimary,
-    borderRadius: moderateScale(1.5),
+    color: theme.textLight,
   },
   eventsList: {
     paddingTop: Spacing.m,
     flex: 1,
     paddingHorizontal: Spacing.l,
-    // paddingTop: Spacing.m, // Removed to reduce space below header
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.xl,
   },
   eventCard: {
     backgroundColor: theme.background,

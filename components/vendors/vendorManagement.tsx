@@ -14,6 +14,7 @@ import { Vendor } from '../../types/vendorTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useUserVendors } from '../../hooks/useVendors';
 import { router } from 'expo-router';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
 const VendorManagementScreen = () => {
   const { currentColors } = useAppTheme();
   const { user } = useAppAuth();
@@ -68,11 +69,7 @@ const VendorManagementScreen = () => {
   };
 
   if (isLoadingUserVendors) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={currentColors.tint} style={styles.loader} />
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (errorUserVendors) {
