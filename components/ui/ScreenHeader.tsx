@@ -72,10 +72,12 @@ const createStyles = (theme: typeof Colors.light) =>
     },
     left: {
       flex: 1,
+      alignItems: 'flex-start',
     },
     logo: {
       width: 140,
       height: 36,
+      marginLeft: -Spacing.xs,
     },
     actions: {
       flexDirection: 'row',

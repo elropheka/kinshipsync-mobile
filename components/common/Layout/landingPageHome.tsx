@@ -1,17 +1,12 @@
 import React from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { createLandingPageHomeStyles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { BrandText } from '@/components/ui/BrandText';
 import { BrandButton } from '@/components/ui/BrandButton';
-import { FeaturedEventCard } from '@/components/home/FeaturedEventCard';
-import { AttendingMembersRow } from '@/components/home/AttendingMembersRow';
-import { PhotoGalleryStrip } from '@/components/home/PhotoGalleryStrip';
-import { FeatureGrid } from '@/components/home/FeatureGrid';
-import UpcomingEvents from '@/components/home/UpcomingEvents';
-import { mockUpcomingEvents } from '@/constants/mock/homeDashboard';
-import { ResponsiveContainer } from '@/components/common/Layout/ResponsiveContainer';
+import { landingBrandMessage } from '@/constants/mock/landingFeatures';
+import { LandingFeatureCarousel } from '@/components/common/Layout/LandingFeatureCarousel';
 
 interface LandingPageHomeProps {
   onLoginPress: () => void;
@@ -26,41 +21,33 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   const styles = createLandingPageHomeStyles(currentColors);
 
   return (
-    <SafeAreaView style={styles.pageContainer} edges={['top', 'left', 'right']}>
-      <ResponsiveContainer>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.logoRow}>
-            <Image
-              source={require('@/assets/branding/rusty-brown-logo.png')}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-          </View>
-
-          <BrandText variant="h2" style={styles.welcomeTitle}>
-            Welcome to Kinship Sync!
-          </BrandText>
-
-          <FeaturedEventCard preview />
-          <UpcomingEvents
-            events={mockUpcomingEvents}
-            onSeeAllPress={() => {}}
-            horizontal
-            preview
+    <SafeAreaView style={styles.pageContainer} edges={['top', 'left', 'right', 'bottom']}>
+      <View style={styles.body}>
+        <View style={styles.topSection}>
+          <Image
+            source={require('@/assets/branding/rusty-brown-logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
           />
-          <AttendingMembersRow />
-          <PhotoGalleryStrip />
-          <FeatureGrid preview />
-        </ScrollView>
-      </ResponsiveContainer>
 
-      <View style={styles.authButtonsContainer}>
-        <BrandButton label="Login" variant="outline" onPress={onLoginPress} fullWidth />
-        <BrandButton label="Create Account" variant="primary" onPress={onCreateAccountPress} fullWidth />
+          <View style={styles.messageBlock}>
+            <BrandText variant="h2" style={styles.headline}>
+              {landingBrandMessage.headline}
+            </BrandText>
+            <BrandText variant="body" style={styles.tagline} numberOfLines={2}>
+              {landingBrandMessage.tagline}
+            </BrandText>
+          </View>
+        </View>
+
+        <View style={styles.carouselSection}>
+          <LandingFeatureCarousel />
+        </View>
+
+        <View style={styles.authButtonsContainer}>
+          <BrandButton label="Login" variant="outline" onPress={onLoginPress} fullWidth />
+          <BrandButton label="Create Account" variant="primary" onPress={onCreateAccountPress} fullWidth />
+        </View>
       </View>
     </SafeAreaView>
   );

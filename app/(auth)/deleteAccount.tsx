@@ -134,18 +134,7 @@ const DeleteAccountScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom', 'top']}>
-      <Stack.Screen 
-        options={{ 
-          title: "Delete Account",
-          headerStyle: { backgroundColor: currentColors.background },
-          headerTintColor: currentColors.text,
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color={currentColors.text} />
-            </TouchableOpacity>
-          )
-        }} 
-      />
+      <Stack.Screen options={{ headerShown: false }} />
       <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>

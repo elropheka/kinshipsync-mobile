@@ -21,13 +21,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   },
   scrollView: {
     flexGrow: 1,
-  },
-  header: {
-    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
-    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s,
-  },
-  backButton: {
-    padding: Spacing.xs,
+    paddingBottom: Spacing.xl,
   },
   content: {
     flex: 1,
@@ -59,9 +53,9 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: theme.backgroundPaper,
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: BorderRadius.xl,
-    marginVertical: Spacing.l,
+    marginVertical: Spacing.m,
     padding: Spacing.xs,
     maxWidth: isTablet() ? 400 : '100%',
     alignSelf: isTablet() ? 'center' : 'stretch',
@@ -119,12 +113,6 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     color: theme.text,
     marginBottom: Spacing.xs,
   },
-  optionalLabel: {
-    fontSize: ResponsiveFontSizes.body,
-    fontWeight: Fonts.weights.medium,
-    color: theme.textSecondary,
-    marginBottom: Spacing.xs,
-  },
   input: {
     flex: 1,
     fontSize: ResponsiveFontSizes.subtitle,
@@ -154,7 +142,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   checkedBox: {
     width: moderateScale(20),
     height: moderateScale(20),
-    backgroundColor: theme.success,
+    backgroundColor: theme.primary,
     borderRadius: BorderRadius.s,
     alignItems: 'center',
     justifyContent: 'center',
@@ -165,7 +153,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     flexShrink: 1,
   },
   termsLink: {
-    color: theme.success,
+    color: theme.primary,
     textDecorationLine: 'underline',
   },
   disabledButton: {
@@ -174,7 +162,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: Spacing.xl,
+    marginVertical: Spacing.l,
   },
   divider: {
     flex: 1,
@@ -189,6 +177,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: Spacing.s,
   },
   googleButton: {
     flexDirection: 'row',
@@ -202,7 +191,7 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     flex: Platform.OS === 'android' ? 1 : 0.48,
   },
   appleButton: {
-    display: Platform.OS === 'ios' ? 'flex' : 'none', 
+    display: Platform.OS === 'ios' ? 'flex' : 'none',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -225,15 +214,15 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.l,
+    marginBottom: Spacing.m,
   },
   signInText: {
     color: theme.textSecondary,
     fontSize: ResponsiveFontSizes.body,
   },
   signInLink: {
-    color: theme.success,
+    color: theme.primary,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
     fontSize: ResponsiveFontSizes.body,
@@ -247,69 +236,6 @@ export const createCreateAccountStyles = (theme: typeof Colors.light) => StyleSh
     alignItems: 'center',
     paddingHorizontal: Spacing.xs,
   },
-  avatarContainer: {
-    alignSelf: 'center',
-    marginBottom: Spacing.l,
-  },
-  avatarLabel: {
-    fontSize: ResponsiveFontSizes.body,
-    color: theme.textSecondary,
-    textAlign: 'center',
-    marginBottom: Spacing.s,
-  },
-  avatarPlaceholder: {
-    width: moderateScale(80),
-    height: moderateScale(80),
-    borderRadius: moderateScale(40),
-    backgroundColor: theme.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarImage: {
-    width: moderateScale(80),
-    height: moderateScale(80),
-    borderRadius: moderateScale(40),
-  },
-  cameraIconContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: theme.primary,
-    borderRadius: moderateScale(15),
-    padding: moderateScale(5),
-    borderWidth: 2,
-    borderColor: theme.backgroundLight,
-  },
-  phoneInputContainer: {
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: BorderRadius.m,
-    backgroundColor: theme.background,
-    width: '100%',
-  },
-  phoneInputTextContainer: {
-    backgroundColor: theme.background,
-    paddingVertical: 0,
-  },
-  phoneInputText: {
-    fontSize: ResponsiveFontSizes.subtitle,
-    color: theme.text,
-    paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.m,
-  },
-  phoneInputCodeText: {
-    fontSize: ResponsiveFontSizes.subtitle,
-    color: theme.text,
-  },
-  phoneInputFlagButton: {
-    paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.s,
-  },
-  phoneInputCountryPicker: {
-    paddingVertical: Spacing.m,
-    paddingHorizontal: Spacing.s,
-  },
 });
 
-// For backwards compatibility, export the light theme styles
 export const styles = createCreateAccountStyles(Colors.light);

@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
@@ -18,7 +18,6 @@ import { createSignInStyles } from '@/styles/app/(auth)/signIn.styles';
 import GoogleIcon from '@/components/common/GoogleIcon';
 import { useAlert } from '@/context/AlertContext';
 import { BrandButton, BrandCard, BrandInput, BrandText } from '@/components/ui';
-
 
 interface FormData {
   email: string;
@@ -32,11 +31,11 @@ const SignInScreen: React.FC = () => {
     email: '',
     password: '',
   });
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Added for password visibility
-  const [isLoading, setIsLoading] = useState(false); // General loading state for email/password
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false); // For Google loading state
-  const [isAppleLoading, setIsAppleLoading] = useState(false); // For Apple loading state
-  const { signIn, signInWithGoogle, signInWithApple } = useAuth(); // Get signIn and signInWithGoogle from AuthContext
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
+  const { signIn, signInWithGoogle, signInWithApple } = useAuth();
   const { showError } = useAlert();
 
   const handleSignIn = async () => {
@@ -61,56 +60,34 @@ const SignInScreen: React.FC = () => {
     setIsAppleLoading(false);
   };
 
-  const handleSignUp = () => {
-  
-    router.push('/createAccount');
-  };
-
-  const handleForgotPassword = () => {
-   
-    router.push({ pathname: '/(auth)/ForgotPasswordScreen' });
-  };
-
-  const handleBackPress = () => {
-    
-    router.back();
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={24} color={currentColors.text} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Main Content */}
+        <ScrollView
+          contentContainerStyle={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.content}>
             <Image
               source={require('@/assets/branding/rusty-brown-logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
-            <BrandText variant="h2" style={styles.title}>
-              Welcome!
-            </BrandText>
+            <BrandText variant="h2" style={styles.title}>Welcome!</BrandText>
             <BrandText variant="body" color="secondary" style={styles.subtitle}>
               Hello, kindly fill in the required information below to continue
             </BrandText>
 
-           
             <View style={styles.toggleContainer}>
               <TouchableOpacity style={styles.toggleButtonActive}>
                 <BrandText variant="button" style={styles.toggleTextActive}>Sign In</BrandText>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.toggleButtonInactive} onPress={handleSignUp}>
+              <TouchableOpacity style={styles.toggleButtonInactive} onPress={() => router.push('/createAccount')}>
                 <BrandText variant="button" color="secondary" style={styles.toggleTextInactive}>Sign Up</BrandText>
               </TouchableOpacity>
             </View>
@@ -138,7 +115,10 @@ const SignInScreen: React.FC = () => {
                     value={formData.password}
                     onChangeText={(text) => setFormData({ ...formData, password: text })}
                   />
-                  <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.passwordVisibilityToggle}>
+                  <TouchableOpacity
+                    onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                    style={styles.passwordVisibilityToggle}
+                  >
                     <Ionicons
                       name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
                       size={24}
@@ -148,14 +128,14 @@ const SignInScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
 
-                {/* Forgot Password */}
                 <View style={styles.forgotPasswordContainer}>
-                  <TouchableOpacity onPress={handleForgotPassword}>
-                    <BrandText variant="body" color="secondary" style={styles.forgotPasswordText}>Forgot Password</BrandText>
+                  <TouchableOpacity onPress={() => router.push('/(auth)/ForgotPasswordScreen')}>
+                    <BrandText variant="body" color="secondary" style={styles.forgotPasswordText}>
+                      Forgot Password
+                    </BrandText>
                   </TouchableOpacity>
                 </View>
 
-                {/* Sign In Button */}
                 <BrandButton
                   label={isLoading ? 'SIGNING IN...' : 'SIGN IN'}
                   onPress={handleSignIn}
@@ -167,17 +147,15 @@ const SignInScreen: React.FC = () => {
               </View>
             </BrandCard>
 
-            {/* Or sign up with */}
             <View style={styles.dividerContainer}>
               <View style={styles.divider} />
               <BrandText variant="body" color="secondary" style={styles.dividerText}>or sign up with</BrandText>
               <View style={styles.divider} />
             </View>
 
-           
             <View style={styles.socialButtons}>
-              <TouchableOpacity 
-                style={[styles.googleButton, isGoogleLoading && styles.disabledButton]} // Optional: style for disabled state
+              <TouchableOpacity
+                style={[styles.googleButton, isGoogleLoading && styles.disabledButton]}
                 onPress={handleGoogleSignIn}
                 disabled={isGoogleLoading}
               >
@@ -187,9 +165,9 @@ const SignInScreen: React.FC = () => {
                 </BrandText>
               </TouchableOpacity>
 
-              {Platform.OS === 'ios' && (
-                <TouchableOpacity 
-                  style={[styles.appleButton, isAppleLoading && styles.disabledButton]} 
+              {Platform.OS === 'ios' ? (
+                <TouchableOpacity
+                  style={[styles.appleButton, isAppleLoading && styles.disabledButton]}
                   onPress={handleAppleSignIn}
                   disabled={isAppleLoading}
                 >
@@ -198,13 +176,12 @@ const SignInScreen: React.FC = () => {
                     {isAppleLoading ? 'Signing In...' : 'Apple'}
                   </BrandText>
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
 
-            
             <View style={styles.signUpContainer}>
               <BrandText variant="body" color="secondary" style={styles.signUpText}>Need an account? </BrandText>
-              <TouchableOpacity onPress={handleSignUp}>
+              <TouchableOpacity onPress={() => router.push('/createAccount')}>
                 <BrandText variant="body" style={styles.signUpLink}>Sign up</BrandText>
               </TouchableOpacity>
             </View>

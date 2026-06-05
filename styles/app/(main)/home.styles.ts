@@ -17,6 +17,9 @@ export const createHomeStyles = (theme: typeof Colors.light) => StyleSheet.creat
     flex: 1,
     backgroundColor: theme.background,
   },
+  screenHeader: {
+    marginLeft: -Spacing.l,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

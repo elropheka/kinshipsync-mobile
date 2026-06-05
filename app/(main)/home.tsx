@@ -37,6 +37,7 @@ const DashboardScreen: React.FC = () => {
       <ResponsiveContainer>
         <ScreenHeader
           showLogo
+          style={styles.screenHeader}
           onMenuPress={toggleSidebar}
           onNotificationPress={() => router.push('/notifications')}
           notificationCount={unreadCount}

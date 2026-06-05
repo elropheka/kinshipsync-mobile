@@ -5,14 +5,12 @@ import { BorderRadius, Spacing } from 'constants/dimensions';
 export const createForgotPasswordStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.l,
     backgroundColor: theme.background,
   },
-  backButton: {
-    alignSelf: 'flex-start',
-    marginBottom: Spacing.m,
-    padding: Spacing.xs,
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.l,
   },
   title: {
     textAlign: 'left',

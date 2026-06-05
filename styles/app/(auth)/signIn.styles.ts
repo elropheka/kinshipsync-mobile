@@ -20,13 +20,7 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   },
   scrollView: {
     flexGrow: 1,
-  },
-  header: {
-    paddingHorizontal: isTablet() ? Spacing.xl : Spacing.l,
-    paddingTop: Platform.OS === 'ios' ? Spacing.m : Spacing.s,
-  },
-  backButton: {
-    padding: Spacing.xs,
+    paddingBottom: Spacing.xl,
   },
   content: {
     flex: 1,
@@ -58,9 +52,9 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: theme.backgroundPaper,
+    backgroundColor: theme.backgroundSecondary,
     borderRadius: BorderRadius.xl,
-    marginVertical: Spacing.l,
+    marginVertical: Spacing.m,
     padding: Spacing.xs,
     maxWidth: isTablet() ? 400 : '100%',
     alignSelf: isTablet() ? 'center' : 'stretch',
@@ -129,7 +123,7 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: Spacing.xl,
+    marginVertical: Spacing.l,
   },
   divider: {
     flex: 1,
@@ -144,6 +138,7 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: Spacing.s,
   },
   googleButton: {
     flexDirection: 'row',
@@ -154,10 +149,10 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
     borderColor: theme.border,
     borderRadius: BorderRadius.xl,
     backgroundColor: theme.background,
-    flex: Platform.OS === 'android'? 1 : 0.48,
+    flex: Platform.OS === 'android' ? 1 : 0.48,
   },
   appleButton: {
-    display: Platform.OS === 'android'? 'none': 'flex',
+    display: Platform.OS === 'android' ? 'none' : 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -180,14 +175,14 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   signUpContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.l,
+    marginBottom: Spacing.m,
   },
   signUpText: {
     color: theme.textSecondary,
   },
   signUpLink: {
-    color: theme.success,
+    color: theme.primary,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
   },
@@ -205,5 +200,4 @@ export const createSignInStyles = (theme: typeof Colors.light) => StyleSheet.cre
   },
 });
 
-// For backwards compatibility, export the light theme styles
 export const styles = createSignInStyles(Colors.light);
