@@ -1,22 +1,25 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import React from 'react';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
-import { StackBackButton } from '@/components/common/Navigation/StackBackButton';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
-function chatPushedScreenOptions(title: string): NativeStackNavigationOptions {
+function chatPushedScreenOptions(
+  title: string,
+  tintColor: string,
+): NativeStackNavigationOptions {
   return {
     title,
-    headerLeft: () => <StackBackButton fallbackRoute="/messages" />,
-    headerBackVisible: false,
+    ...HeaderButtonItems.headerLeftBackOptions(tintColor, 'onRust', '/messages'),
   };
 }
 
 export default function ChatLayout() {
   const { currentColors } = useAppTheme();
+  const tintColor = currentColors.accentContrastText;
 
   return (
     <>
@@ -31,15 +34,21 @@ export default function ChatLayout() {
           name="messages"
           options={{
             title: 'Messages',
-            headerLeft: () => <StackBackButton />,
-            headerBackVisible: false,
+            ...HeaderButtonItems.headerLeftBackOptions(tintColor, 'onRust', '/home'),
+            ...HeaderButtonItems.headerRightIconOptions({
+              label: 'New chat',
+              sfSymbol: 'square.and.pencil',
+              ionicon: 'create-outline',
+              onPress: () => router.push('/(chat)/newChat'),
+              tintColor,
+            }),
           }}
         />
-        <Stack.Screen name="chatArea" options={chatPushedScreenOptions('Chat')} />
-        <Stack.Screen name="newChat" options={chatPushedScreenOptions('New Chat')} />
+        <Stack.Screen name="chatArea" options={chatPushedScreenOptions('Chat', tintColor)} />
+        <Stack.Screen name="newChat" options={chatPushedScreenOptions('New Chat', tintColor)} />
         <Stack.Screen
           name="conversationSettings"
-          options={chatPushedScreenOptions('Conversation Settings')}
+          options={chatPushedScreenOptions('Conversation Settings', tintColor)}
         />
       </Stack>
     </>

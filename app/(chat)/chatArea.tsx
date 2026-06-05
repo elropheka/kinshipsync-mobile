@@ -257,8 +257,9 @@ const ChatAreaScreen: React.FC = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: screenTitle,
-      ...HeaderButtonItems.headerRightIconComponent({
+      ...HeaderButtonItems.headerRightIconOptions({
         label: 'More options',
+        sfSymbol: 'ellipsis',
         ionicon: 'ellipsis-vertical',
         onPress: openChatMenu,
         tintColor: currentColors.accentContrastText,

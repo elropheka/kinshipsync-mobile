@@ -139,8 +139,10 @@ class CleanAuditRunner {
     }
 
     const chatLayout = fs.readFileSync(path.join(ROOT, 'app/(chat)/_layout.tsx'), 'utf8');
+    const hasChatBackAffordance =
+      chatLayout.includes('headerLeftBackOptions') || chatLayout.includes('StackBackButton');
     if (
-      !chatLayout.includes('StackBackButton') ||
+      !hasChatBackAffordance ||
       !chatLayout.includes('rustSurfaceOptions') ||
       chatLayout.includes('HeaderTheme.lightOptions')
     ) {

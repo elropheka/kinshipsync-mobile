@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewProps } from 'react-native';
+import { Pressable, StyleSheet, View, ViewProps } from 'react-native';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
@@ -11,6 +11,8 @@ interface BrandSummaryCardProps extends ViewProps {
   value: number | string;
   label: string;
   variant?: BrandSummaryCardVariant;
+  selected?: boolean;
+  onPress?: () => void;
 }
 
 export class BrandSummaryCard extends React.Component<BrandSummaryCardProps> {
@@ -23,25 +25,52 @@ const BrandSummaryCardInner: React.FC<BrandSummaryCardProps> = ({
   value,
   label,
   variant = 'sand',
+  selected = false,
+  onPress,
   style,
   ...rest
 }) => {
   const { currentColors } = useAppTheme();
-  const styles = createStyles(currentColors, variant);
+  const styles = createStyles(currentColors, variant, selected);
 
-  return (
-    <View style={[styles.card, style]} {...rest}>
+  const content = (
+    <>
       <BrandText variant="h3" style={styles.value}>
         {value}
       </BrandText>
       <BrandText variant="caption" color="secondary" style={styles.label}>
         {label}
       </BrandText>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={[styles.card, style]}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={`${label}, ${value}`}
+        {...rest}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={[styles.card, style]} {...rest}>
+      {content}
     </View>
   );
 };
 
-const createStyles = (theme: typeof Colors.light, variant: BrandSummaryCardVariant) => {
+const createStyles = (
+  theme: typeof Colors.light,
+  variant: BrandSummaryCardVariant,
+  selected: boolean,
+) => {
   const backgroundColor =
     variant === 'golden'
       ? theme.accentHighlight
@@ -54,14 +83,14 @@ const createStyles = (theme: typeof Colors.light, variant: BrandSummaryCardVaria
 
   return StyleSheet.create({
     card: {
-      width: '31%',
+      flex: 1,
       padding: Spacing.m,
       borderRadius: BorderRadius.l,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor,
-      borderWidth: 1,
-      borderColor: theme.border,
+      borderWidth: selected ? 2 : 1,
+      borderColor: selected ? theme.primary : theme.border,
     },
     value: {
       color: valueColor,

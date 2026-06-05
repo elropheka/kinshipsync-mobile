@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { createIndexStyles } from '../../../styles/app/(events)/all/index.styles';
 import { useAllEvents } from '../../../hooks/useEvents';
 import { useAppTheme } from '../../../context/AppThemeContext';
@@ -16,23 +17,32 @@ import { EventListCard } from '@/components/events/EventListCard';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 type EventClientStatus = 'Upcoming' | 'Past' | 'Planning';
+type EventFilter = 'all' | 'upcoming' | 'planned' | 'completed';
 
 interface ProcessedEvent extends AppEvent {
   derivedStatus: EventClientStatus;
 }
 
 interface Summary {
+  all: number;
   upcoming: number;
   planned: number;
   completed: number;
 }
+
+const FILTER_LABELS: Record<EventFilter, string> = {
+  all: 'events',
+  upcoming: 'upcoming events',
+  planned: 'planned events',
+  completed: 'completed events',
+};
 
 const EventsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
   const styles = createIndexStyles(currentColors);
 
   const { events: fetchedEvents, isLoading, error, fetchEvents: refreshEvents } = useAllEvents();
-  const [activeTab, setActiveTab] = useState<string>('Upcoming');
+  const [activeFilter, setActiveFilter] = useState<EventFilter>('all');
   const [showSearchInput, setShowSearchInput] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -54,11 +64,11 @@ const EventsScreen: React.FC = () => {
 
   const filteredEventsData = useMemo(() => {
     let newFilteredEvents = processedEventsData;
-    if (activeTab === 'Upcoming') {
-      newFilteredEvents = newFilteredEvents.filter(
-        (event) => event.derivedStatus === 'Upcoming' || event.derivedStatus === 'Planning',
-      );
-    } else if (activeTab === 'Completed') {
+    if (activeFilter === 'upcoming') {
+      newFilteredEvents = newFilteredEvents.filter((event) => event.derivedStatus === 'Upcoming');
+    } else if (activeFilter === 'planned') {
+      newFilteredEvents = newFilteredEvents.filter((event) => event.derivedStatus === 'Planning');
+    } else if (activeFilter === 'completed') {
       newFilteredEvents = newFilteredEvents.filter((event) => event.derivedStatus === 'Past');
     }
     if (searchQuery) {
@@ -70,14 +80,15 @@ const EventsScreen: React.FC = () => {
       );
     }
     return newFilteredEvents;
-  }, [activeTab, searchQuery, processedEventsData]);
+  }, [activeFilter, searchQuery, processedEventsData]);
 
   const summaryData: Summary = useMemo(() => {
     const upcoming = processedEventsData.filter((e) => e.derivedStatus === 'Upcoming').length;
     const planned = processedEventsData.filter((e) => e.derivedStatus === 'Planning').length;
     const completed = processedEventsData.filter((e) => e.derivedStatus === 'Past').length;
     return {
-      upcoming: upcoming + planned,
+      all: processedEventsData.length,
+      upcoming,
       planned,
       completed,
     };
@@ -124,29 +135,40 @@ const EventsScreen: React.FC = () => {
       ) : null}
 
       <View style={styles.summaryContainer}>
-        <BrandSummaryCard value={summaryData.upcoming} label="Upcoming" variant="green" />
-        <BrandSummaryCard value={summaryData.planned} label="Planned" variant="golden" />
-        <BrandSummaryCard value={summaryData.completed} label="Completed" variant="sand" />
-      </View>
-
-      <View style={styles.tabContainer}>
-        {['Upcoming', 'All Events', 'Completed'].map((tab: string) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <BrandText variant="body" style={activeTab === tab ? styles.activeTabText : styles.tabText}>
-              {tab}
-            </BrandText>
-          </TouchableOpacity>
-        ))}
+        <BrandSummaryCard
+          value={summaryData.all}
+          label="All"
+          variant="sand"
+          selected={activeFilter === 'all'}
+          onPress={() => setActiveFilter('all')}
+        />
+        <BrandSummaryCard
+          value={summaryData.upcoming}
+          label="Upcoming"
+          variant="green"
+          selected={activeFilter === 'upcoming'}
+          onPress={() => setActiveFilter('upcoming')}
+        />
+        <BrandSummaryCard
+          value={summaryData.planned}
+          label="Planned"
+          variant="golden"
+          selected={activeFilter === 'planned'}
+          onPress={() => setActiveFilter('planned')}
+        />
+        <BrandSummaryCard
+          value={summaryData.completed}
+          label="Completed"
+          variant="sand"
+          selected={activeFilter === 'completed'}
+          onPress={() => setActiveFilter('completed')}
+        />
       </View>
 
       <ScrollView style={styles.eventsList} showsVerticalScrollIndicator={false}>
         {!isLoading && filteredEventsData.length === 0 ? (
           <BrandEmptyState
-            title={`No ${activeTab.toLowerCase()} events`}
+            title={`No ${FILTER_LABELS[activeFilter]}`}
             message={searchQuery ? 'Try adjusting your search.' : 'Create an event to start planning with your family.'}
             actionLabel="Create Event"
             onActionPress={() => router.push('/createEvent')}
@@ -159,14 +181,14 @@ const EventsScreen: React.FC = () => {
         ))}
       </ScrollView>
 
-      <View style={styles.createButtonContainer}>
-        <BrandButton
-          label="Create New Event"
-          variant="primary"
-          onPress={() => router.push('/(events)/createEvent')}
-          fullWidth
-        />
-      </View>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(events)/createEvent')}
+        accessibilityRole="button"
+        accessibilityLabel="Create new event"
+      >
+        <Ionicons name="add-sharp" size={30} color={currentColors.primaryContrastText} />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
