@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, StyleSheet, View, ViewStyle } from 'react-native';
+import { Animated, Easing, StyleSheet, View, ViewStyle } from 'react-native';
 
 type BrandLoadingSpinnerSize = 'small' | 'large';
 

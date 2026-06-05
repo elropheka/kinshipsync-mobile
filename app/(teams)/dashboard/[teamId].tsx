@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar } from 'react-native'; // Added Image
+import { View, Text, TouchableOpacity, FlatList, Modal, Image, StatusBar } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  ScrollView, 
-  ActivityIndicator, 
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
   StatusBar,
   Image,
 } from 'react-native';

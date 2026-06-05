@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Removed AntDesign as it's not used
 import { Stack, router } from 'expo-router'; // Removed useLocalSearchParams
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
 import Fonts from '../../constants/fonts';

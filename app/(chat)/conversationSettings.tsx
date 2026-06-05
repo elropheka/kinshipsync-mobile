@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, ActionSheetIOS, StatusBar } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/AppThemeContext';

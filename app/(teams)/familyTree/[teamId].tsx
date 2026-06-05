@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
-import { View, Text, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';

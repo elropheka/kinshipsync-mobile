@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Button,
   FlatList,
-  ActivityIndicator,
   Modal,
   TouchableWithoutFeedback,
 } from 'react-native';
