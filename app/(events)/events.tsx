@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Stack, router, useFocusEffect } from 'expo-router'; 
@@ -25,7 +25,7 @@ const EventListScreen = () => {
   const lastRefetchRef = useRef<number>(0);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const now = Date.now();
       const timeSinceLastRefetch = now - lastRefetchRef.current;
       
