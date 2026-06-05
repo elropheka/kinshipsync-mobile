@@ -47,13 +47,13 @@ After making changes to your JavaScript/TypeScript code:
 
 ```bash
 # For production channel
-eas update --branch production --message "Your update description"
+eas update --branch production --environment production --message "Your update description"
 
 # For preview/testing
-eas update --branch preview --message "Testing new feature"
+eas update --branch preview --environment preview --message "Testing new feature"
 
 # For development
-eas update --branch development --message "Dev update"
+eas update --branch development --environment development --message "Dev update"
 ```
 
 ### 3. Check Update Status
@@ -108,7 +108,7 @@ The current setup:
 
 3. Publish an update:
    ```bash
-   eas update --branch preview --message "Test update"
+   eas update --branch preview --environment preview --message "Test update"
    ```
 
 4. Close and reopen the app to see the update
@@ -143,14 +143,29 @@ Users can manually check for updates by:
 
 If an update breaks the app:
 ```bash
-eas update:rollback --branch production
+eas update:rollback --branch production --environment production
 ```
+
+## SDK 55 Rebuild Required
+
+After upgrading to Expo SDK 55, publish **new native builds** before OTA updates will work:
+
+```bash
+# Development client (required for local dev with native modules)
+eas build --profile development --platform all
+
+# Preview / production after QA
+eas build --profile preview --platform all
+eas build --profile production --platform all
+```
+
+`runtimeVersion` was bumped to `1.0.6` for this upgrade. OTA updates only apply to builds compiled with the matching runtime.
 
 ## Commands Summary
 
 ```bash
 # Publish an update
-eas update --branch production --message "Update description"
+eas update --branch production --environment production --message "Update description"
 
 # Build the app
 eas build --platform ios --profile production
@@ -163,7 +178,7 @@ eas update:list
 eas update:view [update-id]
 
 # Rollback update
-eas update:rollback --branch production
+eas update:rollback --branch production --environment production
 ```
 
 ## Additional Resources

@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
@@ -16,10 +15,6 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
-      "deviceFamilies": [
-        1,
-        1
-      ],
       "bundleIdentifier": "com.kinshipsyncapp",
       "buildNumber": "3",
       "infoPlist": {
@@ -59,8 +54,6 @@
         "backgroundColor": "#F5EFE8"
       },
       "package": "com.kinship.kinshipsync",
-      "targetSdkVersion": 35,
-      "compileSdkVersion": 35,
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
@@ -84,7 +77,10 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.433750501084-425hb71ogrc7p04p7cujs0t2qct3igkj"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-secure-store",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true
@@ -99,10 +95,11 @@
       "messagingApiUrl": "https://kinshipsync-messaging.vercel.app",
       "messagingApiToken": "7149a08e90df44321bd68897da3d811e"
     },
-    "runtimeVersion": "1.0.5",
+    "runtimeVersion": "1.0.6",
     "updates": {
       "url": "https://u.expo.dev/ad4bb59d-fd0d-4396-af25-8c32f9c8bb42",
-      "enabled": true
+      "enabled": true,
+      "enableBsdiffPatchSupport": true
     }
   }
 }
