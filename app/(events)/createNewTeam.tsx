@@ -9,8 +9,7 @@ import {
   ActivityIndicator,
   Modal,
   TouchableWithoutFeedback,
-  StatusBar,
-  Platform
+  Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -192,7 +191,6 @@ const CreateNewTeamScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen options={{ title: "Create New Team" }} />
       <FlatList
         data={formSections}

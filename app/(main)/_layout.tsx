@@ -4,7 +4,7 @@ import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
 import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
-import BackButton from '@/components/common/Navigation/BackButton';
+import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 
 export const ScrollContext = createContext<{
   handleScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
@@ -39,14 +39,10 @@ function MainTabsLayout() {
       <Tabs
           screenOptions={{
             headerShown: false,
-            headerLeft: () => <BackButton />, 
             tabBarStyle: {
               display: Platform.OS === 'web' ? 'none' : 'flex',
             },
-             headerStyle: {
-                      backgroundColor: currentColors.accent
-                },
-                headerTintColor: currentColors.text,
+            ...HeaderTheme.accentOptions(currentColors),
           }}
           tabBar={props => {
             if (!props.state || !props.state.routes) {
@@ -64,7 +60,7 @@ function MainTabsLayout() {
           />
           <Tabs.Screen
             name="notifications"
-            options={{ title: "Notifications", headerShown: true, headerTintColor: '#000000' }}
+            options={{ title: "Notifications", headerShown: true }}
           />
           <Tabs.Screen
             name="profile"

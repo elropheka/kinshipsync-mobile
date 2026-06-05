@@ -9,6 +9,7 @@ import { useAppTheme } from '../../../context/AppThemeContext';
 import { Event as AppEvent } from '../../../types/eventTypes';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { BrandEmptyState } from '@/components/ui/BrandEmptyState';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 type EventClientStatus = 'Upcoming' | 'Past' | 'Planning';
 
@@ -117,15 +118,17 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen 
-        options={{ 
-          title: "My Events",
-          headerRight: () => (
-            <TouchableOpacity style={{ marginRight: 10 }} onPress={() => setShowSearchInput(!showSearchInput)}>
-              <Ionicons name="search" size={24} color="white" />
-            </TouchableOpacity>
-          )
-        }} 
+      <Stack.Screen
+        options={{
+          title: 'My Events',
+          ...HeaderButtonItems.headerRightIconOptions({
+            label: 'Search',
+            sfSymbol: 'magnifyingglass',
+            ionicon: 'search',
+            onPress: () => setShowSearchInput(!showSearchInput),
+            tintColor: currentColors.accentContrastText,
+          }),
+        }}
       />
      
 

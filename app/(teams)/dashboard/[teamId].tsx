@@ -14,6 +14,7 @@ import { Colors } from '../../../constants/Colors';
 import { useAppTheme } from '../../../context/AppThemeContext';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import { getTeamById, getTasksForTeam, createTaskForTeam, updateTaskForTeam, removeMemberFromTeam, deleteTaskForTeam } from '../../../services/teamService';
 import * as scheduleService from '../../../services/scheduleService'; // Added scheduleService
 import { getUserProfile } from '../../../services/userService';
@@ -385,11 +386,13 @@ const TeamDashboardScreen = () => {
       <Stack.Screen
         options={{
           title: team.name || 'Team Dashboard',
-          headerRight: () => (
-            <TouchableOpacity onPress={handleAddItem} style={{ marginRight: 15 }}>
-              <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
-            </TouchableOpacity>
-          ),
+          ...HeaderButtonItems.headerRightIconOptions({
+            label: 'Add item',
+            sfSymbol: 'plus.circle',
+            ionicon: 'add-circle-outline',
+            onPress: handleAddItem,
+            tintColor: currentColors.text,
+          }),
         }}
       />
 

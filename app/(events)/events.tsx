@@ -1,13 +1,15 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Stack, router, useFocusEffect } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import { createEventsStyles } from '@/styles/app/(events)/events.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAllEvents } from '@/hooks/useEvents';
 import { Event } from '@/types/eventTypes';
 import { Colors } from '@/constants/Colors';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 const TABS = ['Guests', 'Events', 'RSVPs', 'Messages'];
 const FILTERS = ['All', 'Upcoming', 'Past'];
@@ -117,16 +119,17 @@ const EventListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen 
-        options={{ 
-          title: "Events",
-          headerRight: () => (
-            <TouchableOpacity style={{ marginRight: 10 }}>
-              <Ionicons name="information-circle-outline" size={24} color="white" />
-            </TouchableOpacity>
-          )
-        }} 
+      <Stack.Screen
+        options={{
+          title: 'Events',
+          ...HeaderButtonItems.headerRightIconOptions({
+            label: 'Info',
+            sfSymbol: 'info.circle',
+            ionicon: 'information-circle-outline',
+            onPress: () => undefined,
+            tintColor: currentColors.accentContrastText,
+          }),
+        }}
       />
    
       

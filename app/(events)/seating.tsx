@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList, Platform } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -163,7 +163,6 @@ import { useAlert } from '@/context/AlertContext';
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       {/* Header */}
       <Stack.Screen options={{ title: `Seating - ${event.name}` }} />
       <View style={styles.headerControls}>

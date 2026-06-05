@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createIndexStyles } from '../../../styles/app/(events)/schedule/index.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import ScheduleItemForm from '@/components/events/ScheduleItemForm'; 
+import ScheduleItemForm from '@/components/events/ScheduleItemForm';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems'; 
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { 
@@ -201,18 +202,19 @@ const EventScheduleScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: `Schedule: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'Details')}`,
-          headerRight: () => (
-            isPlannerMode ? (
-              <TouchableOpacity onPress={handleAddItem} style={{ marginRight: 10 }}>
-                <Icon name="add" size={30} color="white" />
-              </TouchableOpacity>
-            ) : null
-          )
-        }} 
+          ...(isPlannerMode
+            ? HeaderButtonItems.headerRightIconOptions({
+                label: 'Add item',
+                sfSymbol: 'plus',
+                ionicon: 'add',
+                onPress: handleAddItem,
+                tintColor: currentColors.accentContrastText,
+              })
+            : {}),
+        }}
       />
       {/* Custom header View removed */}
 

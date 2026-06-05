@@ -20,6 +20,7 @@ import VendorManagement from '@/components/vendors/vendorManagement';
 import { VendorCategory } from '../../../types/vendorTypes';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 import { useVendorCategories, useVendorItemsSearch, DisplayVendorItem } from '../../../hooks/useVendors';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 const VendorsScreen: React.FC = () => {
   const { currentColors } = useAppTheme();
@@ -59,21 +60,16 @@ const VendorsScreen: React.FC = () => {
   }, [searchQuery, updateItemSearchCriteria, isSearchBarVisible]);
 
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity 
-          onPress={() => setIsSearchBarVisible(prev => !prev)} 
-          style={{ marginRight: 15 }}
-        >
-          <Ionicons 
-            name={isSearchBarVisible ? "close-outline" : "search-outline"} 
-            size={24} 
-            color={currentColors.text}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, isSearchBarVisible]);
+    navigation.setOptions(
+      HeaderButtonItems.headerRightIconOptions({
+        label: isSearchBarVisible ? 'Close search' : 'Search',
+        sfSymbol: isSearchBarVisible ? 'xmark' : 'magnifyingglass',
+        ionicon: isSearchBarVisible ? 'close-outline' : 'search-outline',
+        onPress: () => setIsSearchBarVisible((prev) => !prev),
+        tintColor: currentColors.accentContrastText,
+      }),
+    );
+  }, [navigation, isSearchBarVisible, currentColors.accentContrastText]);
 
   const handleNavigateToVendorDetails = useCallback((vendorId: string) => {
     router.push(`/(vendors)/details/${vendorId}`);

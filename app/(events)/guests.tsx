@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Removed AntDesign as it's not used
 import { Stack, router } from 'expo-router'; // Removed useLocalSearchParams
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,7 +67,6 @@ const EventSelectionForGuestsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
       <Stack.Screen 
         options={{ 
           title: 'Select Event for Guest List', // Changed title

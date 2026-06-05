@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { createDirectConversation, sendMessage } from '../../../services/chatSer
 import { Guest as GuestType, Event as EventType, CreateGuestPayload } from '../../../types/eventTypes';
 import { Colors } from '../../../constants/Colors';
 import InviteGuestModal from '../../../components/events/InviteGuestModal';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'Attending', 'Declined', 'Maybe'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -231,21 +232,24 @@ const SpecificEventGuestListScreen = () => {
   
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: eventDetails ? `Guests: ${eventDetails.name}` : (eventId ? `Guests (ID: ${eventId.substring(0,6)}...)` : 'Guest List'),
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} style={{ marginRight: 15 }}>
-                    <Ionicons name={isSearchVisible ? "close-circle-outline" : "search"} size={24} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{ marginRight: 10 }}>
-                    <Ionicons name="person-add-outline" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
-          )
-        }} 
+          ...HeaderButtonItems.headerRightActionsOptions(currentColors.accentContrastText, [
+            {
+              label: isSearchVisible ? 'Close search' : 'Search',
+              sfSymbol: isSearchVisible ? 'xmark.circle' : 'magnifyingglass',
+              ionicon: isSearchVisible ? 'close-circle-outline' : 'search',
+              onPress: () => setIsSearchVisible(!isSearchVisible),
+            },
+            {
+              label: 'Invite guest',
+              sfSymbol: 'person.badge.plus',
+              ionicon: 'person-add-outline',
+              onPress: () => setIsInviteModalVisible(true),
+            },
+          ]),
+        }}
       />
       
       {isSearchVisible && (

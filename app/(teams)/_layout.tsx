@@ -1,20 +1,16 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import BackButton from '@/components/common/Navigation/BackButton';
-import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 
 const TeamsLayout: React.FC = () => {
   const { currentColors } = useAppTheme();
+
   return (
     <Stack
       screenOptions={{
         headerShown: true,
-        headerLeft: () => <BackButton />,
-        headerBackVisible: false,
-         headerStyle: {
-                  backgroundColor: currentColors.backgroundPrimary,
-                },
+        ...HeaderTheme.lightOptions(currentColors),
       }}
     >
       <Stack.Screen
@@ -25,10 +21,8 @@ const TeamsLayout: React.FC = () => {
       />
       <Stack.Screen
         name="dashboard/[teamId]"
-        options={{
-        }}
+        options={{}}
       />
-      {/* Add other team-related screens here if needed in the future */}
     </Stack>
   );
 };

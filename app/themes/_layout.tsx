@@ -1,22 +1,15 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { Colors } from '../../constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
-import BackButton from '@/components/common/Navigation/BackButton';
+import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 
 export default function ThemeLayout() {
   const { currentColors } = useAppTheme();
+
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: currentColors.backgroundPrimary,
-        },
-        headerLeft: () => <BackButton />,
-        headerTintColor: currentColors.primary,
-        headerTitleStyle: {
-        },
-        
+        ...HeaderTheme.lightOptions(currentColors),
       }}
     >
       <Stack.Screen

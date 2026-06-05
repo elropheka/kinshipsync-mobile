@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator, StatusBar} from 'react-native';
+import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
@@ -185,7 +186,7 @@ const SettingsScreen: React.FC = () => {
   if (isLoadingSettings && !currentSettings) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
         <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading Settings...</Text>
       </SafeAreaView>
@@ -195,7 +196,7 @@ const SettingsScreen: React.FC = () => {
   if (settingsError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
         <Text style={styles.errorText}>Error loading settings: {settingsError.message}</Text>
       </SafeAreaView>
     );
@@ -213,7 +214,7 @@ const SettingsScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: "Settings" }} />
-     <StatusBar barStyle={currentColors === currentColors ? "light-content" : "dark-content"} backgroundColor={currentColors.backgroundSecondary} />
+      <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
 
       <ScrollView>
         <View style={styles.sectionContainer}>

@@ -1,33 +1,45 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { Colors } from '@/constants/Colors';
 
-const BackButton: React.FC = () => {
-  const router = useRouter();
+export type BackButtonContrast = 'onAccent' | 'onRust' | 'onLight';
+
+interface BackButtonProps {
+  contrast?: BackButtonContrast;
+  tintColor?: string;
+}
+
+const BackButton: React.FC<BackButtonProps> = ({ contrast = 'onLight', tintColor }) => {
   const { currentColors } = useAppTheme();
 
   if (!router.canGoBack()) {
-    return null; // Don't render if there's no screen to go back to
+    return null;
   }
 
+  const iconColor =
+    tintColor ??
+    (contrast === 'onLight' ? currentColors.text : currentColors.accentContrastText);
+
   return (
-    <TouchableOpacity onPress={() => router.back()} style={styles.button}>
-      <Ionicons
-        name="chevron-back"
-        size={28} // Slightly larger for better tap target
-        color={currentColors.text} // Use theme color instead of hardcoded white
-      />
-    </TouchableOpacity>
+    <Pressable
+      onPress={() => router.back()}
+      style={styles.button}
+      accessibilityRole="button"
+      accessibilityLabel="Go back"
+    >
+      <Ionicons name="chevron-back" size={28} color={iconColor} />
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    marginLeft: 10, // Standard iOS back button margin
-    paddingVertical: 0, // Remove vertical padding
-    paddingHorizontal: 5, // Keep horizontal padding for touch
+    marginLeft: 8,
+    paddingHorizontal: 4,
+    backgroundColor: 'transparent',
   },
 });
 

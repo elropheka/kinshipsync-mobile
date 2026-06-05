@@ -11,6 +11,7 @@ import { createFamilyTreeScreenStyles } from '@/styles/app/(teams)/familyTreeScr
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { useAlert } from '@/context/AlertContext';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 
 const findNodeById = (
   node: FamilyMemberNode | null | undefined, 
@@ -105,12 +106,14 @@ const FamilyTreeScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={handleHeaderAddPress} style={{ marginRight: 15 }}>
-          <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
-        </TouchableOpacity>
-      ),
       title: teamName || (teamId ? `Team: ${teamId}` : 'Family Tree'),
+      ...HeaderButtonItems.headerRightIconOptions({
+        label: 'Add member',
+        sfSymbol: 'plus.circle',
+        ionicon: 'add-circle-outline',
+        onPress: handleHeaderAddPress,
+        tintColor: currentColors.text,
+      }),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, familyTreeData, teamId, teamName]); // handleHeaderAddPress is stable

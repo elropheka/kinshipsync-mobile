@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -149,7 +151,7 @@ const ChatListScreen = () => {
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
+        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -160,7 +162,7 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
+      <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 

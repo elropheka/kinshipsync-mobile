@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
+import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -195,7 +196,7 @@ const ProfileScreen = () => {
   if (userError) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
         <Text style={styles.errorText}>Error loading profile: {userError.message}</Text>
       </SafeAreaView>
     );
@@ -204,7 +205,7 @@ const ProfileScreen = () => {
   if (!currentUserProfile) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+        <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
         <Text>No profile data found.</Text>
          <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/(auth)/signIn')}>
             <Text style={styles.buttonText}>Go to Sign In</Text>
@@ -216,7 +217,7 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
+      <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileImageContainer}>

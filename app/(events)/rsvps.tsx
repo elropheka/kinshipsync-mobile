@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StatusBar, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { getUserProfileByEmail } from '@/services/userService';
 import { createDirectConversation, sendMessage } from '@/services/chatService';
 import { Guest as GuestType, Event as EventType, UpdateGuestPayload, UpdateRSVPPayload, CreateGuestPayload } from '@/types/eventTypes';
 import RsvpPreferenceForm from '@/components/events/RsvpPreferenceForm';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import InviteGuestModal from '@/components/events/InviteGuestModal';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
@@ -259,16 +260,17 @@ const RsvpListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'RSVPs'),
-          headerRight: () => (
-            <TouchableOpacity onPress={() => setIsInviteModalVisible(true)} style={{ marginRight: 10 }}>
-              <Ionicons name="person-add-outline" size={24} color="white" />
-            </TouchableOpacity>
-          )
-        }} 
+          ...HeaderButtonItems.headerRightIconOptions({
+            label: 'Invite guest',
+            sfSymbol: 'person.badge.plus',
+            ionicon: 'person-add-outline',
+            onPress: () => setIsInviteModalVisible(true),
+            tintColor: currentColors.accentContrastText,
+          }),
+        }}
       />
    
       

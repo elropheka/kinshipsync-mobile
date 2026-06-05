@@ -11,7 +11,6 @@ import {
   Image,
   Linking, // Added for opening file links
   ScrollView, // Added for Emoji Picker
-  StatusBar,
   Modal, // Added for Dropdown Menu
   Pressable, // Added for closing menu on outside tap
 } from 'react-native';
@@ -29,6 +28,8 @@ import { ChatMessage, ParticipantInfo } from '../../types/chatTypes';
 import { GuestStatus } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { Colors } from '../../constants/Colors'; // Corrected path
+import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import { emojiCategories } from '../../constants/emojis'; // Added for emoji picker
 import { getUserProfileById } from '../../services/userService'; // Import userService function
 import { updateGuestRsvp } from '../../services/eventService'; // Added for RSVP actions
@@ -368,7 +369,7 @@ const ChatAreaScreen: React.FC = () => {
   if (isLoadingMessages && messages.length === 0) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
+        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
         <ActivityIndicator size="large" color={currentColors.primary} />
         <Text>Loading messages...</Text>
       </SafeAreaView>
@@ -378,7 +379,7 @@ const ChatAreaScreen: React.FC = () => {
   if (error) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
+        <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
         <Text style={styles.errorText}>Error: {error.message}</Text>
       </SafeAreaView>
     );
@@ -386,24 +387,17 @@ const ChatAreaScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
-      <Stack.Screen 
+      <ColoredHeaderStatusBar backgroundColor={Colors.brown} contentStyle="light" />
+      <Stack.Screen
         options={{
           title: screenTitle,
-          headerRight: () => (
-            <View style={styles.headerRightContainer}>
-              {conversationDetails?.type === 'group' && ( // Original settings button for group chats, now part of menu
-                <TouchableOpacity onPress={() => setIsMenuVisible(true)} style={{ marginRight: Spacing.m }}>
-                  <Ionicons name="ellipsis-vertical" size={24} color={currentColors.text} />
-                </TouchableOpacity>
-              )}
-              {conversationDetails?.type !== 'group' && ( // Menu button for non-group chats
-                <TouchableOpacity onPress={() => setIsMenuVisible(true)} style={{ marginRight: Spacing.m }}>
-                  <Ionicons name="ellipsis-vertical" size={24} color={currentColors.text} />
-                </TouchableOpacity>
-              )}
-            </View>
-          ),
+          ...HeaderButtonItems.headerRightIconOptions({
+            label: 'More options',
+            sfSymbol: 'ellipsis',
+            ionicon: 'ellipsis-vertical',
+            onPress: () => setIsMenuVisible(true),
+            tintColor: currentColors.accentContrastText,
+          }),
         }}
       />
 

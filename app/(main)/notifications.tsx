@@ -20,6 +20,7 @@ import NotificationFilterChips, { FilterChip as FilterChipType } from '../../com
 import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
 import { useAlert } from '@/context/AlertContext';
 import LoadingScreen from '@/components/common/LoadingScreen';
+import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
 
 type Filter = FilterChipType;
 
@@ -163,6 +164,7 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+      <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
       <Stack.Screen options={{ title: "Notifications" }} />
 
       {isSearchVisible && (

@@ -46,6 +46,7 @@
           }
         ],
         "ITSAppUsesNonExemptEncryption": false,
+        "UIDesignRequiresCompatibility": true,
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload a profile picture for your account and also profiles for family tree.",
         "NSCameraUsageDescription": "This app needs access to your camera to take photos and videos for messaging and profile pictures.",
         "NSLocationWhenInUseUsageDescription": "This app may use your location to enhance family tree features and provide location-based services. Location access is optional and can be disabled in your device settings."
