@@ -5,6 +5,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { useEventThemeScope } from '@/hooks/useEventThemeScope';
 
 function eventPushedScreenOptions(
   title: string,
@@ -20,6 +21,7 @@ function eventPushedScreenOptions(
 function EventsStack() {
   const { currentColors } = useAppTheme();
   const tintColor = currentColors.accentContrastText;
+  useEventThemeScope();
 
   return (
     <>
@@ -59,7 +61,15 @@ function EventsStack() {
           name="createNewTeam"
           options={eventPushedScreenOptions('Create Team', tintColor)}
         />
+        <Stack.Screen
+          name="teams/[eventId]"
+          options={eventPushedScreenOptions('Event Teams', tintColor)}
+        />
         <Stack.Screen name="tasks" options={eventPushedScreenOptions('Tasks', tintColor)} />
+        <Stack.Screen
+          name="tasks/[eventId]"
+          options={eventPushedScreenOptions('Tasks', tintColor)}
+        />
         <Stack.Screen name="seating" options={eventPushedScreenOptions('Seating Plan', tintColor)} />
         <Stack.Screen
           name="schedule"

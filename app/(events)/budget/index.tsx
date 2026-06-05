@@ -166,39 +166,47 @@ const EventBudgetScreen = () => {
   }
 
   if (isLoadingEventDetail && !selectedEvent) {
-     return <LoadingScreen />;
+    return <LoadingScreen />;
   }
+
   if (!selectedEvent) {
-    return <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}><Text style={styles.errorText}>Event details not found.</Text></SafeAreaView>;
+    return (
+      <SafeAreaView style={styles.centered} edges={['left', 'right', 'bottom']}>
+        <Text style={styles.errorText}>Event details not found.</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: `${selectedEvent.name} - Budget` }} />
 
-      {/* ScrollView removed, FlatList will handle scrolling */}
       <FlatList
         data={budgetItems}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={() => (
-          <>
+          <View>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Overall Budget</Text>
               <View style={styles.overallBudgetInputContainer}>
-            <TextInput
-              style={styles.overallBudgetInput}
-              value={currentOverallBudgetInput}
-              onChangeText={setCurrentOverallBudgetInput}
-              placeholder="Enter total budget"
-              keyboardType="numeric"
-              placeholderTextColor={currentColors.textSecondary}
-            />
+                <TextInput
+                  style={styles.overallBudgetInput}
+                  value={currentOverallBudgetInput}
+                  onChangeText={setCurrentOverallBudgetInput}
+                  placeholder="Enter total budget"
+                  keyboardType="numeric"
+                  placeholderTextColor={currentColors.textSecondary}
+                />
                 <TouchableOpacity
-                    style={[styles.saveOverallBudgetButton, isSavingOverallBudget && styles.disabledButton]}
-                    onPress={handleSaveOverallBudget}
-                    disabled={isSavingOverallBudget}
+                  style={[styles.saveOverallBudgetButton, isSavingOverallBudget && styles.disabledButton]}
+                  onPress={handleSaveOverallBudget}
+                  disabled={isSavingOverallBudget}
                 >
-                  {isSavingOverallBudget ? <ActivityIndicator color="#fff" size="small"/> : <Text style={styles.saveOverallBudgetButtonText}>Save</Text>}
+                  {isSavingOverallBudget ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={styles.saveOverallBudgetButtonText}>Save</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -219,7 +227,6 @@ const EventBudgetScreen = () => {
                   ${remainingBudget.toFixed(2)}
                 </Text>
               </View>
-              {/* Optional: Progress Bar */}
             </View>
 
             <View style={styles.section}>
@@ -231,7 +238,7 @@ const EventBudgetScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          </>
+          </View>
         )}
         renderItem={({ item }) => (
           <View style={styles.budgetItem}>
@@ -255,11 +262,11 @@ const EventBudgetScreen = () => {
         )}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
         ListEmptyComponent={() => (
-          <View style={styles.section}> {/* Ensure consistent styling for empty text if needed */}
+          <View style={styles.section}>
             <Text style={styles.emptyText}>No expenses added yet.</Text>
           </View>
         )}
-        contentContainerStyle={styles.scrollContainer} // Apply scrollContainer styles here if needed for padding etc.
+        contentContainerStyle={styles.scrollContainer}
       />
 
       <Modal

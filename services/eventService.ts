@@ -7,6 +7,7 @@ import {
   getDocs,
   deleteDoc,
   query,
+  where,
   orderBy,
   limit,
   startAfter,
@@ -19,7 +20,7 @@ import {
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { handleSnapshotError } from '@/utils/firestoreListeners';
-import { getEventWebsiteUrl } from '../utils/eventWebsiteUtils';
+import { getEventWebsiteUrl, isValidSlug, withSlugCollisionSuffix } from '../utils/eventWebsiteUtils';
 import { getUserProfileById, getUserProfileByEmail } from './userService';
 import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification } from '../services/notificationService';
 import { createDirectConversation, sendMessage } from './chatService';
@@ -978,6 +979,53 @@ export const setEventTheme = async (isAuthenticated: boolean, eventId: string, t
   }
 };
 
+export const checkSlugAvailability = async (
+  isAuthenticated: boolean,
+  slug: string,
+  excludeEventId?: string,
+): Promise<boolean> => {
+  if (!isAuthenticated) {
+    throw new Error('User not authenticated. Please sign in.');
+  }
+  if (!slug || !isValidSlug(slug)) {
+    return false;
+  }
+
+  const eventsRef = collection(firestore, 'events');
+  const slugQuery = query(eventsRef, where('website.customUrlSlug', '==', slug));
+  const snapshot = await getDocs(slugQuery);
+
+  if (snapshot.empty) {
+    return true;
+  }
+
+  if (excludeEventId) {
+    return snapshot.docs.every((docSnapshot) => docSnapshot.id === excludeEventId);
+  }
+
+  return false;
+};
+
+export const resolveUniqueWebsiteSlug = async (
+  isAuthenticated: boolean,
+  baseSlug: string,
+  excludeEventId?: string,
+): Promise<string> => {
+  let attempt = 1;
+  let candidate = baseSlug;
+
+  while (attempt <= 20) {
+    const isAvailable = await checkSlugAvailability(isAuthenticated, candidate, excludeEventId);
+    if (isAvailable) {
+      return candidate;
+    }
+    attempt += 1;
+    candidate = withSlugCollisionSuffix(baseSlug, attempt);
+  }
+
+  throw new Error('Unable to generate a unique website URL. Please try a different slug.');
+};
+
 export const getEventWebsite = async (isAuthenticated: boolean, eventId: string): Promise<WebsitePayload | null> => {
   if (!isAuthenticated) {
     throw new Error("User not authenticated. Please sign in.");
@@ -994,6 +1042,7 @@ export const getEventWebsite = async (isAuthenticated: boolean, eventId: string)
       id: websiteSnap.id,
       published: data?.published ?? false,
       title: data?.title,
+      customUrlSlug: data?.customUrlSlug,
       headerImageUrl: data?.headerImageUrl,
       welcomeMessage: data?.welcomeMessage,
       sections: data?.sections ?? [],
@@ -1023,6 +1072,24 @@ export const updateEventWebsite = async (isAuthenticated: boolean, eventId: stri
       updatedAt: serverTimestamp()
     }, { merge: true });
 
+    if (cleanedPayload.customUrlSlug !== undefined || cleanedPayload.published !== undefined) {
+      const eventDocRef = doc(firestore, 'events', eventId);
+      const eventSnap = await getDoc(eventDocRef);
+      const existingWebsite = eventSnap.data()?.website ?? {};
+      await updateDoc(eventDocRef, {
+        website: {
+          ...existingWebsite,
+          ...(cleanedPayload.customUrlSlug !== undefined && {
+            customUrlSlug: cleanedPayload.customUrlSlug,
+          }),
+          ...(cleanedPayload.published !== undefined && {
+            published: cleanedPayload.published,
+          }),
+        },
+        updatedAt: serverTimestamp(),
+      });
+    }
+
     const updatedDoc = await getDoc(websiteDocRef);
     if (!updatedDoc.exists()) return null;
 
@@ -1031,6 +1098,7 @@ export const updateEventWebsite = async (isAuthenticated: boolean, eventId: stri
       id: updatedDoc.id,
       published: data?.published ?? false,
       title: data?.title,
+      customUrlSlug: data?.customUrlSlug,
       headerImageUrl: data?.headerImageUrl,
       welcomeMessage: data?.welcomeMessage,
       sections: data?.sections ?? [],
@@ -1639,9 +1707,23 @@ export const publishEventWebsite = async (isAuthenticated: boolean, eventId: str
       updatedAt: serverTimestamp(),
     });
 
+    const eventDocRef = doc(firestore, 'events', eventId);
+    const eventSnap = await getDoc(eventDocRef);
+    const existingWebsite = eventSnap.data()?.website ?? {};
+    await updateDoc(eventDocRef, {
+      website: { ...existingWebsite, published: true },
+      updatedAt: serverTimestamp(),
+    });
+
     const event = await getEventById(isAuthenticated, eventId);
-    if (event) {
-      createWebsitePublishedNotification(event.organizerId, event.name, getEventWebsiteUrl(event.id), eventId);
+    const websiteDetails = await getEventWebsite(isAuthenticated, eventId);
+    if (event && websiteDetails?.customUrlSlug) {
+      createWebsitePublishedNotification(
+        event.organizerId,
+        event.name,
+        getEventWebsiteUrl(websiteDetails.customUrlSlug),
+        eventId,
+      );
     }
   } catch (error) {
     console.error(`Error publishing website for event ${eventId}:`, error);
@@ -1658,6 +1740,14 @@ export const unpublishEventWebsite = async (isAuthenticated: boolean, eventId: s
     const websiteDocRef = doc(firestore, 'events', eventId, 'website', 'details');
     await updateDoc(websiteDocRef, {
       published: false,
+      updatedAt: serverTimestamp(),
+    });
+
+    const eventDocRef = doc(firestore, 'events', eventId);
+    const eventSnap = await getDoc(eventDocRef);
+    const existingWebsite = eventSnap.data()?.website ?? {};
+    await updateDoc(eventDocRef, {
+      website: { ...existingWebsite, published: false },
       updatedAt: serverTimestamp(),
     });
   } catch (error) {

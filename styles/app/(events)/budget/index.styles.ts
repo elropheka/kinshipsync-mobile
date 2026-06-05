@@ -65,7 +65,6 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
   },
   // Budget Management View
   scrollContainer: {
-    flex: 1,
     padding: Spacing.m,
   },
   section: {

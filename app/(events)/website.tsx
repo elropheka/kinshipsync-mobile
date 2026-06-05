@@ -57,6 +57,8 @@ const WebsitePreviewPage: React.FC = () => {
         />
         <ScrollView style={detailStyles.container}>
           <EventDetailWebsite
+            eventId={eventId}
+            eventName={event.name}
             eventWebsite={eventWebsite}
             onUpdateEventWebsite={async (websiteData) => {
               await updateEventWebsite(websiteData);

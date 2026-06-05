@@ -237,24 +237,17 @@ const CreateEventScreen = () => {
           };
           
           try {
-            // Generate a customUrlSlug if one wasn't provided
             if (!websitePayload.customUrlSlug && name) {
-              const { generateSlug } = await import('../../utils/eventWebsiteUtils');
-              websitePayload.customUrlSlug = generateSlug(name);
+              const { generateEventWebsiteSlug } = await import('../../utils/eventWebsiteUtils');
+              const baseSlug = generateEventWebsiteSlug(name, newEvent.id);
+              websitePayload.customUrlSlug = await eventServiceRef.resolveUniqueWebsiteSlug(
+                !!currentUser,
+                baseSlug,
+                newEvent.id,
+              );
             }
-            
+
             await eventServiceRef.updateEventWebsite(!!currentUser, newEvent.id, websitePayload);
-            
-            // Also update the event document's website field with customUrlSlug
-            const { doc, updateDoc } = await import('@firebase/firestore');
-            const { firestore } = await import('../../services/firebaseConfig');
-            const eventDocRef = doc(firestore, 'events', newEvent.id);
-            await updateDoc(eventDocRef, {
-              website: {
-                customUrlSlug: websitePayload.customUrlSlug,
-                published: websitePayload.published || false,
-              }
-            });
             
             // Get the customUrlSlug from the payload (we just set it)
             customUrlSlug = websitePayload.customUrlSlug || null;
@@ -576,6 +569,7 @@ const CreateEventScreen = () => {
         <View style={{ flex: 1 }}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <EventWebsiteForm
+              eventName={name}
               initialWebsiteData={initialWebsiteData}
               onSubmit={handleWebsiteFormSubmit}
               onCancel={handleWebsiteFormCancel}

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Modal, Image, useWindowDimensions } from 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RenderHtml from 'react-native-render-html';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { WebsitePayload, UpdateEventWebsiteDetailsPayload } from '@/types/eventTypes';
 import EventWebsiteForm from '@/components/website/EventWebsiteForm';
 import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
@@ -12,17 +13,20 @@ import * as Linking from 'expo-linking';
 import { useAlert } from '@/context/AlertContext';
 
 interface EventDetailWebsiteProps {
+  eventId?: string;
+  eventName?: string;
   eventWebsite: WebsitePayload | null | undefined;
   onUpdateEventWebsite: (websiteData: UpdateEventWebsiteDetailsPayload) => Promise<void>;
   isOrganizer?: boolean;
 }
 
 const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
+  eventId,
+  eventName,
   eventWebsite,
   onUpdateEventWebsite,
   isOrganizer = true
 }) => {
-  console.log('EventDetailWebsite - eventWebsite:', eventWebsite);
   const { currentColors } = useAppTheme();
   const styles = createEventDetailsStyles(currentColors);
   const { width } = useWindowDimensions();
@@ -39,8 +43,6 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
 
   const handleWebsiteFormSubmit = async (websiteData: UpdateEventWebsiteDetailsPayload) => {
     try {
-      console.log('Submitting website data:', websiteData);
-      // Ensure published field is included
       const dataToSubmit = {
         ...websiteData,
         published: websiteData.published ?? false
@@ -68,6 +70,17 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
     }
   };
 
+  const handleCopyWebsiteLink = async () => {
+    if (!eventWebsite?.customUrlSlug) {
+      showInfo("URL Missing", "Custom URL slug is not set for this website.");
+      return;
+    }
+
+    const url = getEventWebsiteUrl(eventWebsite.customUrlSlug);
+    await Clipboard.setStringAsync(url);
+    showSuccess('Copied', 'Website link copied to clipboard.');
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.sectionHeader}>
@@ -86,12 +99,25 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
         </View>
       </View>
       {eventWebsite?.title ? (
-        <>
+        <View>
           {eventWebsite.headerImageUrl && (
             <Image source={{ uri: eventWebsite.headerImageUrl }} style={styles.detailHeaderImage} />
           )}
           <Text style={styles.detailTextBold}>Title: <Text style={styles.detailText}>{eventWebsite.title}</Text></Text>
-          {eventWebsite.customUrlSlug && <Text style={styles.detailTextBold}>URL: <Text style={styles.detailText}>{getEventWebsiteUrl(eventWebsite.customUrlSlug)}</Text></Text> }
+          {eventWebsite.customUrlSlug && (
+            <View style={styles.websiteUrlRow}>
+              <Text style={styles.detailTextBold}>URL: </Text>
+              <Text style={[styles.detailText, styles.websiteUrlText]} selectable>
+                {getEventWebsiteUrl(eventWebsite.customUrlSlug)}
+              </Text>
+            </View>
+          )}
+          {eventWebsite.customUrlSlug && (
+            <TouchableOpacity style={styles.copyLinkButton} onPress={handleCopyWebsiteLink}>
+              <Ionicons name="copy-outline" size={18} color={currentColors.primary} />
+              <Text style={styles.copyLinkButtonText}>Copy Link</Text>
+            </TouchableOpacity>
+          )}
           {eventWebsite.welcomeMessage && (
             <View style={styles.welcomeMessageContainer}>
               <Text style={styles.detailTextBold}>Welcome:</Text>
@@ -114,7 +140,7 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
               />
             </View>
           ))}
-        </>
+        </View>
       ) : (
         <Text style={styles.emptyListText}>No website details set up yet.</Text>
       )}
@@ -126,7 +152,9 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
       >
         <GestureHandlerRootView style={{ flex: 1 }}>
           <EventWebsiteForm
-            initialWebsiteData={eventWebsite || { published: false }} // Pass object with default published state if no data yet
+            eventId={eventId}
+            eventName={eventName}
+            initialWebsiteData={eventWebsite || { published: false }}
             onSubmit={handleWebsiteFormSubmit}
             onCancel={handleCloseWebsiteForm}
           />

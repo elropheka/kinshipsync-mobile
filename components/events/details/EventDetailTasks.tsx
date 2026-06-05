@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Task, CreateTaskPayload, UpdateTaskPayload } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
 import TaskForm from '@/components/tasks/TaskForm';
 import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { createEventSlabPageStyles } from '@/styles/app/(events)/eventSlabPage.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 
@@ -17,35 +18,31 @@ interface EventDetailTasksProps {
   isOrganizer?: boolean;
 }
 
-const EventDetailTasks: React.FC<EventDetailTasksProps> = ({ 
-  tasks, 
+const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
+  tasks,
   assignableUsers,
   onAddTask,
   onUpdateTask,
   onDeleteTask,
-  isOrganizer = true
+  isOrganizer = true,
 }) => {
   const { currentColors } = useAppTheme();
   const styles = createEventDetailsStyles(currentColors);
+  const pageStyles = createEventSlabPageStyles(currentColors);
   const { showSuccess, showError, showConfirm } = useAlert();
   const [isTaskFormVisible, setIsTaskFormVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Partial<Task> & { id?: string } | undefined>(undefined);
 
-  // Helper function to get user display names from IDs
   const getUserDisplayNames = (userIds: string[]): string => {
     if (!userIds || userIds.length === 0) return '';
-    
+
     const names = userIds
-      .map(id => assignableUsers.find(user => user.userId === id))
+      .map((id) => assignableUsers.find((user) => user.userId === id))
       .filter(Boolean)
-      .map(user => user!.displayName || user!.email || user!.userId);
-    
+      .map((user) => user!.displayName || user!.email || user!.userId);
+
     return names.join(', ');
   };
-
-  // const hideAlert = () => {
-  //   setAlertConfig(prev => ({ ...prev, visible: false }));
-  // };
 
   const handleOpenTaskForm = (task?: Partial<Task> & { id?: string }) => {
     setEditingTask(task);
@@ -57,7 +54,10 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
     setIsTaskFormVisible(false);
   };
 
-  const handleTaskFormSubmit = async (taskData: CreateTaskPayload | UpdateTaskPayload, taskId?: string) => {
+  const handleTaskFormSubmit = async (
+    taskData: CreateTaskPayload | UpdateTaskPayload,
+    taskId?: string,
+  ) => {
     try {
       if (taskId) {
         await onUpdateTask(taskId, taskData as UpdateTaskPayload);
@@ -68,7 +68,7 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
       }
       handleCloseTaskForm();
     } catch (e) {
-      console.error("Failed to submit task:", e);
+      console.error('Failed to submit task:', e);
       showError('Error', 'Failed to save task. Please try again.');
     }
   };
@@ -76,81 +76,107 @@ const EventDetailTasks: React.FC<EventDetailTasksProps> = ({
   const handleDeletePress = (taskId: string) => {
     showConfirm(
       'warning',
-      "Confirm Delete",
-      "Are you sure you want to delete this task?",
+      'Confirm Delete',
+      'Are you sure you want to delete this task?',
       async () => {
-        try { 
-          await onDeleteTask(taskId); 
+        try {
+          await onDeleteTask(taskId);
           showSuccess('Success', 'Task deleted successfully.');
-        } 
-        catch { 
+        } catch {
           showError('Error', 'Failed to delete task.');
         }
       },
       {
-        confirmText: "Delete",
-        cancelText: "Cancel",
-      }
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      },
     );
   };
 
   const renderTaskItem = ({ item }: { item: Task }) => {
     const assignedNames = getUserDisplayNames(item.assignedToUserIds || []);
-    
+
     return (
-      <TouchableOpacity 
-        style={styles.taskItem} 
+      <TouchableOpacity
+        style={[pageStyles.slab, pageStyles.taskSlab]}
         onPress={isOrganizer ? () => handleOpenTaskForm(item) : undefined}
         disabled={!isOrganizer}
+        accessibilityRole="button"
+        accessibilityLabel={`Task: ${item.title}`}
       >
         <View style={{ flex: 1 }}>
           <Text style={styles.taskTitle}>{item.title}</Text>
-          {item.description && <Text style={styles.taskDescription} numberOfLines={1}>{item.description}</Text>}
-          {assignedNames && <Text style={styles.taskAssignedTo}>Assigned to: {assignedNames}</Text>}
-          {item.dueDate && <Text style={styles.taskDueDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>}
+          {item.description ? (
+            <Text style={styles.taskDescription} numberOfLines={2}>
+              {item.description}
+            </Text>
+          ) : null}
+          {assignedNames ? (
+            <Text style={styles.taskAssignedTo}>Assigned to: {assignedNames}</Text>
+          ) : null}
+          {item.dueDate ? (
+            <Text style={styles.taskDueDate}>
+              Due: {new Date(item.dueDate).toLocaleDateString()}
+            </Text>
+          ) : null}
         </View>
-        <Ionicons 
-          name={item.completed ? "checkmark-circle" : "ellipse-outline"} 
-          size={24} 
-          color={item.completed ? currentColors.success : currentColors.textSecondary} 
+        <Ionicons
+          name={item.completed ? 'checkmark-circle' : 'ellipse-outline'}
+          size={24}
+          color={item.completed ? currentColors.success : currentColors.textSecondary}
         />
-        {isOrganizer && (
-          <TouchableOpacity onPress={() => handleDeletePress(item.id)} style={{ marginLeft: 10 }}>
+        {isOrganizer ? (
+          <TouchableOpacity
+            onPress={() => handleDeletePress(item.id)}
+            style={{ marginLeft: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Delete task"
+          >
             <Ionicons name="trash-outline" size={24} color={currentColors.error} />
           </TouchableOpacity>
-        )}
+        ) : null}
       </TouchableOpacity>
     );
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Tasks</Text>
-        {isOrganizer && (
-          <TouchableOpacity onPress={() => handleOpenTaskForm()}>
-            <Ionicons name="add-circle-outline" size={28} color={currentColors.primary} />
-          </TouchableOpacity>
-        )}
-      </View>
-      {tasks.length > 0 ? (
-        <FlatList 
-          data={tasks} 
-          renderItem={renderTaskItem} 
-          keyExtractor={item => item.id} 
-          scrollEnabled={false} 
-          ItemSeparatorComponent={() => <View style={styles.taskSeparator} />} 
-        />
-      ) : ( 
-        <Text style={styles.emptyListText}>No tasks yet. Add one!</Text> 
-      )}
+    <View style={pageStyles.page}>
+      <FlatList
+        data={tasks}
+        keyExtractor={(item) => item.id}
+        renderItem={renderTaskItem}
+        ItemSeparatorComponent={() => <View style={pageStyles.slabGap} />}
+        contentContainerStyle={pageStyles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={pageStyles.emptyContainer}>
+            <Text style={pageStyles.emptyText}>
+              {isOrganizer
+                ? 'No tasks yet. Tap + to add your first task.'
+                : 'No tasks assigned yet.'}
+            </Text>
+          </View>
+        }
+      />
+
+      {isOrganizer ? (
+        <TouchableOpacity
+          style={pageStyles.fab}
+          onPress={() => handleOpenTaskForm()}
+          accessibilityRole="button"
+          accessibilityLabel="Add task"
+        >
+          <Ionicons name="add" size={32} color={currentColors.primaryContrastText} />
+        </TouchableOpacity>
+      ) : null}
+
       <Modal visible={isTaskFormVisible} animationType="slide" onRequestClose={handleCloseTaskForm}>
-        <TaskForm 
-          initialTask={editingTask} 
-          assignableUsers={assignableUsers} 
-          onSubmit={handleTaskFormSubmit} 
-          onCancel={handleCloseTaskForm} 
-          formTitle={editingTask ? 'Edit Task' : 'Create New Task'} 
+        <TaskForm
+          initialTask={editingTask}
+          assignableUsers={assignableUsers}
+          onSubmit={handleTaskFormSubmit}
+          onCancel={handleCloseTaskForm}
+          formTitle={editingTask?.id ? 'Edit Task' : 'Create New Task'}
         />
       </Modal>
     </View>

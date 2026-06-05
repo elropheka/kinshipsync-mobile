@@ -38,20 +38,30 @@ export const getEventWebsiteUrl = (customUrlSlug: string): string => {
   return `${baseUrl}/events/site/${customUrlSlug}`;
 };
 
+const createShortHash = (eventId?: string): string => {
+  if (eventId) {
+    return eventId.replace(/-/g, '').slice(0, 6).toLowerCase();
+  }
+  return Math.random().toString(16).slice(2, 8);
+};
+
 /**
- * Suggests a URL slug based on the event name and date
- * @param eventName The name of the event
- * @param eventDate The date of the event (ISO string)
- * @returns A suggested URL slug
+ * Generates a default website slug from the event name plus a short hash for uniqueness.
  */
-export const suggestEventSlug = (eventName: string, eventDate: string): string => {
-  const date = new Date(eventDate);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  
-  // Generate a base slug from the event name
+export const generateEventWebsiteSlug = (eventName: string, eventId?: string): string => {
   const baseSlug = generateSlug(eventName);
-  
-  // Append the year and month
-  return `${baseSlug}-${year}-${month}`;
+  if (!baseSlug) {
+    return `event-${createShortHash(eventId)}`;
+  }
+  return `${baseSlug}-${createShortHash(eventId)}`;
+};
+
+/**
+ * Appends numeric suffixes when a slug candidate is already taken.
+ */
+export const withSlugCollisionSuffix = (slug: string, attempt: number): string => {
+  if (attempt <= 1) {
+    return slug;
+  }
+  return `${slug}-${attempt}`;
 };

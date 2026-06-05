@@ -79,7 +79,7 @@ const EventDetailTileGridInner: React.FC<EventDetailTileGridProps> = ({ eventId 
       title: 'Teams',
       icon: 'people-circle-outline',
       variant: 'rust',
-      onPress: () => EventNavigation.push('createNewTeam', eventId),
+      onPress: () => EventNavigation.push('teams', eventId),
     },
     {
       id: 'theme',

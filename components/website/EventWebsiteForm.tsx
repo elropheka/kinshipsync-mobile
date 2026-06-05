@@ -10,11 +10,14 @@ import { uploadImage } from '@/services/storageService';
 import { WebsitePayload, UpdateEventWebsiteDetailsPayload, EventWebsiteSection, Theme } from '@/types/eventTypes';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useTheme } from '@/context/ThemeContext';
-import { generateSlug, isValidSlug, suggestEventSlug } from '../../utils/eventWebsiteUtils';
+import { generateSlug, generateEventWebsiteSlug, isValidSlug } from '../../utils/eventWebsiteUtils';
 import { useAlert } from '@/context/AlertContext';
+import { useAppAuth } from '@/hooks/useAppAuth';
+import * as eventService from '@/services/eventService';
 
 interface EventWebsiteFormProps {
-  eventId?: string; 
+  eventId?: string;
+  eventName?: string;
   initialWebsiteData?: WebsitePayload;
   onSubmit: (websiteData: UpdateEventWebsiteDetailsPayload) => void;
   onCancel: () => void;
@@ -22,12 +25,15 @@ interface EventWebsiteFormProps {
 
 const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   eventId: propEventId,
+  eventName,
   initialWebsiteData,
   onSubmit,
   onCancel,
 }) => {
   const { currentColors } = useAppTheme();
   const { showError, showInfo } = useAlert();
+  const { user } = useAppAuth();
+  const isAuthenticated = !!user;
   const [title, setTitle] = useState(initialWebsiteData?.title || '');
   const [customUrlSlug, setCustomUrlSlug] = useState(initialWebsiteData?.customUrlSlug || '');
   const [headerImageUrl, setHeaderImageUrl] = useState(initialWebsiteData?.headerImageUrl || '');
@@ -41,7 +47,9 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   );
   const [isThemePickerVisible, setThemePickerVisible] = useState(false);
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null);
-
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(
+    Boolean(initialWebsiteData?.customUrlSlug?.trim()),
+  );
 
   const eventId = propEventId;
 
@@ -54,6 +62,17 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
     }
   }, [selectedWebsiteThemeId, availableThemes]);
 
+  useEffect(() => {
+    if (slugManuallyEdited) {
+      return;
+    }
+    const slugSource = title.trim() || eventName?.trim();
+    if (!slugSource) {
+      return;
+    }
+    setCustomUrlSlug(generateEventWebsiteSlug(slugSource, eventId));
+  }, [title, eventName, eventId, slugManuallyEdited]);
+
   const handleSectionChange = (index: number, field: keyof EventWebsiteSection, value: string) => {
     const updatedSections = [...sections];
     updatedSections[index] = { ...updatedSections[index], [field]: value };
@@ -61,18 +80,21 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
   };
 
   const addSection = () => {
-   
     const newSectionId = `section-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
     setSections([...sections, { id: newSectionId, title: '', content: '', order: sections.length }]);
   };
 
   const removeSection = (index: number) => {
     const updatedSections = sections.filter((_, i) => i !== index);
-   
     setSections(updatedSections.map((s, i) => ({ ...s, order: i })));
   };
 
   const handlePickHeaderImage = async () => {
+    if (!eventId) {
+      showError('Upload Unavailable', 'Save the event first before uploading a header image.');
+      return;
+    }
+
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       showError("Permission Required", "Permission to access camera roll is required.");
@@ -97,47 +119,64 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
         const uploadResult = await uploadImage(imageUri, 'event_website_headers', eventId); 
         setHeaderImageUrl(uploadResult.imageUrl);
         showInfo("Image Uploaded", "Header image has been updated.");
-      } catch (uploadError: any) {
+      } catch (uploadError: unknown) {
         console.error("Header image upload failed:", uploadError);
-        showError("Upload Failed", `Could not upload header image: ${uploadError.message}`);
+        const message = uploadError instanceof Error ? uploadError.message : 'Unknown error';
+        showError("Upload Failed", `Could not upload header image: ${message}`);
       } finally {
         setIsUploadingHeader(false);
       }
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim()) {
       showError('Validation Error', 'Website title cannot be empty.');
       return;
     }
 
-    const trimmedCustomUrlSlug = customUrlSlug.trim();
-    if (trimmedCustomUrlSlug && !isValidSlug(trimmedCustomUrlSlug)) {
+    let trimmedCustomUrlSlug = customUrlSlug.trim();
+    if (!trimmedCustomUrlSlug) {
+      const slugSource = title.trim() || eventName?.trim() || 'event';
+      trimmedCustomUrlSlug = generateEventWebsiteSlug(slugSource, eventId);
+    }
+
+    if (!isValidSlug(trimmedCustomUrlSlug)) {
       showError(
         'Invalid URL Slug',
         'URL slug can only contain lowercase letters, numbers, and hyphens. It cannot start or end with a hyphen.'
       );
       return;
     }
-   
+
+    try {
+      if (isAuthenticated) {
+        trimmedCustomUrlSlug = await eventService.resolveUniqueWebsiteSlug(
+          isAuthenticated,
+          trimmedCustomUrlSlug,
+          eventId,
+        );
+      }
+    } catch (slugError: unknown) {
+      const message = slugError instanceof Error ? slugError.message : 'Could not verify URL availability.';
+      showError('URL Unavailable', message);
+      return;
+    }
+
     const trimmedWelcomeMessage = welcomeMessage.trim();
 
     const payload: UpdateEventWebsiteDetailsPayload = {
       title: title.trim(),
-      headerImageUrl: headerImageUrl || undefined, 
-      sections: sections.map(s => ({ id: s.id, title: s.title.trim(), content: s.content.trim(), order: s.order })), 
+      customUrlSlug: trimmedCustomUrlSlug,
+      headerImageUrl: headerImageUrl || undefined,
+      sections: sections.map(s => ({ id: s.id, title: s.title.trim(), content: s.content.trim(), order: s.order })),
       websiteThemeId: selectedWebsiteThemeId,
-      published: published, 
+      published: published,
     };
 
-    if (trimmedCustomUrlSlug) {
-      payload.customUrlSlug = trimmedCustomUrlSlug;
-    }
     if (trimmedWelcomeMessage) {
       payload.welcomeMessage = trimmedWelcomeMessage;
     }
-    
 
     onSubmit(payload);
   };
@@ -431,18 +470,10 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
       minHeight: 200,
       marginBottom: 10,
     },
-    suggestButton: {
-      backgroundColor: currentColors.backgroundSecondary,
-      paddingVertical: 8,
-      paddingHorizontal: 12,
-      borderRadius: 6,
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    suggestButtonText: {
-      color: currentColors.primary,
-      fontSize: 14,
-      fontWeight: '500',
+    helperText: {
+      color: currentColors.textSecondary,
+      fontSize: 12,
+      marginTop: 6,
     },
   }), [currentColors]);
 
@@ -473,28 +504,21 @@ const EventWebsiteForm: React.FC<EventWebsiteFormProps> = ({
         </View>
 
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Custom URL Slug (Optional)</Text>
-          <View>
-            <TextInput
-              style={styles.input}
-              value={customUrlSlug}
-              onChangeText={(text) => setCustomUrlSlug(generateSlug(text))}
-              placeholder="e.g., my-event-2025"
-              autoCapitalize="none"
-              placeholderTextColor={currentColors.textSecondary}
-            />
-            {!customUrlSlug && title && (
-              <TouchableOpacity 
-                style={styles.suggestButton}
-                onPress={() => {
-                  const date = new Date().toISOString();
-                  setCustomUrlSlug(suggestEventSlug(title, date));
-                }}
-              >
-                <Text style={styles.suggestButtonText}>Suggest URL from title</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <Text style={styles.label}>Custom URL</Text>
+          <TextInput
+            style={styles.input}
+            value={customUrlSlug}
+            onChangeText={(text) => {
+              setSlugManuallyEdited(true);
+              setCustomUrlSlug(generateSlug(text));
+            }}
+            placeholder="e.g., my-event-a3f9c2"
+            autoCapitalize="none"
+            placeholderTextColor={currentColors.textSecondary}
+          />
+          <Text style={styles.helperText}>
+            Auto-generated from your event name. You can edit it before saving.
+          </Text>
         </View>
 
         <View style={styles.fieldContainer}>

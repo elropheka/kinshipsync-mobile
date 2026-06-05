@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useCurrentUser } from '@/hooks/useUser';
 import * as eventService from '@/services/eventService';
 import { selectEventRefetchTrigger, selectShowAllPublicEvents, triggerEventRefetch } from '../store/slices/eventVisibilitySlice';
+import { getDefaultTheme } from '@/constants/themes';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload, UpdateRSVPPayload,
@@ -209,6 +211,7 @@ export const useAllEvents = () => {
 
 export const useEventDetail = (eventId?: string) => {
   const { isAuthenticated, user } = useAuth();
+  const { setTheme: setThemeContext } = useTheme();
   const [event, setEvent] = useState<Event | null>(null);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -249,6 +252,20 @@ export const useEventDetail = (eventId?: string) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    if (eventId) {
+      setCurrentTheme(null);
+      setGuests([]);
+      setSchedule([]);
+      setTasks([]);
+      setBudgetItems([]);
+      setIdeas([]);
+      setEventWebsite(null);
+      setEventTeams([]);
+      setEventMessages([]);
+      setSeatingChart(null);
+      setError(null);
+    }
+
     fetchMainEvent(eventId || '');
 
     let unsubscribeGuests: (() => void) | undefined = undefined;
@@ -589,12 +606,13 @@ export const useEventDetail = (eventId?: string) => {
         if (success) {
           const updatedTheme = await eventService.getEventTheme(isAuthenticated, eventId, user?.uid);
           setCurrentTheme(updatedTheme);
+          setThemeContext(updatedTheme ?? getDefaultTheme());
           setEvent(prev => prev ? ({ ...prev, themeId: themeId ?? undefined }) : null);
         }
         return success;
       }
       catch (e) { console.error("Error in setEventThemeHook", e); setError(e as Error); throw e; }
-    }, [eventId, isAuthenticated, user?.uid]),
+    }, [eventId, isAuthenticated, user?.uid, setThemeContext]),
     fetchAvailableThemes: useCallback(async () => {
         setIsLoadingThemes(true);
         try {

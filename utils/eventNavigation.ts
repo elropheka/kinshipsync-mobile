@@ -5,12 +5,15 @@ export type EventScopedScreen =
   | 'schedule'
   | 'seating'
   | 'tasks'
+  | 'teams'
   | 'budget'
   | 'ideas'
   | 'themes'
   | 'website'
   | 'createNewTeam'
   | 'messages';
+
+const PATH_BASED_SCREENS: ReadonlySet<EventScopedScreen> = new Set(['teams', 'tasks']);
 
 export class EventNavigation {
   public static resolveEventId(
@@ -26,6 +29,9 @@ export class EventNavigation {
   }
 
   public static buildHref(screen: EventScopedScreen, eventId: string): Href {
+    if (PATH_BASED_SCREENS.has(screen)) {
+      return `/(events)/${screen}/${encodeURIComponent(eventId)}` as Href;
+    }
     return `/(events)/${screen}?eventId=${encodeURIComponent(eventId)}` as Href;
   }
 

@@ -210,6 +210,33 @@ export const createEventDetailsStyles = (theme: typeof Colors.light) => StyleShe
     marginLeft: Spacing.m,
     padding: Spacing.xs,
   },
+  websiteUrlRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    marginTop: Spacing.xs,
+  },
+  websiteUrlText: {
+    flex: 1,
+  },
+  copyLinkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: Spacing.s,
+    marginBottom: Spacing.s,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.s,
+    borderRadius: BorderRadius.s,
+    borderWidth: 1,
+    borderColor: theme.buttonPrimary,
+    gap: Spacing.xs,
+  },
+  copyLinkButtonText: {
+    color: theme.buttonPrimary,
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.medium,
+  },
   taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
