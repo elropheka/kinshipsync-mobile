@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from 'constants/Colors';
+import Fonts from 'constants/fonts';
 import {
   Spacing,
   ResponsiveFontSizes,
-  BorderRadius,
   isTablet,
 } from 'constants/dimensions';
 
@@ -18,42 +18,59 @@ export const createLandingPageHomeStyles = (theme: typeof Colors.light) =>
       paddingHorizontal: isTablet() ? Spacing.xxl : Spacing.l,
       justifyContent: 'space-between',
     },
-    topSection: {
+    brandRow: {
+      flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: Spacing.s,
+      justifyContent: 'center',
+      alignSelf: 'center',
+      paddingTop: Spacing.xl,
+      paddingBottom: Spacing.m,
     },
-    logoImage: {
-      width: isTablet() ? 180 : 150,
-      height: isTablet() ? 46 : 38,
-      marginBottom: Spacing.m,
+    brandLogo: {
+      width: isTablet() ? 52 : 44,
+      height: isTablet() ? 52 : 44,
+      marginRight: Spacing.m,
+    },
+    brandNameBlock: {
+      justifyContent: 'center',
+    },
+    brandNameLine: {
+      color: theme.secondary,
+      fontFamily: Fonts.headerBold,
+      fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
+      lineHeight: isTablet() ? 34 : 28,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+    },
+    mainContent: {
+      flex: 1,
+      justifyContent: 'flex-start',
+    },
+    carouselSection: {
+      justifyContent: 'flex-start',
+      paddingTop: Spacing.xl,
+      paddingBottom: Spacing.l,
+      overflow: 'visible',
     },
     messageBlock: {
       width: '100%',
-      backgroundColor: theme.primary,
-      borderRadius: BorderRadius.xl,
-      paddingVertical: Spacing.l,
-      paddingHorizontal: Spacing.l,
+      paddingTop: Spacing.m,
+      paddingBottom: Spacing.s,
       alignItems: 'center',
     },
     headline: {
-      color: theme.textLight,
+      color: theme.secondary,
       textAlign: 'center',
       fontSize: isTablet() ? ResponsiveFontSizes.header2 : ResponsiveFontSizes.header3,
       marginBottom: Spacing.s,
+      fontFamily: Fonts.headerBold,
     },
     tagline: {
-      color: theme.textLight,
+      color: theme.secondary,
       textAlign: 'center',
       lineHeight: 22,
-      opacity: 0.92,
+      opacity: 0.88,
       fontSize: ResponsiveFontSizes.body,
-    },
-    carouselSection: {
-      flex: 1,
-      justifyContent: 'center',
-      minHeight: 300,
-      paddingVertical: Spacing.s,
-      overflow: 'visible',
     },
     authButtonsContainer: {
       gap: Spacing.s,

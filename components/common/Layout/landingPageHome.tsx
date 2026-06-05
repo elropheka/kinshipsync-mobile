@@ -5,7 +5,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { createLandingPageHomeStyles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { BrandText } from '@/components/ui/BrandText';
 import { BrandButton } from '@/components/ui/BrandButton';
-import { landingBrandMessage } from '@/constants/mock/landingFeatures';
+import { landingBrandMessage, landingBrandName } from '@/constants/mock/landingFeatures';
 import { LandingFeatureCarousel } from '@/components/common/Layout/LandingFeatureCarousel';
 
 interface LandingPageHomeProps {
@@ -23,25 +23,35 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
   return (
     <SafeAreaView style={styles.pageContainer} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.body}>
-        <View style={styles.topSection}>
+        <View style={styles.brandRow}>
           <Image
             source={require('@/assets/branding/rusty-brown-logo.png')}
-            style={styles.logoImage}
+            style={styles.brandLogo}
             resizeMode="contain"
           />
+          <View style={styles.brandNameBlock}>
+            <BrandText variant="h3" style={styles.brandNameLine}>
+              {landingBrandName.line1}
+            </BrandText>
+            <BrandText variant="h3" style={styles.brandNameLine}>
+              {landingBrandName.line2}
+            </BrandText>
+          </View>
+        </View>
+
+        <View style={styles.mainContent}>
+          <View style={styles.carouselSection}>
+            <LandingFeatureCarousel />
+          </View>
 
           <View style={styles.messageBlock}>
             <BrandText variant="h2" style={styles.headline}>
               {landingBrandMessage.headline}
             </BrandText>
-            <BrandText variant="body" style={styles.tagline} numberOfLines={2}>
+            <BrandText variant="body" style={styles.tagline} numberOfLines={3}>
               {landingBrandMessage.tagline}
             </BrandText>
           </View>
-        </View>
-
-        <View style={styles.carouselSection}>
-          <LandingFeatureCarousel />
         </View>
 
         <View style={styles.authButtonsContainer}>

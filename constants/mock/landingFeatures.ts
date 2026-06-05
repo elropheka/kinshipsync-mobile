@@ -6,6 +6,11 @@ export interface LandingFeature {
   imageUri: string;
 }
 
+export const landingBrandName = {
+  line1: 'KINSHIP',
+  line2: 'SYNC',
+};
+
 export const landingBrandMessage = {
   headline: 'Bring families together',
   tagline:
