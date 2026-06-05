@@ -15,10 +15,10 @@ function MainTabsLayout() {
       }}
     >
       <Tabs.Screen name="home" options={{ title: 'Home', headerShown: false }} />
-      <Tabs.Screen name="notifications" options={{ title: 'Notifications', headerShown: true }} />
+      <Tabs.Screen name="notifications" options={{ title: 'Notifications', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', headerShown: true }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings', headerShown: true }} />
-      <Tabs.Screen name="teams" options={{ title: 'Teams', headerShown: true }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
+      <Tabs.Screen name="teams" options={{ title: 'Teams', ...HeaderTheme.tabPushedScreenOptions(currentColors) }} />
       <Tabs.Screen
         name="subscriptionPlans"
         options={{ title: 'Subscription Plans', ...HeaderTheme.tabPushedScreenOptions(currentColors) }}

@@ -130,11 +130,30 @@ class CleanAuditRunner {
     let issues = 0;
 
     const mainLayout = fs.readFileSync(path.join(ROOT, 'app/(main)/_layout.tsx'), 'utf8');
-    if (!mainLayout.includes('subscriptionPlans') || !mainLayout.includes('tabPushedScreenOptions')) {
+    const pushedScreens = ['teams', 'notifications', 'settings', 'subscriptionPlans', 'deleteAccount'];
+    for (const screen of pushedScreens) {
+      if (!mainLayout.includes(`name="${screen}"`) || !mainLayout.includes('tabPushedScreenOptions')) {
+        issues += 1;
+        break;
+      }
+    }
+
+    const chatLayout = fs.readFileSync(path.join(ROOT, 'app/(chat)/_layout.tsx'), 'utf8');
+    if (
+      !chatLayout.includes('StackBackButton') ||
+      !chatLayout.includes('rustSurfaceOptions') ||
+      chatLayout.includes('HeaderTheme.lightOptions')
+    ) {
       issues += 1;
     }
-    if (!mainLayout.includes('deleteAccount')) {
-      issues += 1;
+
+    const chatScreens = ['chatArea.tsx', 'messages.tsx', 'newChat.tsx', 'conversationSettings.tsx'];
+    for (const screen of chatScreens) {
+      const source = fs.readFileSync(path.join(ROOT, 'app/(chat)', screen), 'utf8');
+      if (source.includes('<Stack.Screen')) {
+        issues += 1;
+        break;
+      }
     }
 
     const editEvent = fs.readFileSync(path.join(ROOT, 'app/(events)/editEvent.tsx'), 'utf8');

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import * as ImagePicker from 'expo-image-picker'; // Added
 import * as DocumentPicker from 'expo-document-picker'; // Added
 import * as FileSystem from 'expo-file-system'; // Added
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { createChatAreaStyles } from '../../styles/app/(chat)/chatArea.styles';
 import { useAppTheme } from '@/context/AppThemeContext'; // Ensure this path is correct
 import { useChatMessages } from '../../hooks/useChat';
@@ -211,6 +211,7 @@ const ChatAreaScreen: React.FC = () => {
 
 
   const router = useRouter();
+  const navigation = useNavigation();
   const { conversationId, chatTitle } = useLocalSearchParams<{ conversationId: string, chatTitle?: string }>();
   const { user: currentUser } = useAppAuth();
   const { showError } = useAlert();
@@ -248,6 +249,22 @@ const ChatAreaScreen: React.FC = () => {
   
   const otherParticipantName = getOtherParticipant()?.displayName;
   const screenTitle = chatTitle || (conversationDetails?.type === 'group' ? conversationDetails.name : otherParticipantName) || 'Chat';
+
+  const openChatMenu = useCallback(() => {
+    setIsMenuVisible(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: screenTitle,
+      ...HeaderButtonItems.headerRightIconComponent({
+        label: 'More options',
+        ionicon: 'ellipsis-vertical',
+        onPress: openChatMenu,
+        tintColor: currentColors.accentContrastText,
+      }),
+    });
+  }, [navigation, screenTitle, currentColors.accentContrastText, openChatMenu]);
 
   const handleOpenChatSettings = () => {
     if (conversationId) {
@@ -390,18 +407,6 @@ const ChatAreaScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <ColoredHeaderStatusBar backgroundColor={currentColors.secondary} contentStyle="light" />
-      <Stack.Screen
-        options={{
-          title: screenTitle,
-          ...HeaderButtonItems.headerRightIconOptions({
-            label: 'More options',
-            sfSymbol: 'ellipsis',
-            ionicon: 'ellipsis-vertical',
-            onPress: () => setIsMenuVisible(true),
-            tintColor: currentColors.accentContrastText,
-          }),
-        }}
-      />
 
       {/* Search Bar */}
       {isSearchBarVisible && (

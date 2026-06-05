@@ -7,21 +7,29 @@ const TAB_ROOT_PATHS: Record<BottomNavTabKey, string[]> = {
   profile: ['/profile'],
 };
 
+/** Paths where the global bottom nav bar stays visible. */
+const BOTTOM_NAV_VISIBLE_SUFFIXES = [
+  '/home',
+  '/all',
+  '/messages',
+  '/profile',
+  '/teams',
+  '/notifications',
+  '/settings',
+];
+
 export function normalizePathname(pathname: string): string {
   const path = pathname.split('?')[0].replace(/\/$/, '') || '/';
   return path;
 }
 
+function pathMatchesSuffix(path: string, suffix: string): boolean {
+  return path === suffix || path.endsWith(suffix);
+}
+
 export function shouldShowBottomNav(pathname: string): boolean {
   const path = normalizePathname(pathname);
-  return (
-    path === '/home' ||
-    path.endsWith('/home') ||
-    path === '/all' ||
-    path.endsWith('/all') ||
-    path === '/profile' ||
-    path.endsWith('/profile')
-  );
+  return BOTTOM_NAV_VISIBLE_SUFFIXES.some((suffix) => pathMatchesSuffix(path, suffix));
 }
 
 export function getActiveBottomNavTab(pathname: string): BottomNavTabKey | null {
@@ -36,7 +44,7 @@ export function getActiveBottomNavTab(pathname: string): BottomNavTabKey | null 
   if (path.includes('/profile')) {
     return 'profile';
   }
-  if (path.includes('/home')) {
+  if (path.includes('/home') || path.includes('/teams') || path.includes('/notifications') || path.includes('/settings')) {
     return 'home';
   }
 

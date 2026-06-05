@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNewChatStyles } from '../../styles/app/(chat)/newChat.styles';
@@ -126,8 +126,6 @@ const NewChatScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen options={{ title: "New Chat" }} />
-      {/* Custom header View removed */}
 
       <BrandSearchBar
         containerStyle={styles.searchContainer}

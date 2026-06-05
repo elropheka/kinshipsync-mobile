@@ -6,7 +6,7 @@ import {
   FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, router } from 'expo-router';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNotificationsStyles } from '../../styles/app/(main)/notifications.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
@@ -163,9 +163,8 @@ const NotificationsPage: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
-      <Stack.Screen options={{ title: "Notifications" }} />
 
       {isSearchVisible && (
         <NotificationSearchBar
@@ -197,6 +196,7 @@ const NotificationsPage: React.FC = () => {
         )}
         keyExtractor={item => item.id}
         style={styles.notificationList}
+        contentContainerStyle={styles.notificationListContent}
         ItemSeparatorComponent={renderSeparator}
       />
 

@@ -4,13 +4,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAppTheme } from '@/context/AppThemeContext';
 
-export class MessagesBackButton extends React.Component {
+interface StackBackButtonProps {
+  fallbackRoute?: string;
+}
+
+export class StackBackButton extends React.Component<StackBackButtonProps> {
+  public static defaultProps: Partial<StackBackButtonProps> = {
+    fallbackRoute: '/home',
+  };
+
   public render(): React.ReactNode {
-    return <MessagesBackButtonInner />;
+    return <StackBackButtonInner fallbackRoute={this.props.fallbackRoute ?? '/home'} />;
   }
 }
 
-const MessagesBackButtonInner: React.FC = () => {
+const StackBackButtonInner: React.FC<StackBackButtonProps> = ({ fallbackRoute = '/home' }) => {
   const { currentColors } = useAppTheme();
 
   const handlePress = (): void => {
@@ -18,7 +26,7 @@ const MessagesBackButtonInner: React.FC = () => {
       router.back();
       return;
     }
-    router.replace('/home');
+    router.replace(fallbackRoute as never);
   };
 
   return (
@@ -41,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessagesBackButton;
+export default StackBackButton;

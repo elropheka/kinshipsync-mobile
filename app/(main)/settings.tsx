@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { createStyles } from '@/styles/app/(main)/settings.styles';
@@ -208,11 +208,10 @@ const SettingsScreen: React.FC = () => {
 
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: "Settings" }} />
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <ColoredHeaderStatusBar backgroundColor={currentColors.accent} contentStyle="light" />
 
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.sectionContainer}>
           <BrandText variant="title" style={styles.sectionTitle}>Appearance</BrandText>
           <ThemeOption

@@ -50,16 +50,27 @@ export class HeaderTheme {
     };
   }
 
-  public static accentOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
+  public static accentOptions(
+    currentColors: ThemeColors,
+    fallbackRoute: string = '/home',
+  ): NativeStackNavigationOptions {
     return {
-      ...this.coloredHeaderBase(currentColors, currentColors.accent, 'onAccent'),
+      ...this.coloredHeaderBase(currentColors, currentColors.accent, 'onAccent', fallbackRoute),
     };
   }
 
-  public static rustOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
+  public static rustOptions(
+    currentColors: ThemeColors,
+    fallbackRoute: string = '/home',
+  ): NativeStackNavigationOptions {
     return {
-      ...this.coloredHeaderBase(currentColors, currentColors.secondary, 'onRust'),
+      ...this.coloredHeaderBase(currentColors, currentColors.secondary, 'onRust', fallbackRoute),
     };
+  }
+
+  /** Rust header styling without back affordance — use with explicit StackBackButton. */
+  public static rustSurfaceOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
+    return this.coloredHeaderSurface(currentColors, currentColors.secondary);
   }
 
   public static lightOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
@@ -74,10 +85,9 @@ export class HeaderTheme {
     };
   }
 
-  private static coloredHeaderBase(
+  private static coloredHeaderSurface(
     currentColors: ThemeColors,
     backgroundColor: string,
-    contrast: 'onAccent' | 'onRust',
   ): NativeStackNavigationOptions {
     const tint = currentColors.accentContrastText;
 
@@ -89,7 +99,22 @@ export class HeaderTheme {
         fontFamily: 'Inter-SemiBold',
       },
       headerShadowVisible: false,
-      ...HeaderButtonItems.headerLeftBackOptions(tint, contrast),
+    };
+  }
+
+  private static coloredHeaderBase(
+    currentColors: ThemeColors,
+    backgroundColor: string,
+    contrast: 'onAccent' | 'onRust',
+    fallbackRoute: string = '/home',
+  ): NativeStackNavigationOptions {
+    return {
+      ...this.coloredHeaderSurface(currentColors, backgroundColor),
+      ...HeaderButtonItems.headerLeftBackOptions(
+        currentColors.accentContrastText,
+        contrast,
+        fallbackRoute,
+      ),
     };
   }
 }

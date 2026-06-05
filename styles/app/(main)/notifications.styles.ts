@@ -10,6 +10,7 @@ import {
   moderateScale,
   isTablet,
 } from 'constants/dimensions';
+import { BOTTOM_NAV_HEIGHT } from '@/styles/components/common/Navigation/bottomNavigation.styles';
 
 export const createNotificationsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
@@ -101,6 +102,9 @@ export const createNotificationsStyles = (theme: typeof Colors.light) => StyleSh
   },
   notificationList: {
     flex: 1,
+  },
+  notificationListContent: {
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.l,
   },
   notificationItem: {
     flexDirection: 'row',

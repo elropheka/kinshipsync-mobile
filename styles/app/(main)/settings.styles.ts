@@ -2,6 +2,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { Colors } from 'constants/Colors';
 import Fonts from 'constants/fonts';
 import { Spacing, BorderRadius, ResponsiveFontSizes, Layout, isTablet } from 'constants/dimensions';
+import { BOTTOM_NAV_HEIGHT } from '@/styles/components/common/Navigation/bottomNavigation.styles';
 
 export const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
@@ -145,6 +146,9 @@ export const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   },
   deleteAccountButtonText: {
     color: theme.primaryContrastText,
+  },
+  scrollContent: {
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.l,
   },
 });
 

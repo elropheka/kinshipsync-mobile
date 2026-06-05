@@ -9,6 +9,7 @@ import {
   Layout,
   moderateScale,
 } from 'constants/dimensions';
+import { BOTTOM_NAV_HEIGHT } from '../Navigation/bottomNavigation.styles';
 
 export const createTeamsStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
@@ -88,7 +89,7 @@ export const createTeamsStyles = (theme: typeof Colors.light) => StyleSheet.crea
   teamsList: {},
   teamsListContent: {
     paddingHorizontal: Spacing.l,
-    paddingBottom: Spacing.l,
+    paddingBottom: BOTTOM_NAV_HEIGHT + Spacing.l,
   },
   teamCard: {
     backgroundColor: theme.backgroundLight,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, ActionSheetIOS, StatusBar } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/AppThemeContext';
 import { useAppAuth } from '../../hooks/useAppAuth';
@@ -142,7 +142,6 @@ const ConversationSettingsScreen = () => {
     return (
       <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-        <Stack.Screen options={{ title: 'Error' }} />
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <Text style={{ color: currentColors.error }}>{error || "Could not load conversation details."}</Text>
         </View>
@@ -215,7 +214,6 @@ const ConversationSettingsScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-      <Stack.Screen options={{ title: conversation.name || 'Chat Settings' }} />
       <View style={styles.content}>
         <Text style={styles.title}>{conversation.name || 'Group Chat'} Settings</Text>
         <Text style={styles.sectionTitle}>Participants ({conversation.participants.length})</Text>

@@ -129,6 +129,24 @@ export class HeaderButtonItems {
     };
   }
 
+  public static headerRightIconComponent(params: {
+    label: string;
+    ionicon: IconName;
+    onPress: () => void;
+    tintColor: string;
+    size?: number;
+  }): { headerRight: () => React.ReactNode } {
+    return {
+      headerRight: () =>
+        React.createElement(HeaderIconButtonInner, {
+          name: params.ionicon,
+          onPress: params.onPress,
+          tintColor: params.tintColor,
+          size: params.size ?? 24,
+        }),
+    };
+  }
+
   public static headerRightIconOptions(params: {
     label: string;
     sfSymbol: string;

@@ -1,10 +1,19 @@
 import { Stack } from 'expo-router';
 import React from 'react';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
-import { MessagesBackButton } from '@/components/common/Navigation/MessagesBackButton';
+import { StackBackButton } from '@/components/common/Navigation/StackBackButton';
+
+function chatPushedScreenOptions(title: string): NativeStackNavigationOptions {
+  return {
+    title,
+    headerLeft: () => <StackBackButton fallbackRoute="/messages" />,
+    headerBackVisible: false,
+  };
+}
 
 export default function ChatLayout() {
   const { currentColors } = useAppTheme();
@@ -15,38 +24,22 @@ export default function ChatLayout() {
       <Stack
         screenOptions={{
           headerShown: true,
-          ...HeaderTheme.lightOptions(currentColors),
+          ...HeaderTheme.rustSurfaceOptions(currentColors),
         }}
       >
         <Stack.Screen
           name="messages"
           options={{
             title: 'Messages',
-            ...HeaderTheme.rustOptions(currentColors),
-            headerLeft: () => <MessagesBackButton />,
+            headerLeft: () => <StackBackButton />,
             headerBackVisible: false,
           }}
         />
-        <Stack.Screen
-          name="chatArea"
-          options={{
-            title: 'Chat',
-            ...HeaderTheme.rustOptions(currentColors),
-          }}
-        />
-        <Stack.Screen
-          name="newChat"
-          options={{
-            title: 'New Chat',
-            ...HeaderTheme.rustOptions(currentColors),
-          }}
-        />
+        <Stack.Screen name="chatArea" options={chatPushedScreenOptions('Chat')} />
+        <Stack.Screen name="newChat" options={chatPushedScreenOptions('New Chat')} />
         <Stack.Screen
           name="conversationSettings"
-          options={{
-            title: 'Conversation Settings',
-            ...HeaderTheme.rustOptions(currentColors),
-          }}
+          options={chatPushedScreenOptions('Conversation Settings')}
         />
       </Stack>
     </>
