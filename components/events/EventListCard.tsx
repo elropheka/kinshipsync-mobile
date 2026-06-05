@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Event as EventType } from '@/types/eventTypes';
@@ -7,7 +7,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 import Fonts from '@/constants/fonts';
-import { getEventCoverImageUrl } from '@/utils/eventCoverUtils';
+import { EventCoverImage } from '@/components/events/EventCoverImage';
 
 export type EventListCardVariant = 'sand' | 'rust';
 
@@ -40,9 +40,9 @@ const EventListCardInner: React.FC<EventListCardProps> = ({
   const resolvedVariant: EventListCardVariant = variant ?? (index % 2 === 0 ? 'sand' : 'rust');
   const styles = createItemStyles(currentColors, resolvedVariant, fullWidth);
   const eventDate = new Date(event.date);
+
   const day = eventDate.getDate();
   const month = eventDate.toLocaleString('default', { month: 'short' }).toUpperCase();
-  const coverImageUrl = getEventCoverImageUrl(event);
 
   const handlePress = (): void => {
     if (preview) {
@@ -65,11 +65,7 @@ const EventListCardInner: React.FC<EventListCardProps> = ({
       disabled={preview}
       activeOpacity={preview ? 1 : 0.7}
     >
-      {coverImageUrl ? (
-        <Image source={{ uri: coverImageUrl }} style={styles.coverImage} />
-      ) : (
-        <View style={styles.coverFallback} />
-      )}
+      <EventCoverImage event={event} contained style={styles.coverImage} />
       <View style={styles.dateBlock}>
         <Text style={styles.month}>{month}</Text>
         <Text style={styles.day}>{day}</Text>
@@ -112,15 +108,6 @@ const createItemStyles = (
       overflow: 'hidden',
     },
     coverImage: {
-      width: '100%',
-      aspectRatio: 16 / 9,
-      borderRadius: BorderRadius.m,
-      marginBottom: Spacing.s,
-      backgroundColor: isSand ? theme.backgroundPaper : 'rgba(255,255,255,0.15)',
-    },
-    coverFallback: {
-      width: '100%',
-      aspectRatio: 16 / 9,
       borderRadius: BorderRadius.m,
       marginBottom: Spacing.s,
       backgroundColor: isSand ? theme.backgroundPaper : 'rgba(255,255,255,0.15)',

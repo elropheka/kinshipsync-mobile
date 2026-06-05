@@ -1,11 +1,12 @@
 import React from 'react';
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { EventNavigation } from '@/utils/eventNavigation';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 import { BrandButton } from '@/components/ui/BrandButton';
 import { BrandText } from '@/components/ui/BrandText';
+import { EventCoverImage } from '@/components/events/EventCoverImage';
 import type { HomeFeaturedEvent } from '@/hooks/useHomeDashboard';
 
 interface FeaturedEventCardProps {
@@ -30,42 +31,35 @@ const FeaturedEventCardInner: React.FC<FeaturedEventCardProps> = ({
     return null;
   }
 
-  const content = (
-    <View style={styles.overlay}>
-      <BrandText variant="h3" color="light">
-        {event.title}
-      </BrandText>
-      <BrandText variant="body" color="light" style={styles.subtitle}>
-        {event.subtitle}
-      </BrandText>
-      {!preview ? (
-        <View style={styles.actions}>
-          <BrandButton
-            label="RSVP"
-            variant="primary"
-            onPress={() => EventNavigation.push('rsvps', event.eventId)}
-            style={styles.actionButton}
-          />
-          <TouchableOpacity
-            style={[styles.actionButton, styles.scheduleButton]}
-            onPress={() => EventNavigation.push('schedule', event.eventId)}
-          >
-            <Text style={styles.scheduleButtonText}>Schedule</Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
-    </View>
-  );
-
   return (
     <View style={styles.card}>
-      {event.imageUri ? (
-        <ImageBackground source={{ uri: event.imageUri }} style={styles.image} imageStyle={styles.imageRadius}>
-          {content}
-        </ImageBackground>
-      ) : (
-        <View style={[styles.image, styles.fallbackBackground]}>{content}</View>
-      )}
+      <View style={styles.imageSection}>
+        <EventCoverImage imageUrl={event.imageUri} contained style={styles.coverFrame} />
+        <View style={styles.overlay}>
+          <BrandText variant="h3" color="light">
+            {event.title}
+          </BrandText>
+          <BrandText variant="body" color="light" style={styles.subtitle}>
+            {event.subtitle}
+          </BrandText>
+          {!preview ? (
+            <View style={styles.actions}>
+              <BrandButton
+                label="RSVP"
+                variant="primary"
+                onPress={() => EventNavigation.push('rsvps', event.eventId)}
+                style={styles.actionButton}
+              />
+              <TouchableOpacity
+                style={[styles.actionButton, styles.scheduleButton]}
+                onPress={() => EventNavigation.push('schedule', event.eventId)}
+              >
+                <Text style={styles.scheduleButtonText}>Schedule</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </View>
+      </View>
       <Image
         source={require('@/assets/branding/rusty-brown-logo.png')}
         style={styles.watermark}
@@ -83,17 +77,16 @@ const createStyles = (theme: typeof Colors.light) =>
       backgroundColor: theme.accent,
       marginBottom: Spacing.l,
     },
-    image: {
-      minHeight: 220,
-      justifyContent: 'flex-end',
+    imageSection: {
+      position: 'relative',
+      width: '100%',
     },
-    fallbackBackground: {
+    coverFrame: {
       backgroundColor: theme.secondary,
     },
-    imageRadius: {
-      borderRadius: BorderRadius.xl,
-    },
     overlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'flex-end',
       backgroundColor: 'rgba(93, 36, 19, 0.45)',
       padding: Spacing.l,
       gap: Spacing.xs,

@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from 'react-native';
+import { EventCoverAssets } from '@/constants/eventCoverAssets';
 import { Event, WebsitePayload } from '@/types/eventTypes';
 
 export class EventCoverUtils {
@@ -41,6 +43,18 @@ export class EventCoverUtils {
     );
   }
 
+  public static getEventCoverImageSource(
+    event: Pick<Event, 'coverImageUrl' | 'website'>,
+  ): ImageSourcePropType {
+    const url = this.getEventCoverImageUrl(event);
+    return url ? { uri: url } : EventCoverAssets.fallbackCover;
+  }
+
+  public static getEventCoverImageSourceFromUrl(url?: string): ImageSourcePropType {
+    const normalizedUrl = this.coerceHttpUrl(url);
+    return normalizedUrl ? { uri: normalizedUrl } : EventCoverAssets.fallbackCover;
+  }
+
   private static normalizeWebsiteCover(website: WebsitePayload | undefined): WebsitePayload | undefined {
     if (!website) {
       return undefined;
@@ -58,3 +72,6 @@ export class EventCoverUtils {
 export const coerceHttpUrl = EventCoverUtils.coerceHttpUrl.bind(EventCoverUtils);
 export const normalizeEventCoverFields = EventCoverUtils.normalizeEventCoverFields.bind(EventCoverUtils);
 export const getEventCoverImageUrl = EventCoverUtils.getEventCoverImageUrl.bind(EventCoverUtils);
+export const getEventCoverImageSource = EventCoverUtils.getEventCoverImageSource.bind(EventCoverUtils);
+export const getEventCoverImageSourceFromUrl =
+  EventCoverUtils.getEventCoverImageSourceFromUrl.bind(EventCoverUtils);

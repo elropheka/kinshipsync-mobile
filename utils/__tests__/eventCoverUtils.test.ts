@@ -51,6 +51,30 @@ describe('EventCoverUtils', () => {
     });
   });
 
+  describe('getEventCoverImageSource', () => {
+    it('returns remote source when a valid cover URL exists', () => {
+      const source = EventCoverUtils.getEventCoverImageSource({
+        coverImageUrl: 'https://example.com/cover.jpg',
+      });
+
+      expect(source).toEqual({ uri: 'https://example.com/cover.jpg' });
+    });
+
+    it('returns bundled fallback when no valid cover URL exists', () => {
+      const source = EventCoverUtils.getEventCoverImageSource({});
+
+      expect(source).toBe(require('@/assets/images/event-cover-fallback.png'));
+    });
+  });
+
+  describe('getEventCoverImageSourceFromUrl', () => {
+    it('returns fallback for invalid urls', () => {
+      const source = EventCoverUtils.getEventCoverImageSourceFromUrl('not-a-url');
+
+      expect(source).toBe(require('@/assets/images/event-cover-fallback.png'));
+    });
+  });
+
   describe('normalizeEventCoverFields', () => {
     it('strips invalid cover fields from legacy event docs', () => {
       const normalized = EventCoverUtils.normalizeEventCoverFields({

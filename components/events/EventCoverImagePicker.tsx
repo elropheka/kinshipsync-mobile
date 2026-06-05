@@ -3,13 +3,12 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImage } from '@/services/storageService';
+import { EventCoverImage } from '@/components/events/EventCoverImage';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
@@ -88,14 +87,7 @@ const EventCoverImagePickerInner: React.FC<EventCoverImagePickerProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Cover Image (Optional)</Text>
-      {coverImageUrl ? (
-        <Image source={{ uri: coverImageUrl }} style={styles.previewImage} />
-      ) : (
-        <View style={styles.placeholder}>
-          <Ionicons name="image-outline" size={50} color={currentColors.textSecondary} />
-          <Text style={styles.placeholderText}>No cover image selected</Text>
-        </View>
-      )}
+      <EventCoverImage imageUrl={coverImageUrl} contained style={styles.previewImage} />
       <TouchableOpacity
         style={[styles.uploadButton, (disabled || isUploading) && styles.uploadButtonDisabled]}
         onPress={handlePickCoverImage}
@@ -141,29 +133,9 @@ const createStyles = (theme: ReturnType<typeof useAppTheme>['currentColors']) =>
       fontFamily: Fonts.titleSemiBold,
     },
     previewImage: {
-      width: '100%',
-      aspectRatio: 16 / 9,
       borderRadius: BorderRadius.m,
       marginBottom: Spacing.s,
       backgroundColor: theme.backgroundSecondary,
-    },
-    placeholder: {
-      width: '100%',
-      aspectRatio: 16 / 9,
-      borderRadius: BorderRadius.m,
-      marginBottom: Spacing.s,
-      backgroundColor: theme.backgroundSecondary,
-      borderWidth: 1,
-      borderColor: theme.divider,
-      borderStyle: 'dashed',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    placeholderText: {
-      marginTop: Spacing.xs,
-      fontSize: 14,
-      color: theme.textSecondary,
-      fontFamily: Fonts.bodyRegular,
     },
     uploadButton: {
       backgroundColor: theme.buttonPrimary,
