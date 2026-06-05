@@ -3,7 +3,6 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '@/constants/Colors';
 
 export type BackButtonContrast = 'onAccent' | 'onRust' | 'onLight';
 

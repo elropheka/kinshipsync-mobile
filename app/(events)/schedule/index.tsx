@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router'; // Stack import moved here
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,7 +22,6 @@ import {
     UpdateScheduleItemPayload,
     Event as EventType 
 } from '../../../types/eventTypes';
-import { Colors } from '../../../constants/Colors';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
 

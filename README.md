@@ -7,14 +7,40 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 1. Install dependencies
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start the app
 
    ```bash
-    npx expo start
+   pnpm start
    ```
+
+## Code quality & security
+
+Install [pre-commit](https://pre-commit.com/) and [Trivy](https://aquasecurity.github.io/trivy/), then enable hooks:
+
+```bash
+brew install pre-commit trivy   # or pip install pre-commit
+pnpm precommit:install
+```
+
+Hooks run on each commit:
+
+- **TypeScript** — `pnpm typecheck`
+- **ESLint** — staged `.ts`/`.tsx` files (`--max-warnings 0` on staged files)
+- **Trivy** — HIGH/CRITICAL vulnerabilities in app dependencies (`pnpm-lock.yaml`)
+
+Manual checks:
+
+```bash
+pnpm typecheck      # TypeScript
+pnpm lint:ci        # ESLint (zero warnings)
+pnpm security:scan  # Trivy filesystem scan
+pnpm precommit:run  # Run all pre-commit hooks
+```
+
+Cloud Functions (`functions/package-lock.json`) are excluded from the mobile Trivy hook; run `cd functions && npm audit` separately.
 
 In the output, you'll find options to open the app in a
 

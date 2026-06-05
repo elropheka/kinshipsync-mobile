@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, ScrollView, StatusBar, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Switch, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { BudgetItem, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../types/eventTypes';
@@ -24,7 +24,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
   initialBudgetItem,
   onSubmit,
   onCancel,
-  formTitle = 'Budget Item',
+  formTitle: _formTitle = 'Budget Item',
 }) => {
   const [itemName, setItemName] = useState(initialBudgetItem?.itemName || '');
   const [category, setCategory] = useState(initialBudgetItem?.category || '');
@@ -56,7 +56,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({
     performItemSearch,
   } = useVendorItemsSearch({ vendorId: selectedVendorId });
   const { currentColors } = useAppTheme();
-  const { showError, showWarning } = useAlert();
+  const { showError } = useAlert();
 
 
   useEffect(() => {

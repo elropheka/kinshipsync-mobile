@@ -9,7 +9,6 @@ import { useEventDetail } from '../../hooks/useEvents';
 import { EventMessage } from '../../types/eventTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { getUserProfile } from '../../services/userService';
-import { Colors } from '../../constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 import { Avatar } from '../../components/common/Avatar';
 

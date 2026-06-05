@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +8,6 @@ import { createProfileStyles } from '../../styles/app/(main)/profile.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '../../hooks/useUser';
 import { UpdateUserProfilePayload} from '../../types/userTypes';
-import { Colors } from 'constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';
 import { useAppAuth } from '../../hooks/useAppAuth';

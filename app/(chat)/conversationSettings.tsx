@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar, Platform } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Image, TouchableOpacity, ActionSheetIOS, StatusBar } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../../constants/Colors';
 import { useAppTheme } from '../../context/AppThemeContext';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { getConversationById, updateParticipantRole, removeParticipantFromGroupConversation } from '../../services/chatService'; // Added removeParticipantFromGroupConversation

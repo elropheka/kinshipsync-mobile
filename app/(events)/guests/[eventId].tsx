@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,6 @@ import { listenToGuestsWithRsvp, getEventById, addGuestToEvent, removeGuestFromE
 import { getUserProfileByEmail } from '../../../services/userService'; // Changed to getUserProfileByEmail
 import { createDirectConversation, sendMessage } from '../../../services/chatService'; // Import sendMessage
 import { Guest as GuestType, Event as EventType, CreateGuestPayload } from '../../../types/eventTypes';
-import { Colors } from '../../../constants/Colors';
 import InviteGuestModal from '../../../components/events/InviteGuestModal';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 

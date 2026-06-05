@@ -2,7 +2,6 @@ import { Tabs } from 'expo-router';
 import React, { useState, useRef, useCallback, createContext, useContext } from 'react';
 import { Platform, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import BottomNavigation from 'components/common/Navigation/bottomNavigation';
-import { Colors } from '@/constants/Colors';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 
@@ -42,7 +41,7 @@ function MainTabsLayout() {
             tabBarStyle: {
               display: Platform.OS === 'web' ? 'none' : 'flex',
             },
-            ...HeaderTheme.accentOptions(currentColors),
+            ...HeaderTheme.tabAccentOptions(currentColors),
           }}
           tabBar={props => {
             if (!props.state || !props.state.routes) {

@@ -3,13 +3,13 @@ import { Appearance, ColorSchemeName } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCurrentUser } from '@/hooks/useUser';
 import { useAuth } from '@/context/AuthContext';
-import { Colors } from '@/constants/Colors';
+import { Colors, ColorPalette } from '@/constants/Colors';
 
 export type AppTheme = 'light' | 'dark' | 'system';
 
 export interface AppThemeContextType {
   theme: AppTheme;
-  currentColors: typeof Colors.light;
+  currentColors: ColorPalette;
   setTheme: (theme: AppTheme) => void;
   isSystemDark: boolean;
 }
@@ -94,11 +94,11 @@ export const AppThemeProvider: React.FC<AppThemeProviderProps> = ({ children }) 
   }, [isAuthenticated, settings?.theme, isInitialized, hasSyncedUserSettings, theme]);
 
   // Determine the actual colors to use
-  const getCurrentColors = useCallback(() => {
+  const getCurrentColors = useCallback((): ColorPalette => {
     if (theme === 'system') {
-      return systemTheme === 'dark' ? Colors.dark : Colors.light;
+      return (systemTheme === 'dark' ? Colors.dark : Colors.light) as ColorPalette;
     }
-    return theme === 'dark' ? Colors.dark : Colors.light;
+    return (theme === 'dark' ? Colors.dark : Colors.light) as ColorPalette;
   }, [theme, systemTheme]);
 
   const currentColors = getCurrentColors();

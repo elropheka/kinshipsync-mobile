@@ -345,7 +345,7 @@ const RecentActivities: React.FC<RecentActivitiesProps> = ({ notifications, onAc
                 <RecentActivityItem
                   key={primaryNotification.id}
                   notification={primaryNotification}
-                  onPress={() => {}} // Empty function since we don't want it clickable
+                  onPress={() => onActivityPress(primaryNotification.id)}
                   currentColors={currentColors}
                   styles={styles}
                 />

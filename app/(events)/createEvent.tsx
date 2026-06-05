@@ -7,7 +7,6 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import * as Clipboard from 'expo-clipboard';
 import { createCreateEventStyles } from '@/styles/app/(events)/createEvent.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from 'constants/Colors';
 import { useAllEvents } from '@/hooks/useEvents'; 
 import { 
   CreateEventPayload, 
@@ -437,7 +436,7 @@ const CreateEventScreen = () => {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Visibility</Text>
             <View style={styles.visibilitySelectorContainer}>
-              {(['public', 'private', 'unlisted'] as EventType['visibility'][]).map(visOption => (
+              {(['public', 'private', 'unlisted'] as Array<EventType['visibility']>).map(visOption => (
                 <TouchableOpacity
                   key={visOption}
                   style={[

@@ -1,8 +1,9 @@
+import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { Colors } from '@/constants/Colors';
+import { ColorPalette } from '@/constants/Colors';
 import { HeaderButtonItems } from './HeaderButtonItems';
 
-type ThemeColors = typeof Colors.light;
+type ThemeColors = ColorPalette;
 
 export type HeaderSurface = 'accent' | 'rust' | 'light';
 
@@ -19,6 +20,18 @@ export class HeaderTheme {
       default:
         return this.lightOptions(currentColors);
     }
+  }
+
+  public static tabAccentOptions(currentColors: ThemeColors): BottomTabNavigationOptions {
+    return {
+      headerStyle: { backgroundColor: currentColors.accent },
+      headerTintColor: currentColors.accentContrastText,
+      headerTitleStyle: {
+        color: currentColors.accentContrastText,
+        fontFamily: 'Inter-SemiBold',
+      },
+      headerShadowVisible: false,
+    };
   }
 
   public static accentOptions(currentColors: ThemeColors): NativeStackNavigationOptions {

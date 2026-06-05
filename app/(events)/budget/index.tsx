@@ -10,7 +10,6 @@ import { useAlert } from '@/context/AlertContext';
 import { useAllEvents, useEventDetail } from '../../../hooks/useEvents';
 import { Event as EventType, BudgetItem as BudgetItemType, CreateBudgetItemPayload, UpdateBudgetItemPayload } from '../../../types/eventTypes';
 import BudgetForm from '../../../components/budget/BudgetForm'; // Re-use BudgetForm
-import { Colors } from 'constants/Colors';
 import { Spacing } from 'constants/dimensions'; // Import Spacing
 
 const EventBudgetScreen = () => {

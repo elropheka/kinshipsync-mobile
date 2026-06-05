@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Theme, FontSettings } from '../../types/eventTypes';
-import { Colors } from '../../constants/Colors';
 import Fonts from '../../constants/fonts';
 import { useAppTheme } from '../../context/AppThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -20,13 +19,13 @@ const CreateThemeScreen = () => {
   const { showSuccess, showError } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [themeName, setThemeName] = useState('');
-  const [primaryColor, setPrimaryColor] = useState(currentColors.primary);
-  const [secondaryColor, setSecondaryColor] = useState(currentColors.accent);
-  const [accentColor, setAccentColor] = useState(currentColors.accentHighlight);
-  const [backgroundColor, setBackgroundColor] = useState(currentColors.background);
-  const [textColor, setTextColor] = useState(currentColors.text);
-  const [cardBgColor, setCardBgColor] = useState(currentColors.backgroundPaper);
-  const [borderColor, setBorderColor] = useState(currentColors.border);
+  const [primaryColor, setPrimaryColor] = useState<string>(currentColors.primary);
+  const [secondaryColor, setSecondaryColor] = useState<string>(currentColors.accent);
+  const [accentColor, setAccentColor] = useState<string>(currentColors.accentHighlight);
+  const [backgroundColor, setBackgroundColor] = useState<string>(currentColors.background);
+  const [textColor, setTextColor] = useState<string>(currentColors.text);
+  const [cardBgColor, setCardBgColor] = useState<string>(currentColors.backgroundPaper);
+  const [borderColor, setBorderColor] = useState<string>(currentColors.border);
 
   const [headingFont, setHeadingFont] = useState<FontSettings>({
     fontFamily: Fonts.headerMedium,

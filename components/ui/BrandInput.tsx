@@ -5,7 +5,7 @@ import { Colors } from '@/constants/Colors';
 import Fonts from '@/constants/fonts';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
 
-interface BrandInputProps extends TextInputProps {}
+type BrandInputProps = TextInputProps;
 
 export class BrandInput extends React.Component<BrandInputProps> {
   public render(): React.ReactNode {

@@ -90,7 +90,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setShowDatePicker(false);
   };
 
-  const priorities: ('low' | 'medium' | 'high')[] = ['low', 'medium', 'high'];
+  const priorities: Array<'low' | 'medium' | 'high'> = ['low', 'medium', 'high'];
   const statuses: FormStatus[] = ['todo', 'in-progress', 'completed'];
 
   type FormItemType = 

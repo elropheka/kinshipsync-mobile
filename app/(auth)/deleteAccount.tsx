@@ -5,8 +5,7 @@ import {
   TouchableOpacity, 
   ScrollView, 
   ActivityIndicator, 
-  StatusBar,
-  Platform
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';

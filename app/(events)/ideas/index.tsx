@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Platform,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +26,6 @@ import {
 
   getEventById,
 } from '../../../services/eventService';
-import { Colors } from '../../../constants/Colors';
 import { UserProfile } from '../../../types/userTypes';
 import { getUserProfile } from '../../../services/userService';
 import { useErrorAlert } from '@/hooks/useErrorAlert';

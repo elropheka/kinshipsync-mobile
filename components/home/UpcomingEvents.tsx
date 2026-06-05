@@ -71,8 +71,6 @@ const UpcomingEvents: React.FC<UpcomingEventsProps> = ({
   onSeeAllPress,
   horizontal = false,
 }) => {
-  const { currentColors } = useAppTheme();
-
   const upcomingEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

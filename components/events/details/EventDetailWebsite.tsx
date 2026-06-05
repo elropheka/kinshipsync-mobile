@@ -104,7 +104,7 @@ const EventDetailWebsite: React.FC<EventDetailWebsiteProps> = ({
           )}
           <Text style={styles.detailTextBold}>Status: <Text style={styles.detailText}>{eventWebsite.published ? 'Published' : 'Draft'}</Text></Text>
           <Text style={styles.detailText}>{eventWebsite.sections?.length || 0} sections</Text>
-          {eventWebsite.sections?.map((section, index) => (
+          {eventWebsite.sections?.map((section) => (
             <View key={section.id} style={styles.sectionContainer}>
               <Text style={styles.detailTextBold}>{section.title}</Text>
               <RenderHtml

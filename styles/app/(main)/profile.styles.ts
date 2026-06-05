@@ -56,7 +56,6 @@ export const createProfileStyles = (theme: typeof Colors.light) => StyleSheet.cr
     position: 'absolute',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
     backgroundColor: theme.buttonPrimary,
     width: isTablet() ? moderateScale(50) : moderateScale(40),
     height: isTablet() ? moderateScale(50) : moderateScale(40),

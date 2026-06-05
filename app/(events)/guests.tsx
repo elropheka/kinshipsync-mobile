@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Removed AntDesign as it's not used
 import { Stack, router } from 'expo-router'; // Removed useLocalSearchParams
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,6 @@ import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
 import { useAllEvents } from '../../hooks/useEvents'; // Use the filtered events hook
 import { Event as EventType } from '../../types/eventTypes'; // Only EventType needed here
-import { Colors } from '../../constants/Colors';
 
 const EventSelectionForGuestsScreen = () => {
   const { currentColors } = useAppTheme();

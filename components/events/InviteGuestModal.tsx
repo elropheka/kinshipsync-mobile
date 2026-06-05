@@ -28,7 +28,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<GuestStatus>('Invited');
   const [plusOnes, setPlusOnes] = useState<number>(0);
-  const [defaultCountryCode, setDefaultCountryCode] = useState<string>('US');
+  const [defaultCountryCode] = useState<string>('US');
   const phoneInputRef = useRef<any>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -311,7 +311,7 @@ const InviteGuestModal: React.FC<InviteGuestModalProps> = ({ visible, onClose, o
                 defaultValue={phone}
                 defaultCode={defaultCountryCode}
                 layout="first"
-                onChangeText={(text: string) => {
+                onChangeText={(_text: string) => {
                   // This gives us the raw number without country code
                   // We'll rely on onChangeFormattedText for the full number
                 }}

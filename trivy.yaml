@@ -1,0 +1,14 @@
+scan:
+  skip-dirs:
+    - node_modules
+    - .expo
+    - ios
+    - android
+    - functions/node_modules
+    - coverage
+    - dist
+  skip-files:
+    - functions/package-lock.json
+
+vulnerability:
+  ignore-unfixed: true

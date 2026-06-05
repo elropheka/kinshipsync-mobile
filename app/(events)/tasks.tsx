@@ -1,11 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createTasksStyles } from '@/styles/app/(events)/tasks.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '@/constants/Colors';
 
 
 interface TaskCategory {

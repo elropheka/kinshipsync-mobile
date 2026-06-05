@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar, Platform } from 'react-native'; // Added Image
+import { View, Text, TouchableOpacity, FlatList, Modal, ActivityIndicator, Image, StatusBar } from 'react-native'; // Added Image
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,7 +10,6 @@ import { CreateTaskPayload, UpdateTaskPayload } from '../../../types/eventTypes'
 import TaskForm from '../../../components/tasks/TaskForm';
 import ScheduleForm from '../../../components/schedules/form/ScheduleForm'; // Added ScheduleForm
 import ScheduleListItem from '../../../components/schedules/list/ScheduleListItem'; // Added ScheduleListItem
-import { Colors } from '../../../constants/Colors';
 import { useAppTheme } from '../../../context/AppThemeContext';
 import { useAppAuth } from '../../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
@@ -153,7 +152,7 @@ const TeamDashboardScreen = () => {
     setIsTaskFormVisible(false);
   };
 
-  const handleTaskSubmit = async (taskFormData: CreateTaskPayload | UpdateTaskPayload, taskIdFromForm?: string) => {
+  const handleTaskSubmit = async (taskFormData: CreateTaskPayload | UpdateTaskPayload, _taskIdFromForm?: string) => {
     if (!teamId || !currentUser?.uid || !isAuthenticated) {
         showError("Error", "Cannot submit task: Missing team ID, user authentication, or auth status.");
         return;
@@ -231,7 +230,7 @@ const TeamDashboardScreen = () => {
     setIsScheduleFormVisible(false);
   };
 
-  const handleScheduleSubmit = async (formData: ScheduleFormData, scheduleIdToUpdate?: string) => {
+  const handleScheduleSubmit = async (formData: ScheduleFormData, _scheduleIdToUpdate?: string) => {
     if (!teamId || !currentUser?.uid || !isAuthenticated) {
       showError("Error", "Cannot submit schedule: Missing team ID, user authentication, or auth status.");
       return;

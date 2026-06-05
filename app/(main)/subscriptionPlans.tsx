@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createSubscriptionPlansStyles } from '@/styles/app/(main)/subscriptionPlans.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useCurrentUser } from '@/hooks/useUser';
-import { Colors } from '@/constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 
 const SubscriptionPlansScreen = () => {
@@ -23,7 +22,7 @@ const SubscriptionPlansScreen = () => {
     isLoadingSubscription, 
     error 
   } = useCurrentUser();
-  const { showSuccess, showError, showInfo, showConfirm } = useAlert();
+  const { showSuccess, showError, showConfirm } = useAlert();
 
   const [isProcessing, setIsProcessing] = useState(false);
 

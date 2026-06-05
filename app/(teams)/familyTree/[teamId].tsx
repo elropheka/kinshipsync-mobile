@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useLayoutEffect, useCallback } from 'react';
-import { View, Text, ScrollView, StatusBar, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FamilyMemberNodeComponent from '@/components/teams/FamilyMemberNode';
 import { FamilyMemberNode, Team } from '@/types/teamTypes';
 import { getTeamById, removeFamilyTreeNode } from '@/services/teamService';
 import { createFamilyTreeScreenStyles } from '@/styles/app/(teams)/familyTreeScreen.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '@/constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 

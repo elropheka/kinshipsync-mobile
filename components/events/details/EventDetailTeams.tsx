@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, SafeAreaView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventTeam, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, TeamMember } from '@/types/eventTypes';
 import { UserProfile } from '@/types/userTypes';
@@ -234,7 +234,7 @@ const EventDetailTeams: React.FC<EventDetailTeamsProps> = ({
           />
           <Text style={styles.modalSubtitle}>Select Role:</Text>
           <View style={styles.roleSelectorContainer}>
-            {(['admin', 'coordinator', 'helper'] as TeamMember['role'][]).map(role => (
+            {(['admin', 'coordinator', 'helper'] as Array<TeamMember['role']>).map(role => (
               <TouchableOpacity 
                 key={role} 
                 style={[styles.roleButton, selectedRoleForTeamMember === role && styles.roleButtonSelected]}

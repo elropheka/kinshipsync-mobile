@@ -122,3 +122,5 @@ export const Colors = {
     tabBarIconActive: golden,
   },
 };
+
+export type ColorPalette = (typeof Colors)['light'];

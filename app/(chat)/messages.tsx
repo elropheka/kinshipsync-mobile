@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import ColoredHeaderStatusBar from '@/components/common/Navigation/ColoredHeaderStatusBar';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';

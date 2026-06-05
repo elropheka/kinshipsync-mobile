@@ -16,7 +16,7 @@ interface EventDetailHeaderProps {
   isOrganizer?: boolean;
 }
 
-const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId, onEditEvent, isOrganizer }) => {
+const EventDetailHeader: React.FC<EventDetailHeaderProps> = ({ event, deadlineInfo, currentUserId: _currentUserId, onEditEvent, isOrganizer }) => {
   const { currentColors } = useAppTheme();
   const styles = createEventDetailsStyles(currentColors);
   

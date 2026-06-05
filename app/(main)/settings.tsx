@@ -44,7 +44,7 @@ interface ThemeOptionProps {
   styles: any;
 }
 const ThemeOption: React.FC<ThemeOptionProps> = ({ title, currentTheme, onSelectTheme, styles }) => {
-  const themes: UserSettings['theme'][] = ['light', 'dark', 'system'];
+  const themes: Array<UserSettings['theme']> = ['light', 'dark', 'system'];
   return (
     <View style={styles.optionContainer}>
       <Text style={styles.optionText}>{title}</Text>

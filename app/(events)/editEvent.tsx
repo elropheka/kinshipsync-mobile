@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { createCreateEventStyles } from '@/styles/app/(events)/createEvent.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from 'constants/Colors';
 import { useEventDetail } from '@/hooks/useEvents'; 
 import { 
   Event as EventType,
@@ -20,7 +19,7 @@ import MultiUserPicker from '@/components/common/MultiUserPicker';
 import * as userService from '@/services/userService';
 import { useAlert } from '@/context/AlertContext';
 
-const EventWebsiteFormFallback = ({ initialWebsiteData, onSubmit, onCancel }: any) => (
+const EventWebsiteFormFallback = ({ initialWebsiteData: _initialWebsiteData, onSubmit: _onSubmit, onCancel: _onCancel }: any) => (
   <View style={{ padding: 20, alignItems: 'center' }}>
     <Text style={{ color: 'red', fontSize: 16 }}>Error loading website form</Text>
     <Text style={{ color: 'red', fontSize: 14, marginTop: 10 }}>Please try again or go back</Text>
@@ -37,7 +36,7 @@ const EditEventScreen = () => {
   const router = useRouter();
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
   const { user: currentUser } = useAppAuth();
-  const { showSuccess, showError, showInfo } = useAlert();
+  const { showSuccess, showError } = useAlert();
   
   const { event, updateThisEvent, isLoading: isLoadingEvent, fetchEventDetails } = useEventDetail(eventId);
   
@@ -355,7 +354,7 @@ const EditEventScreen = () => {
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Visibility</Text>
         <View style={styles.visibilitySelectorContainer}>
-          {(['public', 'private', 'unlisted'] as EventType['visibility'][]).map(visOption => (
+          {(['public', 'private', 'unlisted'] as Array<EventType['visibility']>).map(visOption => (
             <TouchableOpacity
               key={visOption}
               style={[

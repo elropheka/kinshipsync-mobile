@@ -16,7 +16,7 @@ const IdeaForm: React.FC<IdeaFormProps> = ({
   initialIdea,
   onSubmit,
   onCancel,
-  formTitle = 'Event Idea',
+  formTitle: _formTitle = 'Event Idea',
 }) => {
   const { currentColors } = useAppTheme();
   const { showError } = useAlert();

@@ -103,7 +103,7 @@ const RsvpPreferenceForm: React.FC<RsvpPreferenceFormProps> = ({
     onClose();
   };
   
-  const statusOptions: RsvpItem['status'][] = ['Attending', 'Not Attending', 'Pending'];
+  const statusOptions: Array<RsvpItem['status']> = ['Attending', 'Not Attending', 'Pending'];
 
   return (
     <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>

@@ -11,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { createCategoryStyles } from '../../../styles/app/(vendors)/category/[name].styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '../../../constants/Colors';
 import { DisplayVendorItem, useVendorItemsSearch } from '../../../hooks/useVendors';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
 

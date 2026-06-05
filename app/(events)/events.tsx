@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Stack, router, useFocusEffect } from 'expo-router'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -46,7 +46,7 @@ const EventListScreen = () => {
   };
 
   const eventsToDisplay = useMemo(() => {
-    let processedEvents: (Event & { eventStatus: 'Upcoming' | 'Past' })[] = (events || []).map(event => ({
+    let processedEvents: Array<Event & { eventStatus: 'Upcoming' | 'Past' }> = (events || []).map(event => ({
       ...event,
       eventStatus: getEventStatus(event.date),
     }));

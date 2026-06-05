@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,7 +7,6 @@ import { createSeatingStyles } from '../../styles/app/(events)/seating.styles';
 import { useAppTheme } from '@/context/AppThemeContext'; // Styles will need to be adapted
 import { useEventDetail } from '../../hooks/useEvents';
 import { SeatingTable } from '../../types/eventTypes';
-import { Colors } from '../../constants/Colors';
 import TableForm from '../../components/events/TableForm';
 import { useAlert } from '@/context/AlertContext'; 
 

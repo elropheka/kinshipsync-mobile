@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,6 @@ import { useAlert } from '@/context/AlertContext';
 import { searchUsersByName } from '../../../services/userService';
 import { addMemberToTeam, updateFamilyTreeRoot, getTeamById, addSpouseToFamilyMember } from '../../../services/teamService'; 
 import { uploadImage } from '../../../services/storageService'; // Import uploadImage
-import { Colors } from '../../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const generateNodeId = () => `node_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;

@@ -9,14 +9,12 @@ import {
   ActivityIndicator,
   Modal,
   TouchableWithoutFeedback,
-  Platform,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { createCreateNewTeamStyles } from '@/styles/app/(events)/createNewTeam.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '@/constants/Colors';
 import { Stack, useRouter } from 'expo-router';
 import { TeamType } from '@/types/teamTypes';
 import { UserProfile } from '@/types/userTypes';
@@ -27,7 +25,7 @@ import { createTeam } from '@/services/teamService';
 import { getAllUsersForPicker } from '@/services/userService';
 import { AuthContext } from '@/context/AuthContext';
 
-const availableIcons: (keyof typeof Ionicons.glyphMap)[] = [
+const availableIcons: Array<keyof typeof Ionicons.glyphMap> = [
   'people-outline', 'people-circle-outline', 'school-outline', 'book-outline', 
   'briefcase-outline', 'game-controller-outline', 'musical-notes-outline', 'color-palette-outline'
 ];

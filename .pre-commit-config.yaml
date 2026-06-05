@@ -1,0 +1,40 @@
+# Install: pip install pre-commit  (or brew install pre-commit)
+# Setup:  pre-commit install
+# Run all: pre-commit run --all-files
+
+default_language_version:
+  node: "20"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+
+  - repo: local
+    hooks:
+      - id: mobile-typecheck
+        name: mobile TypeScript (tsc)
+        entry: pnpm typecheck
+        language: system
+        files: ^(app|components|context|hooks|services|styles|utils|constants|store)/
+        pass_filenames: false
+
+      - id: mobile-eslint
+        name: mobile ESLint (staged TS/TSX)
+        entry: pnpm exec eslint --max-warnings 0
+        language: system
+        files: \.(ts|tsx)$
+        exclude: ^functions/
+
+      - id: trivy-vuln-scan
+        name: Trivy vulnerability scan (HIGH/CRITICAL)
+        entry: bash scripts/hooks/trivy-scan.sh
+        language: system
+        pass_filenames: false
+        always_run: true

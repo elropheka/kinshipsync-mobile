@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,7 +10,6 @@ import * as userService from '../../services/userService';
 import { useConversations } from '../../hooks/useChat'; // To check existing and create new
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAuth } from '../../context/AuthContext'; // Added to get isAuthenticated
-import { Colors } from 'constants/Colors';
 import { useAlert } from '@/context/AlertContext';
 
 const NewChatScreen = () => {

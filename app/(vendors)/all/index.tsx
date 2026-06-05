@@ -15,7 +15,6 @@ import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/
 import { Stack, router } from 'expo-router';
 import { createIndexStyles } from '../../../styles/app/(vendors)/all/index.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Colors } from '../../../constants/Colors';
 import VendorManagement from '@/components/vendors/vendorManagement';
 import { VendorCategory } from '../../../types/vendorTypes';
 import { VendorItemSearchParams } from '../../../types/vendorItemTypes';
