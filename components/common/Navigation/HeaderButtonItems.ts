@@ -58,24 +58,12 @@ export class HeaderButtonItems {
     contrast: BackButtonContrast = 'onAccent',
     fallbackRoute: string = '/home',
   ): {
-    unstable_headerLeftItems?: () => NativeStackHeaderItem[];
-    headerLeft?: () => React.ReactNode;
+    headerLeft: () => React.ReactNode;
     headerBackVisible: false;
   } {
-    const backButton = () =>
-      React.createElement(BackButton, { contrast, tintColor, fallbackRoute });
-
-    if (Platform.OS === 'ios') {
-      return {
-        unstable_headerLeftItems: () =>
-          this.createBackButtonItems(tintColor, fallbackRoute),
-        headerLeft: backButton,
-        headerBackVisible: false,
-      };
-    }
-
     return {
-      headerLeft: backButton,
+      headerLeft: () =>
+        React.createElement(BackButton, { contrast, tintColor, fallbackRoute }),
       headerBackVisible: false,
     };
   }

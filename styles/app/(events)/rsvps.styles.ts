@@ -15,6 +15,11 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
     flex: 1,
     backgroundColor: theme.background,
   },
+  centeredContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -77,23 +82,23 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
     alignItems: 'center',
   },
   filterButton: {
-    backgroundColor: theme.info + '1A',
+    backgroundColor: theme.buttonPrimary + '1A',
     paddingHorizontal: Spacing.l,
     paddingVertical: Spacing.s,
     borderRadius: BorderRadius.xl,
     marginRight: Spacing.s,
   },
   selectedFilter: {
-    backgroundColor: theme.info,
+    backgroundColor: theme.buttonPrimary,
   },
-  filterText: { // Text for non-selected filter
+  filterText: {
     fontSize: ResponsiveFontSizes.body,
     fontWeight: Fonts.weights.medium,
-    color: theme.info,
+    color: theme.buttonPrimary,
   },
-  // activeFilterText: { // Text for selected filter, if different
-  //   color: theme.infoContrastText,
-  // },
+  activeFilterText: {
+    color: theme.primaryContrastText,
+  },
   itemCountContainer: {
     paddingHorizontal: Spacing.m,
     marginBottom: Spacing.m,
@@ -106,8 +111,24 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
   },
   listContainer: {
     paddingHorizontal: Spacing.m,
-    paddingBottom: Spacing.xxl + Spacing.l,
-    flex: 1, // Ensure list takes available space
+    paddingBottom: Spacing.xxl + Spacing.xxl,
+    flex: 1,
+  },
+  fab: {
+    position: 'absolute',
+    right: Spacing.l,
+    bottom: Spacing.l,
+    backgroundColor: theme.primary,
+    width: moderateScale(56),
+    height: moderateScale(56),
+    borderRadius: moderateScale(28),
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: theme.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   rsvpItem: {
     flexDirection: 'row',
@@ -150,10 +171,19 @@ export const createRsvpsStyles = (theme: typeof Colors.light) => StyleSheet.crea
     alignSelf: 'flex-start',
   },
   reminderButtonText: {
-    color: theme.text,
+    color: theme.textDarkContrast,
     fontSize: ResponsiveFontSizes.caption,
     fontWeight: Fonts.weights.medium,
     marginLeft: Spacing.xs,
+  },
+  emptyStateText: {
+    fontSize: ResponsiveFontSizes.subtitle,
+    color: theme.textSecondary,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: theme.error,
+    textAlign: 'center',
   },
   statusContainer: {
     flexDirection: 'row',

@@ -1,11 +1,25 @@
 import { Stack } from 'expo-router';
 import React from 'react';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { HeaderTheme } from '@/components/common/Navigation/HeaderTheme';
 import { ColoredHeaderStatusBar } from '@/components/common/Navigation/ColoredHeaderStatusBar';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+
+function eventPushedScreenOptions(
+  title: string,
+  tintColor: string,
+  fallbackRoute: string = '/(main)/home',
+): NativeStackNavigationOptions {
+  return {
+    title,
+    ...HeaderButtonItems.headerLeftBackOptions(tintColor, 'onAccent', fallbackRoute),
+  };
+}
 
 function EventsStack() {
   const { currentColors } = useAppTheme();
+  const tintColor = currentColors.accentContrastText;
 
   return (
     <>
@@ -14,63 +28,44 @@ function EventsStack() {
         screenOptions={{
           headerShown: true,
           presentation: 'card',
-          ...HeaderTheme.accentOptions(currentColors),
+          ...HeaderTheme.accentSurfaceOptions(currentColors),
         }}
       >
         <Stack.Screen
           name="all/index"
-          options={{
-            title: 'My Events',
-          }}
+          options={eventPushedScreenOptions('My Events', tintColor, '/(main)/home')}
         />
         <Stack.Screen
           name="details/[id]"
-          options={{
-            title: 'Event Details',
-          }}
+          options={eventPushedScreenOptions('Event Details', tintColor, '/(events)/all')}
         />
         <Stack.Screen
           name="guests"
-          options={{
-            title: 'Guest List',
-          }}
+          options={eventPushedScreenOptions('Guest List', tintColor)}
         />
         <Stack.Screen
+          name="guests/[eventId]"
+          options={eventPushedScreenOptions('Guest List', tintColor)}
+        />
+        <Stack.Screen name="rsvps" options={eventPushedScreenOptions('RSVPs', tintColor)} />
+        <Stack.Screen name="themes" options={eventPushedScreenOptions('Event Theme', tintColor)} />
+        <Stack.Screen name="website" options={eventPushedScreenOptions('Event Website', tintColor)} />
+        <Stack.Screen name="messages" options={eventPushedScreenOptions('Event Messages', tintColor)} />
+        <Stack.Screen
           name="budget/index"
-          options={{
-            title: 'Budget',
-          }}
+          options={eventPushedScreenOptions('Budget', tintColor)}
         />
         <Stack.Screen
           name="createNewTeam"
-          options={{
-            title: 'Create Team',
-          }}
+          options={eventPushedScreenOptions('Create Team', tintColor)}
         />
-        <Stack.Screen
-          name="tasks"
-          options={{
-            title: 'Tasks',
-          }}
-        />
-        <Stack.Screen
-          name="seating"
-          options={{
-            title: 'Seating Plan',
-          }}
-        />
+        <Stack.Screen name="tasks" options={eventPushedScreenOptions('Tasks', tintColor)} />
+        <Stack.Screen name="seating" options={eventPushedScreenOptions('Seating Plan', tintColor)} />
         <Stack.Screen
           name="schedule"
-          options={{
-            title: 'Event Schedule',
-          }}
+          options={eventPushedScreenOptions('Event Schedule', tintColor)}
         />
-        <Stack.Screen
-          name="ideas"
-          options={{
-            title: 'Event Ideas',
-          }}
-        />
+        <Stack.Screen name="ideas" options={eventPushedScreenOptions('Event Ideas', tintColor)} />
         <Stack.Screen
           name="createEvent"
           options={{

@@ -10,13 +10,15 @@ import { SeatingTable } from '../../types/eventTypes';
 import TableForm from '../../components/events/TableForm';
 import { useAlert } from '@/context/AlertContext'; 
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventNavigation } from '@/utils/eventNavigation';
 
   const SeatingChartScreen = () => {
   const { currentColors } = useAppTheme();
   const styles = createSeatingStyles(currentColors);
 
 
-  const { eventId } = useLocalSearchParams<{ eventId: string }>();
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
   const { showSuccess, showError, showConfirm, showInfo } = useAlert();
   
   const { 

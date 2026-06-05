@@ -73,6 +73,11 @@ export class HeaderTheme {
     return this.coloredHeaderSurface(currentColors, currentColors.secondary);
   }
 
+  /** Accent header styling without back affordance — set back per screen in layout or via setOptions. */
+  public static accentSurfaceOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
+    return this.coloredHeaderSurface(currentColors, currentColors.accent);
+  }
+
   public static lightOptions(currentColors: ThemeColors): NativeStackNavigationOptions {
     return {
       headerStyle: { backgroundColor: currentColors.backgroundPrimary },

@@ -1,84 +1,43 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useEventDetail } from '@/hooks/useEvents';
-import { UserProfile } from '@/types/userTypes';
 import { useAppAuth } from '@/hooks/useAppAuth';
-import { getUserProfileById } from '@/services/userService'; 
-
-
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
 import EventDetailHeader from '@/components/events/details/EventDetailHeader';
-import EventDetailNavButtons from '@/components/events/details/EventDetailNavButtons';
-import EventDetailTasks from '@/components/events/details/EventDetailTasks';
-import EventDetailBudget from '@/components/events/details/EventDetailBudget';
-import EventDetailIdeas from '@/components/events/details/EventDetailIdeas';
-import EventDetailTeams from '@/components/events/details/EventDetailTeams';
-import EventDetailTheme from '@/components/events/details/EventDetailTheme';
-import EventDetailWebsite from '@/components/events/details/EventDetailWebsite';
-import { CreateTaskPayload, UpdateTaskPayload, CreateBudgetItemPayload, UpdateBudgetItemPayload, CreateIdeaPayload, UpdateIdeaPayload, CreateEventTeamPayload, UpdateEventTeamPayload, AddTeamMemberPayload, WebsitePayload } from '@/types/eventTypes';
+import { EventDetailTileGrid } from '@/components/events/details/EventDetailTileGrid';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const eventId = id || ''; 
+  const eventId = id || '';
   const { user: currentUser } = useAppAuth();
   const router = useRouter();
   const { currentColors } = useAppTheme();
   const styles = createEventDetailsStyles(currentColors);
-  const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
   const lastRefetchRef = useRef<number>(0);
 
-  const { 
-    event, 
-    tasks, 
-    guests, 
-    budgetItems, 
-    ideas, 
-    eventTeams,
-    addEventTask, 
-    updateEventTask, 
-    deleteEventTask,
-    addBudgetItem, 
-    updateBudgetItem,
-    deleteBudgetItem,
-    addIdea, 
-    updateIdea,
-    deleteIdea,
-    voteForIdea,
-    createEventTeam, 
-    updateEventTeam,
-    deleteEventTeam,
-    addTeamMember,
-    removeTeamMember,
-    currentTheme,
-    availableThemes, 
-    setEventTheme, 
-    eventWebsite,
-    updateEventWebsite,
-    isLoading: isLoadingEventDetails, 
+  const {
+    event,
+    guests,
+    isLoading: isLoadingEventDetails,
     error: eventError,
-    fetchEventDetails
+    fetchEventDetails,
   } = useEventDetail(eventId);
 
   const isOrganizer = currentUser?.uid === event?.organizerId;
 
   const hasAccessToEvent = useMemo(() => {
     if (!currentUser?.uid) return false;
-    
     if (!event) return false;
-    
     if (event.organizerId === currentUser.uid) return true;
-    
     if (event.visibility === 'public') return true;
-    
     if (event.allowedUserIds && event.allowedUserIds.includes(currentUser.uid)) return true;
-    
     const userEmail = currentUser.email;
-    if (userEmail && guests.some(guest => guest.email === userEmail)) return true;
-    
+    if (userEmail && guests.some((guest) => guest.email === userEmail)) return true;
     return false;
   }, [event, currentUser?.uid, currentUser?.email, guests]);
 
@@ -86,155 +45,89 @@ export default function EventDetailsScreen() {
     React.useCallback(() => {
       const now = Date.now();
       const timeSinceLastRefetch = now - lastRefetchRef.current;
-      
       if (fetchEventDetails && eventId && timeSinceLastRefetch > 2000) {
-        console.log('Event details screen focused, refetching event data...');
         lastRefetchRef.current = now;
         fetchEventDetails();
       }
-    }, [fetchEventDetails, eventId])
+    }, [fetchEventDetails, eventId]),
   );
 
-  useEffect(() => {
-    const fetchTeamMemberProfiles = async () => {
-      if (!eventTeams || eventTeams.length === 0) {
-        setTeamMemberProfiles([]);
-        return;
-      }
-
-      try {
-        const allUserIds = new Set<string>();
-        eventTeams.forEach(team => {
-          (team.members ?? []).forEach(member => {
-            allUserIds.add(member.userId);
-          });
-        });
-
-        const profilePromises = Array.from(allUserIds).map(userId => 
-          getUserProfileById(userId)
-        );
-        
-        const profiles = await Promise.all(profilePromises);
-        const validProfiles = profiles.filter((profile): profile is UserProfile => profile !== null);
-        
-        setTeamMemberProfiles(validProfiles);
-      } catch (error) {
-        console.error('Error fetching team member profiles:', error);
-        setTeamMemberProfiles([]);
-      }
-    };
-
-    fetchTeamMemberProfiles();
-  }, [eventTeams]);
-
-
-  const assignableUsers: UserProfile[] = guests.map(guest => ({
-    userId: guest.id, 
-    displayName: guest.name,
-    email: guest.email || '',
-    createdAt: guest.addedAt || new Date().toISOString(),
-    updatedAt: guest.addedAt || new Date().toISOString(),
-    avatarUrl: undefined, 
-  }));
-
-  const allAssignableUsers: UserProfile[] = [
-    ...assignableUsers,
-    ...teamMemberProfiles
-  ];
-
-  const uniqueAssignableUsers = allAssignableUsers.filter((user, index, self) => 
-    index === self.findIndex(u => u.userId === user.userId)
-  );
-
-  const taskAssignableUsers: UserProfile[] = eventTeams.flatMap(team => 
-    (team.members ?? []).map((member: { userId: string }) => {
-      const memberProfile = uniqueAssignableUsers.find(user => user.userId === member.userId);
-      return memberProfile;
-    }).filter((profile): profile is UserProfile => profile !== undefined)
-  );
-
- 
   const getRsvpDeadlineInfo = () => {
     if (!event) {
       return { text: 'RSVP details not available', style: styles.deadlineTextDefault };
     }
-
-    // If guests data is not loaded yet, show loading state
     if (isLoadingEventDetails) {
       return { text: 'Loading RSVP details...', style: styles.deadlineTextDefault };
     }
 
     const eventDate = new Date(event.date);
     const now = new Date();
-    const daysUntilEvent = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilEvent = Math.ceil(
+      (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
-    // Calculate RSVP statistics
     const totalGuests = guests.length;
-    const respondedGuests = guests.filter(guest =>
-      guest.status === 'accepted' || guest.status === 'Attending' ||
-      guest.status === 'declined' || guest.status === 'Declined'
+    const respondedGuests = guests.filter(
+      (guest) =>
+        guest.status === 'accepted' ||
+        guest.status === 'Attending' ||
+        guest.status === 'declined' ||
+        guest.status === 'Declined',
     ).length;
-    const pendingGuests = guests.filter(guest =>
-      guest.status === 'pending' || guest.status === 'Invited' ||
-      guest.status === 'Maybe' || !guest.status
+    const pendingGuests = guests.filter(
+      (guest) =>
+        guest.status === 'pending' ||
+        guest.status === 'Invited' ||
+        guest.status === 'Maybe' ||
+        !guest.status,
     ).length;
-    
-    // Determine appropriate message and style based on event timing and RSVP status
+
     if (daysUntilEvent < 0) {
-      // Event has passed
       return {
         text: `Event has passed (${Math.abs(daysUntilEvent)} days ago)`,
-        style: styles.deadlineTextPassed
+        style: styles.deadlineTextPassed,
       };
-    } else if (daysUntilEvent === 0) {
+    }
+    if (daysUntilEvent === 0) {
       if (pendingGuests > 0) {
         return {
           text: `Event is today! ${pendingGuests} guests still pending RSVP`,
-          style: styles.deadlineTextUrgent
-        };
-      } else {
-        return {
-          text: `Event is today! All ${totalGuests} guests have responded`,
-          style: styles.deadlineTextDefault
+          style: styles.deadlineTextUrgent,
         };
       }
-    } else if (daysUntilEvent <= 3) {
+      return {
+        text: `Event is today! All ${totalGuests} guests have responded`,
+        style: styles.deadlineTextDefault,
+      };
+    }
+    if (daysUntilEvent <= 3) {
       if (pendingGuests > 0) {
         return {
           text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! ${pendingGuests} guests pending`,
-          style: styles.deadlineTextUrgent
-        };
-      } else {
-        return {
-          text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! All ${totalGuests} guests responded`,
-          style: styles.deadlineTextDefault
+          style: styles.deadlineTextUrgent,
         };
       }
-    } else if (daysUntilEvent <= 7) {
-      if (pendingGuests > 0) {
-        return {
-          text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
-          style: styles.deadlineTextDefault
-        };
-      } else {
-        return {
-          text: `Event in ${daysUntilEvent} days. All ${totalGuests} guests responded`,
-          style: styles.deadlineTextDefault
-        };
-      }
-    } else {
-      if (totalGuests === 0) {
-        return {
-          text: `Event in ${daysUntilEvent} days. No guests invited yet`,
-          style: styles.deadlineTextDefault
-        };
-      } else {
-        return {
-          text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
-          style: styles.deadlineTextDefault
-        };
-      }
+      return {
+        text: `Event in ${daysUntilEvent} day${daysUntilEvent === 1 ? '' : 's'}! All ${totalGuests} guests responded`,
+        style: styles.deadlineTextDefault,
+      };
     }
+    if (daysUntilEvent <= 7) {
+      return {
+        text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
+        style: styles.deadlineTextDefault,
+      };
+    }
+    if (totalGuests === 0) {
+      return {
+        text: `Event in ${daysUntilEvent} days. No guests invited yet`,
+        style: styles.deadlineTextDefault,
+      };
+    }
+    return {
+      text: `Event in ${daysUntilEvent} days. ${respondedGuests}/${totalGuests} guests responded`,
+      style: styles.deadlineTextDefault,
+    };
   };
 
   if (isLoadingEventDetails) {
@@ -244,7 +137,6 @@ export default function EventDetailsScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>Error loading event: {eventError.message}</Text>
-      
       </View>
     );
   }
@@ -252,11 +144,9 @@ export default function EventDetailsScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>Event not found.</Text>
-       
       </View>
     );
   }
-
   if (!hasAccessToEvent) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -269,143 +159,37 @@ export default function EventDetailsScreen() {
 
   const deadlineInfo = getRsvpDeadlineInfo();
 
- 
-
-  const handleAddTask = async (taskData: CreateTaskPayload) => {
-    await addEventTask(taskData);
-  };
-  const handleUpdateTask = async (taskId: string, taskData: UpdateTaskPayload) => {
-    await updateEventTask(taskId, taskData);
-  };
-  const handleDeleteTask = async (taskId: string) => {
-    await deleteEventTask(taskId);
-  };
-
-  const handleAddBudgetItem = async (itemData: CreateBudgetItemPayload) => {
-    await addBudgetItem(itemData);
-  };
-  const handleUpdateBudgetItem = async (itemId: string, itemData: UpdateBudgetItemPayload) => {
-    await updateBudgetItem(itemId, itemData);
-  };
-  const handleDeleteBudgetItem = async (itemId: string) => {
-    await deleteBudgetItem(itemId);
-  };
-
-  const handleAddIdea = async (ideaData: CreateIdeaPayload, currentUserId: string) => {
-    await addIdea(ideaData, currentUserId);
-  };
-  const handleUpdateIdea = async (ideaId: string, ideaData: UpdateIdeaPayload) => {
-    await updateIdea(ideaId, ideaData);
-  };
-  const handleDeleteIdea = async (ideaId: string) => {
-    await deleteIdea(ideaId);
-  };
-  const handleVoteForIdea = async (ideaId: string, increment: number) => {
-    await voteForIdea(ideaId, increment);
-  };
-  
-  const handleCreateEventTeam = async (teamData: CreateEventTeamPayload) => {
-    await createEventTeam(teamData);
-  };
-  const handleUpdateEventTeam = async (teamId: string, teamData: UpdateEventTeamPayload) => {
-    await updateEventTeam(teamId, teamData);
-  };
-  const handleDeleteEventTeam = async (teamId: string) => {
-    await deleteEventTeam(teamId);
-  };
-  const handleAddTeamMember = async (teamId: string, memberData: AddTeamMemberPayload) => {
-    await addTeamMember(teamId, memberData);
-  };
-  const handleRemoveTeamMember = async (teamId: string, memberUserId: string) => {
-    await removeTeamMember(teamId, memberUserId);
-  };
-
-  const handleSetEventTheme = async (themeId: string) => {
-    await setEventTheme(themeId);
-  };
-
-  const handleUpdateEventWebsite = async (websiteData: WebsitePayload) => {
-    await updateEventWebsite(websiteData);
-  };
-
   const handleEditEvent = () => {
-    if (event) {
-      router.push({
-        pathname: '/(events)/editEvent',
-        params: { eventId: event.id }
-      });
-    }
+    router.push({
+      pathname: '/(events)/editEvent',
+      params: { eventId: event.id },
+    });
   };
-
 
   return (
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: event.name || 'Event Details' }} />
-     
+      <Stack.Screen
+        options={{
+          title: event.name || 'Event Details',
+          ...HeaderButtonItems.headerLeftBackOptions(
+            currentColors.accentContrastText,
+            'onAccent',
+            '/(events)/all',
+          ),
+        }}
+      />
+
       <ScrollView style={styles.container}>
-        <EventDetailHeader 
-          event={event} 
-          deadlineInfo={deadlineInfo} 
+        <EventDetailHeader
+          event={event}
+          deadlineInfo={deadlineInfo}
           currentUserId={currentUser?.uid}
           onEditEvent={handleEditEvent}
           isOrganizer={isOrganizer}
         />
-        
-        <EventDetailNavButtons eventId={event.id} />
 
-        <EventDetailTasks 
-          tasks={tasks}
-          assignableUsers={taskAssignableUsers}
-          onAddTask={handleAddTask}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          isOrganizer={isOrganizer}
-        />
-
-        <EventDetailBudget
-          budgetItems={budgetItems}
-          onAddBudgetItem={handleAddBudgetItem}
-          onUpdateBudgetItem={handleUpdateBudgetItem}
-          onDeleteBudgetItem={handleDeleteBudgetItem}
-          isOrganizer={isOrganizer}
-        />
-
-        <EventDetailIdeas
-          ideas={ideas}
-          currentUserId={currentUser?.uid}
-          onAddIdea={handleAddIdea}
-          onUpdateIdea={handleUpdateIdea}
-          onDeleteIdea={handleDeleteIdea}
-          onVoteForIdea={handleVoteForIdea}
-          isOrganizer={isOrganizer}
-        />
-
-        <EventDetailTeams
-          eventTeams={eventTeams}
-          assignableUsers={uniqueAssignableUsers}
-          onCreateEventTeam={handleCreateEventTeam}
-          onUpdateEventTeam={handleUpdateEventTeam}
-          onDeleteEventTeam={handleDeleteEventTeam}
-          onAddTeamMember={handleAddTeamMember}
-          onRemoveTeamMember={handleRemoveTeamMember}
-          isOrganizer={isOrganizer}
-        />
-        
-        <EventDetailTheme
-          currentTheme={currentTheme}
-          availableThemes={availableThemes}
-          onSetEventTheme={handleSetEventTheme}
-          isOrganizer={isOrganizer}
-        />
-
-        <EventDetailWebsite
-          eventWebsite={eventWebsite}
-          onUpdateEventWebsite={handleUpdateEventWebsite}
-          isOrganizer={isOrganizer}
-        />
-
+        <EventDetailTileGrid eventId={event.id} />
       </ScrollView>
-     
     </SafeAreaView>
   );
 }

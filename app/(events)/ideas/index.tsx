@@ -30,6 +30,7 @@ import { getUserProfile } from '../../../services/userService';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 const formatDate = (isoString: string) => {
   if (!isoString) return 'Unknown date';
@@ -42,7 +43,8 @@ const EventIdeasScreen = () => {
   const styles = createIndexStyles(currentColors);
 
 
-  const { eventId } = useLocalSearchParams<{ eventId?: string }>();
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
   const { user: currentUser } = useAppAuth();
   const isAuthenticated = !!currentUser; // Correctly derive isAuthenticated
   const { showError } = useAlert();

@@ -1,14 +1,72 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Stack, router } from 'expo-router'; // Stack import moved here
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createWebsiteStyles } from '../../styles/app/(events)/website.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
+import { useAppAuth } from '@/hooks/useAppAuth';
+import { useEventDetail } from '@/hooks/useEvents';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
+import EventDetailWebsite from '@/components/events/details/EventDetailWebsite';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 const WebsitePreviewPage: React.FC = () => {
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
   const { currentColors } = useAppTheme();
   const styles = createWebsiteStyles(currentColors);
+  const detailStyles = createEventDetailsStyles(currentColors);
+  const { user: currentUser } = useAppAuth();
 
+  const {
+    event,
+    eventWebsite,
+    updateEventWebsite,
+    isLoading,
+    error,
+  } = useEventDetail(eventId);
+
+  if (eventId) {
+    const isOrganizer = currentUser?.uid === event?.organizerId;
+
+    if (isLoading) {
+      return <LoadingScreen />;
+    }
+
+    if (error || !event) {
+      return (
+        <View style={[detailStyles.container, detailStyles.centerContent]}>
+          <Text style={detailStyles.errorText}>{error?.message || 'Event not found.'}</Text>
+        </View>
+      );
+    }
+
+    return (
+      <SafeAreaView style={detailStyles.outerContainer} edges={['left', 'right', 'bottom']}>
+        <Stack.Screen
+          options={{
+            title: 'Event Website',
+            ...HeaderButtonItems.headerLeftBackOptions(
+              currentColors.accentContrastText,
+              'onAccent',
+              `/(events)/details/${eventId}`,
+            ),
+          }}
+        />
+        <ScrollView style={detailStyles.container}>
+          <EventDetailWebsite
+            eventWebsite={eventWebsite}
+            onUpdateEventWebsite={async (websiteData) => {
+              await updateEventWebsite(websiteData);
+            }}
+            isOrganizer={isOrganizer}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   const handleDone = () => {
     router.push('/(main)/home');
@@ -16,7 +74,7 @@ const WebsitePreviewPage: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: "Website Preview" }} />
+      <Stack.Screen options={{ title: 'Website Preview' }} />
 
       <View style={styles.tabContainer}>
         <View style={[styles.tabItem, styles.activeTab]}>
@@ -37,12 +95,12 @@ const WebsitePreviewPage: React.FC = () => {
           <View style={styles.websiteHeader}>
             <Text style={styles.weddingTitle}>WEDDING</Text>
           </View>
-          
-          <Image 
-            source={{ uri: 'https://via.placeholder.com/400x400' }} 
+
+          <Image
+            source={{ uri: 'https://via.placeholder.com/400x400' }}
             style={styles.weddingImage}
           />
-          
+
           <View style={styles.websiteFooter}>
             <View style={styles.coupleNameContainer}>
               <Text style={styles.coupleName}>SARAH</Text>

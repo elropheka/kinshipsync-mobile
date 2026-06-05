@@ -42,6 +42,23 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
   },
   listContentContainer: {
     padding: Spacing.s,
+    paddingBottom: Spacing.xxl + Spacing.xxl,
+  },
+  fab: {
+    position: 'absolute',
+    right: Spacing.l,
+    bottom: Spacing.l,
+    backgroundColor: theme.primary,
+    width: moderateScale(56),
+    height: moderateScale(56),
+    borderRadius: moderateScale(28),
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: theme.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   itemContainer: {
     backgroundColor: theme.backgroundPaper,
@@ -97,6 +114,10 @@ export const createIndexStyles = (theme: typeof Colors.light) => StyleSheet.crea
     marginTop: Spacing.xxl,
     fontSize: ResponsiveFontSizes.subtitle,
     color: theme.textSecondary,
+  },
+  errorText: {
+    color: theme.error,
+    textAlign: 'center',
   },
 });
 

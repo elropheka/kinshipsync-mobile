@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
+import { EventNavigation } from '@/utils/eventNavigation';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { Colors } from '@/constants/Colors';
 import { BorderRadius, Spacing } from '@/constants/dimensions';
@@ -43,12 +43,12 @@ const FeaturedEventCardInner: React.FC<FeaturedEventCardProps> = ({
           <BrandButton
             label="RSVP"
             variant="primary"
-            onPress={() => router.push('/(events)/rsvps')}
+            onPress={() => EventNavigation.push('rsvps', event.eventId)}
             style={styles.actionButton}
           />
           <TouchableOpacity
             style={[styles.actionButton, styles.scheduleButton]}
-            onPress={() => router.push('/(events)/schedule')}
+            onPress={() => EventNavigation.push('schedule', event.eventId)}
           >
             <Text style={styles.scheduleButtonText}>Schedule</Text>
           </TouchableOpacity>

@@ -12,18 +12,20 @@ import { Event as EventType, BudgetItem as BudgetItemType, CreateBudgetItemPaylo
 import BudgetForm from '../../../components/budget/BudgetForm'; // Re-use BudgetForm
 import { Spacing } from 'constants/dimensions'; // Import Spacing
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 const EventBudgetScreen = () => {
   const { currentColors } = useAppTheme();
   const styles = createIndexStyles(currentColors);
 
 
-  const params = useLocalSearchParams<{ eventId?: string }>();
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const resolvedEventId = EventNavigation.resolveEventId(params.eventId);
   const { user: currentUser } = useAppAuth();
   const { showError, showSuccess, showConfirm } = useAlert();
   
   const { events: allEvents, isLoading: isLoadingAllEvents } = useAllEvents();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(params.eventId || null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(resolvedEventId || null);
 
   const {
     event: selectedEvent,

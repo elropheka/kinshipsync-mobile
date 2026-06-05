@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useLayoutEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams } from 'expo-router'; 
+import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'; 
 import { createRsvpsStyles } from '@/styles/app/(events)/rsvps.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAppAuth } from '@/hooks/useAppAuth';
@@ -18,6 +18,7 @@ import InviteGuestModal from '@/components/events/InviteGuestModal';
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 const GUEST_STATUS_OPTIONS = ['All', 'Invited', 'accepted', 'declined', 'pending'] as const;
 type GuestStatusFilterType = typeof GUEST_STATUS_OPTIONS[number];
@@ -27,7 +28,10 @@ const RsvpListScreen = () => {
   const styles = createRsvpsStyles(currentColors);
 
 
-  const { eventId } = useLocalSearchParams<{ eventId?: string }>();
+  const navigation = useNavigation();
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
+  const backFallbackRoute = eventId ? `/(events)/details/${eventId}` : '/(main)/home';
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
   const { showError, showSuccess } = useAlert();
@@ -47,7 +51,30 @@ const RsvpListScreen = () => {
   const [isPreferenceModalVisible, setIsPreferenceModalVisible] = useState(false);
   const [editingGuest, setEditingGuest] = useState<GuestType | null>(null);
   const [remindingGuestId, setRemindingGuestId] = useState<string | null>(null);
-  const [isInviteModalVisible, setIsInviteModalVisible] = useState(false); 
+  const [isInviteModalVisible, setIsInviteModalVisible] = useState(false);
+
+  const openInviteModal = useCallback(() => {
+    setIsInviteModalVisible(true);
+  }, []);
+
+  const screenTitle =
+    eventDetails?.name || (eventId ? `Event ${eventId.substring(0, 6)}...` : 'RSVPs');
+
+  const headerOptions = useMemo(
+    () => ({
+      title: screenTitle,
+      ...HeaderButtonItems.headerLeftBackOptions(
+        currentColors.accentContrastText,
+        'onAccent',
+        backFallbackRoute,
+      ),
+    }),
+    [screenTitle, backFallbackRoute, currentColors.accentContrastText],
+  );
+
+  useLayoutEffect(() => {
+    navigation.setOptions(headerOptions);
+  }, [navigation, headerOptions]);
 
   useEffect(() => {
     if (!eventId) {
@@ -226,9 +253,9 @@ const RsvpListScreen = () => {
             }}
           >
             {remindingGuestId === guest.id ? (
-              <ActivityIndicator size="small" color="#fff" style={{ marginRight: 5 }}/>
+              <ActivityIndicator size="small" color={currentColors.textDarkContrast} style={{ marginRight: 5 }}/>
             ) : (
-              <Icon name="notifications-active" size={18} color="#fff" />
+              <Icon name="notifications-active" size={18} color={currentColors.textDarkContrast} />
             )}
             <Text style={styles.reminderButtonText}>
               {remindingGuestId === guest.id ? 'Sending...' : 'Send Reminder'}
@@ -265,36 +292,27 @@ const RsvpListScreen = () => {
     </TouchableOpacity>
   );
   
-  if (isLoading && fetchedGuests.length === 0) {
-    return <LoadingScreen />;
-  }
+  const renderBody = () => {
+    if (isLoading && fetchedGuests.length === 0) {
+      return <LoadingScreen />;
+    }
 
-  if (error) {
-    return <SafeAreaView style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}><Text style={{color: 'red'}}>Error: {error.message}</Text></SafeAreaView>;
-  }
+    if (error) {
+      return (
+        <View style={[styles.container, styles.centeredContent]}>
+          <Text style={styles.errorText}>Error: {error.message}</Text>
+        </View>
+      );
+    }
 
-  return (
-    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen
-        options={{
-          title: eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'RSVPs'),
-          ...HeaderButtonItems.headerRightIconOptions({
-            label: 'Invite guest',
-            sfSymbol: 'person.badge.plus',
-            ionicon: 'person-add-outline',
-            onPress: () => setIsInviteModalVisible(true),
-            tintColor: currentColors.accentContrastText,
-          }),
-        }}
-      />
-   
-      
+    return (
+      <>
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={currentColors.textMuted} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name or email"
-          placeholderTextColor="gray"
+          placeholderTextColor={currentColors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -315,7 +333,7 @@ const RsvpListScreen = () => {
             >
               <Text style={[
                 styles.filterText,
-                selectedStatusFilter === filterName && { color: '#FFFFFF' }
+                selectedStatusFilter === filterName && styles.activeFilterText,
               ]}>{filterName}</Text>
             </TouchableOpacity>
           )}
@@ -330,7 +348,7 @@ const RsvpListScreen = () => {
 
       {displayedGuests.length === 0 && !isLoading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontSize: 16, color: currentColors.textSecondary}}>
+            <Text style={styles.emptyStateText}>
                 {searchQuery || selectedStatusFilter !== 'All' ? 'No guests match your criteria.' : 'No RSVPs found for this event.'}
             </Text>
         </View>
@@ -372,6 +390,23 @@ const RsvpListScreen = () => {
         onSubmit={handleInviteGuestSubmit}
         currentEventName={eventDetails?.name}
       />
+
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={openInviteModal}
+          accessibilityRole="button"
+          accessibilityLabel="Invite guest"
+        >
+          <Ionicons name="person-add-outline" size={28} color={currentColors.primaryContrastText} />
+        </TouchableOpacity>
+      </>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+      <Stack.Screen options={headerOptions} />
+      {renderBody()}
     </SafeAreaView>
   );
 };

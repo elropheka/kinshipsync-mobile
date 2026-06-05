@@ -8,13 +8,14 @@ import {
   FlatList,
   Modal,
   TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { createCreateNewTeamStyles } from '@/styles/app/(events)/createNewTeam.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { TeamType } from '@/types/teamTypes';
 import { UserProfile } from '@/types/userTypes';
 import { BackendUser } from '@/types/auth';
@@ -24,6 +25,13 @@ import { createTeam } from '@/services/teamService';
 import { getAllUsersForPicker } from '@/services/userService';
 import { AuthContext } from '@/context/AuthContext';
 import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
+import { useEventDetail } from '@/hooks/useEvents';
+import { useEventAssignableUsers } from '@/hooks/useEventAssignableUsers';
+import { HeaderButtonItems } from '@/components/common/Navigation/HeaderButtonItems';
+import { LoadingScreen } from '@/components/common/LoadingScreen';
+import EventDetailTeams from '@/components/events/details/EventDetailTeams';
+import { createEventDetailsStyles } from '@/styles/app/(events)/details/[id].styles';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 const availableIcons: Array<keyof typeof Ionicons.glyphMap> = [
   'people-outline', 'people-circle-outline', 'school-outline', 'book-outline', 
@@ -31,9 +39,25 @@ const availableIcons: Array<keyof typeof Ionicons.glyphMap> = [
 ];
 
 const CreateNewTeamScreen: React.FC = () => {
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
   const { currentColors } = useAppTheme();
   const styles = createCreateNewTeamStyles(currentColors);
+  const detailStyles = createEventDetailsStyles(currentColors);
 
+  const {
+    event,
+    guests,
+    eventTeams,
+    createEventTeam,
+    updateEventTeam,
+    deleteEventTeam,
+    addTeamMember,
+    removeTeamMember,
+    isLoading: isLoadingEventData,
+    error: eventError,
+  } = useEventDetail(eventId);
+  const { uniqueAssignableUsers } = useEventAssignableUsers(guests, eventTeams);
 
   const router = useRouter();
   const authContext = useContext(AuthContext);
@@ -61,6 +85,10 @@ const CreateNewTeamScreen: React.FC = () => {
   ];
 
   useEffect(() => {
+    if (eventId) {
+      return;
+    }
+
     const fetchUsers = async () => {
       if (!currentUser) {
         setError("Authentication required to fetch users.");
@@ -79,7 +107,7 @@ const CreateNewTeamScreen: React.FC = () => {
       }
     };
     fetchUsers();
-  }, [currentUser]);
+  }, [currentUser, eventId]);
 
   const handleCreateTeam = async () => {
     if (teamName.trim() === '') {
@@ -186,6 +214,53 @@ const CreateNewTeamScreen: React.FC = () => {
         return null;
     }
   };
+
+  if (eventId) {
+    const isOrganizer = currentUser?.uid === event?.organizerId;
+
+    if (isLoadingEventData) {
+      return <LoadingScreen />;
+    }
+
+    if (eventError || !event) {
+      return (
+        <View style={[detailStyles.container, detailStyles.centerContent]}>
+          <Text style={detailStyles.errorText}>{eventError?.message || 'Event not found.'}</Text>
+        </View>
+      );
+    }
+
+    return (
+      <SafeAreaView style={detailStyles.outerContainer} edges={['left', 'right', 'bottom']}>
+        <Stack.Screen
+          options={{
+            title: 'Event Teams',
+            ...HeaderButtonItems.headerLeftBackOptions(
+              currentColors.accentContrastText,
+              'onAccent',
+              `/(events)/details/${eventId}`,
+            ),
+          }}
+        />
+        <ScrollView style={detailStyles.container}>
+          <EventDetailTeams
+            eventTeams={eventTeams}
+            assignableUsers={uniqueAssignableUsers}
+            onCreateEventTeam={async (teamData) => {
+              await createEventTeam(teamData);
+            }}
+            onUpdateEventTeam={async (teamId, teamData) => {
+              await updateEventTeam(teamId, teamData);
+            }}
+            onDeleteEventTeam={deleteEventTeam}
+            onAddTeamMember={addTeamMember}
+            onRemoveTeamMember={removeTeamMember}
+            isOrganizer={isOrganizer}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router'; // Stack import moved here
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createIndexStyles } from '../../../styles/app/(events)/schedule/index.styles';
@@ -25,6 +26,7 @@ import {
 import { useErrorAlert } from '@/hooks/useErrorAlert';
 import { getErrorMessage } from '@/utils/errorUtils';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
+import { EventNavigation } from '@/utils/eventNavigation';
 
 
 const EventScheduleScreen = () => {
@@ -32,7 +34,10 @@ const EventScheduleScreen = () => {
   const styles = createIndexStyles(currentColors);
 
 
-  const { eventId } = useLocalSearchParams<{ eventId?: string }>();
+  const navigation = useNavigation();
+  const params = useLocalSearchParams<{ eventId?: string | string[] }>();
+  const eventId = EventNavigation.resolveEventId(params.eventId);
+  const backFallbackRoute = eventId ? `/(events)/details/${eventId}` : '/(main)/home';
   const { user } = useAppAuth();
   const isAuthenticated = !!user;
   const { showError, showConfirm } = useAlert();
@@ -50,6 +55,24 @@ const EventScheduleScreen = () => {
   const [editingItem, setEditingItem] = useState<ScheduleItemType | null>(null);
   
   const [isPlannerMode] = useState(true);
+
+  const handleAddItem = useCallback(() => {
+    setEditingItem(null);
+    setIsModalVisible(true);
+  }, []);
+
+  const screenTitle = `Schedule: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0, 6)}...` : 'Details')}`;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: screenTitle,
+      ...HeaderButtonItems.headerLeftBackOptions(
+        currentColors.accentContrastText,
+        'onAccent',
+        backFallbackRoute,
+      ),
+    });
+  }, [navigation, screenTitle, backFallbackRoute, currentColors.accentContrastText]);
 
   const parseTimeStringToDate = (timeString: string): Date => {
     const [hours, minutes] = timeString.split(':').map(Number);
@@ -109,11 +132,6 @@ const EventScheduleScreen = () => {
     const date = new Date();
     date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const handleAddItem = () => {
-    setEditingItem(null);
-    setIsModalVisible(true);
   };
 
   const handleEditItem = (item: ScheduleItemType) => {
@@ -211,27 +229,15 @@ const EventScheduleScreen = () => {
   }
 
   if (error) {
-    return <SafeAreaView style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]} edges={['left', 'right', 'bottom']}><Text style={{color: 'red'}}>Error: {error.message}</Text></SafeAreaView>;
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['left', 'right', 'bottom']}>
+        <Text style={styles.errorText}>Error: {error.message}</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen
-        options={{
-          title: `Schedule: ${eventDetails?.name || (eventId ? `Event ${eventId.substring(0,6)}...` : 'Details')}`,
-          ...(isPlannerMode
-            ? HeaderButtonItems.headerRightIconOptions({
-                label: 'Add item',
-                sfSymbol: 'plus',
-                ionicon: 'add',
-                onPress: handleAddItem,
-                tintColor: currentColors.accentContrastText,
-              })
-            : {}),
-        }}
-      />
-      {/* Custom header View removed */}
-
       {scheduleItems.length === 0 && !isLoading ? (
          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{fontSize: 16, color: currentColors.textSecondary}}>No schedule items yet.</Text>
@@ -262,6 +268,17 @@ const EventScheduleScreen = () => {
           } : null}
         />
       )}
+
+      {isPlannerMode ? (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={handleAddItem}
+          accessibilityRole="button"
+          accessibilityLabel="Add schedule item"
+        >
+          <Ionicons name="add-sharp" size={30} color={currentColors.primaryContrastText} />
+        </TouchableOpacity>
+      ) : null}
     </SafeAreaView>
   );
 };
