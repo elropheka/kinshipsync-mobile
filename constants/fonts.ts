@@ -1,11 +1,12 @@
-type FontWeight = '300' | '400' | '500' | '600' | '700';
+type FontWeight = '300' | '400' | '500' | '600' | '700' | '800';
 
-type FontFamily = 
-  | 'Poppins-Bold'
-  | 'Poppins-SemiBold'
-  | 'Poppins-Medium'
-  | 'Poppins-Regular'
-  | 'Poppins-Light';
+type FontFamily =
+  | 'Inter-ExtraBold'
+  | 'Inter-Bold'
+  | 'Inter-SemiBold'
+  | 'Inter-Medium'
+  | 'Inter-Regular'
+  | 'Inter-Light';
 
 interface FontWeights {
   light: FontWeight;
@@ -13,6 +14,7 @@ interface FontWeights {
   medium: FontWeight;
   semiBold: FontWeight;
   bold: FontWeight;
+  extraBold: FontWeight;
 }
 
 interface FontDefinition {
@@ -35,28 +37,29 @@ interface FontDefinition {
 }
 
 const Fonts: FontDefinition = {
-  headerBold: 'Poppins-Bold',
-  headerSemiBold: 'Poppins-SemiBold',
-  headerMedium: 'Poppins-Medium',
-  titleBold: 'Poppins-Bold',
-  titleSemiBold: 'Poppins-SemiBold',
-  titleRegular: 'Poppins-Regular',
-  bodyRegular: 'Poppins-Regular',
-  bodyMedium: 'Poppins-Medium',
-  bodyLight: 'Poppins-Light',
-  captionRegular: 'Poppins-Regular',
-  captionMedium: 'Poppins-Medium',
-  buttonBold: 'Poppins-Bold',
-  buttonMedium: 'Poppins-Medium',
-  displayBold: 'Poppins-Bold',
-  displayLight: 'Poppins-Light',
+  headerBold: 'Inter-Bold',
+  headerSemiBold: 'Inter-SemiBold',
+  headerMedium: 'Inter-Medium',
+  titleBold: 'Inter-Bold',
+  titleSemiBold: 'Inter-SemiBold',
+  titleRegular: 'Inter-Regular',
+  bodyRegular: 'Inter-Regular',
+  bodyMedium: 'Inter-Medium',
+  bodyLight: 'Inter-Light',
+  captionRegular: 'Inter-Regular',
+  captionMedium: 'Inter-Medium',
+  buttonBold: 'Inter-Bold',
+  buttonMedium: 'Inter-Medium',
+  displayBold: 'Inter-ExtraBold',
+  displayLight: 'Inter-Light',
   weights: {
     light: '300',
     regular: '400',
     medium: '500',
     semiBold: '600',
     bold: '700',
-  }
+    extraBold: '800',
+  },
 };
 
 interface FontSizeDefinition {
@@ -64,21 +67,28 @@ interface FontSizeDefinition {
   header1: number;
   header2: number;
   header3: number;
+  header4: number;
   title: number;
   subtitle: number;
+  bodyLg: number;
   body: number;
+  bodySm: number;
   caption: number;
   small: number;
 }
 
+/** Mobile type scale from docs/branding.md */
 export const FontSizes: FontSizeDefinition = {
-  display: 32,
-  header1: 28,
-  header2: 24,
-  header3: 20,
+  display: 48,
+  header1: 40,
+  header2: 32,
+  header3: 24,
+  header4: 20,
   title: 18,
   subtitle: 16,
-  body: 14,
+  bodyLg: 18,
+  body: 16,
+  bodySm: 14,
   caption: 12,
   small: 10,
 };
@@ -91,7 +101,7 @@ interface LineHeightDefinition {
 }
 
 export const LineHeights: LineHeightDefinition = {
-  display: 1.4,
+  display: 1.3,
   header: 1.3,
   body: 1.5,
   tight: 1.2,

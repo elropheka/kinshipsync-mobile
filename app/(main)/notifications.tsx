@@ -19,6 +19,7 @@ import NotificationSearchBar from '../../components/notifications/NotificationSe
 import NotificationFilterChips, { FilterChip as FilterChipType } from '../../components/notifications/NotificationFilterChips';
 import NotificationSettingsBar from '../../components/notifications/NotificationSettingsBar';
 import { useAlert } from '@/context/AlertContext';
+import LoadingScreen from '@/components/common/LoadingScreen';
 
 type Filter = FilterChipType;
 
@@ -147,12 +148,7 @@ const NotificationsPage: React.FC = () => {
   const renderSeparator = () => <View style={styles.separator} />;
 
   if (isLoadingNotifications) {
-    return (
-      <SafeAreaView style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading notifications...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {

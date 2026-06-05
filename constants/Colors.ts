@@ -1,39 +1,46 @@
-const teal = '#008080';
-const lightTeal = '#4DB6AC';
-const baseNude = '#F5EBDD';
-const lightNude = '#FBF6EF';
-const brown = '#A47551';
-const darkBrown = '#7B4E2D';
+import { brandColors } from './brandTokens';
+
+const cream = brandColors.cream;
+const heritageGreen = brandColors.heritageGreen;
+const orange = brandColors.orange;
+const sand = brandColors.sand;
+const rust = brandColors.rust;
+const golden = brandColors.golden;
+
+// Legacy names kept for compatibility with existing code.
+// Historically the app used teal/brown; we now map those to warm brand colors.
+const brown = rust;
+const darkBrown = '#7B4E2D'; // deeper rust-brown for dark UI accents
 
 export const Colors = {
   brown: brown,
   darkBrown: darkBrown,
   light: {
-    text: teal,
-    textSecondary: '#687076',
+    text: rust,
+    textSecondary: heritageGreen,
     textLight: '#FFFFFF',
-    textDarkContrast: '#076678',
+    textDarkContrast: heritageGreen,
 
-    background: baseNude,
+    background: cream,
     backgroundPrimary: '#FFF8F0',
-    backgroundSecondary: lightNude,
+    backgroundSecondary: sand,
     backgroundLight: '#FFFFFF',
     backgroundPaper: '#FFFFFF',
     neutralBg: '#FFF5EC',
-    buttonPrimary: teal,
+    buttonPrimary: heritageGreen,
 
-    primary: teal,
+    primary: heritageGreen,
     primaryContrastText: '#FFFFFF',
-    accent: brown,
+    accent: orange,
     accentContrastText: '#FFFFFF',
-    accentHighlight: '#E6C300',
+    accentHighlight: golden,
 
-    tint: teal,
-    icon: '#687076',
-    tabIconDefault: '#A47551',
-    tabIconSelected: teal,
-    border: '#D1D5DB',
-    divider: '#E5E7EB',
+    tint: heritageGreen,
+    icon: sand,
+    tabIconDefault: sand,
+    tabIconSelected: heritageGreen,
+    border: sand,
+    divider: '#EDE0CE',
 
     success: '#4CAF50',
     successContrastText: '#FFFFFF',
@@ -45,45 +52,48 @@ export const Colors = {
     info: '#2196F3',
     infoContrastText: '#FFFFFF',
 
-    primaryLight: lightTeal,
+    primaryLight: '#D6C8AF',
     successLight: '#E8F5E9',
     warningLight: '#FFF8E1',
     infoLight: '#E3F2FD',
     errorLight: '#FFEBEE',
     dangerLight: '#FFCDD2',
-    secondary: brown,
+    secondary: rust,
     secondaryLight: '#D8BFA6',
-    tertiary: '#FF6F00',
+    tertiary: orange,
     tertiaryContrastText: '#FFFFFF',
     tertiaryLight: '#FFE0B2',
     grey: '#B0BEC5',
+    tabBarBackground: rust,
+    tabBarIcon: '#FFFFFF',
+    tabBarIconActive: heritageGreen,
   },
   dark: {
-    text: '#ECEDEE',
-    textSecondary: '#9BA1A6',
-    textLight: '#1E1E1E',
-    textDarkContrast: '#E0F2F7',
+    text: cream,
+    textSecondary: sand,
+    textLight: '#FFFFFF',
+    textDarkContrast: heritageGreen,
 
-    background: '#121212',
-    backgroundPrimary: '#1E1E1E',
-    backgroundSecondary: '#2E2E2E',
-    backgroundLight: '#1A1A1A',
-    backgroundPaper: '#1E1E1E',
-    neutralBg: '#2B2B2B',
-    buttonPrimary: darkBrown,
+    background: '#1A1410',
+    backgroundPrimary: '#241A16',
+    backgroundSecondary: '#2A221C',
+    backgroundLight: '#17110E',
+    backgroundPaper: '#211815',
+    neutralBg: '#2B221D',
+    buttonPrimary: heritageGreen,
 
-    primary: '#0EA175',
+    primary: heritageGreen,
     primaryContrastText: '#FFFFFF',
-    accent: '#A47551',
+    accent: orange,
     accentContrastText: '#FFFFFF',
-    accentHighlight: '#FFD700',
+    accentHighlight: golden,
 
-    tint: '#0EA175',
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: '#0EA175',
-    border: '#424242',
-    divider: '#2E2E2E',
+    tint: heritageGreen,
+    icon: sand,
+    tabIconDefault: sand,
+    tabIconSelected: heritageGreen,
+    border: '#3A2B22',
+    divider: '#2A221C',
 
     success: '#4CAF50',
     successContrastText: '#FFFFFF',
@@ -103,9 +113,12 @@ export const Colors = {
     dangerLight: '#FFCDD2',
     secondary: darkBrown,
     secondaryLight: '#D8BFA6',
-    tertiary: '#FF6F00',
+    tertiary: orange,
     tertiaryContrastText: '#FFFFFF',
     tertiaryLight: '#FFE0B2',
     grey: '#B0BEC5',
+    tabBarBackground: rust,
+    tabBarIcon: '#FFFFFF',
+    tabBarIconActive: golden,
   },
 };

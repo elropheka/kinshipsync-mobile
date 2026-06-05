@@ -12,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from '../../services/storageService';
 import { useAppAuth } from '../../hooks/useAppAuth';
 import { useAlert } from '@/context/AlertContext';
+import LoadingScreen from '@/components/common/LoadingScreen';
 import PhoneInputLibrary from '@perttu/react-native-phone-number-input';
 import { isValidE164Format } from '../../utils/phoneUtils';
 import { Avatar } from '../../components/common/Avatar';
@@ -188,13 +189,7 @@ const ProfileScreen = () => {
 
 
   if (isLoadingUser && !currentUserProfile) {
-    return (
-      <SafeAreaView style={[styles.container, styles.centered]}>
-        <StatusBar barStyle="dark-content" backgroundColor={currentColors.backgroundSecondary} />
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading Profile...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (userError) {

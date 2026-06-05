@@ -10,18 +10,25 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.header1 * LineHeights.header,
     color: Colors.light.text,
   } as TextStyle,
-  
+
   header2: {
     fontFamily: Fonts.headerBold,
     fontSize: FontSizes.header2,
     lineHeight: FontSizes.header2 * LineHeights.header,
     color: Colors.light.text,
   } as TextStyle,
-  
+
   header3: {
     fontFamily: Fonts.headerSemiBold,
     fontSize: FontSizes.header3,
     lineHeight: FontSizes.header3 * LineHeights.header,
+    color: Colors.light.text,
+  } as TextStyle,
+
+  header4: {
+    fontFamily: Fonts.headerSemiBold,
+    fontSize: FontSizes.header4,
+    lineHeight: FontSizes.header4 * LineHeights.header,
     color: Colors.light.text,
   } as TextStyle,
 
@@ -31,7 +38,7 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.title * LineHeights.header,
     color: Colors.light.text,
   } as TextStyle,
-  
+
   subtitle: {
     fontFamily: Fonts.titleRegular,
     fontSize: FontSizes.subtitle,
@@ -45,14 +52,21 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.body * LineHeights.body,
     color: Colors.light.text,
   } as TextStyle,
-  
+
+  bodyLg: {
+    fontFamily: Fonts.bodyRegular,
+    fontSize: FontSizes.bodyLg,
+    lineHeight: FontSizes.bodyLg * LineHeights.body,
+    color: Colors.light.text,
+  } as TextStyle,
+
   bodyMedium: {
     fontFamily: Fonts.bodyMedium,
     fontSize: FontSizes.body,
     lineHeight: FontSizes.body * LineHeights.body,
     color: Colors.light.text,
   } as TextStyle,
-  
+
   bodyLight: {
     fontFamily: Fonts.bodyLight,
     fontSize: FontSizes.body,
@@ -66,7 +80,7 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.caption * LineHeights.tight,
     color: Colors.light.textSecondary,
   } as TextStyle,
-  
+
   captionMedium: {
     fontFamily: Fonts.captionMedium,
     fontSize: FontSizes.caption,
@@ -80,7 +94,7 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.body * LineHeights.tight,
     color: Colors.light.textLight,
   } as TextStyle,
-  
+
   buttonBold: {
     fontFamily: Fonts.buttonBold,
     fontSize: FontSizes.body,
@@ -94,7 +108,7 @@ export const BaseTextStyles = {
     lineHeight: FontSizes.display * LineHeights.display,
     color: Colors.light.text,
   } as TextStyle,
-  
+
   displayLight: {
     fontFamily: Fonts.displayLight,
     fontSize: FontSizes.display,
@@ -124,11 +138,12 @@ export const TextAlign = {
 } as const;
 
 export const TextWeight = {
-  light: { fontWeight: Fonts.weights.light as any },
-  regular: { fontWeight: Fonts.weights.regular as any },
-  medium: { fontWeight: Fonts.weights.medium as any },
-  semiBold: { fontWeight: Fonts.weights.semiBold as any },
-  bold: { fontWeight: Fonts.weights.bold as any },
+  light: { fontWeight: Fonts.weights.light as TextStyle['fontWeight'] },
+  regular: { fontWeight: Fonts.weights.regular as TextStyle['fontWeight'] },
+  medium: { fontWeight: Fonts.weights.medium as TextStyle['fontWeight'] },
+  semiBold: { fontWeight: Fonts.weights.semiBold as TextStyle['fontWeight'] },
+  bold: { fontWeight: Fonts.weights.bold as TextStyle['fontWeight'] },
+  extraBold: { fontWeight: Fonts.weights.extraBold as TextStyle['fontWeight'] },
 } as const;
 
 export const combineTextStyles = (...styles: (TextStyle | undefined)[]): TextStyle => {

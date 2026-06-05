@@ -7,6 +7,8 @@ import { createIndexStyles } from '../../../styles/app/(events)/all/index.styles
 import { useAllEvents } from '../../../hooks/useEvents';
 import { useAppTheme } from '../../../context/AppThemeContext';
 import { Event as AppEvent } from '../../../types/eventTypes';
+import LoadingScreen from '@/components/common/LoadingScreen';
+import { BrandEmptyState } from '@/components/ui/BrandEmptyState';
 
 type EventClientStatus = 'Upcoming' | 'Past' | 'Planning';
 
@@ -97,14 +99,7 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
   };
 
   if (isLoading && !fetchedEvents?.length && !error) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-          <Text>Loading events...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {
@@ -149,16 +144,16 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
       )}
 
       <View style={styles.summaryContainer}>
-        <View style={[styles.summaryCard, { backgroundColor: '#E5F8FF' }]}>
-          <Text style={[styles.summaryNumber, { color: '#0A84FF' }]}>{summaryData.upcoming}</Text>
+        <View style={[styles.summaryCard, { backgroundColor: currentColors.neutralBg }]}>
+          <Text style={[styles.summaryNumber, { color: currentColors.primary }]}>{summaryData.upcoming}</Text>
           <Text style={styles.summaryLabel}>Upcoming</Text>
         </View>
-        <View style={[styles.summaryCard, { backgroundColor: '#FFF0E5' }]}>
-          <Text style={[styles.summaryNumber, { color: '#FF9500' }]}>{summaryData.planned}</Text>
+        <View style={[styles.summaryCard, { backgroundColor: currentColors.tertiaryLight }]}>
+          <Text style={[styles.summaryNumber, { color: currentColors.accent }]}>{summaryData.planned}</Text>
           <Text style={styles.summaryLabel}>Planned</Text>
         </View>
-        <View style={[styles.summaryCard, { backgroundColor: '#E5FFE9' }]}>
-          <Text style={[styles.summaryNumber, { color: '#34C759' }]}>{summaryData.completed}</Text>
+        <View style={[styles.summaryCard, { backgroundColor: currentColors.successLight }]}>
+          <Text style={[styles.summaryNumber, { color: currentColors.primary }]}>{summaryData.completed}</Text>
           <Text style={styles.summaryLabel}>Completed</Text>
         </View>
       </View>
@@ -191,11 +186,14 @@ const EventsScreen: React.FC<EventsScreenProps> = () => {
       >
 
         {!isLoading && filteredEventsData.length === 0 && (
-          <View style={styles.noEventsContainer}>
-            <Ionicons name="calendar" size={60} color="#ccc" />
-            <Text style={styles.noEventsText}>No {activeTab.toLowerCase()} events found</Text>
-            {searchQuery ? <Text style={styles.noEventsSubText}>Try adjusting your search.</Text> : null}
-          </View>
+          <BrandEmptyState
+            title={`No ${activeTab.toLowerCase()} events`}
+            message={searchQuery ? 'Try adjusting your search.' : 'Create an event to start planning with your family.'}
+            actionLabel="Create Event"
+            onActionPress={() => router.push('/createEvent')}
+            iconName="calendar-outline"
+            style={styles.noEventsContainer}
+          />
         )}
         {filteredEventsData.map((event: ProcessedEvent) => (
           <TouchableOpacity key={event.id} style={styles.eventCard} onPress={() => router.push(`/(events)/details/${event.id}`)}>

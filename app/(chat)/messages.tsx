@@ -8,7 +8,7 @@ import { useConversations } from '../../hooks/useChat';
 import { useAppTheme } from '../../context/AppThemeContext';
 import { Conversation } from '../../types/chatTypes';
 import { useAppAuth } from '../../hooks/useAppAuth';
-import { Colors } from 'constants/Colors';
+import LoadingScreen from '@/components/common/LoadingScreen';
 import { getUserProfileById } from '../../services/userService';
 import { Avatar } from '../../components/common/Avatar';
 
@@ -143,19 +143,13 @@ const ChatListScreen = () => {
   const ItemSeparator = useCallback(() => <View style={styles.separator} />, [styles.separator]);
 
   if (isLoading && conversations.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
-        <ActivityIndicator size="large" color={currentColors.primary} />
-        <Text>Loading conversations...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingScreen />;
   }
 
   if (error) {
      return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={['left', 'right', 'bottom']}>
-        <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
+        <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
         <Text style={styles.errorText}>Error: {error.message}</Text>
         <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Try Again</Text>
@@ -166,7 +160,7 @@ const ChatListScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.brown} />
+      <StatusBar barStyle="dark-content" backgroundColor={currentColors.background} />
       <Stack.Screen options={{ title: "Chats" }} />
       {/* Custom header View removed */}
 

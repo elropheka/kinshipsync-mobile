@@ -1,6 +1,7 @@
 import { Theme, FontSettings } from '../types/eventTypes';
 import { Colors } from './Colors';
 import Fonts from './fonts';
+import { brandColors } from './brandTokens';
 
 const defaultFontSettings: FontSettings = {
   fontFamily: Fonts.bodyRegular,
@@ -20,13 +21,13 @@ export const predefinedThemes: Theme[] = [
     name: 'Elegant Wedding',
     isPredefined: true,
     colors: {
-      primary: '#D4AF37',
-      secondary: '#F5F5DC',
-      accent: '#E6E6FA',
-      background: '#FFFAFA',
-      text: '#36454F',
+      primary: brandColors.heritageGreen,
+      secondary: brandColors.sand,
+      accent: brandColors.golden,
+      background: brandColors.cream,
+      text: brandColors.rust,
       cardBackground: '#FFFFFF',
-      borderColor: '#DCDCDC',
+      borderColor: brandColors.sand,
     },
     fonts: {
       heading: { fontFamily: Fonts.headerMedium, fontWeight: '500', fontStyle: 'normal' },
@@ -38,11 +39,11 @@ export const predefinedThemes: Theme[] = [
     name: 'Vibrant Birthday Party',
     isPredefined: true,
     colors: {
-      primary: Colors.light.buttonPrimary,
-      secondary: '#FFD700',
-      accent: '#FF69B4',
-      background: '#FFFFFF',
-      text: Colors.light.text,
+      primary: brandColors.heritageGreen,
+      secondary: brandColors.sand,
+      accent: brandColors.orange,
+      background: brandColors.cream,
+      text: brandColors.rust,
       cardBackground: Colors.light.backgroundPaper,
       borderColor: Colors.light.border,
     },
@@ -56,13 +57,13 @@ export const predefinedThemes: Theme[] = [
     name: 'Warm Reunion',
     isPredefined: true,
     colors: {
-      primary: '#800000',
-      secondary: '#D2B48C',
-      accent: '#FF8C00',
-      background: '#FAF0E6',
-      text: '#2F4F4F',
-      cardBackground: '#FFF5EE',
-      borderColor: '#BDB76B',
+      primary: brandColors.heritageGreen,
+      secondary: brandColors.sand,
+      accent: brandColors.orange,
+      background: brandColors.cream,
+      text: brandColors.rust,
+      cardBackground: Colors.light.backgroundPaper,
+      borderColor: brandColors.sand,
     },
     fonts: {
       heading: { fontFamily: Fonts.headerSemiBold, fontWeight: '600', fontStyle: 'normal' },
@@ -74,17 +75,17 @@ export const predefinedThemes: Theme[] = [
     name: 'Sweet Baby Shower',
     isPredefined: true,
     colors: {
-      primary: '#ADD8E6',
-      secondary: '#FFFACD',
-      accent: '#98FB98',
-      background: '#FFFFFF',
-      text: '#778899',
-      cardBackground: '#FAFAD2',
-      borderColor: '#D3D3D3',
+      primary: brandColors.heritageGreen,
+      secondary: brandColors.sand,
+      accent: brandColors.golden,
+      background: brandColors.cream,
+      text: brandColors.rust,
+      cardBackground: Colors.light.backgroundPaper,
+      borderColor: brandColors.sand,
     },
     fonts: {
       heading: { fontFamily: Fonts.headerMedium, fontWeight: '500', fontStyle: 'normal' },
-      body: { fontFamily: Fonts.bodyLight, fontWeight: '300', fontStyle: 'normal' },
+      body: { fontFamily: Fonts.bodyRegular, fontWeight: '400', fontStyle: 'normal' },
     },
   },
 ];
