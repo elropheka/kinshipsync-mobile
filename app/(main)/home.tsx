@@ -28,10 +28,10 @@ const DashboardScreen: React.FC = () => {
   const { user: authUser } = useAppAuth();
   const { events: allEvents, isLoading: isLoadingEvents, error: eventsError } = useAllEvents();
   const { featured, members, photos } = useHomeDashboard(allEvents);
-  const { notifications, isLoading: isLoadingUserContext } = useCurrentUser();
+  const { profile, notifications, isLoading: isLoadingUserContext } = useCurrentUser();
   const { handleScroll } = useScrollHandler();
 
-  const welcomeName = authUser?.displayName || authUser?.email || 'Family';
+  const welcomeName = profile?.displayName || authUser?.displayName || authUser?.email || 'Family';
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const isNewUser = !isLoadingEvents && allEvents.length === 0;
 

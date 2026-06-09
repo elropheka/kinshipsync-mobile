@@ -2,7 +2,7 @@
   "expo": {
     "name": "kinshipSync",
     "slug": "kinshipSync",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "kinshipsync",
@@ -16,7 +16,7 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
       "bundleIdentifier": "com.kinshipsyncapp",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIDesignRequiresCompatibility": true,
@@ -73,7 +73,7 @@
       "messagingApiUrl": "https://kinshipsync-messaging.vercel.app",
       "messagingApiToken": "7149a08e90df44321bd68897da3d811e"
     },
-    "runtimeVersion": "2.0.1",
+    "runtimeVersion": "2.0.2",
     "updates": {
       "url": "https://u.expo.dev/ad4bb59d-fd0d-4396-af25-8c32f9c8bb42",
       "enabled": true,

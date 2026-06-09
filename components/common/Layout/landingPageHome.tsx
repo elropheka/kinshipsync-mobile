@@ -5,7 +5,7 @@ import { useAppTheme } from '@/context/AppThemeContext';
 import { createLandingPageHomeStyles } from '@/styles/components/common/Layout/landingPageHome.styles';
 import { BrandText } from '@/components/ui/BrandText';
 import { BrandButton } from '@/components/ui/BrandButton';
-import { landingBrandMessage, landingBrandName } from '@/constants/branding/landingContent';
+import { landingBrandMessage, landingBrandName, landingBrandSubtitle } from '@/constants/branding/landingContent';
 import { LandingFeatureCarousel } from '@/components/common/Layout/LandingFeatureCarousel';
 
 interface LandingPageHomeProps {
@@ -38,6 +38,10 @@ const LandingPageHome: React.FC<LandingPageHomeProps> = ({
             </BrandText>
           </View>
         </View>
+
+        <BrandText variant="body" style={styles.brandSubtitle}>
+          {landingBrandSubtitle}
+        </BrandText>
 
         <View style={styles.mainContent}>
           <View style={styles.carouselSection}>

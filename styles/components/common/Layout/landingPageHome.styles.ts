@@ -42,6 +42,15 @@ export const createLandingPageHomeStyles = (theme: typeof Colors.light) =>
       letterSpacing: 1,
       textTransform: 'uppercase',
     },
+    brandSubtitle: {
+      color: theme.secondary,
+      textAlign: 'center',
+      fontSize: ResponsiveFontSizes.body,
+      lineHeight: 22,
+      opacity: 0.88,
+      paddingBottom: Spacing.s,
+      fontFamily: Fonts.bodyRegular,
+    },
     mainContent: {
       flex: 1,
       justifyContent: 'flex-start',

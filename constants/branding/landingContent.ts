@@ -10,6 +10,8 @@ export const landingBrandName = {
   line2: 'SYNC',
 };
 
+export const landingBrandSubtitle = 'Your ultimate event planner and beyond!';
+
 export const landingBrandMessage = {
   headline: 'Bring families together',
   tagline:

@@ -11,6 +11,7 @@ import { useAppAuth } from './useAppAuth';
 import { useAuth } from '../context/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { firestore } from '../services/firebaseConfig';
+import { DEFAULT_DISPLAY_NAME } from '@/constants/userDefaults';
 
 export const useCurrentUser = () => {
   const { user: authUser } = useAppAuth();
@@ -54,19 +55,24 @@ export const useCurrentUser = () => {
           setIsLoadingProfile(false);
         } else {
           console.log(`[useCurrentUser] Profile document for user ${userId} does not exist.`);
-          setProfile(null);
-          setIsLoadingProfile(false);
-          if (authUser?.email && authUser?.displayName) {
-             console.log('[useCurrentUser] Profile not found, attempting to create default profile.');
-             userService.createUserProfile(isAuthenticated, userId, authUser.email, authUser.displayName)
-               .then(newProfile => {
-                 console.log('[useCurrentUser] Default profile created:', newProfile);
-                 setProfile(newProfile);
-               })
-               .catch(createError => {
-                 console.error('[useCurrentUser] Failed to create default profile:', createError);
-                 setError(createError);
-               });
+          if (authUser?.email) {
+            const resolvedDisplayName = authUser.displayName || DEFAULT_DISPLAY_NAME;
+            console.log('[useCurrentUser] Profile not found, attempting to create default profile.');
+            userService.createUserProfile(isAuthenticated, userId, authUser.email, resolvedDisplayName)
+              .then((newProfile) => {
+                console.log('[useCurrentUser] Default profile created:', newProfile);
+                setProfile(newProfile);
+                setIsLoadingProfile(false);
+              })
+              .catch((createError) => {
+                console.error('[useCurrentUser] Failed to create default profile:', createError);
+                setError(createError);
+                setProfile(null);
+                setIsLoadingProfile(false);
+              });
+          } else {
+            setProfile(null);
+            setIsLoadingProfile(false);
           }
         }
       }, (e) => {

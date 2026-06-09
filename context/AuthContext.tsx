@@ -21,6 +21,7 @@ import { auth as firebaseAppAuth, firestore as clientFirestore } from '@/service
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { GoogleSignin, statusCodes, User as GoogleUser } from '@react-native-google-signin/google-signin';
 import { uploadUserAvatar } from '@/services/storageService';
+import { DEFAULT_DISPLAY_NAME } from '@/constants/userDefaults';
 
 import {
   setAuthUserAndToken,
@@ -350,25 +351,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const firebaseUser = userCredential.user;
 
       if (firebaseUser) {
-        const profileDocRef = doc(clientFirestore, "profiles", firebaseUser.uid);
-        const profileSnap = await getDoc(profileDocRef);
-        
-        if (!profileSnap.exists()) {
+        const userDocRef = doc(clientFirestore, 'users', firebaseUser.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (!userSnap.exists()) {
+          const firstName = appleAuthResponse.fullName?.givenName
+            || firebaseUser.displayName?.split(' ')[0]
+            || '';
+          const lastName = appleAuthResponse.fullName?.familyName
+            || firebaseUser.displayName?.split(' ').slice(1).join(' ')
+            || '';
+          const displayName = [firstName, lastName].filter(Boolean).join(' ')
+            || firebaseUser.displayName
+            || DEFAULT_DISPLAY_NAME;
+          const email = appleAuthResponse.email || firebaseUser.email || '';
+
           const newProfileData = {
-            first_name: appleAuthResponse.fullName?.givenName || firebaseUser.displayName?.split(' ')[0] || '',
-            last_name: appleAuthResponse.fullName?.familyName || firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-            phone: firebaseUser.phoneNumber || '',
-            location: '',
             userId: firebaseUser.uid,
+            email,
+            displayName,
+            firstName,
+            lastName,
+            avatarUrl: firebaseUser.photoURL || null,
+            phoneNumber: firebaseUser.phoneNumber || null,
+            bio: '',
             role: 'organizer',
-            email: appleAuthResponse.email || firebaseUser.email,
-            avatarUrl: firebaseUser.photoURL,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
           };
-          await setDoc(profileDocRef, newProfileData);
+          await setDoc(userDocRef, newProfileData);
         }
-        
+
         router.replace('/(main)/home');
       } else {
         alertService.showAlert('error', 'Apple Sign-In Failed', 'No user returned from Firebase after Apple Sign-In');
