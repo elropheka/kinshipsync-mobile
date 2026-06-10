@@ -52,23 +52,74 @@ export interface SubscriptionPlan {
   id: string;
   name: string;
   description: string;
-  price: number; // e.g., 9.99 (in cents, as used in component: price / 100)
-  currency: string; // e.g., "USD"
-  interval?: 'month' | 'year'; // Changed from billingCycle to match component usage
+  price: number; // monthly price in cents
+  yearlyPrice?: number; // yearly price in cents (optional — if null, monthly only)
+  currency: string;
+  interval?: 'month' | 'year';
   features: string[];
-  metadata?: { color?: string; accentColor?: string; [key: string]: any; }; // Added metadata
-  isCurrentPlan?: boolean; // For UI indication
+  metadata?: { color?: string; accentColor?: string; [key: string]: any; };
+  isCurrentPlan?: boolean;
   trialDays?: number;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
+export interface CheckoutSessionRequest {
+  planId: string;
+  interval: 'month' | 'year';
+  couponCode?: string;
+}
+
+export interface CheckoutSessionResponse {
+  url: string;
+  sessionId?: string;
+}
+
+export interface CouponValidationRequest {
+  code: string;
+  planId: string;
+  interval: 'month' | 'year';
+}
+
+export interface CouponValidationResponse {
+  valid: boolean;
+  discountType?: 'percentage' | 'fixed_amount';
+  discountValue?: number;
+  description?: string;
+  message?: string;
+}
+
+export interface CancelSubscriptionRequest {
+  userId: string;
+}
+
+export interface CancelSubscriptionResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface AppFeature {
+  id?: string;
+  key: string;
+  name: string;
+  description?: string;
+  planIds: string[];
+  isActive: boolean;
 }
 
 export interface UserSubscription {
   userId: string;
   planId: string;
   status: 'active' | 'inactive' | 'trialing' | 'past_due' | 'canceled';
-  startDate: string; // ISO 8601
-  endDate?: string; // ISO 8601, for fixed-term or canceled
-  trialEndDate?: string; // ISO 8601
-  nextBillingDate?: string; // ISO 8601
+  startDate: string;
+  endDate?: string;
+  trialEndDate?: string;
+  nextBillingDate?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  paystackCustomerCode?: string;
+  paystackSubscriptionCode?: string;
+  canceledAt?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,108 +1,174 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createSubscriptionPlansStyles } from '@/styles/app/(main)/subscriptionPlans.styles';
 import { useAppTheme } from '@/context/AppThemeContext';
-import { useCurrentUser } from '@/hooks/useUser';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAlert } from '@/context/AlertContext';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { BrandText } from '@/components/ui';
+import * as subscriptionService from '@/services/subscriptionService';
 
-const PAYMENTS_ENABLED = false;
+type BillingInterval = 'month' | 'year';
 
 const SubscriptionPlansScreen = () => {
   const { currentColors } = useAppTheme();
   const styles = createSubscriptionPlansStyles(currentColors);
 
-
-  const { 
-    availablePlans, 
-    subscription: currentUserSubscription, 
-    changeSubscription, 
-    cancelSubscription, 
-    isLoadingPlans, 
-    isLoadingSubscription, 
-    error 
-  } = useCurrentUser();
+  const {
+    subscription: currentUserSubscription,
+    availablePlans,
+    startCheckout,
+    cancelUserSubscription,
+    isLoading,
+    isLoadingSubscription,
+    error,
+  } = useSubscription();
   const { showSuccess, showError, showConfirm } = useAlert();
 
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>('month');
+  const [couponCode, setCouponCode] = useState('');
+  const [couponStatus, setCouponStatus] = useState<{ valid: boolean; message: string; discountValue?: number; discountType?: string } | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSelectPlan = async (planId: string) => {
-    if (!PAYMENTS_ENABLED) {
-      showError('Payment Unavailable', 'Online subscription payments are coming soon. Please check back later.');
-      return;
+  const displayPrice = (plan: typeof availablePlans[0]) => {
+    if (billingInterval === 'year' && plan.yearlyPrice) {
+      return plan.yearlyPrice;
     }
+    return plan.price;
+  };
 
+  const displayLabel = (plan: typeof availablePlans[0]) => {
+    if (billingInterval === 'year' && plan.yearlyPrice) {
+      const perMonth = Math.round(plan.yearlyPrice / 12);
+      return `$${(plan.yearlyPrice / 100).toFixed(2)}/yr ($${(perMonth / 100).toFixed(2)}/mo)`;
+    }
+    return `$${(plan.price / 100).toFixed(2)}/mo`;
+  };
+
+  const yearlySavings = (plan: typeof availablePlans[0]) => {
+    if (!plan.yearlyPrice) return null;
+    const monthlyTotal = plan.price * 12;
+    const savings = monthlyTotal - plan.yearlyPrice;
+    if (savings <= 0) return null;
+    return `Save ${(savings / 100).toFixed(2)}`;
+  };
+
+  const handleValidateCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setIsValidatingCoupon(true);
+    setCouponStatus(null);
+
+    const activePlan = availablePlans.find(p => p.isActive);
+    if (!activePlan) return;
+
+    const result = await subscriptionService.validateCoupon({
+      code: couponCode,
+      planId: activePlan.id,
+      interval: billingInterval,
+    });
+
+    if (result.success && result.data) {
+      setCouponStatus({
+        valid: result.data.valid,
+        message: result.data.message || '',
+        discountValue: result.data.discountValue,
+        discountType: result.data.discountType,
+      });
+    } else {
+      setCouponStatus({ valid: false, message: result.message || 'Could not validate coupon' });
+    }
+    setIsValidatingCoupon(false);
+  };
+
+  const handleSelectPlan = async (planId: string) => {
     const selectedPlan = availablePlans.find((p) => p.id === planId);
     if (!selectedPlan) return;
 
-    const handleConfirmPlanChange = async () => {
-      setIsProcessing(true);
-      try {
-        await changeSubscription({ newPlanId: planId, paymentMethodId: '' });
-        showSuccess('Success!', `You have subscribed to the ${selectedPlan.name}.`);
-      } catch (e) {
-        console.error('Failed to change subscription:', e);
-        showError('Error', (e as Error).message || 'Could not change subscription.');
-      } finally {
-        setIsProcessing(false);
-      }
-    };
-
-    showConfirm(
-      'info',
-      'Confirm Plan Change',
-      `Are you sure you want to switch to the ${selectedPlan.name}?`,
-      handleConfirmPlanChange,
-      {
-        confirmText: 'Confirm',
-        cancelText: 'Cancel',
-      }
-    );
-  };
-
-  const handleCancelCurrentSubscription = async () => {
-    if (!currentUserSubscription || currentUserSubscription.status !== 'active') {
-      showError("No Active Subscription", "You do not have an active subscription to cancel.");
+    const price = displayPrice(selectedPlan);
+    if (price === 0) {
+      showConfirm(
+        'info',
+        'Confirm Free Plan',
+        `Are you sure you want to switch to the ${selectedPlan.name} plan?`,
+        async () => {
+          setIsProcessing(true);
+          try {
+            const success = await startCheckout(planId, billingInterval, couponStatus?.valid ? couponCode : undefined);
+            if (success) {
+              showSuccess('Success!', `You have subscribed to the ${selectedPlan.name} plan.`);
+            }
+          } catch (e) {
+            showError('Error', (e as Error).message || 'Could not change subscription.');
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        { confirmText: 'Confirm', cancelText: 'Cancel' }
+      );
       return;
     }
 
-    const handleConfirmCancellation = async () => {
-      setIsProcessing(true);
-      try {
-        await cancelSubscription({ 
-          reason: 'User initiated cancellation from app',
-          cancelAtPeriodEnd: true
-        });
-        showSuccess('Subscription Cancelled', 'Your subscription has been set to cancel at the end of the current period.');
-      } catch (e) {
-        console.error("Failed to cancel subscription:", e);
-        showError('Error', (e as Error).message || 'Could not cancel subscription.');
-      } finally {
-        setIsProcessing(false);
-      }
-    };
+    showConfirm(
+      'info',
+      'Confirm Plan',
+      `Are you sure you want to subscribe to the ${selectedPlan.name} plan for ${displayLabel(selectedPlan)}?${couponStatus?.valid ? `\n\nCoupon applied: ${couponStatus.message}` : ''}`,
+      async () => {
+        setIsProcessing(true);
+        try {
+          const success = await startCheckout(planId, billingInterval, couponStatus?.valid ? couponCode : undefined);
+          if (success) {
+            showSuccess('Success!', `You have subscribed to the ${selectedPlan.name} plan.`);
+          } else {
+            showError('Checkout Cancelled', 'The payment process was cancelled.');
+          }
+        } catch (e) {
+          showError('Error', (e as Error).message || 'Could not complete checkout.');
+        } finally {
+          setIsProcessing(false);
+        }
+      },
+      { confirmText: 'Subscribe', cancelText: 'Cancel' }
+    );
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!currentUserSubscription || currentUserSubscription.status !== 'active') {
+      showError('No Active Subscription', 'You do not have an active subscription to cancel.');
+      return;
+    }
 
     showConfirm(
       'info',
       'Confirm Cancellation',
-      'Are you sure you want to cancel your current subscription? This action may be irreversible depending on the terms.',
-      handleConfirmCancellation,
-      {
-        confirmText: 'Cancel Subscription',
-        cancelText: 'Keep Subscription',
-      }
+      'Are you sure you want to cancel your current subscription? You will lose access at the end of the current billing period.',
+      async () => {
+        setIsProcessing(true);
+        try {
+          const success = await cancelUserSubscription();
+          if (success) {
+            showSuccess('Subscription Cancelled', 'Your subscription has been cancelled.');
+          } else {
+            showError('Error', 'Could not cancel subscription.');
+          }
+        } catch (e) {
+          showError('Error', (e as Error).message || 'Could not cancel subscription.');
+        } finally {
+          setIsProcessing(false);
+        }
+      },
+      { confirmText: 'Cancel Subscription', cancelText: 'Keep Subscription' }
     );
   };
-  
-  if (isLoadingPlans && availablePlans.length === 0) {
+
+  if (isLoading && availablePlans.length === 0) {
     return <LoadingScreen />;
   }
 
-  if (error) {
+  if (error && availablePlans.length === 0) {
     return (
       <SafeAreaView style={[styles.outerContainer, styles.centered]}>
         <BrandText color="accent">Error: {error.message}</BrandText>
@@ -112,25 +178,26 @@ const SubscriptionPlansScreen = () => {
 
   return (
     <SafeAreaView style={styles.outerContainer} edges={['left', 'right', 'bottom']}>
-      <Stack.Screen options={{ title: "Subscription Plans" }} />
+      <Stack.Screen options={{ title: 'Subscription Plans' }} />
       <ScrollView style={styles.container}>
         <BrandText variant="body" style={styles.introText}>
           Choose the plan that best fits your event planning needs.
         </BrandText>
-        {!PAYMENTS_ENABLED ? (
-          <BrandText variant="caption" color="secondary" style={styles.introText}>
-            New subscriptions are temporarily unavailable while payment integration is finalized.
-          </BrandText>
-        ) : null}
-        
+
         {currentUserSubscription && currentUserSubscription.status === 'active' && (
           <View style={styles.currentPlanInfoCard}>
-            <Text style={styles.currentPlanInfoTitle}>Your Current Plan: {availablePlans.find(p => p.id === currentUserSubscription.planId)?.name || currentUserSubscription.planId}</Text>
+            <Text style={styles.currentPlanInfoTitle}>
+              Your Current Plan: {availablePlans.find(p => p.id === currentUserSubscription.planId)?.name || currentUserSubscription.planId}
+            </Text>
             <Text style={styles.currentPlanInfoText}>Status: {currentUserSubscription.status}</Text>
-            {currentUserSubscription.endDate && <Text style={styles.currentPlanInfoText}>Renews/Expires on: {new Date(currentUserSubscription.endDate).toLocaleDateString()}</Text>}
-            <TouchableOpacity 
+            {currentUserSubscription.nextBillingDate && (
+              <Text style={styles.currentPlanInfoText}>
+                Next Billing: {new Date(currentUserSubscription.nextBillingDate).toLocaleDateString()}
+              </Text>
+            )}
+            <TouchableOpacity
               style={[styles.selectButton, styles.cancelButton, (isProcessing || isLoadingSubscription) && styles.disabledButton]}
-              onPress={handleCancelCurrentSubscription}
+              onPress={handleCancelSubscription}
               disabled={isProcessing || isLoadingSubscription}
             >
               <BrandText variant="button" color="light" style={styles.selectButtonText}>
@@ -140,18 +207,39 @@ const SubscriptionPlansScreen = () => {
           </View>
         )}
 
+        <View style={styles.billingToggle}>
+          <TouchableOpacity
+            style={[styles.toggleOption, billingInterval === 'month' && styles.toggleOptionActive]}
+            onPress={() => setBillingInterval('month')}
+          >
+            <BrandText variant="button" color={billingInterval === 'month' ? 'light' : 'secondary'}>
+              Monthly
+            </BrandText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleOption, billingInterval === 'year' && styles.toggleOptionActive]}
+            onPress={() => setBillingInterval('year')}
+          >
+            <BrandText variant="button" color={billingInterval === 'year' ? 'light' : 'secondary'}>
+              Yearly
+            </BrandText>
+          </TouchableOpacity>
+        </View>
+
         {availablePlans.map((plan) => {
           const isCurrent = currentUserSubscription?.planId === plan.id && currentUserSubscription?.status === 'active';
           const planColor = plan.metadata?.color || '#757575';
           const planAccentColor = plan.metadata?.accentColor || '#f5f5f5';
+          const savings = billingInterval === 'year' ? yearlySavings(plan) : null;
 
           return (
-            <View key={plan.id} style={[styles.planCard, {borderColor: planColor, backgroundColor: planAccentColor}]}>
-              <View style={[styles.planHeader, {backgroundColor: planColor}]}>
+            <View key={plan.id} style={[styles.planCard, { borderColor: planColor, backgroundColor: planAccentColor }]}>
+              <View style={[styles.planHeader, { backgroundColor: planColor }]}>
                 <Text style={styles.planName}>{plan.name}</Text>
-                <Text style={styles.planPrice}>
-                  {plan.currency.toUpperCase()} {plan.price / 100} / {plan.interval} 
-                </Text>
+                <Text style={styles.planPrice}>{displayLabel(plan)}</Text>
+                {savings && (
+                  <Text style={styles.savingsBadge}>{savings}</Text>
+                )}
               </View>
               <View style={styles.featuresContainer}>
                 {(plan.features ?? []).map((feature, index) => (
@@ -165,20 +253,58 @@ const SubscriptionPlansScreen = () => {
                 style={[
                   styles.selectButton,
                   isCurrent ? styles.currentPlanButton : { backgroundColor: planColor },
-                  (isProcessing || isLoadingSubscription) && !isCurrent && styles.disabledButton
+                  (isProcessing || isLoadingSubscription) && !isCurrent && styles.disabledButton,
                 ]}
                 onPress={() => handleSelectPlan(plan.id)}
-                disabled={isCurrent || isProcessing || isLoadingSubscription || !PAYMENTS_ENABLED}
+                disabled={isCurrent || isProcessing || isLoadingSubscription}
               >
                 <BrandText variant="button" color="light" style={styles.selectButtonText}>
-                  {isCurrent ? 'Current Plan' : PAYMENTS_ENABLED ? 'Choose Plan' : 'Coming Soon'}
+                  {isCurrent ? 'Current Plan' : displayPrice(plan) === 0 ? 'Select Free' : 'Subscribe'}
                 </BrandText>
               </TouchableOpacity>
             </View>
           );
         })}
-         {availablePlans.length === 0 && !isLoadingPlans && (
-            <Text style={styles.introText}>No subscription plans available at the moment.</Text>
+
+        {availablePlans.length > 0 && (
+          <View style={styles.couponSection}>
+            <BrandText variant="body" style={styles.couponLabel}>Have a coupon code?</BrandText>
+            <View style={styles.couponRow}>
+              <TextInput
+                style={styles.couponInput}
+                placeholder="Enter code"
+                placeholderTextColor={currentColors.textSecondary}
+                value={couponCode}
+                onChangeText={(text) => {
+                  setCouponCode(text.toUpperCase());
+                  setCouponStatus(null);
+                }}
+                autoCapitalize="characters"
+              />
+              <TouchableOpacity
+                style={[styles.couponApplyButton, (!couponCode.trim() || isValidatingCoupon) && styles.disabledButton]}
+                onPress={handleValidateCoupon}
+                disabled={!couponCode.trim() || isValidatingCoupon}
+              >
+                <BrandText variant="button" color="light" style={styles.couponApplyText}>
+                  {isValidatingCoupon ? '...' : 'Apply'}
+                </BrandText>
+              </TouchableOpacity>
+            </View>
+            {couponStatus && (
+              <BrandText
+                variant="caption"
+                color={couponStatus.valid ? 'success' : 'error'}
+                style={styles.couponStatus}
+              >
+                {couponStatus.message}
+              </BrandText>
+            )}
+          </View>
+        )}
+
+        {availablePlans.length === 0 && !isLoading && (
+          <Text style={styles.introText}>No subscription plans available at the moment.</Text>
         )}
       </ScrollView>
     </SafeAreaView>

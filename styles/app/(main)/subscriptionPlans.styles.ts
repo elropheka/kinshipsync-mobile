@@ -158,6 +158,74 @@ export const createSubscriptionPlansStyles = (theme: typeof Colors.light) => Sty
     backgroundColor: theme.textSecondary,
     opacity: 0.7,
   },
+  billingToggle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: Spacing.l,
+    borderRadius: BorderRadius.m,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.divider,
+    alignSelf: 'center',
+  },
+  toggleOption: {
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.xl,
+    backgroundColor: theme.backgroundPaper,
+  },
+  toggleOptionActive: {
+    backgroundColor: theme.buttonPrimary,
+  },
+  savingsBadge: {
+    fontSize: ResponsiveFontSizes.caption,
+    color: theme.textLight,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: Spacing.s,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.s,
+    marginTop: Spacing.xs,
+    overflow: 'hidden',
+    fontWeight: Fonts.weights.bold,
+  },
+  couponSection: {
+    marginTop: Spacing.m,
+    marginBottom: Spacing.xl,
+    paddingHorizontal: Spacing.l,
+  },
+  couponLabel: {
+    marginBottom: Spacing.s,
+    color: theme.textDarkContrast,
+  },
+  couponRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.s,
+  },
+  couponInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: theme.divider,
+    borderRadius: BorderRadius.m,
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    fontSize: ResponsiveFontSizes.body,
+    color: theme.textDarkContrast,
+    backgroundColor: theme.backgroundPaper,
+  },
+  couponApplyButton: {
+    backgroundColor: theme.buttonPrimary,
+    borderRadius: BorderRadius.m,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
+  },
+  couponApplyText: {
+    color: theme.textLight,
+    fontSize: ResponsiveFontSizes.body,
+    fontWeight: Fonts.weights.semiBold,
+  },
+  couponStatus: {
+    marginTop: Spacing.xs,
+  },
 });
 
 // For backwards compatibility, export the light theme styles
