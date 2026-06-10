@@ -292,13 +292,14 @@ const SubscriptionPlansScreen = () => {
               </TouchableOpacity>
             </View>
             {couponStatus && (
-              <BrandText
-                variant="caption"
-                color={couponStatus.valid ? 'success' : 'error'}
-                style={styles.couponStatus}
+              <Text
+                style={[
+                  styles.couponStatus,
+                  { color: couponStatus.valid ? currentColors.buttonPrimary : currentColors.error },
+                ]}
               >
                 {couponStatus.message}
-              </BrandText>
+              </Text>
             )}
           </View>
         )}
