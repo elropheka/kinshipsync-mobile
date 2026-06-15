@@ -60,7 +60,9 @@ export type NotificationType =
   | 'planning_progress'
   | 'vendor_suggestion'
   | 'theme_recommendation'
-  | 'task_reminder';
+  | 'task_reminder'
+  | 'customer_request'
+  | 'request_status_changed';
 
 // Interface for sending a notification (before it's saved with an ID and timestamps)
 export interface NewNotificationPayload {

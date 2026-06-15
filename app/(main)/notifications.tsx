@@ -72,6 +72,11 @@ const NotificationsPage: React.FC = () => {
           displayType = 'updates';
           avatar = 'person-add-outline';
           break;
+        case 'customer_request':
+        case 'request_status_changed':
+          displayType = 'events';
+          avatar = 'storefront-outline';
+          break;
         case 'generic':
         default:
           displayType = 'updates';
@@ -130,6 +135,10 @@ const NotificationsPage: React.FC = () => {
           break;
         case 'friend_request':
           showInfo("Friend Request", `${item.message}`);
+          break;
+        case 'customer_request':
+        case 'request_status_changed':
+          router.push({ pathname: '/(vendors)/request/[id]' as any, params: { id: item.relatedEntityId } });
           break;
         case 'system_alert':
         case 'generic':

@@ -32,6 +32,7 @@ export interface Vendor {
   servicesOffered?: string[]; // List of specific services
   pricingInfo?: string; // e.g., "Starts at $X", "Packages available"
   operatingHours?: string; // e.g., "Mon-Fri: 9am-5pm"
+  ownerId?: string; // Firebase Auth UID of the user who owns/manages this vendor
   isFeatured?: boolean;
   // Fields for vendor management by event planners
   associatedEventIds?: string[]; // Events this vendor is linked to

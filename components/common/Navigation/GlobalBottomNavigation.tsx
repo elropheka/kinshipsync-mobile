@@ -4,7 +4,9 @@ import { usePathname } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useScrollHandler } from '@/context/ScrollNavContext';
 import { shouldShowBottomNav } from '@/utils/bottomNavVisibility';
+import { useCurrentUser } from '@/hooks/useUser';
 import BottomNavigation from './bottomNavigation';
+import VendorFAB from '@/components/vendors/VendorFAB';
 
 export class GlobalBottomNavigation extends React.Component {
   public render(): React.ReactNode {
@@ -14,6 +16,7 @@ export class GlobalBottomNavigation extends React.Component {
 
 const GlobalBottomNavigationInner: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const { profile } = useCurrentUser();
   const pathname = usePathname();
   const { isNavVisible } = useScrollHandler();
 
@@ -25,7 +28,14 @@ const GlobalBottomNavigationInner: React.FC = () => {
     return null;
   }
 
-  return <BottomNavigation isVisible={isNavVisible} />;
+  const isVendor = profile?.isVendor === true;
+
+  return (
+    <>
+      <BottomNavigation isVisible={isNavVisible} />
+      {isVendor && <VendorFAB isVisible={isNavVisible} />}
+    </>
+  );
 };
 
 export default GlobalBottomNavigation;

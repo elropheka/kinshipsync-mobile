@@ -31,7 +31,7 @@ export interface UpdateUserProfilePayload extends Partial<Omit<UserProfile, 'use
 export interface Notification {
   id: string;
   userId: string;
-  type: 'event_invite' | 'event_update' | 'rsvp_update' | 'new_message' | 'task_assigned' | 'system_alert' | 'friend_request' | 'generic' | 'team_member_added' | 'family_tree_update' | 'team_task_update' | 'vendor_booking' | 'vendor_confirmation' | 'vendor_quote' | 'vendor_review' | 'budget_item_added' | 'payment_made' | 'budget_milestone' | 'rsvp_received' | 'guest_milestone' | 'dietary_preference' | 'schedule_added' | 'schedule_conflict' | 'schedule_reminder' | 'idea_submitted' | 'idea_popular' | 'idea_comment' | 'website_published' | 'website_updated' | 'website_stats' | 'event_countdown' | 'planning_progress' | 'vendor_suggestion' | 'theme_recommendation' | 'task_reminder';
+  type: 'event_invite' | 'event_update' | 'rsvp_update' | 'new_message' | 'task_assigned' | 'system_alert' | 'friend_request' | 'generic' | 'team_member_added' | 'family_tree_update' | 'team_task_update' | 'vendor_booking' | 'vendor_confirmation' | 'vendor_quote' | 'vendor_review' | 'budget_item_added' | 'payment_made' | 'budget_milestone' | 'rsvp_received' | 'guest_milestone' | 'dietary_preference' | 'schedule_added' | 'schedule_conflict' | 'schedule_reminder' | 'idea_submitted' | 'idea_popular' | 'idea_comment' | 'website_published' | 'website_updated' | 'website_stats' | 'event_countdown' | 'planning_progress' | 'vendor_suggestion' | 'theme_recommendation' | 'task_reminder' | 'customer_request' | 'request_status_changed';
   title: string;
   message: string;
   referenceId?: string; // e.g., eventId, messageId, taskId

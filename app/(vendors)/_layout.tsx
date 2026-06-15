@@ -45,6 +45,34 @@ function VendorsStack() {
             headerShown: true,
           }}
         />
+        <Stack.Screen
+          name="dashboard"
+          options={{
+            title: 'Vendor Dashboard',
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="requests"
+          options={{
+            title: 'Requests',
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="request/[id]"
+          options={{
+            title: 'Request Details',
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="items"
+          options={{
+            title: 'My Items',
+            headerShown: true,
+          }}
+        />
       </Stack>
     </>
   );

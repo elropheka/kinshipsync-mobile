@@ -1184,6 +1184,45 @@ export const createThemeRecommendationNotification = async (
   return sendInAppNotificationInternal(notification);
 };
 
+export const createCustomerRequestNotification = async (
+  vendorOwnerId: string,
+  customerName: string,
+  eventName: string,
+  requestId: string
+) => {
+  const notification: NewNotificationPayload = {
+    recipientId: vendorOwnerId,
+    type: 'customer_request',
+    title: 'New Service Request',
+    body: `${customerName} has sent a service request for ${eventName}.`,
+    data: {
+      screen: 'VendorRequest',
+      itemId: requestId,
+    },
+  };
+  return sendInAppNotificationInternal(notification);
+};
+
+export const createRequestStatusChangeNotification = async (
+  recipientId: string,
+  vendorName: string,
+  status: string,
+  requestId: string
+) => {
+  const statusText = status === 'accepted' ? 'accepted' : status === 'declined' ? 'declined' : 'updated';
+  const notification: NewNotificationPayload = {
+    recipientId,
+    type: 'request_status_changed',
+    title: 'Request Update',
+    body: `Your service request has been ${statusText} by ${vendorName}.`,
+    data: {
+      screen: 'VendorRequest',
+      itemId: requestId,
+    },
+  };
+  return sendInAppNotificationInternal(notification);
+};
+
 export const createTaskReminderNotification = async (
   recipientId: string,
   taskTitle: string,

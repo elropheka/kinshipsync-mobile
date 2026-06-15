@@ -23,8 +23,10 @@ import { handleSnapshotError } from '@/utils/firestoreListeners';
 import { normalizeEventCoverFields } from '@/utils/eventCoverUtils';
 import { getEventWebsiteUrl, isValidSlug, withSlugCollisionSuffix } from '../utils/eventWebsiteUtils';
 import { getUserProfileById, getUserProfileByEmail } from './userService';
-import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification } from '../services/notificationService';
+import { createBudgetItemAddedNotification, createBudgetMilestoneNotification, createRsvpReceivedNotification, createGuestMilestoneNotification, createDietaryPreferenceNotification, createScheduleAddedNotification, createIdeaSubmittedNotification, createIdeaPopularNotification, createWebsitePublishedNotification, createEventInvitationNotification, createRsvpReminderNotification, createCustomerRequestNotification } from '../services/notificationService';
 import { createDirectConversation, sendMessage } from './chatService';
+import { createVendorRequest } from './vendorRequestService';
+import { getVendorById } from './vendorService';
 import {
   Event, CreateEventPayload, UpdateEventPayload,
   Guest, CreateGuestPayload, UpdateGuestPayload,
@@ -1816,6 +1818,8 @@ export const addBudgetItemToEvent = async (isAuthenticated: boolean, eventId: st
     const dataFromDB = createdDoc.data();
     if (!dataFromDB) throw new Error("Budget item data not found after creation.");
 
+    const event = await getEventById(isAuthenticated, eventId);
+
     if (dataFromDB.linkedVendorId) {
       try {
         const vendorDocRef = doc(firestore, 'vendors', dataFromDB.linkedVendorId);
@@ -1823,12 +1827,31 @@ export const addBudgetItemToEvent = async (isAuthenticated: boolean, eventId: st
           associatedEventIds: arrayUnion(eventId)
         });
         console.log(`Associated event ${eventId} with vendor ${dataFromDB.linkedVendorId}`);
+
+        const vendor = await getVendorById(dataFromDB.linkedVendorId);
+        if (vendor && vendor.ownerId && event) {
+          const customerDoc = await getDoc(doc(firestore, 'users', event.organizerId));
+          const customerName = customerDoc.exists()
+            ? customerDoc.data().displayName || customerDoc.data().email || 'A customer'
+            : 'A customer';
+          const request = await createVendorRequest({
+            vendorId: dataFromDB.linkedVendorId,
+            customerId: event.organizerId,
+            customerName,
+            eventId,
+            eventName: event.name,
+            budgetItemId: createdDoc.id,
+            serviceDescription: payload.itemName,
+          });
+          if (request) {
+            createCustomerRequestNotification(vendor.ownerId, customerName, event.name, request.id);
+          }
+        }
       } catch (vendorUpdateError) {
         console.error(`Failed to associate event with vendor ${dataFromDB.linkedVendorId}:`, vendorUpdateError);
       }
     }
 
-    const event = await getEventById(isAuthenticated, eventId);
     if (event) {
       createBudgetItemAddedNotification(event.organizerId, payload.itemName, event.name, eventId);
     }

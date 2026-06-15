@@ -30,6 +30,7 @@ import {
   VendorItemSearchParams,
 } from '../types/vendorItemTypes';
 import { createVendorBookingNotification, createVendorReviewNotification } from '../services/notificationService';
+import { createVendorRequest } from './vendorRequestService';
 import { getEventById } from './eventService';
 
 const VENDOR_CATEGORIES_COLLECTION = 'vendor_categories';
@@ -429,7 +430,7 @@ export const getUserVendors = async (userId: string): Promise<Vendor[]> => {
   }
 };
 
-export const addVendorToUserList = async (userId: string, vendorId: string): Promise<void> => {
+export const addVendorToUserList = async (userId: string, vendorId: string, eventName?: string, eventId?: string): Promise<void> => {
   try {
     const listRef = doc(firestore, USER_VENDOR_LISTS_COLLECTION, userId);
     const listSnap = await getDoc(listRef);
@@ -445,7 +446,22 @@ export const addVendorToUserList = async (userId: string, vendorId: string): Pro
 
       const vendor = await getVendorById(vendorId);
       if (vendor) {
-        createVendorBookingNotification(userId, vendor.name, 'your event', vendorId);
+        createVendorBookingNotification(userId, vendor.name, eventName || 'your event', vendorId);
+
+        if (vendor.ownerId && eventName && eventId) {
+          const userDoc = await getDoc(doc(firestore, 'users', userId));
+          const customerName = userDoc.exists()
+            ? userDoc.data().displayName || userDoc.data().email || 'A customer'
+            : 'A customer';
+          createVendorRequest({
+            vendorId,
+            customerId: userId,
+            customerName,
+            eventId,
+            eventName,
+            serviceDescription: `Booking inquiry for ${vendor.name}`,
+          });
+        }
       }
     }
   } catch (error) {
@@ -572,5 +588,34 @@ export const getVendorItemById = async (itemId: string): Promise<VendorItem | nu
   } catch (error) {
     console.error(`Error fetching vendor item ${itemId}: `, error);
     throw error;
+  }
+};
+
+export const getVendorByOwnerId = async (userId: string): Promise<Vendor | null> => {
+  console.log(`Service: Fetching vendor by owner ID ${userId} from Firestore...`);
+  try {
+    const docRef = doc(firestore, VENDORS_COLLECTION, userId);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return null;
+    return await docToVendor(docSnap as QueryDocumentSnapshot<DocumentData>);
+  } catch (error) {
+    console.error(`Error fetching vendor by owner ID ${userId}: `, error);
+    return null;
+  }
+};
+
+export const getVendorItemsByVendorId = async (vendorId: string): Promise<VendorItem[]> => {
+  console.log(`Service: Fetching vendor items for vendor ${vendorId} from Firestore...`);
+  try {
+    const q = query(
+      collection(firestore, VENDOR_ITEMS_COLLECTION),
+      where('vendorId', '==', vendorId),
+      orderBy('createdAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(docToVendorItem);
+  } catch (error) {
+    console.error(`Error fetching vendor items for vendor ${vendorId}: `, error);
+    return [];
   }
 };

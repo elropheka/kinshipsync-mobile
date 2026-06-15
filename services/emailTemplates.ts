@@ -721,6 +721,66 @@ export const formatTimeForSMS = (timeString: string | undefined): string => {
 };
 
 /**
+ * Customer request (vendor inquiry) email template
+ */
+export const getCustomerRequestEmail = (
+  vendorName: string,
+  customerName: string,
+  eventName: string,
+  serviceDescription?: string
+): EmailTemplate => {
+  const infoItems = [
+    { label: 'Customer', value: customerName },
+    { label: 'Event', value: eventName },
+  ];
+  if (serviceDescription) {
+    infoItems.push({ label: 'Service Requested', value: serviceDescription });
+  }
+
+  const content = createContentSection(`
+    <h2>New Service Request</h2>
+    <p>Hi ${vendorName},</p>
+    <p>You have a new service request from <strong>${customerName}</strong> for the event <strong>${eventName}</strong>.</p>
+    ${createInfoBox(infoItems)}
+    <p style="margin-top: 24px; padding: 16px; background-color: ${BRAND_COLORS.lightNude}; border-radius: 8px; text-align: center;">
+      Open the app to review and respond to this request.
+    </p>
+  `);
+
+  return {
+    subject: `New Service Request from ${customerName}`,
+    htmlContent: wrapEmailTemplate('New Service Request', content),
+  };
+};
+
+/**
+ * Request status change email template
+ */
+export const getRequestStatusChangeEmail = (
+  customerName: string,
+  vendorName: string,
+  eventName: string,
+  status: string
+): EmailTemplate => {
+  const statusEmoji = status === 'accepted' ? '✅' : status === 'declined' ? '❌' : '🔄';
+  const statusText = status === 'accepted' ? 'accepted' : status === 'declined' ? 'declined' : 'updated';
+
+  const content = createContentSection(`
+    <h2>${statusEmoji} Request ${statusText.charAt(0).toUpperCase() + statusText.slice(1)}</h2>
+    <p>Hi ${customerName},</p>
+    <p>Your service request for <strong>${eventName}</strong> has been <strong>${statusText}</strong> by <strong>${vendorName}</strong>.</p>
+    <p style="margin-top: 24px; padding: 16px; background-color: ${BRAND_COLORS.lightNude}; border-radius: 8px; text-align: center;">
+      Open the app to view the details.
+    </p>
+  `);
+
+  return {
+    subject: `Request ${statusText.charAt(0).toUpperCase() + statusText.slice(1)} by ${vendorName}`,
+    htmlContent: wrapEmailTemplate('Request Update', content),
+  };
+};
+
+/**
  * Event invitation SMS template - matches email format
  */
 export const getEventInvitationSMS = (

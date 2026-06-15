@@ -181,7 +181,48 @@ const SidebarComponent: React.FC<SidebarProps> = ({ isVisible, onClose }) => {
                     <Icon name="settings" size={22} color={currentColors.text} />
                     <Text style={styles.menuText}>Settings</Text>
                   </TouchableOpacity>
-                  
+                </View>
+
+                {currentUserProfile?.isVendor ? (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>VENDOR</Text>
+                    
+                    <TouchableOpacity 
+                      style={styles.menuItem}
+                      onPress={() => {
+                        onClose();
+                        router.push('/(vendors)/dashboard' as any);
+                      }}
+                    >
+                      <SecondaryIcon name="storefront-outline" size={22} color={currentColors.text} />
+                      <Text style={styles.menuText}>Dashboard</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={styles.menuItem}
+                      onPress={() => {
+                        onClose();
+                        router.push('/(vendors)/items' as any);
+                      }}
+                    >
+                      <SecondaryIcon name="cube-outline" size={22} color={currentColors.text} />
+                      <Text style={styles.menuText}>My Items</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={styles.menuItem}
+                      onPress={() => {
+                        onClose();
+                        router.push('/(vendors)/requests' as any);
+                      }}
+                    >
+                      <SecondaryIcon name="chatbox-ellipses-outline" size={22} color={currentColors.text} />
+                      <Text style={styles.menuText}>Requests</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+                
+                <View style={styles.section}>
                   {/* <TouchableOpacity 
                     style={styles.menuItem}
                     onPress={() => {
