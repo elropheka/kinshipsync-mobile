@@ -59,3 +59,7 @@ export function isTabRootPath(pathname: unknown, tab: BottomNavTabKey): boolean 
   const path = normalizePathname(pathname);
   return TAB_ROOT_PATHS[tab].some((root) => path === root || path.endsWith(root));
 }
+
+export function shouldShowVendorFab(pathname: unknown): boolean {
+  return isTabRootPath(pathname, 'home');
+}

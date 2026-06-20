@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { usePathname } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useScrollHandler } from '@/context/ScrollNavContext';
-import { shouldShowBottomNav } from '@/utils/bottomNavVisibility';
+import { shouldShowBottomNav, shouldShowVendorFab } from '@/utils/bottomNavVisibility';
 import { useCurrentUser } from '@/hooks/useUser';
 import BottomNavigation from './bottomNavigation';
 import VendorFAB from '@/components/vendors/VendorFAB';
@@ -29,11 +29,12 @@ const GlobalBottomNavigationInner: React.FC = () => {
   }
 
   const isVendor = profile?.isVendor === true;
+  const showVendorFab = isVendor && shouldShowVendorFab(pathname);
 
   return (
     <>
       <BottomNavigation isVisible={isNavVisible} />
-      {isVendor && <VendorFAB isVisible={isNavVisible} />}
+      {showVendorFab && <VendorFAB isVisible={isNavVisible} />}
     </>
   );
 };
