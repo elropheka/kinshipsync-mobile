@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { 
   View, 
   Text, 
-  TouchableOpacity, 
   FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,12 +35,18 @@ const NotificationsPage: React.FC = () => {
     markAllRead, 
     error 
   } = useCurrentUser();
-  const { showInfo } = useAlert();
+  const { showInfo, showSuccess, showError } = useAlert();
 
   const [isSearchVisible] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<Filter['label']>('All'); 
   const [showOnlyUnread, setShowOnlyUnread] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isMarkingAllRead, setIsMarkingAllRead] = useState<boolean>(false);
+
+  const unreadCount = useMemo(
+    () => rawNotifications.filter((notification) => !notification.isRead).length,
+    [rawNotifications]
+  );
 
   const notificationsData = useMemo((): DisplayNotification[] => {
     return rawNotifications.map((n: UserNotification): DisplayNotification => {
@@ -152,7 +157,24 @@ const NotificationsPage: React.FC = () => {
   };
 
   const handleMarkAllRead = async () => {
-    await markAllRead();
+    if (unreadCount === 0) {
+      showInfo('All caught up', 'You have no unread notifications.');
+      return;
+    }
+
+    setIsMarkingAllRead(true);
+    try {
+      const success = await markAllRead();
+      if (success) {
+        showSuccess('Notifications Updated', 'All notifications marked as read.');
+      } else {
+        showError('Update Failed', 'Could not mark all notifications as read.');
+      }
+    } catch {
+      showError('Update Failed', 'Could not mark all notifications as read.');
+    } finally {
+      setIsMarkingAllRead(false);
+    }
   };
 
   const renderSeparator = () => <View style={styles.separator} />;
@@ -191,6 +213,9 @@ const NotificationsPage: React.FC = () => {
       <NotificationSettingsBar
         showOnlyUnread={showOnlyUnread}
         setShowOnlyUnread={setShowOnlyUnread}
+        onMarkAllRead={handleMarkAllRead}
+        hasUnread={unreadCount > 0}
+        isMarkingAllRead={isMarkingAllRead}
       />
 
       <FlatList
@@ -208,18 +233,6 @@ const NotificationsPage: React.FC = () => {
         contentContainerStyle={styles.notificationListContent}
         ItemSeparatorComponent={renderSeparator}
       />
-
-      <TouchableOpacity 
-        style={styles.markAllReadButton}
-        onPress={handleMarkAllRead}
-      >
-        <Ionicons 
-          name="checkmark-done-outline" 
-          size={24} 
-          color="#000" 
-          style={styles.markAllReadIcon} 
-        />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
