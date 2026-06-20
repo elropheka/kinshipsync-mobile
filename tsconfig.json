@@ -20,6 +20,7 @@
       "@/types/*": ["types/*"],
       "@/assets/*": ["assets/*"],
       "@/utils/*": ["utils/*"],
+      "@/lib/*": ["lib/*"],
       "@/config/*": ["config/*"],
       "@firebase/auth": ["./node_modules/@firebase/auth/dist/index.rn.d.ts"]
 

@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { firestore } from '../services/firebaseConfig';
 import { DEFAULT_DISPLAY_NAME } from '@/constants/userDefaults';
+import { mapUserProfile } from '@/lib/mapUserProfile';
 
 export const useCurrentUser = () => {
   const { user: authUser } = useAppAuth();
@@ -33,50 +34,79 @@ export const useCurrentUser = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let unsubscribe: () => void = () => {};
+    let unsubscribeUsers: () => void = () => {};
+    let unsubscribeProfiles: () => void = () => {};
+    let usersData: Record<string, unknown> | null = null;
+    let profilesData: Record<string, unknown> | null = null;
+    let usersLoaded = false;
+    let profilesLoaded = false;
+    let createAttempted = false;
+
+    const applyMergedProfile = () => {
+      if (!userId) {
+        return;
+      }
+
+      if (usersData || profilesData) {
+        const mergedProfile = mapUserProfile(userId, usersData, profilesData);
+        console.log('[useCurrentUser] Merged profile data received:', mergedProfile);
+        setProfile(mergedProfile);
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      if (!usersLoaded || !profilesLoaded || createAttempted) {
+        return;
+      }
+
+      console.log(`[useCurrentUser] No users or profiles document for user ${userId}.`);
+      if (!authUser?.email) {
+        setProfile(null);
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      createAttempted = true;
+      const resolvedDisplayName = authUser.displayName || DEFAULT_DISPLAY_NAME;
+      console.log('[useCurrentUser] Attempting to create default users profile.');
+      userService.createUserProfile(isAuthenticated, userId, authUser.email, resolvedDisplayName)
+        .then((newProfile) => {
+          console.log('[useCurrentUser] Default profile created:', newProfile);
+          setProfile(newProfile);
+          setIsLoadingProfile(false);
+        })
+        .catch((createError) => {
+          console.error('[useCurrentUser] Failed to create default profile:', createError);
+          setError(createError);
+          setProfile(null);
+          setIsLoadingProfile(false);
+        });
+    };
 
     if (userId && isAuthenticated) {
-      console.log(`[useCurrentUser] Setting up profile listener for user: ${userId}`);
+      console.log(`[useCurrentUser] Setting up profile listeners for user: ${userId}`);
       setIsLoadingProfile(true);
       setError(null);
-      const userDocRef = doc(firestore, 'users', userId);
 
-      unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const fetchedProfile: UserProfile = {
-            userId: docSnap.id,
-            ...data,
-            createdAt: (data.createdAt as any)?.toDate().toISOString() || new Date().toISOString(),
-            updatedAt: (data.updatedAt as any)?.toDate().toISOString() || new Date().toISOString(),
-          } as UserProfile;
-          console.log('[useCurrentUser] Profile data received:', fetchedProfile);
-          setProfile(fetchedProfile);
-          setIsLoadingProfile(false);
-        } else {
-          console.log(`[useCurrentUser] Profile document for user ${userId} does not exist.`);
-          if (authUser?.email) {
-            const resolvedDisplayName = authUser.displayName || DEFAULT_DISPLAY_NAME;
-            console.log('[useCurrentUser] Profile not found, attempting to create default profile.');
-            userService.createUserProfile(isAuthenticated, userId, authUser.email, resolvedDisplayName)
-              .then((newProfile) => {
-                console.log('[useCurrentUser] Default profile created:', newProfile);
-                setProfile(newProfile);
-                setIsLoadingProfile(false);
-              })
-              .catch((createError) => {
-                console.error('[useCurrentUser] Failed to create default profile:', createError);
-                setError(createError);
-                setProfile(null);
-                setIsLoadingProfile(false);
-              });
-          } else {
-            setProfile(null);
-            setIsLoadingProfile(false);
-          }
-        }
+      const userDocRef = doc(firestore, 'users', userId);
+      const profileDocRef = doc(firestore, 'profiles', userId);
+
+      unsubscribeUsers = onSnapshot(userDocRef, (docSnap) => {
+        usersLoaded = true;
+        usersData = docSnap.exists() ? (docSnap.data() as Record<string, unknown>) : null;
+        applyMergedProfile();
       }, (e) => {
-        console.error("[useCurrentUser] Error listening to profile:", e);
+        console.error('[useCurrentUser] Error listening to users profile:', e);
+        setError(e);
+        setIsLoadingProfile(false);
+      });
+
+      unsubscribeProfiles = onSnapshot(profileDocRef, (docSnap) => {
+        profilesLoaded = true;
+        profilesData = docSnap.exists() ? (docSnap.data() as Record<string, unknown>) : null;
+        applyMergedProfile();
+      }, (e) => {
+        console.error('[useCurrentUser] Error listening to profiles profile:', e);
         setError(e);
         setIsLoadingProfile(false);
       });
@@ -86,8 +116,9 @@ export const useCurrentUser = () => {
     }
 
     return () => {
-      console.log(`[useCurrentUser] Cleaning up profile listener for user: ${userId}`);
-      unsubscribe();
+      console.log(`[useCurrentUser] Cleaning up profile listeners for user: ${userId}`);
+      unsubscribeUsers();
+      unsubscribeProfiles();
     };
   }, [userId, isAuthenticated, authUser]);
 

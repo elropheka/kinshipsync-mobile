@@ -23,6 +23,7 @@ import {
 } from '@firebase/firestore';
 import { firestore } from './firebaseConfig';
 import { handleSnapshotError } from '@/utils/firestoreListeners';
+import { mapUserProfile } from '@/lib/mapUserProfile';
 
 export const getUserProfile = async (isAuthenticated: boolean, userId: string): Promise<UserProfile | null> => {
   if (!isAuthenticated) {
@@ -203,16 +204,33 @@ export const createUserProfile = async (isAuthenticated: boolean, userId: string
   if (!userId) throw new Error("User ID is required to create profile.");
   
   const userDocRef = doc(firestore, 'users', userId);
-  const newUserProfileData = {
+  const profileDocRef = doc(firestore, 'profiles', userId);
+  const profileSnap = await getDoc(profileDocRef);
+
+  let role: UserProfile['role'] = 'organizer';
+  let isVendor = false;
+  let isAdmin = false;
+
+  if (profileSnap.exists()) {
+    const profileData = profileSnap.data();
+    role = (profileData.role as UserProfile['role']) || 'organizer';
+    isVendor = profileData.isVendor ?? role === 'vendor';
+    isAdmin = profileData.isAdmin ?? role === 'admin';
+  }
+
+  const newUserProfileData: Record<string, unknown> = {
     userId,
     email,
     displayName,
     avatarUrl: avatarUrl || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    firstName: '',
-    lastName: '',
-    bio: '',
+    firstName: profileSnap.exists() ? (profileSnap.data().firstName || profileSnap.data().first_name || '') : '',
+    lastName: profileSnap.exists() ? (profileSnap.data().lastName || profileSnap.data().last_name || '') : '',
+    bio: profileSnap.exists() ? (profileSnap.data().bio || '') : '',
+    role,
+    isVendor,
+    isAdmin,
   };
 
   try {
@@ -220,12 +238,8 @@ export const createUserProfile = async (isAuthenticated: boolean, userId: string
     const createdDoc = await getDoc(userDocRef);
     if (!createdDoc.exists()) throw new Error("Failed to retrieve created user profile.");
     const data = createdDoc.data();
-    return {
-      userId,
-      ...data,
-      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
-    } as UserProfile;
+    const profilesData = profileSnap.exists() ? (profileSnap.data() as Record<string, unknown>) : null;
+    return mapUserProfile(userId, data as Record<string, unknown>, profilesData);
   } catch (error) {
     console.error("Error creating user profile:", error);
     throw error;

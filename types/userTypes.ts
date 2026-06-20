@@ -20,6 +20,7 @@ export interface UserProfile {
   oneSignalSubscriptionIds?: string[] | null; // For OneSignal push notifications
   isAdmin?: boolean | null;
   isVendor?: boolean | null;
+  role?: 'organizer' | 'admin' | 'vendor' | 'member';
   // Add other profile-specific fields
   createdAt: string;
   updatedAt: string;
