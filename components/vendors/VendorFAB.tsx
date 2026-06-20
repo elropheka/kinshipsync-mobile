@@ -119,19 +119,11 @@ const VendorFAB: React.FC<VendorFABProps> = ({ isVisible }) => {
                   },
                 ]}
               >
-                <Animated.Text
-                  style={[
-                    styles.menuLabel,
-                    { color: currentColors.text, opacity },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {item.label}
-                </Animated.Text>
                 <TouchableOpacity
                   style={[styles.menuItem, { backgroundColor: currentColors.accent }]}
                   onPress={() => handleNavigate(item.route, item.params)}
                   activeOpacity={0.8}
+                  accessibilityLabel={item.label}
                 >
                   <Ionicons name={item.icon as any} size={22} color="#fff" />
                 </TouchableOpacity>
@@ -203,18 +195,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-  },
-  menuLabel: {
-    position: 'absolute',
-    right: MENU_ITEM_SIZE + Spacing.s,
-    top: (MENU_ITEM_SIZE - 22) / 2,
-    fontSize: 13,
-    fontWeight: '500',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    maxWidth: 140,
   },
 });
 

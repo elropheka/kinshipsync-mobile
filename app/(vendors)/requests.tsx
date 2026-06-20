@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,10 +28,15 @@ const createStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  filterScroll: {
+    marginHorizontal: -16,
+  },
   filterRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    paddingRight: 8,
   },
   filterChip: {
     paddingHorizontal: 14,
@@ -39,6 +45,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginRight: 8,
     borderWidth: 1,
     borderColor: theme.border,
+    flexShrink: 0,
   },
   filterChipActive: {
     backgroundColor: theme.accent,
@@ -53,7 +60,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: '600',
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     paddingBottom: 120,
   },
   requestCard: {
@@ -258,7 +265,12 @@ export default function VendorRequestsScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={currentColors.accent} />
         }
         ListHeaderComponent={
-          <View style={styles.filterRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={styles.filterRow}
+          >
             {FILTERS.map((f) => (
               <TouchableOpacity
                 key={f.value}
@@ -270,7 +282,7 @@ export default function VendorRequestsScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         }
         ListEmptyComponent={
           <View>
