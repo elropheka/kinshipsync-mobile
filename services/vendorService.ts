@@ -6,6 +6,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   setDoc, // Added setDoc
   query,
   where,
@@ -19,6 +20,8 @@ import {
   QueryConstraint,
   DocumentData,
   QueryDocumentSnapshot,
+  getDocFromCache,
+  getDocsFromCache,
 } from 'firebase/firestore';
 import { firestore } from './firebaseConfig'; // Assuming firebaseConfig exports initialized firestore
 import {
@@ -40,6 +43,80 @@ const VENDOR_CATEGORIES_COLLECTION = 'vendor_categories';
 const VENDORS_COLLECTION = 'vendors';
 const VENDOR_ITEMS_COLLECTION = 'vendorItems';
 const USER_VENDOR_LISTS_COLLECTION = 'user_vendor_lists';
+
+const isFirestoreOfflineError = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const firebaseError = error as { code?: string; message?: string };
+  return (
+    firebaseError.code === 'unavailable' ||
+    firebaseError.message?.includes('client is offline') === true
+  );
+};
+
+const createFallbackVendorForOwner = (userId: string): Vendor => ({
+  id: userId,
+  name: '',
+  description: '',
+  categories: [],
+  ownerId: userId,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
+const mapVendorDocBasic = (docSnap: QueryDocumentSnapshot<DocumentData>): Vendor => {
+  const data = docSnap.data();
+  return {
+    id: docSnap.id,
+    name: data.name ?? '',
+    name_lowercase: data.name_lowercase,
+    description: data.description ?? '',
+    categories: [],
+    contactEmail: data.contactEmail,
+    phoneNumber: data.phoneNumber,
+    websiteUrl: data.websiteUrl,
+    address: data.address,
+    portfolioImageUrls: data.portfolioImageUrls,
+    logoUrl: data.logoUrl,
+    averageRating: data.averageRating,
+    numberOfReviews: data.numberOfReviews,
+    servicesOffered: data.servicesOffered,
+    pricingInfo: data.pricingInfo,
+    operatingHours: data.operatingHours,
+    ownerId: data.ownerId ?? docSnap.id,
+    isFeatured: data.isFeatured,
+    associatedEventIds: data.associatedEventIds,
+    notesForEventPlanner: data.notesForEventPlanner,
+    createdAt: timestampToISO(data.createdAt) ?? new Date().toISOString(),
+    updatedAt: timestampToISO(data.updatedAt) ?? new Date().toISOString(),
+  };
+};
+
+const sanitizeVendorItemWriteData = (
+  itemData: CreateVendorItemPayload | UpdateVendorItemPayload,
+  isUpdate = false
+): Record<string, unknown> => {
+  const writeData: Record<string, unknown> = {};
+
+  Object.entries(itemData).forEach(([key, value]) => {
+    if (value === undefined) {
+      return;
+    }
+
+    if (key === 'imageUrl' && typeof value === 'string' && value.trim() === '') {
+      if (isUpdate) {
+        writeData.imageUrl = deleteField();
+      }
+      return;
+    }
+
+    writeData[key] = value;
+  });
+
+  return writeData;
+};
 
 const timestampToISO = (timestamp?: Timestamp | Date | string): string | undefined => {
   if (!timestamp) return undefined;
@@ -596,12 +673,44 @@ export const getVendorItemById = async (itemId: string): Promise<VendorItem | nu
 
 export const getVendorByOwnerId = async (userId: string): Promise<Vendor | null> => {
   console.log(`Service: Fetching vendor by owner ID ${userId} from Firestore...`);
+  const docRef = doc(firestore, VENDORS_COLLECTION, userId);
+
   try {
-    const docRef = doc(firestore, VENDORS_COLLECTION, userId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return null;
-    return await docToVendor(docSnap as QueryDocumentSnapshot<DocumentData>);
+    let docSnap;
+
+    try {
+      docSnap = await getDoc(docRef);
+    } catch (error) {
+      if (!isFirestoreOfflineError(error)) {
+        throw error;
+      }
+
+      try {
+        docSnap = await getDocFromCache(docRef);
+      } catch {
+        console.warn(`Vendor ${userId} unavailable offline; using owner ID fallback.`);
+        return createFallbackVendorForOwner(userId);
+      }
+    }
+
+    if (!docSnap.exists()) {
+      return null;
+    }
+
+    try {
+      return await docToVendor(docSnap as QueryDocumentSnapshot<DocumentData>);
+    } catch (error) {
+      if (isFirestoreOfflineError(error)) {
+        return mapVendorDocBasic(docSnap as QueryDocumentSnapshot<DocumentData>);
+      }
+      throw error;
+    }
   } catch (error) {
+    if (isFirestoreOfflineError(error)) {
+      console.warn(`Error fetching vendor by owner ID ${userId} while offline; using fallback.`);
+      return createFallbackVendorForOwner(userId);
+    }
+
     console.error(`Error fetching vendor by owner ID ${userId}: `, error);
     return null;
   }
@@ -609,15 +718,26 @@ export const getVendorByOwnerId = async (userId: string): Promise<Vendor | null>
 
 export const getVendorItemsByVendorId = async (vendorId: string): Promise<VendorItem[]> => {
   console.log(`Service: Fetching vendor items for vendor ${vendorId} from Firestore...`);
+  const itemsQuery = query(
+    collection(firestore, VENDOR_ITEMS_COLLECTION),
+    where('vendorId', '==', vendorId),
+    orderBy('createdAt', 'desc')
+  );
+
   try {
-    const q = query(
-      collection(firestore, VENDOR_ITEMS_COLLECTION),
-      where('vendorId', '==', vendorId),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(itemsQuery);
     return querySnapshot.docs.map(docToVendorItem);
   } catch (error) {
+    if (isFirestoreOfflineError(error)) {
+      try {
+        const cachedSnapshot = await getDocsFromCache(itemsQuery);
+        return cachedSnapshot.docs.map(docToVendorItem);
+      } catch {
+        console.warn(`Vendor items for ${vendorId} unavailable offline.`);
+        return [];
+      }
+    }
+
     console.error(`Error fetching vendor items for vendor ${vendorId}: `, error);
     return [];
   }
@@ -629,7 +749,7 @@ export const createVendorItem = async (
 ): Promise<VendorItem> => {
   try {
     const docRef = await addDoc(collection(firestore, VENDOR_ITEMS_COLLECTION), {
-      ...itemData,
+      ...sanitizeVendorItemWriteData(itemData),
       vendorId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -652,7 +772,7 @@ export const updateVendorItem = async (
   try {
     const itemRef = doc(firestore, VENDOR_ITEMS_COLLECTION, itemId);
     await updateDoc(itemRef, {
-      ...itemData,
+      ...sanitizeVendorItemWriteData(itemData, true),
       updatedAt: serverTimestamp(),
     });
     const updated = await getVendorItemById(itemId);

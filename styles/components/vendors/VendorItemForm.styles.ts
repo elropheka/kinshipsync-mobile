@@ -6,7 +6,7 @@ import {
   ResponsiveFontSizes,
   moderateScale,
 } from '@/constants/dimensions';
-import Fonts from '@/constants/fonts';
+import Fonts, { LineHeights } from '@/constants/fonts';
 
 export const createVendorItemFormStyles = (theme: typeof Colors.light) =>
   StyleSheet.create({
@@ -15,39 +15,54 @@ export const createVendorItemFormStyles = (theme: typeof Colors.light) =>
       backgroundColor: Colors.dark.background + '80',
       justifyContent: 'flex-end',
     },
-    modalContent: {
+    modalShell: {
       backgroundColor: theme.background,
       borderTopLeftRadius: BorderRadius.l,
       borderTopRightRadius: BorderRadius.l,
-      paddingTop: Spacing.s,
-      paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
+      overflow: 'hidden',
       maxHeight: '92%',
       minHeight: '55%',
+    },
+    modalContent: {
+      paddingTop: Spacing.l,
+      paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
     },
     modalHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       paddingHorizontal: Spacing.l,
-      paddingBottom: Spacing.s,
+      paddingBottom: Spacing.m,
       borderBottomWidth: 1,
       borderBottomColor: theme.divider,
     },
-    modalTitle: {
-      fontSize: ResponsiveFontSizes.title,
-      fontWeight: Fonts.weights.semiBold,
-      color: theme.text,
+    headerTitleContainer: {
       flex: 1,
-      paddingRight: Spacing.s,
+      paddingRight: Spacing.m,
+    },
+    closeButton: {
+      padding: Spacing.xs,
+    },
+    modalTitle: {
+      fontFamily: Fonts.titleSemiBold,
+      fontSize: ResponsiveFontSizes.title,
+      lineHeight: ResponsiveFontSizes.title * LineHeights.header,
+      color: theme.text,
     },
     stepText: {
+      fontFamily: Fonts.captionRegular,
       fontSize: ResponsiveFontSizes.caption,
+      lineHeight: ResponsiveFontSizes.caption * LineHeights.body,
       color: theme.textSecondary,
-      marginTop: 2,
+      marginTop: Spacing.xxs,
     },
     scrollContainer: {
       paddingHorizontal: Spacing.l,
+      paddingTop: Spacing.m,
       paddingBottom: Spacing.l,
+    },
+    formScroll: {
+      flexGrow: 0,
     },
     inputContainer: {
       marginBottom: Spacing.m,
@@ -92,7 +107,8 @@ export const createVendorItemFormStyles = (theme: typeof Colors.light) =>
       justifyContent: 'space-between',
       gap: Spacing.s,
       paddingHorizontal: Spacing.l,
-      paddingTop: Spacing.s,
+      paddingTop: Spacing.m,
+      paddingBottom: Spacing.s,
     },
     secondaryButton: {
       flex: 1,
@@ -127,10 +143,13 @@ export const createVendorItemFormStyles = (theme: typeof Colors.light) =>
       justifyContent: 'flex-end',
       backgroundColor: Colors.dark.background + '80',
     },
-    pickerModalContent: {
+    pickerModalShell: {
       backgroundColor: theme.background,
       borderTopLeftRadius: BorderRadius.l,
       borderTopRightRadius: BorderRadius.l,
+      overflow: 'hidden',
+    },
+    pickerModalContent: {
       paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.l,
     },
     pickerHeader: {
@@ -138,7 +157,8 @@ export const createVendorItemFormStyles = (theme: typeof Colors.light) =>
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: Spacing.l,
-      paddingVertical: Spacing.m,
+      paddingTop: Spacing.l,
+      paddingBottom: Spacing.m,
       borderBottomWidth: 1,
       borderBottomColor: theme.divider,
     },

@@ -224,7 +224,7 @@ export default function VendorRequestsScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Requests' }} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={currentColors.accent} />
@@ -235,7 +235,7 @@ export default function VendorRequestsScreen() {
 
   if (!profile?.isVendor) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Requests' }} />
         <View style={styles.loadingContainer}>
           <Ionicons name="chatbox-ellipses-outline" size={48} color={currentColors.textSecondary} />
@@ -246,7 +246,7 @@ export default function VendorRequestsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: 'Requests' }} />
       
       <FlatList

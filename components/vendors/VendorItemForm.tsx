@@ -8,13 +8,14 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useAppTheme } from '@/context/AppThemeContext';
 import { useAlert } from '@/context/AlertContext';
 import { VENDOR_ITEM_AVAILABILITY_OPTIONS } from '@/constants/mock/vendorItems';
+import VendorItemImagePicker from '@/components/vendors/VendorItemImagePicker';
 import { createVendorItemFormStyles } from '@/styles/components/vendors/VendorItemForm.styles';
 import {
   VendorItem,
@@ -26,6 +27,7 @@ const TOTAL_STEPS = 2;
 
 interface VendorItemFormProps {
   visible: boolean;
+  vendorId?: string;
   initialItem?: VendorItem | null;
   isSubmitting?: boolean;
   onClose: () => void;
@@ -43,6 +45,7 @@ export class VendorItemForm extends React.Component<VendorItemFormProps> {
 
 const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
   visible,
+  vendorId,
   initialItem,
   isSubmitting = false,
   onClose,
@@ -115,10 +118,6 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
       showError('Validation Error', 'Enter a positive price or a price description.');
       return false;
     }
-    if (imageUrl.trim() && !/^https?:\/\/.+/i.test(imageUrl.trim())) {
-      showError('Validation Error', 'Image URL must start with http:// or https://');
-      return false;
-    }
     return true;
   };
 
@@ -143,9 +142,13 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
       category: category.trim(),
       description: description.trim(),
       price: parsePrice(priceInput),
-      availability: availability.trim() || undefined,
-      location: location.trim() || undefined,
-      imageUrl: imageUrl.trim() || undefined,
+      ...(availability.trim() ? { availability: availability.trim() } : {}),
+      ...(location.trim() ? { location: location.trim() } : {}),
+      ...(imageUrl.trim()
+        ? { imageUrl: imageUrl.trim() }
+        : initialItem?.imageUrl
+          ? { imageUrl: '' }
+          : {}),
     };
 
     await onSubmit(payload, initialItem?.id);
@@ -160,18 +163,27 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalOverlay}
         >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>{title}</Text>
-                <Text style={styles.stepText}>Step {currentStep} of {TOTAL_STEPS}</Text>
+          <View style={styles.modalShell}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <View style={styles.headerTitleContainer}>
+                  <Text style={styles.modalTitle}>{title}</Text>
+                  <Text style={styles.stepText}>Step {currentStep} of {TOTAL_STEPS}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={onClose}
+                  disabled={isSubmitting}
+                >
+                  <Ionicons name="close" size={24} color={currentColors.text} />
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity onPress={onClose} disabled={isSubmitting}>
-                <Ionicons name="close" size={24} color={currentColors.text} />
-              </TouchableOpacity>
-            </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+              <ScrollView
+                style={styles.formScroll}
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+              >
               {currentStep === 1 ? (
                 <>
                   <View style={styles.inputContainer}>
@@ -236,13 +248,11 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
                     />
                   </View>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>Image URL (Optional)</Text>
-                    <TextInput
-                      style={styles.input}
-                      value={imageUrl}
-                      onChangeText={setImageUrl}
-                      placeholder="https://example.com/image.jpg"
-                      autoCapitalize="none"
+                    <VendorItemImagePicker
+                      imageUrl={imageUrl}
+                      onImageUrlChange={setImageUrl}
+                      vendorId={vendorId}
+                      disabled={isSubmitting}
                     />
                   </View>
                 </>
@@ -279,7 +289,7 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <ActivityIndicator color="#fff" />
+                    <BrandLoadingSpinner size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
                       {initialItem ? 'Save Changes' : 'Add Item'}
@@ -287,6 +297,7 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
                   )}
                 </TouchableOpacity>
               )}
+            </View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -303,21 +314,23 @@ const VendorItemFormInner: React.FC<VendorItemFormProps> = ({
           activeOpacity={1}
           onPress={() => setIsAvailabilityPickerVisible(false)}
         >
-          <TouchableOpacity activeOpacity={1} style={styles.pickerModalContent}>
-            <View style={styles.pickerHeader}>
-              <Text style={styles.modalTitle}>Availability</Text>
-              <TouchableOpacity onPress={() => setIsAvailabilityPickerVisible(false)}>
-                <Text style={styles.pickerDoneText}>Done</Text>
-              </TouchableOpacity>
+          <TouchableOpacity activeOpacity={1} style={styles.pickerModalShell}>
+            <View style={styles.pickerModalContent}>
+              <View style={styles.pickerHeader}>
+                <Text style={styles.modalTitle}>Availability</Text>
+                <TouchableOpacity onPress={() => setIsAvailabilityPickerVisible(false)}>
+                  <Text style={styles.pickerDoneText}>Done</Text>
+                </TouchableOpacity>
+              </View>
+              <Picker
+                selectedValue={availability}
+                onValueChange={(value) => setAvailability(String(value))}
+              >
+                {VENDOR_ITEM_AVAILABILITY_OPTIONS.map((option) => (
+                  <Picker.Item key={option} label={option} value={option} />
+                ))}
+              </Picker>
             </View>
-            <Picker
-              selectedValue={availability}
-              onValueChange={(value) => setAvailability(String(value))}
-            >
-              {VENDOR_ITEM_AVAILABILITY_OPTIONS.map((option) => (
-                <Picker.Item key={option} label={option} value={option} />
-              ))}
-            </Picker>
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>

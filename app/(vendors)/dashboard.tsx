@@ -255,11 +255,20 @@ export default function VendorDashboardScreen() {
     const init = async () => {
       try {
         const vendorData = await getVendorByOwnerId(authUser.uid);
-        setVendor(vendorData);
-        if (vendorData) {
-          const items = await getVendorItemsByVendorId(vendorData.id);
-          setItemCount(items.length);
-        }
+        const effectiveVendorId = vendorData?.id ?? authUser.uid;
+        setVendor(
+          vendorData ?? {
+            id: authUser.uid,
+            name: profile?.displayName ?? '',
+            description: '',
+            categories: [],
+            ownerId: authUser.uid,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        );
+        const items = await getVendorItemsByVendorId(effectiveVendorId);
+        setItemCount(items.length);
       } catch (e) {
         console.error('Error loading vendor data:', e);
       }
@@ -272,7 +281,7 @@ export default function VendorDashboardScreen() {
     });
 
     return () => unsubscribe();
-  }, [authUser?.uid, profile?.isVendor]);
+  }, [authUser?.uid, profile?.isVendor, profile?.displayName]);
 
   const pendingRequests = requests.filter(r => r.status === 'pending');
   const fulfilledRequests = requests.filter(r => r.status === 'fulfilled');
@@ -297,7 +306,7 @@ export default function VendorDashboardScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Vendor Dashboard' }} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={currentColors.accent} />
@@ -308,7 +317,7 @@ export default function VendorDashboardScreen() {
 
   if (!profile?.isVendor) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Vendor Dashboard' }} />
         <View style={styles.loadingContainer}>
           <Ionicons name="storefront-outline" size={48} color={currentColors.textSecondary} />
@@ -321,7 +330,7 @@ export default function VendorDashboardScreen() {
   const vendorName = vendor?.name || authUser?.displayName || 'Vendor';
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: 'Vendor Dashboard' }} />
       <ScrollView
         style={styles.content}

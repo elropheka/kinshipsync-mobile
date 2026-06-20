@@ -213,7 +213,7 @@ export default function VendorRequestDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Request Details' }} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={currentColors.accent} />
@@ -224,7 +224,7 @@ export default function VendorRequestDetailScreen() {
 
   if (!request) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Request Details' }} />
         <View style={styles.loadingContainer}>
           <Ionicons name="alert-circle-outline" size={48} color={currentColors.textSecondary} />
@@ -247,7 +247,7 @@ export default function VendorRequestDetailScreen() {
   const badge = getBadgeStyle(request.status);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: 'Request Details' }} />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.statusBadge, { backgroundColor: badge.backgroundColor }]}>

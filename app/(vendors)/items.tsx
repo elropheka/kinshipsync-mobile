@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
@@ -16,6 +15,7 @@ import { useAppAuth } from '@/hooks/useAppAuth';
 import { useCurrentUser } from '@/hooks/useUser';
 import { useAlert } from '@/context/AlertContext';
 import VendorItemForm from '@/components/vendors/VendorItemForm';
+import { BrandLoadingSpinner } from '@/components/ui/BrandLoadingSpinner';
 import {
   getVendorByOwnerId,
   getVendorItemsByVendorId,
@@ -41,7 +41,8 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 120,
   },
   itemCard: {
@@ -142,8 +143,8 @@ export default function VendorItemsScreen() {
   const { currentColors } = useAppTheme();
   const styles = useMemo(() => createStyles(currentColors), [currentColors]);
   const { user: authUser } = useAppAuth();
-  const { profile } = useCurrentUser();
-  const { showSuccess, showError, showConfirm } = useAlert();
+  const { profile, isLoadingProfile } = useCurrentUser();
+  const { showSuccess, showError, showConfirm, showWarning } = useAlert();
   const { openAdd } = useLocalSearchParams<{ openAdd?: string }>();
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
@@ -155,26 +156,50 @@ export default function VendorItemsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasHandledOpenAddParam = useRef(false);
 
-  const loadData = useCallback(async () => {
-    if (!authUser?.uid || !profile?.isVendor) {
-      setIsLoading(false);
+  const loadData = useCallback(async (isRefresh = false) => {
+    if (!authUser?.uid || isLoadingProfile) {
       return;
     }
+
+    if (!profile?.isVendor) {
+      setIsLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
+    if (!isRefresh) {
+      setIsLoading(true);
+    }
+
     try {
       const vendorData = await getVendorByOwnerId(authUser.uid);
-      setVendor(vendorData);
-      if (vendorData) {
-        const vendorItems = await getVendorItemsByVendorId(vendorData.id);
-        setItems(vendorItems);
-      } else {
-        setItems([]);
+      const effectiveVendorId = vendorData?.id ?? authUser.uid;
+      setVendor(vendorData ?? {
+        id: authUser.uid,
+        name: profile?.displayName ?? '',
+        description: '',
+        categories: [],
+        ownerId: authUser.uid,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      const vendorItems = await getVendorItemsByVendorId(effectiveVendorId);
+      setItems(vendorItems);
+
+      if (!vendorData?.name && vendorItems.length === 0) {
+        showWarning(
+          'Offline Mode',
+          'Could not reach Firestore. Some vendor details may be unavailable until you reconnect.'
+        );
       }
     } catch (e) {
       console.error('Error loading vendor items:', e);
+      showError('Load Failed', 'Could not load vendor items. Check your connection and try again.');
     }
     setIsLoading(false);
     setRefreshing(false);
-  }, [authUser?.uid, profile?.isVendor]);
+  }, [authUser?.uid, profile?.isVendor, profile?.displayName, isLoadingProfile, showError, showWarning]);
 
   useEffect(() => {
     loadData();
@@ -194,7 +219,7 @@ export default function VendorItemsScreen() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    loadData();
+    loadData(true);
   }, [loadData]);
 
   const handleOpenAddForm = useCallback(() => {
@@ -306,12 +331,14 @@ export default function VendorItemsScreen() {
     [styles, currentColors.accent, currentColors.error, handleDeleteItem, handleOpenEditForm]
   );
 
-  if (isLoading) {
+  const isPageLoading = isLoading || isLoadingProfile || !authUser?.uid;
+
+  if (isPageLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Items' }} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={currentColors.accent} />
+          <BrandLoadingSpinner size="large" />
         </View>
       </SafeAreaView>
     );
@@ -319,7 +346,7 @@ export default function VendorItemsScreen() {
 
   if (!profile?.isVendor) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <Stack.Screen options={{ title: 'Items' }} />
         <View style={styles.loadingContainer}>
           <Ionicons name="cube-outline" size={48} color={currentColors.textSecondary} />
@@ -330,7 +357,7 @@ export default function VendorItemsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: 'Items' }} />
 
       <FlatList
@@ -358,22 +385,25 @@ export default function VendorItemsScreen() {
           </View>
         }
         ListEmptyComponent={
-          <View>
-            <Ionicons
-              name="cube-outline"
-              size={36}
-              color={currentColors.textSecondary}
-              style={styles.emptyIcon}
-            />
-            <Text style={styles.emptyText}>
-              No items yet. Tap Add Item to publish your first service or product.
-            </Text>
-          </View>
+          items.length === 0 ? (
+            <View>
+              <Ionicons
+                name="cube-outline"
+                size={36}
+                color={currentColors.textSecondary}
+                style={styles.emptyIcon}
+              />
+              <Text style={styles.emptyText}>
+                No items yet. Tap Add Item to publish your first service or product.
+              </Text>
+            </View>
+          ) : null
         }
       />
 
       <VendorItemForm
         visible={isFormVisible}
+        vendorId={vendor?.id}
         initialItem={editingItem}
         isSubmitting={isSubmitting}
         onClose={handleCloseForm}
