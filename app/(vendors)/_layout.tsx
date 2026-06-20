@@ -69,7 +69,7 @@ function VendorsStack() {
         <Stack.Screen
           name="items"
           options={{
-            title: 'My Items',
+            title: 'Items',
             headerShown: true,
           }}
         />

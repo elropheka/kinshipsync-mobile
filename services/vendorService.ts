@@ -5,6 +5,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  deleteDoc,
   setDoc, // Added setDoc
   query,
   where,
@@ -28,6 +29,8 @@ import {
 import {
   VendorItem,
   VendorItemSearchParams,
+  CreateVendorItemPayload,
+  UpdateVendorItemPayload,
 } from '../types/vendorItemTypes';
 import { createVendorBookingNotification, createVendorReviewNotification } from '../services/notificationService';
 import { createVendorRequest } from './vendorRequestService';
@@ -617,5 +620,58 @@ export const getVendorItemsByVendorId = async (vendorId: string): Promise<Vendor
   } catch (error) {
     console.error(`Error fetching vendor items for vendor ${vendorId}: `, error);
     return [];
+  }
+};
+
+export const createVendorItem = async (
+  vendorId: string,
+  itemData: CreateVendorItemPayload
+): Promise<VendorItem> => {
+  try {
+    const docRef = await addDoc(collection(firestore, VENDOR_ITEMS_COLLECTION), {
+      ...itemData,
+      vendorId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    const created = await getVendorItemById(docRef.id);
+    if (!created) {
+      throw new Error('Failed to fetch created vendor item');
+    }
+    return created;
+  } catch (error) {
+    console.error(`Error creating vendor item for vendor ${vendorId}: `, error);
+    throw error;
+  }
+};
+
+export const updateVendorItem = async (
+  itemId: string,
+  itemData: UpdateVendorItemPayload
+): Promise<VendorItem> => {
+  try {
+    const itemRef = doc(firestore, VENDOR_ITEMS_COLLECTION, itemId);
+    await updateDoc(itemRef, {
+      ...itemData,
+      updatedAt: serverTimestamp(),
+    });
+    const updated = await getVendorItemById(itemId);
+    if (!updated) {
+      throw new Error('Failed to fetch updated vendor item');
+    }
+    return updated;
+  } catch (error) {
+    console.error(`Error updating vendor item ${itemId}: `, error);
+    throw error;
+  }
+};
+
+export const deleteVendorItem = async (itemId: string): Promise<void> => {
+  try {
+    const itemRef = doc(firestore, VENDOR_ITEMS_COLLECTION, itemId);
+    await deleteDoc(itemRef);
+  } catch (error) {
+    console.error(`Error deleting vendor item ${itemId}: `, error);
+    throw error;
   }
 };
